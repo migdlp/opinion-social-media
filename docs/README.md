@@ -2,6 +2,12 @@
 
 Esta carpeta reúne el contexto que debe conocer cualquier persona que trabaje en el proyecto. Se actualizará con la información adicional del propietario antes de comenzar el desarrollo.
 
+## Lectura inicial para cualquier agente
+
+Leer [AGENTS.md](../AGENTS.md), el [contexto de la aplicación](contexto-aplicacion.md) y la [guía de Supabase](supabase-acceso.md). La organización es **Los tres cerditos**; el destino de trabajo es **opinion-social-media-dev**. Las instrucciones incluyen referencias y URLs exactas para no confundir desarrollo con producción. La implementación permanece pausada.
+
+## Documentos
+
 | Documento | Contenido |
 |---|---|
 | [Contexto](contexto-aplicacion.md) | Objetivo, usuarios, flujos y reglas del producto |

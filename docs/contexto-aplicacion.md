@@ -6,6 +6,12 @@ Crear una red social sencilla de encuestas públicas. La experiencia principal e
 
 Nombre de trabajo: **Opinión**. No hay una identidad visual definitiva confirmada. Idioma del MVP: español de España.
 
+## Contexto de conexión para el equipo y los agentes
+
+Supabase está en la organización **Los tres cerditos** (`drifadkhohwebqljdlvw`), región Irlanda. El proyecto de trabajo es **`opinion-social-media-dev`** (`ltlrujmqenhktiilsnis`); **`opinion-social-media-prod`** (`qchpdrolulcgmiliysvr`) se reserva para producción. Desarrollo local, previews y agentes deben apuntar a desarrollo.
+
+La [guía de acceso a Supabase](supabase-acceso.md) contiene las URLs, dashboards, invitaciones al equipo, OAuth/MCP, variables de aplicación y conexiones CLI/SQL. Su lectura es obligatoria para los agentes según [AGENTS.md](../AGENTS.md). Cada entorno debe autorizar su conexión; el acceso no se hereda al clonar el repositorio. Mientras siga la pausa, las comprobaciones son de solo lectura.
+
 ## Personas y permisos
 
 | Persona | Puede hacer |
