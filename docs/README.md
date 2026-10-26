@@ -15,6 +15,7 @@ Esta carpeta reúne el contexto que debe conocer cualquier persona que trabaje e
 | [Tareas futuras](tareas-futuras.md) | Registro de estado, fases y trabajo pendiente |
 | [Prioridades y orden](orden-ejecucion.md) | Siguiente tarea, secuencia válida y reserva por agente |
 | [Estado del proyecto](estado-proyecto.md) | Evidencias de acceso e infraestructura creada |
+| [Acceso a Supabase](supabase-acceso.md) | Proyectos, URLs y conexión de colaboradores, agentes, app, CLI y SQL |
 | [Decisiones](decisiones.md) | Decisiones confirmadas y cuestiones por resolver |
 | [Skills](skills.md) | Skill solicitada, procedencia y revisión fijada |
 
