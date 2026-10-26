@@ -2,12 +2,12 @@
 
 ## Alcance vigente
 
-El propietario ha pedido **pausar la implementación** y organizar primero el contexto de la aplicación, los documentos y las tareas futuras. Incorporar sus próximos mensajes a `docs/` y mantener la trazabilidad de decisiones y requisitos.
+El propietario pausó la implementación (D-005) y la **reanudó el 26 de octubre de 2026** (D-013, `docs/decisiones.md`). Incorporar sus próximos mensajes a `docs/` y mantener la trazabilidad de decisiones y requisitos.
 
 - Leer `README.md`, `docs/contexto-aplicacion.md`, `docs/decisiones.md` y `docs/estado-proyecto.md` antes de trabajar.
-- Hasta recibir una instrucción explícita de reanudar, limitar los cambios a documentación y planificación, incluida la creación de épicas y tickets en GitHub Issues solicitada por el brief, y comprobaciones de acceso de solo lectura cuando sean necesarias.
-- No implementar código, aplicar SQL, configurar OAuth, crear más infraestructura ni desplegar mientras esté vigente esta pausa.
-- Mantener las tareas futuras como pendientes; no equiparar documentación o borradores con implementación verificada.
+- Trabajar tarea a tarea según `docs/orden-ejecucion.md` y el protocolo de reserva de abajo.
+- Configurar OAuth, aplicar SQL en proyectos Supabase, crear infraestructura o desplegar sólo cuando lo exija la tarea reservada y se disponga de los datos y confirmaciones necesarios.
+- No equiparar documentación o borradores con implementación verificada.
 - No guardar secretos, tokens ni claves administrativas en Git.
 - Informar del avance en español y registrar cualquier bloqueo real.
 
@@ -17,13 +17,13 @@ El backlog vigente está en `docs/backlog.md`; el original está archivado en `d
 
 ## Skill del proyecto
 
-Leer y aplicar [karpathy-guidelines](.agents/skills/karpathy-guidelines/SKILL.md) al escribir, revisar o refactorizar código y, cuando corresponda, al planificar cambios: explicitar supuestos relevantes, buscar la solución sencilla, limitar el cambio al alcance pedido y verificar objetivos concretos. La petición actual sigue limitada a documentación y planificación. Las instrucciones del propietario y las de mayor prioridad prevalecen sobre la skill.
+Leer y aplicar [karpathy-guidelines](.agents/skills/karpathy-guidelines/SKILL.md) al escribir, revisar o refactorizar código y, cuando corresponda, al planificar cambios: explicitar supuestos relevantes, buscar la solución sencilla, limitar el cambio al alcance pedido y verificar objetivos concretos. Las instrucciones del propietario y las de mayor prioridad prevalecen sobre la skill.
 
 La copia local mantiene el contenido de la fuente solicitada; su procedencia y revisión están en [docs/skills.md](docs/skills.md). No requiere instalar paquetes ni ejecutar scripts externos.
 
 ## Reserva y seguimiento obligatorio de tareas
 
-Estas reglas se aplican cuando el propietario reanude la implementación. No iniciar tareas mientras siga la pausa.
+Estas reglas se aplican desde la reanudación (D-013).
 
 1. Leer `docs/tareas-futuras.md`, `docs/orden-ejecucion.md` y el issue correspondiente. Elegir una tarea pendiente cuyas dependencias estén completadas y verificadas; atender P0 antes de P1.
 2. Antes de trabajar, actualizar la copia desde GitHub y comprobar que la tarea no esté ocupada. En su fila de `docs/tareas-futuras.md`, cambiar el estado a **En progreso** y escribir en **Agente** el nombre o identificador real del agente que la ejecuta. Usar un identificador estable y distinguible; nunca inventar una persona o asignar trabajo a otro agente sin acuerdo.

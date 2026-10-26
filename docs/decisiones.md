@@ -16,8 +16,9 @@
 | D-010 | Añadir la skill `karpathy-guidelines` a este proyecto y enlazarla en las instrucciones | Enlace explícito facilitado por el propietario |
 | D-011 | Antes de trabajar en una tarea, mostrarla «En progreso» con el agente real en `tareas-futuras.md` y sincronizar el issue | Instrucción explícita del propietario sobre seguimiento por agentes |
 | D-012 | Mantener P0/P1 visibles y publicar una guía de orden para decidir la siguiente tarea disponible | Petición del propietario sobre prioridades y secuencia |
+| D-013 | Reanudar la implementación siguiendo el orden y el protocolo de reserva; sustituye la pausa D-005 | Mensaje del propietario del 26-10-2026: «Lee el contexto y las tareas y comienza con las tareas» |
 
-D-005 determina el alcance actual. Las autorizaciones anteriores no se utilizarán para continuar implementando mientras siga vigente la pausa.
+D-013 levanta la pausa de D-005. Las acciones con infraestructura compartida (OAuth, migraciones en Supabase, Vercel, producción) siguen requiriendo los datos y confirmaciones que indique cada tarea.
 
 ## Reglas del producto recogidas del backlog
 

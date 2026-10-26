@@ -2,7 +2,7 @@
 
 ## Estado y regla de seguimiento
 
-**Implementación pausada.** Las 53 tareas del backlog permanecen pendientes de implementación y verificación. Hay preparación parcial de infraestructura en MVP-003 (dos proyectos vacíos); no cumple todavía sus criterios completos ni se marca terminada.
+**Implementación reanudada el 26 de octubre de 2026** por instrucción del propietario («Lee el contexto y las tareas y comienza con las tareas»). Cada tarea se reserva antes de empezarla según [AGENTS.md](../AGENTS.md); las no reservadas siguen pendientes. Hay preparación parcial de infraestructura en MVP-003 (dos proyectos vacíos); no cumple todavía sus criterios completos ni se marca terminada.
 
 El [backlog revisado](backlog.md) contiene la descripción y los criterios de aceptación de cada tarea. Este registro refleja la revisión v1.1; la versión original está archivada en `fuentes/backlog-v1.md`.
 
@@ -13,12 +13,12 @@ El [backlog revisado](backlog.md) contiene la descripción y los criterios de ac
 | DOC-001 | Conservar backlog y organizar contexto, arquitectura, decisiones y accesos | Documentado | /root |
 | DOC-002 | Incorporar el brief adicional del propietario | Documentado | /root |
 | DOC-003 | Revisar cobertura, alcance y dependencias con el nuevo brief | Revisado | /root |
-| DOC-004 | Recibir instrucción del propietario para reanudar desarrollo | Pendiente | — |
+| DOC-004 | Recibir instrucción del propietario para reanudar desarrollo | Recibida (26-10-2026); ver D-013 | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
 | DOC-005 | Crear cinco épicas y 53 tickets reales con prioridades y dependencias | Creado y verificado | /root |
 | DOC-006 | Incorporar y verificar la skill karpathy-guidelines | Documentado y verificado | /root |
 | DOC-007 | Documentar reserva por agente y orden recomendado | Documentado | /root |
 
-No se iniciarán tareas de implementación mientras siga vigente la pausa.
+La pausa quedó levantada con D-013; las tareas se inician una a una respetando dependencias y reservas.
 
 ## Secuencia futura orientativa
 
@@ -36,11 +36,11 @@ La secuencia no sustituye a las dependencias individuales ni establece fechas co
 
 **Antes de empezar:** el agente debe publicar la reserva, cambiando el estado a **En progreso** y sustituyendo `—` en **Agente** por su nombre o identificador real. La misma información debe figurar en el issue. No tomar tareas ocupadas ni borrar una reserva ajena. Ver el protocolo completo en [AGENTS.md](../AGENTS.md).
 
-Todas las tareas de implementación siguen pendientes y sin agente mientras dure la pausa. La columna Orden es orientativa; las dependencias determinan qué está disponible. Ver [prioridades y orden](orden-ejecucion.md).
+Las tareas sin reserva siguen pendientes y sin agente. La columna Orden es orientativa; las dependencias determinan qué está disponible. Ver [prioridades y orden](orden-ejecucion.md).
 
 | Orden | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|---|
-| 1 | [MVP-013](https://github.com/migdlp/opinion-social-media/issues/18) | Definir contratos de consultas y funciones RPC | P0 | — | Pendiente | — |
+| 1 | [MVP-013](https://github.com/migdlp/opinion-social-media/issues/18) | Definir contratos de consultas y funciones RPC | P0 | — | En progreso | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
 | 2 | [MVP-003](https://github.com/migdlp/opinion-social-media/issues/8) | Preparar Supabase y separación de entornos | P0 | — | Pendiente; proyectos creados, falta verificar criterios | — |
 | 3 | [MVP-001](https://github.com/migdlp/opinion-social-media/issues/6) | Inicializar Next.js con App Router y TypeScript | P0 | — | Pendiente | — |
 | 4 | [MVP-002](https://github.com/migdlp/opinion-social-media/issues/7) | Configurar linting, formato y comprobaciones automáticas | P0 | MVP-001 | Pendiente | — |
