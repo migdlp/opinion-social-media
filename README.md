@@ -1,16 +1,22 @@
 # Opinión — red social de encuestas
 
-Repositorio de contexto y planificación del MVP. **El desarrollo está pausado por indicación del propietario.** La siguiente fase consiste en incorporar información adicional a la documentación antes de implementar.
+Repositorio de contexto y planificación del MVP. **El desarrollo está pausado por indicación del propietario.** El brief adicional está incorporado; se documentan requisitos, cobertura y tareas antes de implementar.
 
 ## Documentación
 
 - [Índice y forma de trabajar](docs/README.md)
 - [Contexto de producto](docs/contexto-aplicacion.md)
 - [Arquitectura y contratos previstos](docs/arquitectura.md)
-- [Backlog original: 53 tareas y criterios de aceptación](docs/backlog.md)
+- [Brief de producto consolidado](docs/brief-producto.md)
+- [Backlog revisado: 53 tareas y criterios de aceptación](docs/backlog.md)
+- [Cobertura de las 27 agrupaciones y 16 casos límite](docs/cobertura-brief.md)
+- [Épicas y tareas en GitHub Issues](docs/github-issues.md)
+- [Backlog importable JSON](docs/backlog.json) · [CSV](docs/backlog.csv)
 - [Plan de trabajo y estado de las tareas](docs/tareas-futuras.md)
+- [Prioridades, orden recomendado y siguiente tarea](docs/orden-ejecucion.md)
 - [Accesos, recursos creados y verificaciones](docs/estado-proyecto.md)
 - [Decisiones y cuestiones pendientes](docs/decisiones.md)
+- [Skill karpathy-guidelines](docs/skills.md)
 
 ## Estado actual
 

@@ -10,15 +10,19 @@
 - GitHub para código y CI; Vercel para previews y producción.
 - Tests de SQL/RLS/RPC y Playwright para recorridos de navegador.
 
+Un único repositorio, sin servidor Express/NestJS independiente, microservicios, Redis, colas ni cachés externas. Acceso a datos mediante Supabase JS SDK.
+
 Las versiones concretas y los detalles de instalación se fijarán al reanudar. Un intento de scaffold local no constituye una decisión de versión.
 
-## Modelo de datos conceptual
+## Modelo de datos obligatorio
 
 | Entidad | Campos y restricciones principales |
 |---|---|
-| `polls` | UUID, autor interno, pregunta, fecha, `status` limitado a `published/hidden` |
-| `poll_options` | UUID, encuesta, texto, posición 1–4; posición única por encuesta |
-| `votes` | Encuesta, usuario, opción, fecha; voto único por encuesta y usuario |
+| `polls` | `id` UUID PK, `user_id` FK a `auth.users`, `question`, `created_at`, `status` limitado a `published/hidden` |
+| `poll_options` | `id` UUID PK, `poll_id` FK, `text`, `position` 1–4; posición única por encuesta |
+| `votes` | `id` UUID PK, `poll_id`, `user_id`, `option_id`, `created_at`; `UNIQUE(poll_id,user_id)` |
+
+Sólo estas tres tablas propias y `auth.users`; no crear `profiles`. Los nombres de campos del [brief](brief-producto.md) son vinculantes.
 
 La FK compuesta de votos a `(poll_id, option_id)` garantiza que la opción pertenece a la encuesta. Deben existir índices para feed, búsqueda de opciones, voto propio y cuota de creación. Los campos públicos no incluyen identidad personal del autor.
 

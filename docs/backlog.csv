@@ -1,0 +1,355 @@
+id,epic_id,title,description,acceptance_criteria,priority,estimate,labels,dependencies,suggested_order,status,agent,issue_number,issue_url
+MVP-013,E02,Definir contratos de consultas y funciones RPC,"Fijar nombres, argumentos, formatos de éxito/error, tipado y seguridad del contrato de `create_poll`, `vote_poll`, `get_poll_results`, feed y detalle para desbloquear frontend con mocks.","Dado el documento de contratos, cuando frontend prepara mocks, entonces conoce campos, tipos, estados de autenticación y errores esperados.
+Dado `get_poll_results`, cuando se revisa la respuesta definida, entonces sólo contiene agregados por opción, total y opción propia; nunca identidades de votantes.
+Dado un fallo de autorización, validación o voto repetido, cuando se consulta el contrato, entonces hay un código controlado distinguible.",P0,S,"backend
+frontend
+security",,1,Pendiente — ejecución pausada,,18,https://github.com/migdlp/opinion-social-media/issues/18
+MVP-003,E01,Preparar Supabase y separación de entornos,"Provisionar entornos Supabase de desarrollo y producción aislados, documentando la gestión de claves y URLs sin comprometer secretos.","Dado un entorno local configurado con su fichero no versionado, cuando se conecta a Supabase, entonces utiliza únicamente el proyecto de desarrollo.
+Dado el inventario de variables, cuando se revisa, entonces URL y clave pública publicable están diferenciadas de secretos de servidor/administración.
+Dado un cambio en configuración de desarrollo, cuando se verifica producción, entonces sus datos y credenciales no han sido modificados.",P0,M,"backend
+database
+devops",,2,Pendiente — ejecución pausada,,8,https://github.com/migdlp/opinion-social-media/issues/8
+MVP-001,E01,Inicializar Next.js con App Router y TypeScript,"Crear la aplicación con Next.js, React, TypeScript estricto y Tailwind CSS; establecer rutas base y estructura modular sin servidor adicional.","Dado un checkout limpio, cuando se instalan las dependencias y se ejecuta el comando de desarrollo, entonces la aplicación arranca y muestra la ruta `/`.
+Dado el repositorio, cuando se ejecuta la compilación de producción, entonces se genera correctamente una aplicación App Router con TypeScript estricto.
+Dado el árbol de código, cuando se revisa la estructura, entonces están diferenciados UI, acceso a datos, utilidades y rutas.",P0,M,"frontend
+devops",,3,Pendiente — ejecución pausada,,6,https://github.com/migdlp/opinion-social-media/issues/6
+MVP-002,E01,"Configurar linting, formato y comprobaciones automáticas","Definir scripts reproducibles de lint, typecheck, test y build y una configuración coherente de calidad de código.","Dado código válido, cuando se ejecutan los scripts documentados, entonces lint, typecheck y build terminan con éxito.
+Dado un error de TypeScript o lint introducido deliberadamente, cuando se lanza el check correspondiente, entonces termina con código distinto de cero.
+Dado un archivo de configuración, cuando se analiza, entonces no hay credenciales reales incluidas en el repositorio.",P0,S,"devops
+testing",MVP-001,4,Pendiente — ejecución pausada,,7,https://github.com/migdlp/opinion-social-media/issues/7
+MVP-009,E02,Crear migraciones base de polls y poll_options,"Crear esquema SQL versionado para encuestas y opciones, tipos, claves foráneas, defaults, posiciones y restricciones de campos aplicables.","Dado una base de datos vacía, cuando se ejecutan migraciones por orden, entonces se crean `polls` y `poll_options` con UUID, FK, timestamps y `status` restringido a `published/hidden`.
+Dado una opción, cuando se consulta su posición, entonces está asociada a una encuesta y su posición está limitada al rango 1–4 y no se repite dentro de esa encuesta.
+Dado una encuesta creada sin estado explícito, cuando se inserta desde un contexto autorizado, entonces `status` toma `published`.
+Dado el esquema aplicado, cuando se inspeccionan columnas y FK, entonces `polls` contiene `id`, `user_id`, `question`, `status`, `created_at`, y `poll_options` contiene `id`, `poll_id`, `text`, `position`, según el brief; no se crea `profiles` ni una cuarta tabla propia.",P0,M,"database
+backend",MVP-003,5,Pendiente — ejecución pausada,,14,https://github.com/migdlp/opinion-social-media/issues/14
+MVP-010,E02,Crear votes y garantías de integridad,Crear tabla `votes` y restricciones contra repetición y contra opciones de encuestas distintas; añadir índices básicos de acceso.,"Dado dos votos para la misma pareja `(poll_id,user_id)`, cuando se intenta persistir el segundo, entonces lo rechaza `UNIQUE (poll_id,user_id)`.
+Dado un `option_id` que pertenece a otra encuesta, cuando se intenta insertar un voto, entonces la base de datos lo rechaza por FK compuesta.
+Dado la consulta de feed/opciones/votos, cuando se inspecciona el esquema, entonces existen índices para orden temporal, búsqueda por encuesta y verificación de voto.
+Dado el esquema de votos, cuando se inspecciona, entonces `votes.id` es UUID y PK, y existen `poll_id`, `option_id`, `user_id`, `created_at`, además de `UNIQUE(poll_id,user_id)` y la FK compuesta.",P0,M,"database
+security",MVP-009,6,Pendiente — ejecución pausada,,15,https://github.com/migdlp/opinion-social-media/issues/15
+MVP-011,E02,Activar RLS para encuestas y opciones públicas,Habilitar RLS y políticas de SELECT para publicar sólo encuestas visibles y sus opciones; bloquear CRUD directo no autorizado.,"Dado un cliente anónimo, cuando lee `polls` o `poll_options`, entonces recibe únicamente registros asociados a encuestas `published`.
+Dado un cliente autenticado común, cuando intenta insertar, editar u ocultar una encuesta/opción directamente, entonces se deniega.
+Dado una encuesta `hidden`, cuando un cliente intenta acceder a ella o a sus opciones por consulta directa, entonces no se devuelven filas.
+Dado un cliente público, cuando consulta tablas o adaptadores de encuesta, entonces las columnas de salida se limitan a los datos públicos y no exponen `polls.user_id`, email ni identidad de Google; se revisan permisos por columna o una proyección segura equivalente.",P0,M,"database
+security",MVP-009,7,Pendiente — ejecución pausada,,16,https://github.com/migdlp/opinion-social-media/issues/16
+MVP-012,E02,Activar RLS de votos y revocar escrituras directas,"Habilitar RLS para que cada cuenta sólo pueda leer sus votos; impedir inserciones, modificaciones y eliminaciones directas desde clientes.","Dado el usuario A, cuando consulta `votes`, entonces sólo obtiene filas con su propio `user_id`.
+Dado una persona anónima o el usuario B, cuando intenta consultar votos del usuario A, entonces no obtiene esas filas.
+Dado un cliente normal, cuando intenta INSERT, UPDATE o DELETE en `votes`, entonces la operación es denegada.",P0,M,"database
+security",MVP-010,8,Pendiente — ejecución pausada,,17,https://github.com/migdlp/opinion-social-media/issues/17
+MVP-014,E02,Implementar create_poll con validación y atomicidad,"Crear la RPC `create_poll` para un usuario autenticado: validar contenido, normalizar espacios y guardar encuesta y 2–4 opciones en la misma transacción.","Dado un usuario autenticado con pregunta de 10–280 caracteres y 2–4 opciones únicas de 1–100 caracteres, cuando invoca la RPC, entonces se crea una encuesta pública completa y se devuelve su UUID.
+Dado contenido inválido, opciones repetidas ignorando mayúsculas y espacios normalizados o ausencia de sesión, cuando llama, entonces se rechaza sin dejar encuestas ni opciones parciales.
+Dado una llamada manipulada con `user_id` o `status`, cuando se procesa, entonces el servidor determina el autor y el estado es `published`.",P0,L,"database
+backend
+security","MVP-009
+MVP-011
+MVP-013",9,Pendiente — ejecución pausada,,19,https://github.com/migdlp/opinion-social-media/issues/19
+MVP-015,E02,Limitar create_poll a cinco encuestas por hora y cuenta,"Incorporar límite deslizante de 5 publicaciones por 60 minutos, con protección transaccional frente a creación simultánea por la misma cuenta.","Dado un usuario con cinco encuestas creadas durante los últimos 60 minutos, cuando intenta una sexta, entonces recibe un error controlado y no se persiste ninguna fila.
+Dado dos publicaciones concurrentes cerca del límite, cuando ambas terminan, entonces nunca se supera la cuota de cinco.
+Dado una publicación fuera de la ventana móvil de 60 minutos, cuando se vuelve a crear, entonces se permite si vuelve a haber capacidad.",P0,M,"backend
+database
+security",MVP-014,10,Pendiente — ejecución pausada,,20,https://github.com/migdlp/opinion-social-media/issues/20
+MVP-016,E02,Implementar vote_poll seguro e inmutable,"Crear la RPC `vote_poll` que autentica, verifica encuesta publicada y pertenencia de opción y persiste voto atómico sin permitir cambios.","Dado un usuario autenticado y opción de encuesta publicada, cuando vota por primera vez, entonces se crea exactamente un voto y se devuelve confirmación.
+Dado una encuesta inexistente/oculta o una opción de otra encuesta, cuando intenta votar, entonces se rechaza sin modificar datos.
+Dado dos intentos simultáneos, cuando se ejecutan, entonces la restricción `UNIQUE` impide más de un voto y el otro recibe resultado controlado.
+Dado el creador de una encuesta publicada, cuando vota en su propia encuesta por primera vez, entonces su voto es aceptado bajo las mismas restricciones que el de cualquier otra cuenta.",P0,L,"database
+backend
+security","MVP-010
+MVP-011
+MVP-012
+MVP-013",11,Pendiente — ejecución pausada,,21,https://github.com/migdlp/opinion-social-media/issues/21
+MVP-017,E02,Implementar get_poll_results sin fugas,"Crear RPC privilegiada pero acotada: autenticar, validar publicación, comprobar voto propio y sólo entonces calcular agregados con barras/porcentajes calculables.","Dado un usuario que no ha votado (aunque sea el autor), cuando solicita resultados, entonces se deniega sin devolver totales ni recuentos.
+Dado quien ha votado en encuesta publicada, cuando consulta, entonces recibe todas las opciones con votos (incluidos ceros), total, porcentaje a un decimal y su `option_id` elegido.
+Dado una encuesta oculta, cuando un votante anterior consulta resultados, entonces no recibe datos agregados.",P0,L,"database
+backend
+security","MVP-010
+MVP-012
+MVP-013
+MVP-016",12,Pendiente — ejecución pausada,,22,https://github.com/migdlp/opinion-social-media/issues/22
+MVP-020,E02,Endurecer permisos y ejecución de todas las RPC,"Revisar `SECURITY DEFINER`, propietarios, `search_path`, uso de esquemas cualificados y `GRANT/REVOKE`; negar EXECUTE genérico.","Dado una conexión `anon`, cuando intenta ejecutar RPC de creación, voto o resultados, entonces se deniega la ejecución o la función no revela información.
+Dado una sesión `authenticated`, cuando invoca la RPC, entonces la autorización real procede de `auth.uid()` y no de parámetros suministrados por el cliente.
+Dado una revisión de permisos, cuando se inspeccionan funciones y tablas, entonces no existen rutas cliente alternativas para listar votos agregados o escribir datos protegidos.",P0,M,"database
+security","MVP-014
+MVP-015
+MVP-016
+MVP-017",13,Pendiente — ejecución pausada,,25,https://github.com/migdlp/opinion-social-media/issues/25
+MVP-004,E01,Integrar clientes Supabase compatibles con SSR,Crear clientes Supabase apropiados para navegador y servidor en Next.js usando el mecanismo SSR vigente; centralizar la configuración. La generación definitiva de tipos del esquema corresponde a MVP-022.,"Dado una llamada desde un componente cliente y otra desde servidor, cuando se ejecutan, entonces ambas usan los clientes adecuados sin exponer secretos privilegiados.
+Dado el proyecto TypeScript, cuando se importa Supabase desde frontend y servidor, entonces se utiliza una única capa de clientes reutilizables sin duplicación de configuración.
+Dado un acceso sin sesión, cuando se ejecuta una consulta pública, entonces funciona sin requerir cookies autenticadas.",P0,M,"backend
+frontend
+auth","MVP-001
+MVP-003",14,Pendiente — ejecución pausada,,9,https://github.com/migdlp/opinion-social-media/issues/9
+MVP-005,E01,Habilitar Google OAuth en Supabase,"Configurar el proveedor Google y las URLs de redirección permitidas para local, preview si procede y producción, sin habilitar contraseñas propias.","Dado el proyecto de desarrollo, cuando un usuario inicia Google OAuth, entonces Supabase acepta el flujo y puede devolverlo a una URL autorizada.
+Dado una URL de retorno ajena a la lista permitida, cuando se intenta utilizar, entonces no se acepta como destino de autenticación.
+Dado el panel de Auth, cuando se revisa, entonces no se ha añadido ningún sistema de contraseña personalizado.",P0,M,"auth
+devops",MVP-003,15,Pendiente — ejecución pausada,,10,https://github.com/migdlp/opinion-social-media/issues/10
+MVP-006,E01,Implementar callback OAuth y persistencia de sesión SSR,"Configurar intercambio de código OAuth, actualización/lectura de sesión y redirecciones internas seguras usando App Router.","Dado un login exitoso, cuando se regresa a la aplicación, entonces se establece la sesión y el usuario sigue autenticado al recargar.
+Dado un parámetro de retorno externo o malformado, cuando se completa el callback, entonces se usa un destino local seguro.
+Dado una sesión expirada, cuando se accede a un flujo protegido, entonces se ofrece de nuevo autenticación sin un error técnico visible.",P0,M,"auth
+frontend
+backend","MVP-004
+MVP-005",16,Pendiente — ejecución pausada,,11,https://github.com/migdlp/opinion-social-media/issues/11
+MVP-007,E01,Preparar repositorio GitHub y pipeline de integración continua,"Preparar repositorio único, exclusiones de ficheros sensibles y un flujo CI que valide el código en cada pull request.","Dado un pull request, cuando corre CI, entonces ejecuta como mínimo lint, typecheck, tests disponibles y build.
+Dado un check fallido, cuando se consulta el estado de CI, entonces la ejecución queda marcada como fallida.
+Dado el historial y los archivos versionados, cuando se buscan secretos y `.env` reales, entonces no aparecen.",P0,M,"devops
+testing","MVP-001
+MVP-002",17,Pendiente — ejecución pausada,,12,https://github.com/migdlp/opinion-social-media/issues/12
+MVP-008,E01,Conectar Vercel y activar despliegues de preview,"Conectar el repositorio a Vercel; configurar builds de preview, variables por entorno y despliegue aislado del dominio de producción.","Dado un cambio en una rama de trabajo, cuando se publica en GitHub, entonces se genera una preview funcional.
+Dado la configuración de preview, cuando se inspeccionan las variables, entonces no usa la base de datos productiva ni secretos administrativos en `NEXT_PUBLIC_*`.
+Dado una preview, cuando se abre su URL, entonces carga la aplicación sin depender del ordenador del desarrollador.",P0,M,devops,"MVP-003
+MVP-007",18,Pendiente — ejecución pausada,,13,https://github.com/migdlp/opinion-social-media/issues/13
+MVP-018,E02,Publicar consultas de feed paginado sin datos de votos,"Centralizar consulta pública de encuestas y opciones, 20 elementos por lote, orden estable de más reciente a más antiguo y paginación por cursor.","Dado más de veinte encuestas visibles, cuando se carga el feed, entonces llegan veinte como máximo y un cursor válido para continuar.
+Dado empates en `created_at`, cuando se pagina, entonces el orden desempata por UUID y ninguna encuesta se repite dentro de una secuencia estable.
+Dado un visitante, cuando inspecciona la respuesta o las consultas de red, entonces no hay recuentos, porcentajes ni votos de terceros.",P0,M,"backend
+frontend
+security","MVP-009
+MVP-011
+MVP-013",19,Pendiente — ejecución pausada,,23,https://github.com/migdlp/opinion-social-media/issues/23
+MVP-019,E02,Consultar detalle de encuesta y estado propio de voto,"Crear funciones de acceso tipadas para recuperar una encuesta visible con opciones ordenadas y, si hay sesión, la opción previamente votada por el usuario.","Dado un ID publicado, cuando se abre el detalle, entonces se reciben pregunta, autor genérico, fecha y opciones en su orden definido.
+Dado un usuario que ya votó, cuando se carga el detalle desde otra sesión/dispositivo, entonces se recupera su elección sin solicitarle volver a votar.
+Dado un ID inválido, inexistente u oculto, cuando se solicita el detalle, entonces se devuelve estado no disponible sin exponer si el ID oculto existe.",P0,M,"backend
+frontend
+security","MVP-009
+MVP-011
+MVP-012
+MVP-013",20,Pendiente — ejecución pausada,,24,https://github.com/migdlp/opinion-social-media/issues/24
+MVP-021,E02,Habilitar moderación manual de encuestas ocultas,Establecer procedimiento administrativo documentado para poner `status = hidden` sin panel de gestión ni eliminación física.,"Dado un operador con privilegios administrativos, cuando cambia una encuesta a `hidden` desde Supabase, entonces desaparece del feed y de la lectura pública.
+Dado la URL de una encuesta oculta, cuando se abre o se intenta votar/consultar resultados, entonces se muestra no disponible y no se permite la operación.
+Dado un usuario normal, cuando intenta cambiar `status`, entonces RLS/permisos lo impiden.",P0,S,"database
+security","MVP-011
+MVP-016
+MVP-017
+MVP-018
+MVP-019",21,Pendiente — ejecución pausada,,26,https://github.com/migdlp/opinion-social-media/issues/26
+MVP-022,E02,Crear migraciones reproducibles y generación de tipos en CI,"Asegurar que esquema, índices, políticas y funciones se aplican desde SQL versionado y que los tipos usados por la app coinciden con las migraciones.","Dado un Supabase local/limpio, cuando se reproducen las migraciones, entonces se crea todo el esquema y sus RPC sin pasos manuales ocultos.
+Dado tipos regenerados desde el esquema, cuando se ejecuta typecheck, entonces la aplicación compila con las firmas reales.
+Dado un segundo despliegue sin nuevos cambios, cuando se sigue el procedimiento documentado, entonces no se aplican cambios destructivos inesperados.",P0,M,"database
+devops
+testing","MVP-009
+MVP-010
+MVP-011
+MVP-012
+MVP-020",22,Pendiente — ejecución pausada,,27,https://github.com/migdlp/opinion-social-media/issues/27
+MVP-041,E04,Automatizar pruebas de esquema y migraciones,"Preparar batería SQL de integridad, defaults, índices necesarios y ejecución sobre base de datos limpia.","Dado migraciones nuevas sobre una base vacía, cuando se ejecuta el test de esquema, entonces tablas, FK, índices y checks pasan.
+Dado un voto duplicado u opción de otra encuesta, cuando se intenta insertar con privilegios de prueba, entonces las restricciones lo rechazan.
+Dado migraciones versionadas, cuando se reproduce el entorno de test, entonces no depende de cambios manuales de consola.",P0,M,"database
+testing","MVP-010
+MVP-022",23,Pendiente — ejecución pausada,,48,https://github.com/migdlp/opinion-social-media/issues/48
+MVP-042,E04,Automatizar pruebas de create_poll y cuota,"Probar validaciones de pregunta/opciones, atomicidad y ventana móvil de creación con cuentas de prueba aisladas.","Dado opciones vacías, duplicadas o fuera de límites, cuando se invoca `create_poll`, entonces devuelve error y no hay filas huérfanas.
+Dado cinco creaciones dentro de una hora, cuando se intenta la siguiente, entonces falla; tras salir una de la ventana, entonces permite otra.
+Dado dos creaciones concurrentes cerca del límite, cuando terminan, entonces nunca hay más de cinco en la ventana.",P0,M,"database
+backend
+testing
+security","MVP-014
+MVP-015
+MVP-020
+MVP-041",24,Pendiente — ejecución pausada,,49,https://github.com/migdlp/opinion-social-media/issues/49
+MVP-043,E04,Automatizar pruebas de voto y agregación de resultados,"Cubrir voto correcto, opción ajena, repetición, encuesta oculta, resultados de cero votos por opción y porcentajes.","Dado peticiones duplicadas o concurrentes de un mismo usuario, cuando se ejecutan, entonces queda exactamente un voto persistido.
+Dado tres votos repartidos entre opciones, cuando consulta un votante autorizado, entonces el total y los recuentos cuadran y los porcentajes se calculan según la convención definida.
+Dado un usuario que no votó, cuando solicita `get_poll_results`, entonces no recibe agregados.
+Dado el autor sin voto previo, cuando vota su propia encuesta, entonces se registra un voto y sólo a partir de ese momento puede consultar sus resultados.",P0,M,"database
+backend
+testing
+security","MVP-016
+MVP-017
+MVP-020
+MVP-041",25,Pendiente — ejecución pausada,,50,https://github.com/migdlp/opinion-social-media/issues/50
+MVP-023,E02,Configurar códigos de error seguros y adaptadores de datos,"Centralizar llamadas al SDK, normalizar errores de RPC/red y hacer que la UI no reciba ni muestre detalles SQL internos.","Dado un error conocido (sin sesión, inválido, oculto, duplicado, límite), cuando se recibe, entonces se traduce a un código y mensaje orientado al usuario.
+Dado una caída de red o error inesperado, cuando falla la llamada, entonces se obtiene error genérico recuperable sin mostrar SQL, stack ni credenciales.
+Dado dos componentes que necesitan la misma operación, cuando se revisan, entonces usan el mismo adaptador tipado.",P0,M,"backend
+frontend
+security","MVP-013
+MVP-014
+MVP-016
+MVP-017
+MVP-018
+MVP-019",26,Pendiente — ejecución pausada,,28,https://github.com/migdlp/opinion-social-media/issues/28
+MVP-044,E04,Probar ataques a RLS y canales de filtración,"Ejecutar tests con roles `anon` y dos usuarios, SDK directo/PostgREST y llamadas RPC deliberadamente manipuladas; inspeccionar todos los canales de datos.","Dado usuario A y usuario B, cuando A consulta filas de votos o resultados correspondientes sólo a B, entonces no obtiene información reservada.
+Dado cliente anónimo o autenticado sin voto, cuando usa SELECT, filtros, contadores, RPC, peticiones directas o páginas SSR, entonces no puede conocer totales globales.
+Dado cliente sin privilegios, cuando intenta insertar/editar/eliminar tablas o cambiar `status`, entonces se rechaza; una encuesta oculta tampoco se filtra.",P0,L,"security
+testing
+database","MVP-011
+MVP-012
+MVP-017
+MVP-020
+MVP-021
+MVP-023",27,Pendiente — ejecución pausada,,51,https://github.com/migdlp/opinion-social-media/issues/51
+MVP-024,E03,Definir diseño base mobile-first y navegación,"Crear tokens mínimos de espaciado/tipografía y layout con `Header`, acceso al feed y acción visible de crear encuesta.","Dado móvil de 320 px y escritorio habitual, cuando se abre cualquier ruta principal, entonces no hay desbordamiento horizontal ni navegación inaccesible.
+Dado un usuario en el detalle o creación, cuando pulsa la marca o enlace del header, entonces regresa al feed.
+Dado el layout, cuando se revisa, entonces mantiene jerarquía visual legible sin depender de una identidad de marca compleja.",P0,M,"design
+frontend",MVP-001,28,Pendiente — ejecución pausada,,29,https://github.com/migdlp/opinion-social-media/issues/29
+MVP-025,E03,Crear componentes LoadingState y EmptyState reutilizables,"Construir componentes accesibles y reutilizables para carga, ausencia de encuestas y ausencia de resultados listables.","Dado contenido cargando, cuando se muestra LoadingState, entonces se anuncia el estado y no se presenta la página como vacía.
+Dado feed con cero encuestas visibles, cuando termina la carga, entonces aparece EmptyState con explicación y navegación útil.
+Dado un componente reutilizado en feed o detalle, cuando cambia el estado, entonces no permanece la UI obsoleta.",P0,S,"frontend
+design",MVP-024,29,Pendiente — ejecución pausada,,30,https://github.com/migdlp/opinion-social-media/issues/30
+MVP-026,E03,"Implementar AuthButton, estado de sesión y cierre de sesión","Conectar el header a la sesión actual, mostrando login o logout según proceda y limpiando estado de sesión correctamente.","Dado un visitante, cuando abre la app, entonces ve una acción de iniciar sesión sin bloquear el feed.
+Dado usuario autenticado, cuando pulsa cerrar sesión, entonces deja de ver datos exclusivos de votante y continúa pudiendo navegar como anónimo.
+Dado una recarga con sesión vigente, cuando se renderiza la cabecera, entonces refleja el estado correcto sin ofrecer voto duplicado.",P0,M,"frontend
+auth","MVP-006
+MVP-024",30,Pendiente — ejecución pausada,,31,https://github.com/migdlp/opinion-social-media/issues/31
+MVP-027,E03,Construir /login y retorno seguro a flujo previo,Crear pantalla `/login` con Google y retorno a ruta interna anterior después del callback; contemplar cancelación y errores de OAuth.,"Dado un visitante que llega desde encuesta o `/create`, cuando inicia sesión, entonces vuelve a esa ruta y puede continuar sin repetir la navegación.
+Dado un intento de retorno a URL externa, cuando se completa el login, entonces se ignora y se usa `/`.
+Dado un error o cancelación de Google OAuth, cuando vuelve a la app, entonces ve explicación y puede reintentar sin bucle de redirecciones.",P0,M,"frontend
+auth","MVP-006
+MVP-024
+MVP-026",31,Pendiente — ejecución pausada,,32,https://github.com/migdlp/opinion-social-media/issues/32
+MVP-028,E03,Crear componente PollOption y selector de voto,"Crear opciones de respuesta de selección única con estados normal, seleccionado, deshabilitado y accesible mediante teclado.","Dado una encuesta no votada, cuando se selecciona una opción, entonces se deselecciona la anterior y queda sólo una elegida.
+Dado el teclado, cuando se recorren y eligen las opciones, entonces los controles informan de su estado a tecnología asistiva.
+Dado votación pendiente o completada, cuando se intenta elegir otra opción, entonces la UI no admite cambios nuevos.",P0,M,"frontend
+design","MVP-024
+MVP-013",32,Pendiente — ejecución pausada,,33,https://github.com/migdlp/opinion-social-media/issues/33
+MVP-029,E03,Crear PollCard pública y estado previo al voto,"Componer tarjeta reutilizable con pregunta, opciones, fecha aproximada y autor genérico, sin datos agregados antes de votar.","Dado visitante o usuario sin voto, cuando se renderiza PollCard, entonces muestra pregunta/opciones/fecha y ningún total, barra o porcentaje.
+Dado una pregunta u opción en el límite de longitud, cuando se muestra en móvil, entonces se lee sin romper el layout.
+Dado un clic en la tarjeta o su enlace, cuando se navega, entonces se abre `/polls/{id}`.",P0,M,"frontend
+design","MVP-024
+MVP-028
+MVP-013",33,Pendiente — ejecución pausada,,34,https://github.com/migdlp/opinion-social-media/issues/34
+MVP-030,E03,"Construir PollResults con barras, totales y elección propia","Implementar visualización de resultados desde agregados autorizados: barra horizontal, porcentaje, número por opción, total y opción propia destacada.","Dado un resultado permitido, cuando se renderiza, entonces todas las opciones aparecen con barra, recuento y porcentaje y se muestra el total.
+Dado la elección personal, cuando llegan resultados, entonces esa opción está señalada de forma visual y accesible sin depender sólo del color.
+Dado una opción con cero votos, cuando se muestra, entonces se presenta `0` y barra vacía sin NaN ni división por cero.",P0,M,"frontend
+design","MVP-024
+MVP-013",34,Pendiente — ejecución pausada,,35,https://github.com/migdlp/opinion-social-media/issues/35
+MVP-031,E03,Crear formulario PollCreationForm y validaciones cliente,Construir formulario `/create` de pregunta y 2–4 opciones con controles de añadir/eliminar y normalización equivalente al backend.,"Dado un formulario inicial, cuando se carga, entonces tiene pregunta y dos opciones editables, y permite añadir hasta cuatro.
+Dado pregunta fuera de 10–280 caracteres, opción fuera de 1–100 o duplicados normalizados, cuando se intenta enviar, entonces no envía y señala campos afectados.
+Dado el formulario en móvil, cuando se rellenan todas las opciones, entonces es usable con teclado y táctil sin desbordes.
+Dado el formulario y una recarga o un nuevo acceso, cuando se inspeccionan base de datos y almacenamiento del navegador, entonces no existe guardado ni recuperación de borradores de encuesta; tras OAuth se exige sólo recuperar la ruta `/create`.",P0,M,"frontend
+design","MVP-024
+MVP-013",35,Pendiente — ejecución pausada,,36,https://github.com/migdlp/opinion-social-media/issues/36
+MVP-032,E03,Publicar desde formulario y redirigir al detalle,"Integrar envío de `/create` con `create_poll`, bloqueo anti doble envío, notificaciones de error y redirección al nuevo detalle.","Dado un usuario autenticado y datos correctos, cuando publica, entonces sólo se crea una encuesta y navega a `/polls/{id}`.
+Dado usuario sin sesión que intenta publicar, cuando inicia sesión, entonces vuelve a `/create` y puede completar y publicar la encuesta, sin requerir recuperación de borradores persistidos.
+Dado cuota agotada o error de red, cuando falla, entonces mantiene los campos, muestra mensaje comprensible y permite reintentar sin duplicación accidental.",P0,M,"frontend
+backend
+auth","MVP-031
+MVP-014
+MVP-015
+MVP-023
+MVP-027",36,Pendiente — ejecución pausada,,37,https://github.com/migdlp/opinion-social-media/issues/37
+MVP-033,E03,Integrar feed público cronológico en /,"Conectar ruta `/` al adaptador público y renderizar tarjetas reales en orden cronológico, en móvil y escritorio.","Dado visitante sin sesión, cuando abre `/`, entonces ve encuestas publicadas y puede navegar entre ellas.
+Dado una encuesta recién publicada, cuando se recarga el primer lote del feed, entonces aparece antes de las más antiguas.
+Dado un error de consulta, cuando ocurre, entonces se muestra estado de recuperación sin romper toda la aplicación.",P0,M,"frontend
+backend","MVP-018
+MVP-024
+MVP-025
+MVP-029
+MVP-023",37,Pendiente — ejecución pausada,,38,https://github.com/migdlp/opinion-social-media/issues/38
+MVP-034,E03,Implementar paginación del feed de veinte elementos,"Añadir controles de cargar más y estado de fin de listado mediante cursores, evitando repeticiones de encuesta al avanzar.","Dado veintiuna o más encuestas visibles, cuando se abre el feed, entonces sólo se solicitan/renderizan las primeras veinte inicialmente.
+Dado que hay otra página, cuando se pulsa cargar más, entonces se añaden los siguientes registros sin duplicar tarjetas previamente vistas.
+Dado fin de listado o petición activa, cuando se consulta el control, entonces se oculta o deshabilita de forma coherente.",P0,M,"frontend
+backend","MVP-018
+MVP-033",38,Pendiente — ejecución pausada,,39,https://github.com/migdlp/opinion-social-media/issues/39
+MVP-035,E03,Implementar página compartible /polls/[id],"Crear ruta pública de detalle con datos reales, visualización previa al voto y tratamiento uniforme de encuestas inexistentes u ocultas.","Dado `/polls/{id}` válido de encuesta publicada, cuando se abre en navegador nuevo sin sesión, entonces muestra la pregunta y opciones.
+Dado un UUID mal formado, inexistente u oculto, cuando se abre, entonces la página muestra no disponible/404 sin filtrar su estado privado.
+Dado una recarga directa de la URL, cuando se vuelve a cargar, entonces conserva su funcionamiento sin exigir pasar por `/`.",P0,M,"frontend
+backend","MVP-019
+MVP-024
+MVP-025
+MVP-029
+MVP-023",39,Pendiente — ejecución pausada,,40,https://github.com/migdlp/opinion-social-media/issues/40
+MVP-036,E03,Integrar votación y petición de autenticación,Conectar elección a `vote_poll` en feed y detalle; exigir sesión al confirmar y bloquear interacciones mientras se envía.,"Dado usuario autenticado sin voto, cuando selecciona una opción y confirma, entonces se envía sólo esa opción y se deshabilita el formulario durante el envío.
+Dado visitante, cuando intenta confirmar un voto, entonces se le ofrece login y vuelve a la encuesta; no se emite ningún voto sin confirmación posterior.
+Dado dos clics rápidos o respuesta de voto duplicado, cuando ocurren, entonces no se registra voto extra y se recarga el estado real.",P0,M,"frontend
+backend
+auth","MVP-016
+MVP-027
+MVP-028
+MVP-035
+MVP-023",40,Pendiente — ejecución pausada,,41,https://github.com/migdlp/opinion-social-media/issues/41
+MVP-037,E03,Mostrar resultados sólo a quien haya votado,Cambiar de formulario a resultados después de votar; al regresar o recargar detectar voto previo y consultar la RPC autorizada.,"Dado primer voto confirmado, cuando termina, entonces aparece PollResults y se deshabilita para siempre la votación en esa encuesta.
+Dado votante que vuelve desde otro dispositivo/sesión, cuando abre la encuesta, entonces ve los resultados directamente.
+Dado usuario que no ha votado, cuando entra al feed/detalle e inspecciona red, HTML y estado inicial, entonces no se solicitan ni hidratan agregados.",P0,M,"frontend
+backend
+security","MVP-017
+MVP-019
+MVP-030
+MVP-035
+MVP-036
+MVP-023",41,Pendiente — ejecución pausada,,42,https://github.com/migdlp/opinion-social-media/issues/42
+MVP-038,E03,Integrar estado votado en tarjetas del feed,Detectar el voto propio en las encuestas del lote visible y pintar resultados en esas tarjetas sin consultas repetidas innecesarias.,"Dado usuario autenticado con votos en distintas encuestas del feed, cuando carga un lote, entonces las votadas muestran resultados y las demás opciones sin cifras.
+Dado un visitante, cuando carga la misma lista, entonces ninguna tarjeta consulta resultados.
+Dado paginación de 20 tarjetas, cuando se navega, entonces se evita un patrón de 20 consultas independientes de estado si puede resolverse con lectura agregada de los votos propios.",P0,M,"frontend
+backend","MVP-012
+MVP-017
+MVP-018
+MVP-019
+MVP-029
+MVP-030
+MVP-033
+MVP-037",42,Pendiente — ejecución pausada,,43,https://github.com/migdlp/opinion-social-media/issues/43
+MVP-039,E03,Añadir copia de enlace de encuesta,"Incorporar acción copiar URL pública de encuesta, con feedback y alternativa si el portapapeles no está disponible.","Dado una encuesta pública, cuando se pulsa copiar enlace en un contexto compatible, entonces se copia una URL válida `/polls/{id}`.
+Dado permiso de portapapeles denegado, cuando se pulsa copiar, entonces aparece una alternativa usable sin error técnico.
+Dado URL copiada, cuando se abre en navegación privada, entonces la encuesta pública es accesible sin iniciar sesión.",P0,S,"frontend
+design",MVP-035,43,Pendiente — ejecución pausada,,44,https://github.com/migdlp/opinion-social-media/issues/44
+MVP-040,E03,"Revisar UX responsive, accesibilidad y errores de red","Revisión transversal de interfaz, foco/teclado, mensajes, estados loading/error, móvil y tratamiento de conectividad intermitente.","Dado un móvil de 320 px, tableta y escritorio, cuando se recorren las cuatro rutas principales, entonces no hay controles inaccesibles ni scroll horizontal accidental.
+Dado navegación con teclado, cuando se cambia de ruta, vota o aparece un error, entonces existe foco usable, etiquetas y anuncios comprensibles.
+Dado pérdida de conexión al publicar/votar, cuando se recupera, entonces se consulta el estado servidor antes de permitir reintentar una acción que quizá se completó.",P0,L,"frontend
+design
+testing","MVP-025
+MVP-026
+MVP-027
+MVP-030
+MVP-032
+MVP-034
+MVP-036
+MVP-037
+MVP-038
+MVP-039",44,Pendiente — ejecución pausada,,45,https://github.com/migdlp/opinion-social-media/issues/45
+MVP-045,E04,"Crear E2E de navegación, Google login, creación y voto",Preparar Playwright con entorno y usuarios de prueba (sin depender de Google real en cada ejecución automatizada) y cubrir los flujos principales.,"Dado navegador sin sesión, cuando entra al feed y detalle, entonces navega y ve sólo opciones sin resultados.
+Dado usuario autenticado de prueba, cuando crea encuesta válida y otro usuario vota, entonces el nuevo registro aparece en el feed y el votante ve resultados.
+Dado sesión persistente y recarga, cuando se visita una encuesta votada, entonces el resultado sigue visible y no aparece opción de votar de nuevo.",P0,L,"testing
+frontend
+auth","MVP-027
+MVP-032
+MVP-033
+MVP-035
+MVP-036
+MVP-037
+MVP-038",45,Pendiente — ejecución pausada,,52,https://github.com/migdlp/opinion-social-media/issues/52
+MVP-046,E04,"Validar concurrencia, errores de red y regresión responsive","Pruebas finalistas de clic doble, reconexión, estados intermedios, rutas ocultas/inexistentes y recorridos móvil.","Dado envío de voto con timeout justo después de la escritura, cuando el cliente reconecta, entonces consulta voto propio y no dispara un segundo voto.
+Dado envío duplicado, recarga inmediata o pestañas simultáneas, cuando termina el flujo, entonces conserva un único voto y UI consistente.
+Dado navegadores móvil y escritorio, cuando se recorren rutas y formularios, entonces no hay regresiones bloqueantes de navegación ni accesibilidad básica.",P0,L,"testing
+frontend
+security","MVP-040
+MVP-042
+MVP-043
+MVP-044
+MVP-045",46,Pendiente — ejecución pausada,,53,https://github.com/migdlp/opinion-social-media/issues/53
+MVP-047,E05,Documentar instalación y operación técnica en README,"Documentar stack, arquitectura, variables (nombres sin secretos), instalación, migraciones, tests, OAuth, despliegue y procedimiento de moderación.","Dado un desarrollador nuevo, cuando sigue el README, entonces puede levantar entorno y ejecutar los checks sin información oral adicional.
+Dado un entorno de prueba limpio, cuando sigue la guía de migraciones y tipado, entonces obtiene un esquema operativo.
+Dado una petición de moderación, cuando se lee la guía, entonces queda claro cómo ocultar una encuesta mediante Supabase sin panel.",P0,M,devops,"MVP-006
+MVP-022
+MVP-023",47,Pendiente — ejecución pausada,,54,https://github.com/migdlp/opinion-social-media/issues/54
+MVP-048,E05,"Preparar runbook de producción, secretos y recuperación","Planificar configuración productiva, orden de migración/deploy, comprobaciones y recuperación básica sin automatizaciones externas complejas.","Dado despliegue planificado, cuando se revisa el runbook, entonces define variables, Google OAuth, dominio, migraciones y verificación posterior.
+Dado incidencia tras desplegar, cuando se consulta el runbook, entonces hay procedimiento claro para revertir versión de frontend y restaurar base desde mecanismos disponibles.
+Dado revisión de credenciales, cuando se comprueba el runbook, entonces las claves privilegiadas nunca se publican ni se copian al navegador.",P0,M,"devops
+security","MVP-008
+MVP-020
+MVP-022",48,Pendiente — ejecución pausada,,55,https://github.com/migdlp/opinion-social-media/issues/55
+MVP-049,E05,Configurar y desplegar aplicación en producción,"Aplicar migraciones sobre Supabase de producción, configurar Vercel, secretos, URL pública y callback Google, y publicar la aplicación.","Dado la URL pública de producción, cuando se abre, entonces responde la aplicación real por HTTPS.
+Dado usuario real con Google, cuando completa login, entonces regresa al dominio productivo y la sesión funciona.
+Dado el entorno de producción, cuando se examina su esquema, entonces coincide con las migraciones versionadas y está separado de desarrollo.",P0,L,"devops
+auth
+database","MVP-008
+MVP-022
+MVP-047
+MVP-048",49,Pendiente — ejecución pausada,,56,https://github.com/migdlp/opinion-social-media/issues/56
+MVP-050,E05,Ejecutar checklist funcional y de seguridad en producción,Repetir smoke tests de los flujos críticos y comprobaciones manuales/directas de RLS y no filtración en el entorno productivo.,"Dado producción, cuando visitante entra, entonces ve feed y detalle sin sesión y no puede ver recuentos antes de votar.
+Dado dos cuentas reales de verificación, cuando una publica y otra vota, entonces se muestran resultados correctos y no se puede repetir ni cambiar voto.
+Dado inspección de bundle cliente, peticiones y permisos, cuando se revisa, entonces no aparecen claves privilegiadas ni canales alternativos de resultados; las pruebas críticas pasan.",P0,L,"testing
+devops
+security","MVP-044
+MVP-045
+MVP-046
+MVP-049",50,Pendiente — ejecución pausada,,57,https://github.com/migdlp/opinion-social-media/issues/57
+MVP-051,E05,Cerrar checklist de release y documentar resultado verificable,"Consolidar evidencias de ejecución, URL final, commit/migraciones publicadas y estado de criterios globales antes de declarar listo el MVP.","Dado criterios globales, cuando se revisa la lista de lanzamiento, entonces cada uno tiene evidencia verificable o se indica bloqueado.
+Dado comprobaciones fallidas, cuando se evalúa release, entonces el MVP no se marca como completado.
+Dado release satisfactorio, cuando se documenta, entonces quedan enlace público, versión desplegada y procedimiento de incidencia.",P0,S,"devops
+testing","MVP-047
+MVP-049
+MVP-050",51,Pendiente — ejecución pausada,,58,https://github.com/migdlp/opinion-social-media/issues/58
+MVP-052,E03,Mejorar transiciones visuales y skeletons no bloqueantes,"Pulir estados de carga con placeholders y transiciones discretas, sin alterar lógica ni ocultación de resultados.","Dado una carga lenta, cuando se muestra el feed, entonces el layout se mantiene visualmente estable.
+Dado la preferencia de movimiento reducido, cuando se carga, entonces las animaciones no son obligatorias.
+Dado que esta tarea no se completa, cuando se evalúa el MVP, entonces ninguna funcionalidad crítica queda bloqueada.",P1,S,"frontend
+design",MVP-040,52,Pendiente — ejecución pausada,,46,https://github.com/migdlp/opinion-social-media/issues/46
+MVP-053,E03,Añadir metadatos sociales básicos a URLs públicas,Añadir título y descripción compartibles a encuestas públicas sin incorporar resultados al HTML o a tarjetas sociales.,"Dado una encuesta pública, cuando se obtiene metadata de la ruta, entonces el título/descripción incluye la pregunta y no contiene resultados.
+Dado encuesta oculta/inexistente, cuando se consulta metadata, entonces no revela su contenido privado.
+Dado que esta tarea se pospone, cuando se verifica el MVP, entonces copiar y abrir URLs sigue funcionando.",P1,S,"frontend
+design",MVP-035,53,Pendiente — ejecución pausada,,47,https://github.com/migdlp/opinion-social-media/issues/47

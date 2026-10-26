@@ -1,14 +1,14 @@
 # Backlog ejecutable — MVP de red social de encuestas
 
-**Versión del documento:** 1.0 · **Estado:** backlog definido para desarrollo (no implementado) · **Alcance:** MVP descrito en el brief · **Idioma:** español (España).
+**Versión del documento:** 1.1 · **Estado:** backlog definido para desarrollo (no implementado) · **Alcance:** MVP descrito en el brief · **Idioma:** español (España).
 
-> Este fichero es una **propuesta de backlog**, no evidencia de que se haya creado código, configurado Supabase ni desplegado la web. No se han creado tickets en gestores externos.
+> Este fichero es el backlog operativo revisado contra el [brief adicional](brief-producto.md). No acredita implementación ni despliegue. El desarrollo sigue pausado; la planificación y creación de tickets están autorizadas. La versión original se conserva en [fuentes/backlog-v1.md](fuentes/backlog-v1.md).
 
 ## 1. Resumen
 
 - **Épicas:** 5 · **Tareas:** 53 (51 P0 bloqueantes para publicar y 2 P1 opcionales).
 - **Estimaciones relativas:** **S ≈ 0,5 día**, **M ≈ 1 día**, **L ≈ 2 días** de trabajo de una persona con el stack; no son fechas ni compromisos. Si una tarea L resulta mayor, dividir durante refinamiento sin alterar sus criterios.
-- **Estado inicial:** todas las tareas `Ready for Development` como especificación; ninguna se considera implementada ni completada. En el gestor futuro podrán pasar a `In Progress`, `Blocked`, `Completed` o `Cancelled`.
+- **Estado actual:** todas las tareas pendientes, con ejecución pausada por el propietario; ninguna se considera implementada ni completada. En el seguimiento podrán pasar a `In Progress`, `Blocked`, `Completed` o `Cancelled`.
 - **Prioridad:** `P0` imprescindible para publicar, `P1` mejora que no bloquea lanzamiento. Las dependencias enumeradas se refieren a **bloqueos reales**; la secuencia visual de las épicas no impone cascadas innecesarias.
 - **Regla central de seguridad:** no existen resultados precalculados ni filtrables para usuarios que no han votado; todo agregado se calcula **exclusivamente** tras autorizar al solicitante en una RPC de Supabase.
 
@@ -20,7 +20,7 @@
 - **Datos públicos:** pregunta, opciones, UUID, fecha y autor genérico. No se exponen email, nombre de Google, información personal ni estadísticas antes del voto.
 - **Votación:** una opción, un voto inmutable por `(poll_id,user_id)`. Si el cliente desconoce si el envío llegó, vuelve a consultar su voto antes de reintentar. Un voto duplicado se convierte en estado «ya has votado» y se cargan resultados autorizados.
 - **Resultados:** cada opción aparece aunque tenga 0 votos. Porcentaje `ROUND(100 * votos_opcion / total, 1)`; el redondeo individual puede producir una suma visual ligeramente distinta de 100 %, lo cual se acepta para MVP. Como sólo consulta quien votó, `total >= 1`.
-- **Login con retorno:** `next` acepta sólo rutas internas de la propia aplicación, para evitar open redirects. Si el usuario seleccionó una opción sin sesión, tras login regresa a la encuesta, recupera la selección cuando sea posible y **confirma explícitamente** antes de que se emita el voto. El borrador temporal del formulario puede guardarse en `sessionStorage` del mismo navegador y se borra tras publicación; no se sube a Supabase hasta autenticarse.
+- **Login con retorno:** `next` acepta sólo rutas internas de la propia aplicación, para evitar open redirects. Si el usuario seleccionó una opción sin sesión, tras login regresa a la encuesta, recupera la selección cuando sea posible y **confirma explícitamente** antes de que se emita el voto. No implementar ni persistir borradores de encuesta. Tras el login de creación basta con volver a `/create`; mantener campos en memoria ante errores recuperables no implica guardarlos entre sesiones.
 - **Moderación:** una encuesta `hidden` no aparece en el feed ni es legible/votable ni devuelve resultados, incluso para autor y votantes; la página muestra no disponible/404. Sólo se modifica desde herramientas administrativas Supabase, nunca desde clientes.
 - **Autenticación:** Google por Supabase Auth. Claves `service_role`/secretas jamás llegan al navegador. Clients SSR usan cookies/sesión compatibles con Next.js App Router.
 - **Privilegios RPC:** acceso a `create_poll`, `vote_poll` y `get_poll_results` sólo para `authenticated`; se revoca el EXECUTE implícito a `PUBLIC`/`anon` y se concede exclusivamente lo necesario. Se revisa `SECURITY DEFINER`, propietario y `SET search_path` seguro con referencias SQL cualificadas.
@@ -55,7 +55,7 @@ Mantener votos y resultados protegidos en Supabase/PostgreSQL; APIs directas seg
 | MVP-010 | Crear votes y garantías de integridad | P0 | M | `database`, `security` | MVP-009 |
 | MVP-011 | Activar RLS para encuestas y opciones públicas | P0 | M | `database`, `security` | MVP-009 |
 | MVP-012 | Activar RLS de votos y revocar escrituras directas | P0 | M | `database`, `security` | MVP-010 |
-| MVP-013 | Definir contratos de consultas y funciones RPC | P0 | S | `backend`, `frontend`, `security` | MVP-009, MVP-010 |
+| MVP-013 | Definir contratos de consultas y funciones RPC | P0 | S | `backend`, `frontend`, `security` | — |
 | MVP-014 | Implementar create_poll con validación y atomicidad | P0 | L | `database`, `backend`, `security` | MVP-009, MVP-011, MVP-013 |
 | MVP-015 | Limitar create_poll a cinco encuestas por hora y cuenta | P0 | M | `backend`, `database`, `security` | MVP-014 |
 | MVP-016 | Implementar vote_poll seguro e inmutable | P0 | L | `database`, `backend`, `security` | MVP-010, MVP-011, MVP-012, MVP-013 |
@@ -124,7 +124,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-001 — Inicializar Next.js con App Router y TypeScript
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `frontend`, `devops`
 - **Dependencias bloqueantes:** ninguna.
 - **Descripción:** Crear la aplicación con Next.js, React, TypeScript estricto y Tailwind CSS; establecer rutas base y estructura modular sin servidor adicional.
@@ -135,7 +135,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-002 — Configurar linting, formato y comprobaciones automáticas
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** S · **Etiquetas:** `devops`, `testing`
 - **Dependencias bloqueantes:** MVP-001.
 - **Descripción:** Definir scripts reproducibles de lint, typecheck, test y build y una configuración coherente de calidad de código.
@@ -146,7 +146,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-003 — Preparar Supabase y separación de entornos
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `backend`, `database`, `devops`
 - **Dependencias bloqueantes:** ninguna.
 - **Descripción:** Provisionar entornos Supabase de desarrollo y producción aislados, documentando la gestión de claves y URLs sin comprometer secretos.
@@ -157,7 +157,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-004 — Integrar clientes Supabase compatibles con SSR
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `backend`, `frontend`, `auth`
 - **Dependencias bloqueantes:** MVP-001, MVP-003.
 - **Descripción:** Crear clientes Supabase apropiados para navegador y servidor en Next.js usando el mecanismo SSR vigente; centralizar la configuración. La generación definitiva de tipos del esquema corresponde a MVP-022.
@@ -168,7 +168,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-005 — Habilitar Google OAuth en Supabase
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `auth`, `devops`
 - **Dependencias bloqueantes:** MVP-003.
 - **Descripción:** Configurar el proveedor Google y las URLs de redirección permitidas para local, preview si procede y producción, sin habilitar contraseñas propias.
@@ -179,7 +179,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-006 — Implementar callback OAuth y persistencia de sesión SSR
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `auth`, `frontend`, `backend`
 - **Dependencias bloqueantes:** MVP-004, MVP-005.
 - **Descripción:** Configurar intercambio de código OAuth, actualización/lectura de sesión y redirecciones internas seguras usando App Router.
@@ -190,7 +190,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-007 — Preparar repositorio GitHub y pipeline de integración continua
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `devops`, `testing`
 - **Dependencias bloqueantes:** MVP-001, MVP-002.
 - **Descripción:** Preparar repositorio único, exclusiones de ficheros sensibles y un flujo CI que valide el código en cada pull request.
@@ -201,7 +201,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-008 — Conectar Vercel y activar despliegues de preview
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `devops`
 - **Dependencias bloqueantes:** MVP-003, MVP-007.
 - **Descripción:** Conectar el repositorio a Vercel; configurar builds de preview, variables por entorno y despliegue aislado del dominio de producción.
@@ -214,7 +214,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-009 — Crear migraciones base de polls y poll_options
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `database`, `backend`
 - **Dependencias bloqueantes:** MVP-003.
 - **Descripción:** Crear esquema SQL versionado para encuestas y opciones, tipos, claves foráneas, defaults, posiciones y restricciones de campos aplicables.
@@ -222,10 +222,11 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
   1. Dado una base de datos vacía, cuando se ejecutan migraciones por orden, entonces se crean `polls` y `poll_options` con UUID, FK, timestamps y `status` restringido a `published/hidden`.
   1. Dado una opción, cuando se consulta su posición, entonces está asociada a una encuesta y su posición está limitada al rango 1–4 y no se repite dentro de esa encuesta.
   1. Dado una encuesta creada sin estado explícito, cuando se inserta desde un contexto autorizado, entonces `status` toma `published`.
+  1. Dado el esquema aplicado, cuando se inspeccionan columnas y FK, entonces `polls` contiene `id`, `user_id`, `question`, `status`, `created_at`, y `poll_options` contiene `id`, `poll_id`, `text`, `position`, según el brief; no se crea `profiles` ni una cuarta tabla propia.
 
 #### MVP-010 — Crear votes y garantías de integridad
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `database`, `security`
 - **Dependencias bloqueantes:** MVP-009.
 - **Descripción:** Crear tabla `votes` y restricciones contra repetición y contra opciones de encuestas distintas; añadir índices básicos de acceso.
@@ -233,10 +234,11 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
   1. Dado dos votos para la misma pareja `(poll_id,user_id)`, cuando se intenta persistir el segundo, entonces lo rechaza `UNIQUE (poll_id,user_id)`.
   1. Dado un `option_id` que pertenece a otra encuesta, cuando se intenta insertar un voto, entonces la base de datos lo rechaza por FK compuesta.
   1. Dado la consulta de feed/opciones/votos, cuando se inspecciona el esquema, entonces existen índices para orden temporal, búsqueda por encuesta y verificación de voto.
+  1. Dado el esquema de votos, cuando se inspecciona, entonces `votes.id` es UUID y PK, y existen `poll_id`, `option_id`, `user_id`, `created_at`, además de `UNIQUE(poll_id,user_id)` y la FK compuesta.
 
 #### MVP-011 — Activar RLS para encuestas y opciones públicas
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `database`, `security`
 - **Dependencias bloqueantes:** MVP-009.
 - **Descripción:** Habilitar RLS y políticas de SELECT para publicar sólo encuestas visibles y sus opciones; bloquear CRUD directo no autorizado.
@@ -244,10 +246,11 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
   1. Dado un cliente anónimo, cuando lee `polls` o `poll_options`, entonces recibe únicamente registros asociados a encuestas `published`.
   1. Dado un cliente autenticado común, cuando intenta insertar, editar u ocultar una encuesta/opción directamente, entonces se deniega.
   1. Dado una encuesta `hidden`, cuando un cliente intenta acceder a ella o a sus opciones por consulta directa, entonces no se devuelven filas.
+  1. Dado un cliente público, cuando consulta tablas o adaptadores de encuesta, entonces las columnas de salida se limitan a los datos públicos y no exponen `polls.user_id`, email ni identidad de Google; se revisan permisos por columna o una proyección segura equivalente.
 
 #### MVP-012 — Activar RLS de votos y revocar escrituras directas
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `database`, `security`
 - **Dependencias bloqueantes:** MVP-010.
 - **Descripción:** Habilitar RLS para que cada cuenta sólo pueda leer sus votos; impedir inserciones, modificaciones y eliminaciones directas desde clientes.
@@ -258,9 +261,9 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-013 — Definir contratos de consultas y funciones RPC
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** S · **Etiquetas:** `backend`, `frontend`, `security`
-- **Dependencias bloqueantes:** MVP-009, MVP-010.
+- **Dependencias bloqueantes:** ninguna; puede definirse desde el modelo del brief antes de implementar el esquema.
 - **Descripción:** Fijar nombres, argumentos, formatos de éxito/error, tipado y seguridad del contrato de `create_poll`, `vote_poll`, `get_poll_results`, feed y detalle para desbloquear frontend con mocks.
 - **Criterios de aceptación:**
   1. Dado el documento de contratos, cuando frontend prepara mocks, entonces conoce campos, tipos, estados de autenticación y errores esperados.
@@ -269,7 +272,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-014 — Implementar create_poll con validación y atomicidad
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** L · **Etiquetas:** `database`, `backend`, `security`
 - **Dependencias bloqueantes:** MVP-009, MVP-011, MVP-013.
 - **Descripción:** Crear la RPC `create_poll` para un usuario autenticado: validar contenido, normalizar espacios y guardar encuesta y 2–4 opciones en la misma transacción.
@@ -280,7 +283,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-015 — Limitar create_poll a cinco encuestas por hora y cuenta
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `backend`, `database`, `security`
 - **Dependencias bloqueantes:** MVP-014.
 - **Descripción:** Incorporar límite deslizante de 5 publicaciones por 60 minutos, con protección transaccional frente a creación simultánea por la misma cuenta.
@@ -291,7 +294,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-016 — Implementar vote_poll seguro e inmutable
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** L · **Etiquetas:** `database`, `backend`, `security`
 - **Dependencias bloqueantes:** MVP-010, MVP-011, MVP-012, MVP-013.
 - **Descripción:** Crear la RPC `vote_poll` que autentica, verifica encuesta publicada y pertenencia de opción y persiste voto atómico sin permitir cambios.
@@ -299,10 +302,11 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
   1. Dado un usuario autenticado y opción de encuesta publicada, cuando vota por primera vez, entonces se crea exactamente un voto y se devuelve confirmación.
   1. Dado una encuesta inexistente/oculta o una opción de otra encuesta, cuando intenta votar, entonces se rechaza sin modificar datos.
   1. Dado dos intentos simultáneos, cuando se ejecutan, entonces la restricción `UNIQUE` impide más de un voto y el otro recibe resultado controlado.
+  1. Dado el creador de una encuesta publicada, cuando vota en su propia encuesta por primera vez, entonces su voto es aceptado bajo las mismas restricciones que el de cualquier otra cuenta.
 
 #### MVP-017 — Implementar get_poll_results sin fugas
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** L · **Etiquetas:** `database`, `backend`, `security`
 - **Dependencias bloqueantes:** MVP-010, MVP-012, MVP-013, MVP-016.
 - **Descripción:** Crear RPC privilegiada pero acotada: autenticar, validar publicación, comprobar voto propio y sólo entonces calcular agregados con barras/porcentajes calculables.
@@ -313,7 +317,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-018 — Publicar consultas de feed paginado sin datos de votos
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `backend`, `frontend`, `security`
 - **Dependencias bloqueantes:** MVP-009, MVP-011, MVP-013.
 - **Descripción:** Centralizar consulta pública de encuestas y opciones, 20 elementos por lote, orden estable de más reciente a más antiguo y paginación por cursor.
@@ -324,7 +328,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-019 — Consultar detalle de encuesta y estado propio de voto
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `backend`, `frontend`, `security`
 - **Dependencias bloqueantes:** MVP-009, MVP-011, MVP-012, MVP-013.
 - **Descripción:** Crear funciones de acceso tipadas para recuperar una encuesta visible con opciones ordenadas y, si hay sesión, la opción previamente votada por el usuario.
@@ -335,7 +339,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-020 — Endurecer permisos y ejecución de todas las RPC
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `database`, `security`
 - **Dependencias bloqueantes:** MVP-014, MVP-015, MVP-016, MVP-017.
 - **Descripción:** Revisar `SECURITY DEFINER`, propietarios, `search_path`, uso de esquemas cualificados y `GRANT/REVOKE`; negar EXECUTE genérico.
@@ -346,7 +350,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-021 — Habilitar moderación manual de encuestas ocultas
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** S · **Etiquetas:** `database`, `security`
 - **Dependencias bloqueantes:** MVP-011, MVP-016, MVP-017, MVP-018, MVP-019.
 - **Descripción:** Establecer procedimiento administrativo documentado para poner `status = hidden` sin panel de gestión ni eliminación física.
@@ -357,7 +361,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-022 — Crear migraciones reproducibles y generación de tipos en CI
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `database`, `devops`, `testing`
 - **Dependencias bloqueantes:** MVP-009, MVP-010, MVP-011, MVP-012, MVP-020.
 - **Descripción:** Asegurar que esquema, índices, políticas y funciones se aplican desde SQL versionado y que los tipos usados por la app coinciden con las migraciones.
@@ -368,7 +372,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-023 — Configurar códigos de error seguros y adaptadores de datos
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `backend`, `frontend`, `security`
 - **Dependencias bloqueantes:** MVP-013, MVP-014, MVP-016, MVP-017, MVP-018, MVP-019.
 - **Descripción:** Centralizar llamadas al SDK, normalizar errores de RPC/red y hacer que la UI no reciba ni muestre detalles SQL internos.
@@ -381,7 +385,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-024 — Definir diseño base mobile-first y navegación
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `design`, `frontend`
 - **Dependencias bloqueantes:** MVP-001.
 - **Descripción:** Crear tokens mínimos de espaciado/tipografía y layout con `Header`, acceso al feed y acción visible de crear encuesta.
@@ -392,7 +396,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-025 — Crear componentes LoadingState y EmptyState reutilizables
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** S · **Etiquetas:** `frontend`, `design`
 - **Dependencias bloqueantes:** MVP-024.
 - **Descripción:** Construir componentes accesibles y reutilizables para carga, ausencia de encuestas y ausencia de resultados listables.
@@ -403,7 +407,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-026 — Implementar AuthButton, estado de sesión y cierre de sesión
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `frontend`, `auth`
 - **Dependencias bloqueantes:** MVP-006, MVP-024.
 - **Descripción:** Conectar el header a la sesión actual, mostrando login o logout según proceda y limpiando estado de sesión correctamente.
@@ -414,7 +418,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-027 — Construir /login y retorno seguro a flujo previo
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `frontend`, `auth`
 - **Dependencias bloqueantes:** MVP-006, MVP-024, MVP-026.
 - **Descripción:** Crear pantalla `/login` con Google y retorno a ruta interna anterior después del callback; contemplar cancelación y errores de OAuth.
@@ -425,7 +429,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-028 — Crear componente PollOption y selector de voto
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `frontend`, `design`
 - **Dependencias bloqueantes:** MVP-024, MVP-013.
 - **Descripción:** Crear opciones de respuesta de selección única con estados normal, seleccionado, deshabilitado y accesible mediante teclado.
@@ -436,7 +440,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-029 — Crear PollCard pública y estado previo al voto
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `frontend`, `design`
 - **Dependencias bloqueantes:** MVP-024, MVP-028, MVP-013.
 - **Descripción:** Componer tarjeta reutilizable con pregunta, opciones, fecha aproximada y autor genérico, sin datos agregados antes de votar.
@@ -447,7 +451,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-030 — Construir PollResults con barras, totales y elección propia
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `frontend`, `design`
 - **Dependencias bloqueantes:** MVP-024, MVP-013.
 - **Descripción:** Implementar visualización de resultados desde agregados autorizados: barra horizontal, porcentaje, número por opción, total y opción propia destacada.
@@ -458,7 +462,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-031 — Crear formulario PollCreationForm y validaciones cliente
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `frontend`, `design`
 - **Dependencias bloqueantes:** MVP-024, MVP-013.
 - **Descripción:** Construir formulario `/create` de pregunta y 2–4 opciones con controles de añadir/eliminar y normalización equivalente al backend.
@@ -466,21 +470,22 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
   1. Dado un formulario inicial, cuando se carga, entonces tiene pregunta y dos opciones editables, y permite añadir hasta cuatro.
   1. Dado pregunta fuera de 10–280 caracteres, opción fuera de 1–100 o duplicados normalizados, cuando se intenta enviar, entonces no envía y señala campos afectados.
   1. Dado el formulario en móvil, cuando se rellenan todas las opciones, entonces es usable con teclado y táctil sin desbordes.
+  1. Dado el formulario y una recarga o un nuevo acceso, cuando se inspeccionan base de datos y almacenamiento del navegador, entonces no existe guardado ni recuperación de borradores de encuesta; tras OAuth se exige sólo recuperar la ruta `/create`.
 
 #### MVP-032 — Publicar desde formulario y redirigir al detalle
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `frontend`, `backend`, `auth`
 - **Dependencias bloqueantes:** MVP-031, MVP-014, MVP-015, MVP-023, MVP-027.
 - **Descripción:** Integrar envío de `/create` con `create_poll`, bloqueo anti doble envío, notificaciones de error y redirección al nuevo detalle.
 - **Criterios de aceptación:**
   1. Dado un usuario autenticado y datos correctos, cuando publica, entonces sólo se crea una encuesta y navega a `/polls/{id}`.
-  1. Dado usuario sin sesión que intenta publicar, cuando inicia sesión, entonces puede volver a `/create` y recuperar el borrador temporal guardado en el mismo navegador.
+  1. Dado usuario sin sesión que intenta publicar, cuando inicia sesión, entonces vuelve a `/create` y puede completar y publicar la encuesta, sin requerir recuperación de borradores persistidos.
   1. Dado cuota agotada o error de red, cuando falla, entonces mantiene los campos, muestra mensaje comprensible y permite reintentar sin duplicación accidental.
 
 #### MVP-033 — Integrar feed público cronológico en /
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `frontend`, `backend`
 - **Dependencias bloqueantes:** MVP-018, MVP-024, MVP-025, MVP-029, MVP-023.
 - **Descripción:** Conectar ruta `/` al adaptador público y renderizar tarjetas reales en orden cronológico, en móvil y escritorio.
@@ -491,7 +496,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-034 — Implementar paginación del feed de veinte elementos
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `frontend`, `backend`
 - **Dependencias bloqueantes:** MVP-018, MVP-033.
 - **Descripción:** Añadir controles de cargar más y estado de fin de listado mediante cursores, evitando repeticiones de encuesta al avanzar.
@@ -502,7 +507,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-035 — Implementar página compartible /polls/[id]
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `frontend`, `backend`
 - **Dependencias bloqueantes:** MVP-019, MVP-024, MVP-025, MVP-029, MVP-023.
 - **Descripción:** Crear ruta pública de detalle con datos reales, visualización previa al voto y tratamiento uniforme de encuestas inexistentes u ocultas.
@@ -513,7 +518,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-036 — Integrar votación y petición de autenticación
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `frontend`, `backend`, `auth`
 - **Dependencias bloqueantes:** MVP-016, MVP-027, MVP-028, MVP-035, MVP-023.
 - **Descripción:** Conectar elección a `vote_poll` en feed y detalle; exigir sesión al confirmar y bloquear interacciones mientras se envía.
@@ -524,7 +529,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-037 — Mostrar resultados sólo a quien haya votado
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `frontend`, `backend`, `security`
 - **Dependencias bloqueantes:** MVP-017, MVP-019, MVP-030, MVP-035, MVP-036, MVP-023.
 - **Descripción:** Cambiar de formulario a resultados después de votar; al regresar o recargar detectar voto previo y consultar la RPC autorizada.
@@ -535,7 +540,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-038 — Integrar estado votado en tarjetas del feed
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `frontend`, `backend`
 - **Dependencias bloqueantes:** MVP-012, MVP-017, MVP-018, MVP-019, MVP-029, MVP-030, MVP-033, MVP-037.
 - **Descripción:** Detectar el voto propio en las encuestas del lote visible y pintar resultados en esas tarjetas sin consultas repetidas innecesarias.
@@ -546,7 +551,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-039 — Añadir copia de enlace de encuesta
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** S · **Etiquetas:** `frontend`, `design`
 - **Dependencias bloqueantes:** MVP-035.
 - **Descripción:** Incorporar acción copiar URL pública de encuesta, con feedback y alternativa si el portapapeles no está disponible.
@@ -557,7 +562,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-040 — Revisar UX responsive, accesibilidad y errores de red
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** L · **Etiquetas:** `frontend`, `design`, `testing`
 - **Dependencias bloqueantes:** MVP-025, MVP-026, MVP-027, MVP-030, MVP-032, MVP-034, MVP-036, MVP-037, MVP-038, MVP-039.
 - **Descripción:** Revisión transversal de interfaz, foco/teclado, mensajes, estados loading/error, móvil y tratamiento de conectividad intermitente.
@@ -568,7 +573,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-052 — Mejorar transiciones visuales y skeletons no bloqueantes
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P1 · **Estimación relativa:** S · **Etiquetas:** `frontend`, `design`
 - **Dependencias bloqueantes:** MVP-040.
 - **Descripción:** Pulir estados de carga con placeholders y transiciones discretas, sin alterar lógica ni ocultación de resultados.
@@ -579,7 +584,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-053 — Añadir metadatos sociales básicos a URLs públicas
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P1 · **Estimación relativa:** S · **Etiquetas:** `frontend`, `design`
 - **Dependencias bloqueantes:** MVP-035.
 - **Descripción:** Añadir título y descripción compartibles a encuestas públicas sin incorporar resultados al HTML o a tarjetas sociales.
@@ -592,7 +597,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-041 — Automatizar pruebas de esquema y migraciones
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `database`, `testing`
 - **Dependencias bloqueantes:** MVP-010, MVP-022.
 - **Descripción:** Preparar batería SQL de integridad, defaults, índices necesarios y ejecución sobre base de datos limpia.
@@ -603,7 +608,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-042 — Automatizar pruebas de create_poll y cuota
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `database`, `backend`, `testing`, `security`
 - **Dependencias bloqueantes:** MVP-014, MVP-015, MVP-020, MVP-041.
 - **Descripción:** Probar validaciones de pregunta/opciones, atomicidad y ventana móvil de creación con cuentas de prueba aisladas.
@@ -614,7 +619,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-043 — Automatizar pruebas de voto y agregación de resultados
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `database`, `backend`, `testing`, `security`
 - **Dependencias bloqueantes:** MVP-016, MVP-017, MVP-020, MVP-041.
 - **Descripción:** Cubrir voto correcto, opción ajena, repetición, encuesta oculta, resultados de cero votos por opción y porcentajes.
@@ -622,10 +627,11 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
   1. Dado peticiones duplicadas o concurrentes de un mismo usuario, cuando se ejecutan, entonces queda exactamente un voto persistido.
   1. Dado tres votos repartidos entre opciones, cuando consulta un votante autorizado, entonces el total y los recuentos cuadran y los porcentajes se calculan según la convención definida.
   1. Dado un usuario que no votó, cuando solicita `get_poll_results`, entonces no recibe agregados.
+  1. Dado el autor sin voto previo, cuando vota su propia encuesta, entonces se registra un voto y sólo a partir de ese momento puede consultar sus resultados.
 
 #### MVP-044 — Probar ataques a RLS y canales de filtración
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** L · **Etiquetas:** `security`, `testing`, `database`
 - **Dependencias bloqueantes:** MVP-011, MVP-012, MVP-017, MVP-020, MVP-021, MVP-023.
 - **Descripción:** Ejecutar tests con roles `anon` y dos usuarios, SDK directo/PostgREST y llamadas RPC deliberadamente manipuladas; inspeccionar todos los canales de datos.
@@ -636,7 +642,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-045 — Crear E2E de navegación, Google login, creación y voto
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** L · **Etiquetas:** `testing`, `frontend`, `auth`
 - **Dependencias bloqueantes:** MVP-027, MVP-032, MVP-033, MVP-035, MVP-036, MVP-037, MVP-038.
 - **Descripción:** Preparar Playwright con entorno y usuarios de prueba (sin depender de Google real en cada ejecución automatizada) y cubrir los flujos principales.
@@ -647,7 +653,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-046 — Validar concurrencia, errores de red y regresión responsive
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** L · **Etiquetas:** `testing`, `frontend`, `security`
 - **Dependencias bloqueantes:** MVP-040, MVP-042, MVP-043, MVP-044, MVP-045.
 - **Descripción:** Pruebas finalistas de clic doble, reconexión, estados intermedios, rutas ocultas/inexistentes y recorridos móvil.
@@ -660,7 +666,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-047 — Documentar instalación y operación técnica en README
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `devops`
 - **Dependencias bloqueantes:** MVP-006, MVP-022, MVP-023.
 - **Descripción:** Documentar stack, arquitectura, variables (nombres sin secretos), instalación, migraciones, tests, OAuth, despliegue y procedimiento de moderación.
@@ -671,7 +677,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-048 — Preparar runbook de producción, secretos y recuperación
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `devops`, `security`
 - **Dependencias bloqueantes:** MVP-008, MVP-020, MVP-022.
 - **Descripción:** Planificar configuración productiva, orden de migración/deploy, comprobaciones y recuperación básica sin automatizaciones externas complejas.
@@ -682,7 +688,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-049 — Configurar y desplegar aplicación en producción
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** L · **Etiquetas:** `devops`, `auth`, `database`
 - **Dependencias bloqueantes:** MVP-008, MVP-022, MVP-047, MVP-048.
 - **Descripción:** Aplicar migraciones sobre Supabase de producción, configurar Vercel, secretos, URL pública y callback Google, y publicar la aplicación.
@@ -693,7 +699,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-050 — Ejecutar checklist funcional y de seguridad en producción
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** L · **Etiquetas:** `testing`, `devops`, `security`
 - **Dependencias bloqueantes:** MVP-044, MVP-045, MVP-046, MVP-049.
 - **Descripción:** Repetir smoke tests de los flujos críticos y comprobaciones manuales/directas de RLS y no filtración en el entorno productivo.
@@ -704,7 +710,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-051 — Cerrar checklist de release y documentar resultado verificable
 
-- **Estado:** Ready for Development
+- **Estado:** Pendiente — ejecución pausada
 - **Prioridad:** P0 · **Estimación relativa:** S · **Etiquetas:** `devops`, `testing`
 - **Dependencias bloqueantes:** MVP-047, MVP-049, MVP-050.
 - **Descripción:** Consolidar evidencias de ejecución, URL final, commit/migraciones publicadas y estado de criterios globales antes de declarar listo el MVP.
@@ -717,7 +723,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 **Fundamentos sin bloqueo cruzado:** MVP-001 (app) y MVP-003 (entornos Supabase) pueden empezar en paralelo. MVP-007 (CI) sigue a MVP-001/002; MVP-009 (esquema) arranca tras MVP-003. MVP-024 (diseño UI) empieza tras MVP-001, sin esperar al backend.
 
-**Desarrollo paralelo mediante contrato temprano:** MVP-013 define contratos. A partir de ahí pueden prepararse MVP-028/029/030/031 con mocks mientras se construyen RPC y consultas reales MVP-014 a MVP-019. MVP-005/006 (Auth) puede avanzar en paralelo con migraciones SQL.
+**Desarrollo paralelo mediante contrato temprano:** MVP-013 no depende de aplicar migraciones: define contratos desde el brief. A partir de ahí pueden prepararse MVP-028/029/030/031 con mocks mientras se construyen RPC y consultas reales MVP-014 a MVP-019. MVP-005/006 (Auth) puede avanzar en paralelo con migraciones SQL.
 
 **Integración:** conectar MVP-032 (crear), MVP-033/034 (feed) y MVP-035/036/037/038 (detalle, voto y resultados) cuando estén listas sus respectivas RPC y consultas. MVP-044 prueba ataques antes de liberar; MVP-050 confirma lo mismo en producción.
 
@@ -763,7 +769,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 ## 7. Fuera de alcance
 
-No se implementan perfiles públicos/usernames, seguidores, comentarios, likes, mensajes, notificaciones, recomendaciones, feed personalizado, medios, respuesta múltiple, encuestas privadas o anónimas sin cuenta, programación/caducidad, edición de encuestas o voto, eliminación por usuarios, panel de administración, analítica avanzada, realtime, apps nativas, pagos ni suscripciones. Se conserva autor genérico, no una tabla `profiles`.
+No se implementan perfiles públicos/usernames, seguidores, comentarios, likes, mensajes, notificaciones, recomendaciones, feed personalizado, medios, respuesta múltiple, encuestas privadas o anónimas sin cuenta, programación/caducidad, borradores persistidos, edición de encuestas o voto, eliminación por usuarios, avatares personalizados, panel de administración, analítica avanzada, realtime, apps nativas, pagos ni suscripciones. Se conserva autor genérico, no una tabla `profiles`.
 
 ## 8. Notas de implementación y riesgos
 
@@ -777,3 +783,13 @@ No se implementan perfiles públicos/usernames, seguidores, comentarios, likes, 
 - **Tests Google:** el E2E repetible usa sesiones de test apropiadas; el login Google real se comprueba manualmente en preproducción/producción, sin distribuir cuentas personales de prueba.
 - **Publicación:** ocultar manualmente `status` no sustituye moderación proactiva ni herramientas de denuncia, pero ambas están fuera de alcance.
 - **Dependencias externas:** los secretos/OAuth/proyectos GitHub, Supabase y Vercel requieren acceso del propietario; ello no impide empezar las tareas de estructura, diseño y contratos.
+
+## 9. Revisión frente al brief adicional (v1.1)
+
+- Se conservan las cinco épicas y los 53 IDs: 51 P0 y dos P1, sin duplicar T01–T27.
+- Se fijan nombres de columnas del brief, incluido `votes.id` UUID PK; no se adoptan los nombres del borrador local apartado.
+- Se elimina la conservación de borradores, incluso en `sessionStorage`, por la exclusión explícita del nuevo brief.
+- Se añade aceptación explícita del voto en encuesta propia y de la protección de identidad del autor.
+- Se elimina la dependencia innecesaria MVP-013 → MVP-009/MVP-010 para permitir definir contratos y avanzar UI antes de aplicar esquema.
+- [Cobertura del brief y sus 27 agrupaciones](cobertura-brief.md). Los 58 issues publicados (cinco épicas y 53 tareas) están en [github-issues.md](github-issues.md); prioridades y siguiente tarea en [orden-ejecucion.md](orden-ejecucion.md).
+- No se añaden responsables, fechas de entrega, sprints ni funciones excluidas. La implementación sigue pausada.

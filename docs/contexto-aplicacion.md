@@ -29,7 +29,7 @@ El login se realiza con Google mediante Supabase Auth. La sesión debe persistir
 
 ### Crear una encuesta
 
-La ruta `/create` permite introducir una pregunta y entre dos y cuatro opciones. Se puede conservar un borrador en `sessionStorage` antes del login; se elimina tras publicar. La publicación autenticada es atómica y redirige al detalle compartible `/polls/[id]`.
+La ruta `/create` permite introducir una pregunta y entre dos y cuatro opciones. No se implementan borradores ni se persisten campos en almacenamiento del navegador. Tras iniciar sesión se retorna a `/create`; los errores recuperables pueden conservar los campos en memoria. La publicación autenticada es atómica y redirige al detalle compartible `/polls/[id]`.
 
 ### Votar y consultar resultados
 
@@ -55,8 +55,8 @@ Diseño mobile-first, usable desde 320 px, sin desbordamientos. Navegación por 
 
 ## Fuera del MVP actual
 
-Perfiles públicos, usernames, seguidores, comentarios, likes, mensajes, notificaciones, recomendaciones, feed personalizado, medios, respuestas múltiples, encuestas privadas, votos sin cuenta, programación o caducidad, edición de encuestas/votos, eliminación por usuarios, panel de administración, analítica avanzada, realtime, aplicaciones nativas, pagos y suscripciones.
+Perfiles públicos, usernames, seguidores, comentarios, likes, mensajes, notificaciones, recomendaciones, feed personalizado, medios, respuestas múltiples, encuestas privadas, votos sin cuenta, programación o caducidad, edición de encuestas/votos, eliminación por usuarios, borradores, avatares personalizados, panel de administración, analítica avanzada, realtime, aplicaciones nativas, pagos y suscripciones.
 
 ## Información adicional
 
-Pendiente de recibir del propietario. No se han supuesto funcionalidades nuevas fuera del backlog. Las próximas aportaciones se incorporarán aquí y al registro de decisiones antes de implementar.
+El [brief adicional](brief-producto.md) está incorporado al [backlog revisado](backlog.md). La [matriz de cobertura](cobertura-brief.md) documenta las 27 agrupaciones originales y los 16 casos límite. Su objetivo es validar la interacción central, sin ampliar el producto a una red social completa. La implementación permanece pausada.

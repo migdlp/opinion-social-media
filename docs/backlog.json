@@ -1,0 +1,1625 @@
+{
+  "version": "1.1",
+  "implementation_paused": true,
+  "estimates": {
+    "S": "aprox. 0,5 día",
+    "M": "aprox. 1 día",
+    "L": "aprox. 2 días"
+  },
+  "epics": [
+    {
+      "id": "E01",
+      "title": "Infraestructura, repositorio y autenticación base",
+      "description": "Configurar un esqueleto reproducible, sesiones seguras y pipeline con previews.",
+      "github": {
+        "number": 1,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/1"
+      }
+    },
+    {
+      "id": "E02",
+      "title": "Base de datos, políticas y lógica de negocio",
+      "description": "Mantener votos y resultados protegidos en Supabase/PostgreSQL; APIs directas seguras.",
+      "github": {
+        "number": 2,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/2"
+      }
+    },
+    {
+      "id": "E03",
+      "title": "Frontend y experiencia de usuario",
+      "description": "Completar explorar → elegir → votar → descubrir resultados → seguir explorando.",
+      "github": {
+        "number": 3,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/3"
+      }
+    },
+    {
+      "id": "E04",
+      "title": "Calidad, seguridad y pruebas automatizadas",
+      "description": "Demostrar integridad, aislamiento de datos y recorridos funcionales.",
+      "github": {
+        "number": 4,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/4"
+      }
+    },
+    {
+      "id": "E05",
+      "title": "Documentación, despliegue y lanzamiento",
+      "description": "Publicar un MVP verificado en producción y documentar cómo operarlo.",
+      "github": {
+        "number": 5,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/5"
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "MVP-001",
+      "epic_id": "E01",
+      "title": "Inicializar Next.js con App Router y TypeScript",
+      "description": "Crear la aplicación con Next.js, React, TypeScript estricto y Tailwind CSS; establecer rutas base y estructura modular sin servidor adicional.",
+      "acceptance_criteria": [
+        "Dado un checkout limpio, cuando se instalan las dependencias y se ejecuta el comando de desarrollo, entonces la aplicación arranca y muestra la ruta `/`.",
+        "Dado el repositorio, cuando se ejecuta la compilación de producción, entonces se genera correctamente una aplicación App Router con TypeScript estricto.",
+        "Dado el árbol de código, cuando se revisa la estructura, entonces están diferenciados UI, acceso a datos, utilidades y rutas."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "frontend",
+        "devops"
+      ],
+      "dependencies": [],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 6,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/6"
+      },
+      "suggested_order": 3,
+      "agent": null
+    },
+    {
+      "id": "MVP-002",
+      "epic_id": "E01",
+      "title": "Configurar linting, formato y comprobaciones automáticas",
+      "description": "Definir scripts reproducibles de lint, typecheck, test y build y una configuración coherente de calidad de código.",
+      "acceptance_criteria": [
+        "Dado código válido, cuando se ejecutan los scripts documentados, entonces lint, typecheck y build terminan con éxito.",
+        "Dado un error de TypeScript o lint introducido deliberadamente, cuando se lanza el check correspondiente, entonces termina con código distinto de cero.",
+        "Dado un archivo de configuración, cuando se analiza, entonces no hay credenciales reales incluidas en el repositorio."
+      ],
+      "priority": "P0",
+      "estimate": "S",
+      "labels": [
+        "devops",
+        "testing"
+      ],
+      "dependencies": [
+        "MVP-001"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 7,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/7"
+      },
+      "suggested_order": 4,
+      "agent": null
+    },
+    {
+      "id": "MVP-003",
+      "epic_id": "E01",
+      "title": "Preparar Supabase y separación de entornos",
+      "description": "Provisionar entornos Supabase de desarrollo y producción aislados, documentando la gestión de claves y URLs sin comprometer secretos.",
+      "acceptance_criteria": [
+        "Dado un entorno local configurado con su fichero no versionado, cuando se conecta a Supabase, entonces utiliza únicamente el proyecto de desarrollo.",
+        "Dado el inventario de variables, cuando se revisa, entonces URL y clave pública publicable están diferenciadas de secretos de servidor/administración.",
+        "Dado un cambio en configuración de desarrollo, cuando se verifica producción, entonces sus datos y credenciales no han sido modificados."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "backend",
+        "database",
+        "devops"
+      ],
+      "dependencies": [],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 8,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/8"
+      },
+      "suggested_order": 2,
+      "agent": null
+    },
+    {
+      "id": "MVP-004",
+      "epic_id": "E01",
+      "title": "Integrar clientes Supabase compatibles con SSR",
+      "description": "Crear clientes Supabase apropiados para navegador y servidor en Next.js usando el mecanismo SSR vigente; centralizar la configuración. La generación definitiva de tipos del esquema corresponde a MVP-022.",
+      "acceptance_criteria": [
+        "Dado una llamada desde un componente cliente y otra desde servidor, cuando se ejecutan, entonces ambas usan los clientes adecuados sin exponer secretos privilegiados.",
+        "Dado el proyecto TypeScript, cuando se importa Supabase desde frontend y servidor, entonces se utiliza una única capa de clientes reutilizables sin duplicación de configuración.",
+        "Dado un acceso sin sesión, cuando se ejecuta una consulta pública, entonces funciona sin requerir cookies autenticadas."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "backend",
+        "frontend",
+        "auth"
+      ],
+      "dependencies": [
+        "MVP-001",
+        "MVP-003"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 9,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/9"
+      },
+      "suggested_order": 14,
+      "agent": null
+    },
+    {
+      "id": "MVP-005",
+      "epic_id": "E01",
+      "title": "Habilitar Google OAuth en Supabase",
+      "description": "Configurar el proveedor Google y las URLs de redirección permitidas para local, preview si procede y producción, sin habilitar contraseñas propias.",
+      "acceptance_criteria": [
+        "Dado el proyecto de desarrollo, cuando un usuario inicia Google OAuth, entonces Supabase acepta el flujo y puede devolverlo a una URL autorizada.",
+        "Dado una URL de retorno ajena a la lista permitida, cuando se intenta utilizar, entonces no se acepta como destino de autenticación.",
+        "Dado el panel de Auth, cuando se revisa, entonces no se ha añadido ningún sistema de contraseña personalizado."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "auth",
+        "devops"
+      ],
+      "dependencies": [
+        "MVP-003"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 10,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/10"
+      },
+      "suggested_order": 15,
+      "agent": null
+    },
+    {
+      "id": "MVP-006",
+      "epic_id": "E01",
+      "title": "Implementar callback OAuth y persistencia de sesión SSR",
+      "description": "Configurar intercambio de código OAuth, actualización/lectura de sesión y redirecciones internas seguras usando App Router.",
+      "acceptance_criteria": [
+        "Dado un login exitoso, cuando se regresa a la aplicación, entonces se establece la sesión y el usuario sigue autenticado al recargar.",
+        "Dado un parámetro de retorno externo o malformado, cuando se completa el callback, entonces se usa un destino local seguro.",
+        "Dado una sesión expirada, cuando se accede a un flujo protegido, entonces se ofrece de nuevo autenticación sin un error técnico visible."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "auth",
+        "frontend",
+        "backend"
+      ],
+      "dependencies": [
+        "MVP-004",
+        "MVP-005"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 11,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/11"
+      },
+      "suggested_order": 16,
+      "agent": null
+    },
+    {
+      "id": "MVP-007",
+      "epic_id": "E01",
+      "title": "Preparar repositorio GitHub y pipeline de integración continua",
+      "description": "Preparar repositorio único, exclusiones de ficheros sensibles y un flujo CI que valide el código en cada pull request.",
+      "acceptance_criteria": [
+        "Dado un pull request, cuando corre CI, entonces ejecuta como mínimo lint, typecheck, tests disponibles y build.",
+        "Dado un check fallido, cuando se consulta el estado de CI, entonces la ejecución queda marcada como fallida.",
+        "Dado el historial y los archivos versionados, cuando se buscan secretos y `.env` reales, entonces no aparecen."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "devops",
+        "testing"
+      ],
+      "dependencies": [
+        "MVP-001",
+        "MVP-002"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 12,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/12"
+      },
+      "suggested_order": 17,
+      "agent": null
+    },
+    {
+      "id": "MVP-008",
+      "epic_id": "E01",
+      "title": "Conectar Vercel y activar despliegues de preview",
+      "description": "Conectar el repositorio a Vercel; configurar builds de preview, variables por entorno y despliegue aislado del dominio de producción.",
+      "acceptance_criteria": [
+        "Dado un cambio en una rama de trabajo, cuando se publica en GitHub, entonces se genera una preview funcional.",
+        "Dado la configuración de preview, cuando se inspeccionan las variables, entonces no usa la base de datos productiva ni secretos administrativos en `NEXT_PUBLIC_*`.",
+        "Dado una preview, cuando se abre su URL, entonces carga la aplicación sin depender del ordenador del desarrollador."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "devops"
+      ],
+      "dependencies": [
+        "MVP-003",
+        "MVP-007"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 13,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/13"
+      },
+      "suggested_order": 18,
+      "agent": null
+    },
+    {
+      "id": "MVP-009",
+      "epic_id": "E02",
+      "title": "Crear migraciones base de polls y poll_options",
+      "description": "Crear esquema SQL versionado para encuestas y opciones, tipos, claves foráneas, defaults, posiciones y restricciones de campos aplicables.",
+      "acceptance_criteria": [
+        "Dado una base de datos vacía, cuando se ejecutan migraciones por orden, entonces se crean `polls` y `poll_options` con UUID, FK, timestamps y `status` restringido a `published/hidden`.",
+        "Dado una opción, cuando se consulta su posición, entonces está asociada a una encuesta y su posición está limitada al rango 1–4 y no se repite dentro de esa encuesta.",
+        "Dado una encuesta creada sin estado explícito, cuando se inserta desde un contexto autorizado, entonces `status` toma `published`.",
+        "Dado el esquema aplicado, cuando se inspeccionan columnas y FK, entonces `polls` contiene `id`, `user_id`, `question`, `status`, `created_at`, y `poll_options` contiene `id`, `poll_id`, `text`, `position`, según el brief; no se crea `profiles` ni una cuarta tabla propia."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "database",
+        "backend"
+      ],
+      "dependencies": [
+        "MVP-003"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 14,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/14"
+      },
+      "suggested_order": 5,
+      "agent": null
+    },
+    {
+      "id": "MVP-010",
+      "epic_id": "E02",
+      "title": "Crear votes y garantías de integridad",
+      "description": "Crear tabla `votes` y restricciones contra repetición y contra opciones de encuestas distintas; añadir índices básicos de acceso.",
+      "acceptance_criteria": [
+        "Dado dos votos para la misma pareja `(poll_id,user_id)`, cuando se intenta persistir el segundo, entonces lo rechaza `UNIQUE (poll_id,user_id)`.",
+        "Dado un `option_id` que pertenece a otra encuesta, cuando se intenta insertar un voto, entonces la base de datos lo rechaza por FK compuesta.",
+        "Dado la consulta de feed/opciones/votos, cuando se inspecciona el esquema, entonces existen índices para orden temporal, búsqueda por encuesta y verificación de voto.",
+        "Dado el esquema de votos, cuando se inspecciona, entonces `votes.id` es UUID y PK, y existen `poll_id`, `option_id`, `user_id`, `created_at`, además de `UNIQUE(poll_id,user_id)` y la FK compuesta."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "database",
+        "security"
+      ],
+      "dependencies": [
+        "MVP-009"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 15,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/15"
+      },
+      "suggested_order": 6,
+      "agent": null
+    },
+    {
+      "id": "MVP-011",
+      "epic_id": "E02",
+      "title": "Activar RLS para encuestas y opciones públicas",
+      "description": "Habilitar RLS y políticas de SELECT para publicar sólo encuestas visibles y sus opciones; bloquear CRUD directo no autorizado.",
+      "acceptance_criteria": [
+        "Dado un cliente anónimo, cuando lee `polls` o `poll_options`, entonces recibe únicamente registros asociados a encuestas `published`.",
+        "Dado un cliente autenticado común, cuando intenta insertar, editar u ocultar una encuesta/opción directamente, entonces se deniega.",
+        "Dado una encuesta `hidden`, cuando un cliente intenta acceder a ella o a sus opciones por consulta directa, entonces no se devuelven filas.",
+        "Dado un cliente público, cuando consulta tablas o adaptadores de encuesta, entonces las columnas de salida se limitan a los datos públicos y no exponen `polls.user_id`, email ni identidad de Google; se revisan permisos por columna o una proyección segura equivalente."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "database",
+        "security"
+      ],
+      "dependencies": [
+        "MVP-009"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 16,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/16"
+      },
+      "suggested_order": 7,
+      "agent": null
+    },
+    {
+      "id": "MVP-012",
+      "epic_id": "E02",
+      "title": "Activar RLS de votos y revocar escrituras directas",
+      "description": "Habilitar RLS para que cada cuenta sólo pueda leer sus votos; impedir inserciones, modificaciones y eliminaciones directas desde clientes.",
+      "acceptance_criteria": [
+        "Dado el usuario A, cuando consulta `votes`, entonces sólo obtiene filas con su propio `user_id`.",
+        "Dado una persona anónima o el usuario B, cuando intenta consultar votos del usuario A, entonces no obtiene esas filas.",
+        "Dado un cliente normal, cuando intenta INSERT, UPDATE o DELETE en `votes`, entonces la operación es denegada."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "database",
+        "security"
+      ],
+      "dependencies": [
+        "MVP-010"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 17,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/17"
+      },
+      "suggested_order": 8,
+      "agent": null
+    },
+    {
+      "id": "MVP-013",
+      "epic_id": "E02",
+      "title": "Definir contratos de consultas y funciones RPC",
+      "description": "Fijar nombres, argumentos, formatos de éxito/error, tipado y seguridad del contrato de `create_poll`, `vote_poll`, `get_poll_results`, feed y detalle para desbloquear frontend con mocks.",
+      "acceptance_criteria": [
+        "Dado el documento de contratos, cuando frontend prepara mocks, entonces conoce campos, tipos, estados de autenticación y errores esperados.",
+        "Dado `get_poll_results`, cuando se revisa la respuesta definida, entonces sólo contiene agregados por opción, total y opción propia; nunca identidades de votantes.",
+        "Dado un fallo de autorización, validación o voto repetido, cuando se consulta el contrato, entonces hay un código controlado distinguible."
+      ],
+      "priority": "P0",
+      "estimate": "S",
+      "labels": [
+        "backend",
+        "frontend",
+        "security"
+      ],
+      "dependencies": [],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 18,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/18"
+      },
+      "suggested_order": 1,
+      "agent": null
+    },
+    {
+      "id": "MVP-014",
+      "epic_id": "E02",
+      "title": "Implementar create_poll con validación y atomicidad",
+      "description": "Crear la RPC `create_poll` para un usuario autenticado: validar contenido, normalizar espacios y guardar encuesta y 2–4 opciones en la misma transacción.",
+      "acceptance_criteria": [
+        "Dado un usuario autenticado con pregunta de 10–280 caracteres y 2–4 opciones únicas de 1–100 caracteres, cuando invoca la RPC, entonces se crea una encuesta pública completa y se devuelve su UUID.",
+        "Dado contenido inválido, opciones repetidas ignorando mayúsculas y espacios normalizados o ausencia de sesión, cuando llama, entonces se rechaza sin dejar encuestas ni opciones parciales.",
+        "Dado una llamada manipulada con `user_id` o `status`, cuando se procesa, entonces el servidor determina el autor y el estado es `published`."
+      ],
+      "priority": "P0",
+      "estimate": "L",
+      "labels": [
+        "database",
+        "backend",
+        "security"
+      ],
+      "dependencies": [
+        "MVP-009",
+        "MVP-011",
+        "MVP-013"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 19,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/19"
+      },
+      "suggested_order": 9,
+      "agent": null
+    },
+    {
+      "id": "MVP-015",
+      "epic_id": "E02",
+      "title": "Limitar create_poll a cinco encuestas por hora y cuenta",
+      "description": "Incorporar límite deslizante de 5 publicaciones por 60 minutos, con protección transaccional frente a creación simultánea por la misma cuenta.",
+      "acceptance_criteria": [
+        "Dado un usuario con cinco encuestas creadas durante los últimos 60 minutos, cuando intenta una sexta, entonces recibe un error controlado y no se persiste ninguna fila.",
+        "Dado dos publicaciones concurrentes cerca del límite, cuando ambas terminan, entonces nunca se supera la cuota de cinco.",
+        "Dado una publicación fuera de la ventana móvil de 60 minutos, cuando se vuelve a crear, entonces se permite si vuelve a haber capacidad."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "backend",
+        "database",
+        "security"
+      ],
+      "dependencies": [
+        "MVP-014"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 20,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/20"
+      },
+      "suggested_order": 10,
+      "agent": null
+    },
+    {
+      "id": "MVP-016",
+      "epic_id": "E02",
+      "title": "Implementar vote_poll seguro e inmutable",
+      "description": "Crear la RPC `vote_poll` que autentica, verifica encuesta publicada y pertenencia de opción y persiste voto atómico sin permitir cambios.",
+      "acceptance_criteria": [
+        "Dado un usuario autenticado y opción de encuesta publicada, cuando vota por primera vez, entonces se crea exactamente un voto y se devuelve confirmación.",
+        "Dado una encuesta inexistente/oculta o una opción de otra encuesta, cuando intenta votar, entonces se rechaza sin modificar datos.",
+        "Dado dos intentos simultáneos, cuando se ejecutan, entonces la restricción `UNIQUE` impide más de un voto y el otro recibe resultado controlado.",
+        "Dado el creador de una encuesta publicada, cuando vota en su propia encuesta por primera vez, entonces su voto es aceptado bajo las mismas restricciones que el de cualquier otra cuenta."
+      ],
+      "priority": "P0",
+      "estimate": "L",
+      "labels": [
+        "database",
+        "backend",
+        "security"
+      ],
+      "dependencies": [
+        "MVP-010",
+        "MVP-011",
+        "MVP-012",
+        "MVP-013"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 21,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/21"
+      },
+      "suggested_order": 11,
+      "agent": null
+    },
+    {
+      "id": "MVP-017",
+      "epic_id": "E02",
+      "title": "Implementar get_poll_results sin fugas",
+      "description": "Crear RPC privilegiada pero acotada: autenticar, validar publicación, comprobar voto propio y sólo entonces calcular agregados con barras/porcentajes calculables.",
+      "acceptance_criteria": [
+        "Dado un usuario que no ha votado (aunque sea el autor), cuando solicita resultados, entonces se deniega sin devolver totales ni recuentos.",
+        "Dado quien ha votado en encuesta publicada, cuando consulta, entonces recibe todas las opciones con votos (incluidos ceros), total, porcentaje a un decimal y su `option_id` elegido.",
+        "Dado una encuesta oculta, cuando un votante anterior consulta resultados, entonces no recibe datos agregados."
+      ],
+      "priority": "P0",
+      "estimate": "L",
+      "labels": [
+        "database",
+        "backend",
+        "security"
+      ],
+      "dependencies": [
+        "MVP-010",
+        "MVP-012",
+        "MVP-013",
+        "MVP-016"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 22,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/22"
+      },
+      "suggested_order": 12,
+      "agent": null
+    },
+    {
+      "id": "MVP-018",
+      "epic_id": "E02",
+      "title": "Publicar consultas de feed paginado sin datos de votos",
+      "description": "Centralizar consulta pública de encuestas y opciones, 20 elementos por lote, orden estable de más reciente a más antiguo y paginación por cursor.",
+      "acceptance_criteria": [
+        "Dado más de veinte encuestas visibles, cuando se carga el feed, entonces llegan veinte como máximo y un cursor válido para continuar.",
+        "Dado empates en `created_at`, cuando se pagina, entonces el orden desempata por UUID y ninguna encuesta se repite dentro de una secuencia estable.",
+        "Dado un visitante, cuando inspecciona la respuesta o las consultas de red, entonces no hay recuentos, porcentajes ni votos de terceros."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "backend",
+        "frontend",
+        "security"
+      ],
+      "dependencies": [
+        "MVP-009",
+        "MVP-011",
+        "MVP-013"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 23,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/23"
+      },
+      "suggested_order": 19,
+      "agent": null
+    },
+    {
+      "id": "MVP-019",
+      "epic_id": "E02",
+      "title": "Consultar detalle de encuesta y estado propio de voto",
+      "description": "Crear funciones de acceso tipadas para recuperar una encuesta visible con opciones ordenadas y, si hay sesión, la opción previamente votada por el usuario.",
+      "acceptance_criteria": [
+        "Dado un ID publicado, cuando se abre el detalle, entonces se reciben pregunta, autor genérico, fecha y opciones en su orden definido.",
+        "Dado un usuario que ya votó, cuando se carga el detalle desde otra sesión/dispositivo, entonces se recupera su elección sin solicitarle volver a votar.",
+        "Dado un ID inválido, inexistente u oculto, cuando se solicita el detalle, entonces se devuelve estado no disponible sin exponer si el ID oculto existe."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "backend",
+        "frontend",
+        "security"
+      ],
+      "dependencies": [
+        "MVP-009",
+        "MVP-011",
+        "MVP-012",
+        "MVP-013"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 24,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/24"
+      },
+      "suggested_order": 20,
+      "agent": null
+    },
+    {
+      "id": "MVP-020",
+      "epic_id": "E02",
+      "title": "Endurecer permisos y ejecución de todas las RPC",
+      "description": "Revisar `SECURITY DEFINER`, propietarios, `search_path`, uso de esquemas cualificados y `GRANT/REVOKE`; negar EXECUTE genérico.",
+      "acceptance_criteria": [
+        "Dado una conexión `anon`, cuando intenta ejecutar RPC de creación, voto o resultados, entonces se deniega la ejecución o la función no revela información.",
+        "Dado una sesión `authenticated`, cuando invoca la RPC, entonces la autorización real procede de `auth.uid()` y no de parámetros suministrados por el cliente.",
+        "Dado una revisión de permisos, cuando se inspeccionan funciones y tablas, entonces no existen rutas cliente alternativas para listar votos agregados o escribir datos protegidos."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "database",
+        "security"
+      ],
+      "dependencies": [
+        "MVP-014",
+        "MVP-015",
+        "MVP-016",
+        "MVP-017"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 25,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/25"
+      },
+      "suggested_order": 13,
+      "agent": null
+    },
+    {
+      "id": "MVP-021",
+      "epic_id": "E02",
+      "title": "Habilitar moderación manual de encuestas ocultas",
+      "description": "Establecer procedimiento administrativo documentado para poner `status = hidden` sin panel de gestión ni eliminación física.",
+      "acceptance_criteria": [
+        "Dado un operador con privilegios administrativos, cuando cambia una encuesta a `hidden` desde Supabase, entonces desaparece del feed y de la lectura pública.",
+        "Dado la URL de una encuesta oculta, cuando se abre o se intenta votar/consultar resultados, entonces se muestra no disponible y no se permite la operación.",
+        "Dado un usuario normal, cuando intenta cambiar `status`, entonces RLS/permisos lo impiden."
+      ],
+      "priority": "P0",
+      "estimate": "S",
+      "labels": [
+        "database",
+        "security"
+      ],
+      "dependencies": [
+        "MVP-011",
+        "MVP-016",
+        "MVP-017",
+        "MVP-018",
+        "MVP-019"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 26,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/26"
+      },
+      "suggested_order": 21,
+      "agent": null
+    },
+    {
+      "id": "MVP-022",
+      "epic_id": "E02",
+      "title": "Crear migraciones reproducibles y generación de tipos en CI",
+      "description": "Asegurar que esquema, índices, políticas y funciones se aplican desde SQL versionado y que los tipos usados por la app coinciden con las migraciones.",
+      "acceptance_criteria": [
+        "Dado un Supabase local/limpio, cuando se reproducen las migraciones, entonces se crea todo el esquema y sus RPC sin pasos manuales ocultos.",
+        "Dado tipos regenerados desde el esquema, cuando se ejecuta typecheck, entonces la aplicación compila con las firmas reales.",
+        "Dado un segundo despliegue sin nuevos cambios, cuando se sigue el procedimiento documentado, entonces no se aplican cambios destructivos inesperados."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "database",
+        "devops",
+        "testing"
+      ],
+      "dependencies": [
+        "MVP-009",
+        "MVP-010",
+        "MVP-011",
+        "MVP-012",
+        "MVP-020"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 27,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/27"
+      },
+      "suggested_order": 22,
+      "agent": null
+    },
+    {
+      "id": "MVP-023",
+      "epic_id": "E02",
+      "title": "Configurar códigos de error seguros y adaptadores de datos",
+      "description": "Centralizar llamadas al SDK, normalizar errores de RPC/red y hacer que la UI no reciba ni muestre detalles SQL internos.",
+      "acceptance_criteria": [
+        "Dado un error conocido (sin sesión, inválido, oculto, duplicado, límite), cuando se recibe, entonces se traduce a un código y mensaje orientado al usuario.",
+        "Dado una caída de red o error inesperado, cuando falla la llamada, entonces se obtiene error genérico recuperable sin mostrar SQL, stack ni credenciales.",
+        "Dado dos componentes que necesitan la misma operación, cuando se revisan, entonces usan el mismo adaptador tipado."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "backend",
+        "frontend",
+        "security"
+      ],
+      "dependencies": [
+        "MVP-013",
+        "MVP-014",
+        "MVP-016",
+        "MVP-017",
+        "MVP-018",
+        "MVP-019"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 28,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/28"
+      },
+      "suggested_order": 26,
+      "agent": null
+    },
+    {
+      "id": "MVP-024",
+      "epic_id": "E03",
+      "title": "Definir diseño base mobile-first y navegación",
+      "description": "Crear tokens mínimos de espaciado/tipografía y layout con `Header`, acceso al feed y acción visible de crear encuesta.",
+      "acceptance_criteria": [
+        "Dado móvil de 320 px y escritorio habitual, cuando se abre cualquier ruta principal, entonces no hay desbordamiento horizontal ni navegación inaccesible.",
+        "Dado un usuario en el detalle o creación, cuando pulsa la marca o enlace del header, entonces regresa al feed.",
+        "Dado el layout, cuando se revisa, entonces mantiene jerarquía visual legible sin depender de una identidad de marca compleja."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "design",
+        "frontend"
+      ],
+      "dependencies": [
+        "MVP-001"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 29,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/29"
+      },
+      "suggested_order": 28,
+      "agent": null
+    },
+    {
+      "id": "MVP-025",
+      "epic_id": "E03",
+      "title": "Crear componentes LoadingState y EmptyState reutilizables",
+      "description": "Construir componentes accesibles y reutilizables para carga, ausencia de encuestas y ausencia de resultados listables.",
+      "acceptance_criteria": [
+        "Dado contenido cargando, cuando se muestra LoadingState, entonces se anuncia el estado y no se presenta la página como vacía.",
+        "Dado feed con cero encuestas visibles, cuando termina la carga, entonces aparece EmptyState con explicación y navegación útil.",
+        "Dado un componente reutilizado en feed o detalle, cuando cambia el estado, entonces no permanece la UI obsoleta."
+      ],
+      "priority": "P0",
+      "estimate": "S",
+      "labels": [
+        "frontend",
+        "design"
+      ],
+      "dependencies": [
+        "MVP-024"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 30,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/30"
+      },
+      "suggested_order": 29,
+      "agent": null
+    },
+    {
+      "id": "MVP-026",
+      "epic_id": "E03",
+      "title": "Implementar AuthButton, estado de sesión y cierre de sesión",
+      "description": "Conectar el header a la sesión actual, mostrando login o logout según proceda y limpiando estado de sesión correctamente.",
+      "acceptance_criteria": [
+        "Dado un visitante, cuando abre la app, entonces ve una acción de iniciar sesión sin bloquear el feed.",
+        "Dado usuario autenticado, cuando pulsa cerrar sesión, entonces deja de ver datos exclusivos de votante y continúa pudiendo navegar como anónimo.",
+        "Dado una recarga con sesión vigente, cuando se renderiza la cabecera, entonces refleja el estado correcto sin ofrecer voto duplicado."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "frontend",
+        "auth"
+      ],
+      "dependencies": [
+        "MVP-006",
+        "MVP-024"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 31,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/31"
+      },
+      "suggested_order": 30,
+      "agent": null
+    },
+    {
+      "id": "MVP-027",
+      "epic_id": "E03",
+      "title": "Construir /login y retorno seguro a flujo previo",
+      "description": "Crear pantalla `/login` con Google y retorno a ruta interna anterior después del callback; contemplar cancelación y errores de OAuth.",
+      "acceptance_criteria": [
+        "Dado un visitante que llega desde encuesta o `/create`, cuando inicia sesión, entonces vuelve a esa ruta y puede continuar sin repetir la navegación.",
+        "Dado un intento de retorno a URL externa, cuando se completa el login, entonces se ignora y se usa `/`.",
+        "Dado un error o cancelación de Google OAuth, cuando vuelve a la app, entonces ve explicación y puede reintentar sin bucle de redirecciones."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "frontend",
+        "auth"
+      ],
+      "dependencies": [
+        "MVP-006",
+        "MVP-024",
+        "MVP-026"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 32,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/32"
+      },
+      "suggested_order": 31,
+      "agent": null
+    },
+    {
+      "id": "MVP-028",
+      "epic_id": "E03",
+      "title": "Crear componente PollOption y selector de voto",
+      "description": "Crear opciones de respuesta de selección única con estados normal, seleccionado, deshabilitado y accesible mediante teclado.",
+      "acceptance_criteria": [
+        "Dado una encuesta no votada, cuando se selecciona una opción, entonces se deselecciona la anterior y queda sólo una elegida.",
+        "Dado el teclado, cuando se recorren y eligen las opciones, entonces los controles informan de su estado a tecnología asistiva.",
+        "Dado votación pendiente o completada, cuando se intenta elegir otra opción, entonces la UI no admite cambios nuevos."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "frontend",
+        "design"
+      ],
+      "dependencies": [
+        "MVP-024",
+        "MVP-013"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 33,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/33"
+      },
+      "suggested_order": 32,
+      "agent": null
+    },
+    {
+      "id": "MVP-029",
+      "epic_id": "E03",
+      "title": "Crear PollCard pública y estado previo al voto",
+      "description": "Componer tarjeta reutilizable con pregunta, opciones, fecha aproximada y autor genérico, sin datos agregados antes de votar.",
+      "acceptance_criteria": [
+        "Dado visitante o usuario sin voto, cuando se renderiza PollCard, entonces muestra pregunta/opciones/fecha y ningún total, barra o porcentaje.",
+        "Dado una pregunta u opción en el límite de longitud, cuando se muestra en móvil, entonces se lee sin romper el layout.",
+        "Dado un clic en la tarjeta o su enlace, cuando se navega, entonces se abre `/polls/{id}`."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "frontend",
+        "design"
+      ],
+      "dependencies": [
+        "MVP-024",
+        "MVP-028",
+        "MVP-013"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 34,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/34"
+      },
+      "suggested_order": 33,
+      "agent": null
+    },
+    {
+      "id": "MVP-030",
+      "epic_id": "E03",
+      "title": "Construir PollResults con barras, totales y elección propia",
+      "description": "Implementar visualización de resultados desde agregados autorizados: barra horizontal, porcentaje, número por opción, total y opción propia destacada.",
+      "acceptance_criteria": [
+        "Dado un resultado permitido, cuando se renderiza, entonces todas las opciones aparecen con barra, recuento y porcentaje y se muestra el total.",
+        "Dado la elección personal, cuando llegan resultados, entonces esa opción está señalada de forma visual y accesible sin depender sólo del color.",
+        "Dado una opción con cero votos, cuando se muestra, entonces se presenta `0` y barra vacía sin NaN ni división por cero."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "frontend",
+        "design"
+      ],
+      "dependencies": [
+        "MVP-024",
+        "MVP-013"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 35,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/35"
+      },
+      "suggested_order": 34,
+      "agent": null
+    },
+    {
+      "id": "MVP-031",
+      "epic_id": "E03",
+      "title": "Crear formulario PollCreationForm y validaciones cliente",
+      "description": "Construir formulario `/create` de pregunta y 2–4 opciones con controles de añadir/eliminar y normalización equivalente al backend.",
+      "acceptance_criteria": [
+        "Dado un formulario inicial, cuando se carga, entonces tiene pregunta y dos opciones editables, y permite añadir hasta cuatro.",
+        "Dado pregunta fuera de 10–280 caracteres, opción fuera de 1–100 o duplicados normalizados, cuando se intenta enviar, entonces no envía y señala campos afectados.",
+        "Dado el formulario en móvil, cuando se rellenan todas las opciones, entonces es usable con teclado y táctil sin desbordes.",
+        "Dado el formulario y una recarga o un nuevo acceso, cuando se inspeccionan base de datos y almacenamiento del navegador, entonces no existe guardado ni recuperación de borradores de encuesta; tras OAuth se exige sólo recuperar la ruta `/create`."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "frontend",
+        "design"
+      ],
+      "dependencies": [
+        "MVP-024",
+        "MVP-013"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 36,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/36"
+      },
+      "suggested_order": 35,
+      "agent": null
+    },
+    {
+      "id": "MVP-032",
+      "epic_id": "E03",
+      "title": "Publicar desde formulario y redirigir al detalle",
+      "description": "Integrar envío de `/create` con `create_poll`, bloqueo anti doble envío, notificaciones de error y redirección al nuevo detalle.",
+      "acceptance_criteria": [
+        "Dado un usuario autenticado y datos correctos, cuando publica, entonces sólo se crea una encuesta y navega a `/polls/{id}`.",
+        "Dado usuario sin sesión que intenta publicar, cuando inicia sesión, entonces vuelve a `/create` y puede completar y publicar la encuesta, sin requerir recuperación de borradores persistidos.",
+        "Dado cuota agotada o error de red, cuando falla, entonces mantiene los campos, muestra mensaje comprensible y permite reintentar sin duplicación accidental."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "frontend",
+        "backend",
+        "auth"
+      ],
+      "dependencies": [
+        "MVP-031",
+        "MVP-014",
+        "MVP-015",
+        "MVP-023",
+        "MVP-027"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 37,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/37"
+      },
+      "suggested_order": 36,
+      "agent": null
+    },
+    {
+      "id": "MVP-033",
+      "epic_id": "E03",
+      "title": "Integrar feed público cronológico en /",
+      "description": "Conectar ruta `/` al adaptador público y renderizar tarjetas reales en orden cronológico, en móvil y escritorio.",
+      "acceptance_criteria": [
+        "Dado visitante sin sesión, cuando abre `/`, entonces ve encuestas publicadas y puede navegar entre ellas.",
+        "Dado una encuesta recién publicada, cuando se recarga el primer lote del feed, entonces aparece antes de las más antiguas.",
+        "Dado un error de consulta, cuando ocurre, entonces se muestra estado de recuperación sin romper toda la aplicación."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "frontend",
+        "backend"
+      ],
+      "dependencies": [
+        "MVP-018",
+        "MVP-024",
+        "MVP-025",
+        "MVP-029",
+        "MVP-023"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 38,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/38"
+      },
+      "suggested_order": 37,
+      "agent": null
+    },
+    {
+      "id": "MVP-034",
+      "epic_id": "E03",
+      "title": "Implementar paginación del feed de veinte elementos",
+      "description": "Añadir controles de cargar más y estado de fin de listado mediante cursores, evitando repeticiones de encuesta al avanzar.",
+      "acceptance_criteria": [
+        "Dado veintiuna o más encuestas visibles, cuando se abre el feed, entonces sólo se solicitan/renderizan las primeras veinte inicialmente.",
+        "Dado que hay otra página, cuando se pulsa cargar más, entonces se añaden los siguientes registros sin duplicar tarjetas previamente vistas.",
+        "Dado fin de listado o petición activa, cuando se consulta el control, entonces se oculta o deshabilita de forma coherente."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "frontend",
+        "backend"
+      ],
+      "dependencies": [
+        "MVP-018",
+        "MVP-033"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 39,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/39"
+      },
+      "suggested_order": 38,
+      "agent": null
+    },
+    {
+      "id": "MVP-035",
+      "epic_id": "E03",
+      "title": "Implementar página compartible /polls/[id]",
+      "description": "Crear ruta pública de detalle con datos reales, visualización previa al voto y tratamiento uniforme de encuestas inexistentes u ocultas.",
+      "acceptance_criteria": [
+        "Dado `/polls/{id}` válido de encuesta publicada, cuando se abre en navegador nuevo sin sesión, entonces muestra la pregunta y opciones.",
+        "Dado un UUID mal formado, inexistente u oculto, cuando se abre, entonces la página muestra no disponible/404 sin filtrar su estado privado.",
+        "Dado una recarga directa de la URL, cuando se vuelve a cargar, entonces conserva su funcionamiento sin exigir pasar por `/`."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "frontend",
+        "backend"
+      ],
+      "dependencies": [
+        "MVP-019",
+        "MVP-024",
+        "MVP-025",
+        "MVP-029",
+        "MVP-023"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 40,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/40"
+      },
+      "suggested_order": 39,
+      "agent": null
+    },
+    {
+      "id": "MVP-036",
+      "epic_id": "E03",
+      "title": "Integrar votación y petición de autenticación",
+      "description": "Conectar elección a `vote_poll` en feed y detalle; exigir sesión al confirmar y bloquear interacciones mientras se envía.",
+      "acceptance_criteria": [
+        "Dado usuario autenticado sin voto, cuando selecciona una opción y confirma, entonces se envía sólo esa opción y se deshabilita el formulario durante el envío.",
+        "Dado visitante, cuando intenta confirmar un voto, entonces se le ofrece login y vuelve a la encuesta; no se emite ningún voto sin confirmación posterior.",
+        "Dado dos clics rápidos o respuesta de voto duplicado, cuando ocurren, entonces no se registra voto extra y se recarga el estado real."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "frontend",
+        "backend",
+        "auth"
+      ],
+      "dependencies": [
+        "MVP-016",
+        "MVP-027",
+        "MVP-028",
+        "MVP-035",
+        "MVP-023"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 41,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/41"
+      },
+      "suggested_order": 40,
+      "agent": null
+    },
+    {
+      "id": "MVP-037",
+      "epic_id": "E03",
+      "title": "Mostrar resultados sólo a quien haya votado",
+      "description": "Cambiar de formulario a resultados después de votar; al regresar o recargar detectar voto previo y consultar la RPC autorizada.",
+      "acceptance_criteria": [
+        "Dado primer voto confirmado, cuando termina, entonces aparece PollResults y se deshabilita para siempre la votación en esa encuesta.",
+        "Dado votante que vuelve desde otro dispositivo/sesión, cuando abre la encuesta, entonces ve los resultados directamente.",
+        "Dado usuario que no ha votado, cuando entra al feed/detalle e inspecciona red, HTML y estado inicial, entonces no se solicitan ni hidratan agregados."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "frontend",
+        "backend",
+        "security"
+      ],
+      "dependencies": [
+        "MVP-017",
+        "MVP-019",
+        "MVP-030",
+        "MVP-035",
+        "MVP-036",
+        "MVP-023"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 42,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/42"
+      },
+      "suggested_order": 41,
+      "agent": null
+    },
+    {
+      "id": "MVP-038",
+      "epic_id": "E03",
+      "title": "Integrar estado votado en tarjetas del feed",
+      "description": "Detectar el voto propio en las encuestas del lote visible y pintar resultados en esas tarjetas sin consultas repetidas innecesarias.",
+      "acceptance_criteria": [
+        "Dado usuario autenticado con votos en distintas encuestas del feed, cuando carga un lote, entonces las votadas muestran resultados y las demás opciones sin cifras.",
+        "Dado un visitante, cuando carga la misma lista, entonces ninguna tarjeta consulta resultados.",
+        "Dado paginación de 20 tarjetas, cuando se navega, entonces se evita un patrón de 20 consultas independientes de estado si puede resolverse con lectura agregada de los votos propios."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "frontend",
+        "backend"
+      ],
+      "dependencies": [
+        "MVP-012",
+        "MVP-017",
+        "MVP-018",
+        "MVP-019",
+        "MVP-029",
+        "MVP-030",
+        "MVP-033",
+        "MVP-037"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 43,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/43"
+      },
+      "suggested_order": 42,
+      "agent": null
+    },
+    {
+      "id": "MVP-039",
+      "epic_id": "E03",
+      "title": "Añadir copia de enlace de encuesta",
+      "description": "Incorporar acción copiar URL pública de encuesta, con feedback y alternativa si el portapapeles no está disponible.",
+      "acceptance_criteria": [
+        "Dado una encuesta pública, cuando se pulsa copiar enlace en un contexto compatible, entonces se copia una URL válida `/polls/{id}`.",
+        "Dado permiso de portapapeles denegado, cuando se pulsa copiar, entonces aparece una alternativa usable sin error técnico.",
+        "Dado URL copiada, cuando se abre en navegación privada, entonces la encuesta pública es accesible sin iniciar sesión."
+      ],
+      "priority": "P0",
+      "estimate": "S",
+      "labels": [
+        "frontend",
+        "design"
+      ],
+      "dependencies": [
+        "MVP-035"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 44,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/44"
+      },
+      "suggested_order": 43,
+      "agent": null
+    },
+    {
+      "id": "MVP-040",
+      "epic_id": "E03",
+      "title": "Revisar UX responsive, accesibilidad y errores de red",
+      "description": "Revisión transversal de interfaz, foco/teclado, mensajes, estados loading/error, móvil y tratamiento de conectividad intermitente.",
+      "acceptance_criteria": [
+        "Dado un móvil de 320 px, tableta y escritorio, cuando se recorren las cuatro rutas principales, entonces no hay controles inaccesibles ni scroll horizontal accidental.",
+        "Dado navegación con teclado, cuando se cambia de ruta, vota o aparece un error, entonces existe foco usable, etiquetas y anuncios comprensibles.",
+        "Dado pérdida de conexión al publicar/votar, cuando se recupera, entonces se consulta el estado servidor antes de permitir reintentar una acción que quizá se completó."
+      ],
+      "priority": "P0",
+      "estimate": "L",
+      "labels": [
+        "frontend",
+        "design",
+        "testing"
+      ],
+      "dependencies": [
+        "MVP-025",
+        "MVP-026",
+        "MVP-027",
+        "MVP-030",
+        "MVP-032",
+        "MVP-034",
+        "MVP-036",
+        "MVP-037",
+        "MVP-038",
+        "MVP-039"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 45,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/45"
+      },
+      "suggested_order": 44,
+      "agent": null
+    },
+    {
+      "id": "MVP-052",
+      "epic_id": "E03",
+      "title": "Mejorar transiciones visuales y skeletons no bloqueantes",
+      "description": "Pulir estados de carga con placeholders y transiciones discretas, sin alterar lógica ni ocultación de resultados.",
+      "acceptance_criteria": [
+        "Dado una carga lenta, cuando se muestra el feed, entonces el layout se mantiene visualmente estable.",
+        "Dado la preferencia de movimiento reducido, cuando se carga, entonces las animaciones no son obligatorias.",
+        "Dado que esta tarea no se completa, cuando se evalúa el MVP, entonces ninguna funcionalidad crítica queda bloqueada."
+      ],
+      "priority": "P1",
+      "estimate": "S",
+      "labels": [
+        "frontend",
+        "design"
+      ],
+      "dependencies": [
+        "MVP-040"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 46,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/46"
+      },
+      "suggested_order": 52,
+      "agent": null
+    },
+    {
+      "id": "MVP-053",
+      "epic_id": "E03",
+      "title": "Añadir metadatos sociales básicos a URLs públicas",
+      "description": "Añadir título y descripción compartibles a encuestas públicas sin incorporar resultados al HTML o a tarjetas sociales.",
+      "acceptance_criteria": [
+        "Dado una encuesta pública, cuando se obtiene metadata de la ruta, entonces el título/descripción incluye la pregunta y no contiene resultados.",
+        "Dado encuesta oculta/inexistente, cuando se consulta metadata, entonces no revela su contenido privado.",
+        "Dado que esta tarea se pospone, cuando se verifica el MVP, entonces copiar y abrir URLs sigue funcionando."
+      ],
+      "priority": "P1",
+      "estimate": "S",
+      "labels": [
+        "frontend",
+        "design"
+      ],
+      "dependencies": [
+        "MVP-035"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 47,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/47"
+      },
+      "suggested_order": 53,
+      "agent": null
+    },
+    {
+      "id": "MVP-041",
+      "epic_id": "E04",
+      "title": "Automatizar pruebas de esquema y migraciones",
+      "description": "Preparar batería SQL de integridad, defaults, índices necesarios y ejecución sobre base de datos limpia.",
+      "acceptance_criteria": [
+        "Dado migraciones nuevas sobre una base vacía, cuando se ejecuta el test de esquema, entonces tablas, FK, índices y checks pasan.",
+        "Dado un voto duplicado u opción de otra encuesta, cuando se intenta insertar con privilegios de prueba, entonces las restricciones lo rechazan.",
+        "Dado migraciones versionadas, cuando se reproduce el entorno de test, entonces no depende de cambios manuales de consola."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "database",
+        "testing"
+      ],
+      "dependencies": [
+        "MVP-010",
+        "MVP-022"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 48,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/48"
+      },
+      "suggested_order": 23,
+      "agent": null
+    },
+    {
+      "id": "MVP-042",
+      "epic_id": "E04",
+      "title": "Automatizar pruebas de create_poll y cuota",
+      "description": "Probar validaciones de pregunta/opciones, atomicidad y ventana móvil de creación con cuentas de prueba aisladas.",
+      "acceptance_criteria": [
+        "Dado opciones vacías, duplicadas o fuera de límites, cuando se invoca `create_poll`, entonces devuelve error y no hay filas huérfanas.",
+        "Dado cinco creaciones dentro de una hora, cuando se intenta la siguiente, entonces falla; tras salir una de la ventana, entonces permite otra.",
+        "Dado dos creaciones concurrentes cerca del límite, cuando terminan, entonces nunca hay más de cinco en la ventana."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "database",
+        "backend",
+        "testing",
+        "security"
+      ],
+      "dependencies": [
+        "MVP-014",
+        "MVP-015",
+        "MVP-020",
+        "MVP-041"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 49,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/49"
+      },
+      "suggested_order": 24,
+      "agent": null
+    },
+    {
+      "id": "MVP-043",
+      "epic_id": "E04",
+      "title": "Automatizar pruebas de voto y agregación de resultados",
+      "description": "Cubrir voto correcto, opción ajena, repetición, encuesta oculta, resultados de cero votos por opción y porcentajes.",
+      "acceptance_criteria": [
+        "Dado peticiones duplicadas o concurrentes de un mismo usuario, cuando se ejecutan, entonces queda exactamente un voto persistido.",
+        "Dado tres votos repartidos entre opciones, cuando consulta un votante autorizado, entonces el total y los recuentos cuadran y los porcentajes se calculan según la convención definida.",
+        "Dado un usuario que no votó, cuando solicita `get_poll_results`, entonces no recibe agregados.",
+        "Dado el autor sin voto previo, cuando vota su propia encuesta, entonces se registra un voto y sólo a partir de ese momento puede consultar sus resultados."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "database",
+        "backend",
+        "testing",
+        "security"
+      ],
+      "dependencies": [
+        "MVP-016",
+        "MVP-017",
+        "MVP-020",
+        "MVP-041"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 50,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/50"
+      },
+      "suggested_order": 25,
+      "agent": null
+    },
+    {
+      "id": "MVP-044",
+      "epic_id": "E04",
+      "title": "Probar ataques a RLS y canales de filtración",
+      "description": "Ejecutar tests con roles `anon` y dos usuarios, SDK directo/PostgREST y llamadas RPC deliberadamente manipuladas; inspeccionar todos los canales de datos.",
+      "acceptance_criteria": [
+        "Dado usuario A y usuario B, cuando A consulta filas de votos o resultados correspondientes sólo a B, entonces no obtiene información reservada.",
+        "Dado cliente anónimo o autenticado sin voto, cuando usa SELECT, filtros, contadores, RPC, peticiones directas o páginas SSR, entonces no puede conocer totales globales.",
+        "Dado cliente sin privilegios, cuando intenta insertar/editar/eliminar tablas o cambiar `status`, entonces se rechaza; una encuesta oculta tampoco se filtra."
+      ],
+      "priority": "P0",
+      "estimate": "L",
+      "labels": [
+        "security",
+        "testing",
+        "database"
+      ],
+      "dependencies": [
+        "MVP-011",
+        "MVP-012",
+        "MVP-017",
+        "MVP-020",
+        "MVP-021",
+        "MVP-023"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 51,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/51"
+      },
+      "suggested_order": 27,
+      "agent": null
+    },
+    {
+      "id": "MVP-045",
+      "epic_id": "E04",
+      "title": "Crear E2E de navegación, Google login, creación y voto",
+      "description": "Preparar Playwright con entorno y usuarios de prueba (sin depender de Google real en cada ejecución automatizada) y cubrir los flujos principales.",
+      "acceptance_criteria": [
+        "Dado navegador sin sesión, cuando entra al feed y detalle, entonces navega y ve sólo opciones sin resultados.",
+        "Dado usuario autenticado de prueba, cuando crea encuesta válida y otro usuario vota, entonces el nuevo registro aparece en el feed y el votante ve resultados.",
+        "Dado sesión persistente y recarga, cuando se visita una encuesta votada, entonces el resultado sigue visible y no aparece opción de votar de nuevo."
+      ],
+      "priority": "P0",
+      "estimate": "L",
+      "labels": [
+        "testing",
+        "frontend",
+        "auth"
+      ],
+      "dependencies": [
+        "MVP-027",
+        "MVP-032",
+        "MVP-033",
+        "MVP-035",
+        "MVP-036",
+        "MVP-037",
+        "MVP-038"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 52,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/52"
+      },
+      "suggested_order": 45,
+      "agent": null
+    },
+    {
+      "id": "MVP-046",
+      "epic_id": "E04",
+      "title": "Validar concurrencia, errores de red y regresión responsive",
+      "description": "Pruebas finalistas de clic doble, reconexión, estados intermedios, rutas ocultas/inexistentes y recorridos móvil.",
+      "acceptance_criteria": [
+        "Dado envío de voto con timeout justo después de la escritura, cuando el cliente reconecta, entonces consulta voto propio y no dispara un segundo voto.",
+        "Dado envío duplicado, recarga inmediata o pestañas simultáneas, cuando termina el flujo, entonces conserva un único voto y UI consistente.",
+        "Dado navegadores móvil y escritorio, cuando se recorren rutas y formularios, entonces no hay regresiones bloqueantes de navegación ni accesibilidad básica."
+      ],
+      "priority": "P0",
+      "estimate": "L",
+      "labels": [
+        "testing",
+        "frontend",
+        "security"
+      ],
+      "dependencies": [
+        "MVP-040",
+        "MVP-042",
+        "MVP-043",
+        "MVP-044",
+        "MVP-045"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 53,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/53"
+      },
+      "suggested_order": 46,
+      "agent": null
+    },
+    {
+      "id": "MVP-047",
+      "epic_id": "E05",
+      "title": "Documentar instalación y operación técnica en README",
+      "description": "Documentar stack, arquitectura, variables (nombres sin secretos), instalación, migraciones, tests, OAuth, despliegue y procedimiento de moderación.",
+      "acceptance_criteria": [
+        "Dado un desarrollador nuevo, cuando sigue el README, entonces puede levantar entorno y ejecutar los checks sin información oral adicional.",
+        "Dado un entorno de prueba limpio, cuando sigue la guía de migraciones y tipado, entonces obtiene un esquema operativo.",
+        "Dado una petición de moderación, cuando se lee la guía, entonces queda claro cómo ocultar una encuesta mediante Supabase sin panel."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "devops"
+      ],
+      "dependencies": [
+        "MVP-006",
+        "MVP-022",
+        "MVP-023"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 54,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/54"
+      },
+      "suggested_order": 47,
+      "agent": null
+    },
+    {
+      "id": "MVP-048",
+      "epic_id": "E05",
+      "title": "Preparar runbook de producción, secretos y recuperación",
+      "description": "Planificar configuración productiva, orden de migración/deploy, comprobaciones y recuperación básica sin automatizaciones externas complejas.",
+      "acceptance_criteria": [
+        "Dado despliegue planificado, cuando se revisa el runbook, entonces define variables, Google OAuth, dominio, migraciones y verificación posterior.",
+        "Dado incidencia tras desplegar, cuando se consulta el runbook, entonces hay procedimiento claro para revertir versión de frontend y restaurar base desde mecanismos disponibles.",
+        "Dado revisión de credenciales, cuando se comprueba el runbook, entonces las claves privilegiadas nunca se publican ni se copian al navegador."
+      ],
+      "priority": "P0",
+      "estimate": "M",
+      "labels": [
+        "devops",
+        "security"
+      ],
+      "dependencies": [
+        "MVP-008",
+        "MVP-020",
+        "MVP-022"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 55,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/55"
+      },
+      "suggested_order": 48,
+      "agent": null
+    },
+    {
+      "id": "MVP-049",
+      "epic_id": "E05",
+      "title": "Configurar y desplegar aplicación en producción",
+      "description": "Aplicar migraciones sobre Supabase de producción, configurar Vercel, secretos, URL pública y callback Google, y publicar la aplicación.",
+      "acceptance_criteria": [
+        "Dado la URL pública de producción, cuando se abre, entonces responde la aplicación real por HTTPS.",
+        "Dado usuario real con Google, cuando completa login, entonces regresa al dominio productivo y la sesión funciona.",
+        "Dado el entorno de producción, cuando se examina su esquema, entonces coincide con las migraciones versionadas y está separado de desarrollo."
+      ],
+      "priority": "P0",
+      "estimate": "L",
+      "labels": [
+        "devops",
+        "auth",
+        "database"
+      ],
+      "dependencies": [
+        "MVP-008",
+        "MVP-022",
+        "MVP-047",
+        "MVP-048"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 56,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/56"
+      },
+      "suggested_order": 49,
+      "agent": null
+    },
+    {
+      "id": "MVP-050",
+      "epic_id": "E05",
+      "title": "Ejecutar checklist funcional y de seguridad en producción",
+      "description": "Repetir smoke tests de los flujos críticos y comprobaciones manuales/directas de RLS y no filtración en el entorno productivo.",
+      "acceptance_criteria": [
+        "Dado producción, cuando visitante entra, entonces ve feed y detalle sin sesión y no puede ver recuentos antes de votar.",
+        "Dado dos cuentas reales de verificación, cuando una publica y otra vota, entonces se muestran resultados correctos y no se puede repetir ni cambiar voto.",
+        "Dado inspección de bundle cliente, peticiones y permisos, cuando se revisa, entonces no aparecen claves privilegiadas ni canales alternativos de resultados; las pruebas críticas pasan."
+      ],
+      "priority": "P0",
+      "estimate": "L",
+      "labels": [
+        "testing",
+        "devops",
+        "security"
+      ],
+      "dependencies": [
+        "MVP-044",
+        "MVP-045",
+        "MVP-046",
+        "MVP-049"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 57,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/57"
+      },
+      "suggested_order": 50,
+      "agent": null
+    },
+    {
+      "id": "MVP-051",
+      "epic_id": "E05",
+      "title": "Cerrar checklist de release y documentar resultado verificable",
+      "description": "Consolidar evidencias de ejecución, URL final, commit/migraciones publicadas y estado de criterios globales antes de declarar listo el MVP.",
+      "acceptance_criteria": [
+        "Dado criterios globales, cuando se revisa la lista de lanzamiento, entonces cada uno tiene evidencia verificable o se indica bloqueado.",
+        "Dado comprobaciones fallidas, cuando se evalúa release, entonces el MVP no se marca como completado.",
+        "Dado release satisfactorio, cuando se documenta, entonces quedan enlace público, versión desplegada y procedimiento de incidencia."
+      ],
+      "priority": "P0",
+      "estimate": "S",
+      "labels": [
+        "devops",
+        "testing"
+      ],
+      "dependencies": [
+        "MVP-047",
+        "MVP-049",
+        "MVP-050"
+      ],
+      "status": "Pendiente — ejecución pausada",
+      "github": {
+        "number": 58,
+        "url": "https://github.com/migdlp/opinion-social-media/issues/58"
+      },
+      "suggested_order": 51,
+      "agent": null
+    }
+  ]
+}
