@@ -40,17 +40,17 @@ El backlog vigente está en `docs/backlog.md`; el original está archivado en `d
 
 Leer y aplicar [karpathy-guidelines](.agents/skills/karpathy-guidelines/SKILL.md) al escribir, revisar o refactorizar código y, cuando corresponda, al planificar cambios: explicitar supuestos relevantes, buscar la solución sencilla, limitar el cambio al alcance pedido y verificar objetivos concretos. La petición actual sigue limitada a documentación y planificación. Las instrucciones del propietario y las de mayor prioridad prevalecen sobre la skill.
 
-La copia local mantiene el contenido de la fuente solicitada; su procedencia y revisión están en [docs/skills.md](docs/skills.md). No requiere instalar paquetes ni ejecutar scripts externos.
+La copia local conserva las pautas originales y añade las reglas específicas de colaboración y TDD de este proyecto; su procedencia y revisión están en [docs/skills.md](docs/skills.md). No requiere instalar paquetes ni ejecutar scripts externos.
 
 ## Reserva y seguimiento obligatorio de tareas
 
 Estas reglas se aplican cuando el propietario reanude la implementación. No iniciar tareas mientras siga la pausa.
 
 1. Leer `docs/tareas-futuras.md`, `docs/orden-ejecucion.md` y el issue correspondiente. Elegir una tarea pendiente cuyas dependencias estén completadas y verificadas; atender P0 antes de P1.
-2. Antes de trabajar, actualizar la copia desde GitHub y comprobar que la tarea no esté ocupada. En su fila de `docs/tareas-futuras.md`, cambiar el estado a **En progreso** y escribir en **Agente** el nombre o identificador real del agente que la ejecuta. Usar un identificador estable y distinguible; nunca inventar una persona o asignar trabajo a otro agente sin acuerdo.
-3. Guardar y publicar esta reserva antes de comenzar los cambios de implementación, para que los demás agentes puedan verla. Si otro agente reservó la tarea entretanto, respetar su reserva y elegir otra tarea disponible o coordinar explícitamente el traspaso. No sobrescribir al responsable actual.
+2. Antes de elegir o empezar una tarea y antes de cada cambio de estado, actualizar la referencia remota de `main` desde GitHub y consultar allí `docs/tareas-futuras.md`: el estado vigente de `main` es la fuente compartida de disponibilidad, no una copia antigua ni una rama de implementación. Comprobar que la tarea no esté ocupada. En su fila, cambiar el estado a **En progreso** y escribir en **Agente** el nombre o identificador real del agente que la ejecuta. Usar un identificador estable y distinguible; nunca inventar una persona o asignar trabajo a otro agente sin acuerdo.
+3. Hacer un commit exclusivo de la reserva directamente en `main` y publicarlo antes de comenzar los cambios de implementación, para que todos puedan verla desde `main`. Refrescar `main` justo antes de publicar y usar un push normal, nunca forzado. Si el push se rechaza porque avanzó `main`, releer su estado remoto actualizado antes de rehacer el cambio: si otro agente reservó la tarea entretanto, respetar su reserva y elegir otra tarea disponible o coordinar explícitamente el traspaso. No sobrescribir al responsable actual ni iniciar la implementación sin la reserva publicada.
 4. Actualizar el cuerpo del issue con el mismo estado y agente, manteniendo descripción, prioridad, criterios y dependencias. No confundir la cuenta de GitHub que publica el cambio con la identidad del agente. Asignar un usuario de GitHub sólo si existe una correspondencia real y autorizada.
-5. Mantener ambos registros al cambiar de situación: **Bloqueada** con causa y siguiente paso; **Pendiente** y agente `—` si se libera; **Completada** sólo con criterios verificados y enlaces a cambios y pruebas. Al completar, conservar el agente como autor del trabajo y cerrar el issue cuando corresponda.
+5. Mantener ambos registros al cambiar de situación: **Bloqueada** con causa y siguiente paso; **Pendiente** y agente `—` si se libera; **Completada** sólo con criterios verificados y enlaces a cambios y pruebas. Publicar cada cambio de estado, responsable o traspaso mediante un commit exclusivo directamente en `main`, con la misma comprobación de concurrencia que la reserva, y sincronizar el issue. Al completar, conservar el agente como autor del trabajo y cerrar el issue cuando corresponda.
 6. Si un traspaso es necesario, registrar el agente entrante, el saliente y el estado de los cambios. Una sesión interrumpida no demuestra por sí sola que la tarea haya terminado ni autoriza borrar su reserva.
 
 Las prioridades P0/P1 y el orden sugerido están documentados en `docs/orden-ejecucion.md`. El orden es orientativo; las dependencias y las reservas vigentes determinan qué tarea está disponible. Este protocolo no requiere desplegar ni ejecutar acciones ajenas a la tarea.
@@ -61,4 +61,16 @@ Las prioridades P0/P1 y el orden sugerido están documentados en `docs/orden-eje
 2. Publicar los commits en esa rama y abrir una pull request hacia `main`, enlazando el issue e indicando el alcance, los criterios de aceptación y las comprobaciones realizadas, incluidos fallos o comprobaciones pendientes.
 3. Fusionar la PR en `main` sólo cuando se hayan verificado los criterios de aceptación, pasado las comprobaciones aplicables y resuelto los conflictos y las observaciones pendientes. Respetar las revisiones y protecciones que tenga configuradas el repositorio; no eludirlas.
 4. Tras el merge, actualizar la copia local y sincronizar el registro de tareas y el issue con enlaces a la PR, al merge y a las pruebas. Marcar la tarea **Completada** y cerrar el issue sólo cuando su resultado esté integrado y verificado; abrir una PR no equivale a terminarla.
-5. No publicar commits directamente en `main`, salvo una excepción explícita del propietario para el cambio concreto. Esta regla se aplica también a los cambios de documentación y seguimiento, y no reanuda la implementación pausada.
+5. Los commits exclusivos de reserva y actualización de estado, responsable o traspaso de tareas se publican directamente en `main`, como exige el protocolo anterior. No mezclar código ni otros cambios documentales en esos commits. Para el resto de cambios, incluida la documentación, usar rama y PR; cualquier otra publicación directa en `main` requiere una excepción explícita del propietario para el cambio concreto. Esta regla no reanuda la implementación pausada.
+
+## TDD obligatorio
+
+Por instrucción explícita del propietario, toda implementación o corrección de comportamiento se realiza con TDD: escribir las pruebas antes del código que deben verificar. No es opcional ni depende de que ya exista una suite.
+
+1. Antes de implementar, identificar y registrar el runner y el comando real aplicable al proyecto. Si aún no existe infraestructura de pruebas, prepararla y verificar que ejecuta antes de iniciar el comportamiento; no inventar comandos ni usar una dependencia ausente como prueba de RED.
+2. **RED:** escribir primero la prueba del comportamiento esperado y ejecutarla. Observar que falla por el comportamiento ausente o incorrecto antes de escribir el código de producción.
+3. **GREEN:** implementar el mínimo necesario y ejecutar la prueba hasta que pase, junto con las comprobaciones aplicables.
+4. **REFACTOR:** mejorar el código sólo manteniendo las pruebas en verde y volver a ejecutar las comprobaciones afectadas.
+5. Registrar en la tarea y la PR los comandos ejecutados y los resultados observados de RED, GREEN y REFACTOR, incluidos fallos o bloqueos. No declarar ciclos que no se hayan ejecutado.
+
+Los cambios exclusivamente documentales se verifican mediante revisión de contenido, coherencia y enlaces; registrar esa comprobación sin inventar pruebas ejecutables ni un ciclo RED/GREEN de aplicación.
