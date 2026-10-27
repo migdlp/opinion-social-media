@@ -1,9 +1,10 @@
-import { PagePlaceholder } from "@/components/page-placeholder";
+import { CreatePoll } from "./create-poll";
 
 export default function CreatePollPage() {
   return (
-    <PagePlaceholder title="Crear encuesta">
-      <p>Formulario de creación (MVP-031, MVP-032).</p>
-    </PagePlaceholder>
+    <div className="mx-auto flex w-full max-w-content flex-col gap-4">
+      <h1 className="text-2xl font-semibold">Crear encuesta</h1>
+      <CreatePoll />
+    </div>
   );
 }
