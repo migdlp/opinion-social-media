@@ -21,6 +21,7 @@ Leer [AGENTS.md](../AGENTS.md), el [contexto de la aplicación](contexto-aplicac
 | [JSON](backlog.json) / [CSV](backlog.csv) | Exportación de cinco épicas y 53 tareas; CSV contiene las tareas |
 | [Tareas futuras](tareas-futuras.md) | Registro de estado, fases y trabajo pendiente |
 | [Prioridades y orden](orden-ejecucion.md) | Siguiente tarea, secuencia válida y reserva por agente |
+| [Moderación manual](moderacion.md) | Cómo ocultar y restaurar encuestas desde Supabase (MVP-021) |
 | [Pruebas de base de datos](pruebas-bd.md) | Suites SQL, concurrencia y reproducibilidad; criterios de MVP-041–043 |
 | [Seguridad de datos y RPC](seguridad-rpc.md) | Revisión de funciones, permisos y rutas alternativas (MVP-020) |
 | [Entornos y variables](entornos.md) | Proyectos dev/prod, variables públicas, secretos y protecciones |
