@@ -21,7 +21,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Header />
         <main
           id="contenido"
-          className="mx-auto flex w-full max-w-content flex-1 flex-col px-4 py-5 sm:py-8"
+          className="mx-auto flex w-full max-w-wide flex-1 flex-col px-4 py-5 sm:py-8"
         >
           {children}
         </main>
