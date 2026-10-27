@@ -2,6 +2,7 @@
 // a encuestas publicadas; aquí se fijan columnas, orden y paginación. Nunca se
 // pide polls.user_id ni nada de votos ajenos.
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { toAppError } from "./errors";
 import type { PollOption, PublicPoll, Result } from "./types";
 
 export const FEED_PAGE_SIZE = 20;
@@ -68,7 +69,7 @@ export async function getFeedPolls(
   }
 
   const { data, error } = await query;
-  if (error) return { ok: false, error: "UNKNOWN" };
+  if (error) return { ok: false, error: toAppError(error) };
 
   const rows = (data ?? []) as PollRow[];
   const page = rows.slice(0, FEED_PAGE_SIZE);
@@ -94,7 +95,7 @@ export async function getPublicPoll(
     .eq("id", id)
     .order("position", { referencedTable: "poll_options", ascending: true })
     .maybeSingle();
-  if (error) return { ok: false, error: "UNKNOWN" };
+  if (error) return { ok: false, error: toAppError(error) };
   // Inexistente y oculta son indistinguibles: RLS no devuelve la fila.
   if (!data) return { ok: false, error: "POLL_UNAVAILABLE" };
 
@@ -113,7 +114,7 @@ export async function getOwnVoteOptionId(
     .select("option_id")
     .eq("poll_id", pollId)
     .maybeSingle();
-  if (error) return { ok: false, error: error.code === "42501" ? "AUTH_REQUIRED" : "UNKNOWN" };
+  if (error) return { ok: false, error: toAppError(error) };
 
   return { ok: true, data: (data as { option_id: string } | null)?.option_id ?? null };
 }
