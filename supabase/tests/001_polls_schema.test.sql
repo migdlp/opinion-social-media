@@ -29,6 +29,20 @@ begin
   assert (select relrowsecurity from pg_class where oid = 'public.poll_options'::regclass), 'RLS desactivada en poll_options';
 end $$;
 
+-- Índices de acceso (MVP-041): feed ordenado sólo de publicadas y cuota por cuenta.
+do $$
+begin
+  assert (select indexdef from pg_indexes where indexname = 'polls_feed_idx')
+    = 'CREATE INDEX polls_feed_idx ON public.polls USING btree (created_at DESC, id DESC) WHERE (status = ''published''::text)',
+    'definición del índice del feed';
+  assert (select indexdef from pg_indexes where indexname = 'polls_user_created_at_idx')
+    = 'CREATE INDEX polls_user_created_at_idx ON public.polls USING btree (user_id, created_at)',
+    'definición del índice de cuota';
+  assert (select indexdef from pg_indexes where indexname = 'poll_options_poll_id_position_key')
+    like 'CREATE UNIQUE INDEX poll_options_poll_id_position_key ON public.poll_options USING btree (poll_id, "position")',
+    'índice único de posición por encuesta';
+end $$;
+
 -- Datos: defaults y restricciones. Se deshace al final.
 begin;
 insert into auth.users (id) values ('00000000-0000-0000-0000-00000000000a');
