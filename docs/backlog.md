@@ -226,7 +226,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-010 — Crear votes y garantías de integridad
 
-- **Estado:** Pendiente — ejecución pausada
+- **Estado:** Completada — ver issue #15
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `database`, `security`
 - **Dependencias bloqueantes:** MVP-009.
 - **Descripción:** Crear tabla `votes` y restricciones contra repetición y contra opciones de encuestas distintas; añadir índices básicos de acceso.
@@ -238,7 +238,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-011 — Activar RLS para encuestas y opciones públicas
 
-- **Estado:** Pendiente — ejecución pausada
+- **Estado:** Completada — ver issue #16
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `database`, `security`
 - **Dependencias bloqueantes:** MVP-009.
 - **Descripción:** Habilitar RLS y políticas de SELECT para publicar sólo encuestas visibles y sus opciones; bloquear CRUD directo no autorizado.
@@ -250,7 +250,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-012 — Activar RLS de votos y revocar escrituras directas
 
-- **Estado:** Pendiente — ejecución pausada
+- **Estado:** Completada — ver issue #17
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `database`, `security`
 - **Dependencias bloqueantes:** MVP-010.
 - **Descripción:** Habilitar RLS para que cada cuenta sólo pueda leer sus votos; impedir inserciones, modificaciones y eliminaciones directas desde clientes.

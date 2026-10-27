@@ -75,3 +75,10 @@ Agente `claude-code (session_019ZfidxHjR16hC5t8nHGq9M)`, con el conector Supabas
 - Mismas comprobaciones de estructura y restricciones ejecutadas en desarrollo dentro de un bloque revertido: OK; quedan 0 encuestas y 0 usuarios.
 - API REST de desarrollo con la clave publicable: `GET /polls` → `[]`; `POST /polls` → `42501` (RLS). Advisor de seguridad: sólo `rls_enabled_no_policy` (INFO), esperado hasta MVP-011.
 - Producción tras la migración de desarrollo: 0 tablas, 0 usuarios, 0 funciones en `public` (seguimiento de MVP-003).
+
+## MVP-010, MVP-011 y MVP-012: votos y RLS (27-10-2026)
+
+- Aplicadas en **desarrollo**: `20261027193601_create_votes`, `20261027193609_polls_public_read`, `20261027193621_votes_own_read` (versiones iguales a los nombres de archivo).
+- `npm run test:db` (PostgreSQL 16 local): 4 ficheros de test OK. Mutaciones comprobadas: conceder `user_id`, quitar el filtro de encuestas publicadas en `votes` o dejar `TRUNCATE` hacen fallar los tests.
+- Desarrollo, dentro de una transacción revertida: anon/autor no ven ocultas ni sus opciones; nadie lee `polls.user_id`; INSERT/UPDATE/DELETE/TRUNCATE denegados en las tres tablas; A sólo ve su voto, B no lo ve, anon no lee `votes`. Quedan 0 filas.
+- REST de desarrollo con clave publicable: `polls?select=id,question,created_at` → `[]`; `select=user_id` y `select=*` → `42501`; `votes` → `42501`; `DELETE votes` → `42501`. Advisor de seguridad: sin avisos.
