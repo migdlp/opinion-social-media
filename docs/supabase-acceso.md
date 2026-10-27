@@ -1,5 +1,7 @@
 # Supabase: conexión y acceso para colaboradores y agentes
 
+La autorización posterior [D-VERCEL-001](decisiones.md) permite a Codex configurar y operar Vercel según [su guía](vercel-operacion.md). Las comprobaciones siguientes y las referencias a la pausa son históricas; prevalecen [AGENTS.md](../AGENTS.md) y las instrucciones posteriores del propietario. Esta autorización no abre cambios SQL ni Auth por anticipado.
+
 ## Conexión verificada
 
 Comprobación de solo lectura realizada el 26 de octubre de 2026:
@@ -89,7 +91,7 @@ La clave publicable identifica el proyecto para clientes públicos; no es una co
 
 Nunca poner `service_role`, claves `sb_secret_`, tokens personales o la contraseña Postgres en variables `NEXT_PUBLIC_*`. Las claves publicables existen y se han comprobado mediante Auth, pero no se fijan sus valores en Git para evitar copias desactualizadas; cada entorno debe obtenerlas del Dashboard del proyecto correspondiente.
 
-Cuando se configure Vercel: desarrollo y preview usan el proyecto dev; producción usa el proyecto prod. Todavía no se han creado los clientes de la aplicación, sus políticas ni ese despliegue.
+Vercel tiene configuradas las variables públicas: desarrollo y preview usan el proyecto dev; producción usa el proyecto prod. Ver [configuración y evidencia](vercel-operacion.md). Esto no acredita clientes, políticas ni flujos de aplicación completos.
 
 ## 4. CLI de Supabase
 
@@ -126,7 +128,7 @@ La contraseña de PostgreSQL es distinta de la clave publicable y no se ha recup
 1. Para otro desarrollador: invitar su email desde Team con el alcance y rol apropiados.
 2. Para otro agente: conectar Supabase en su cliente mediante OAuth y apuntar al MCP de desarrollo anterior, inicialmente de solo lectura.
 3. Para conectar la app en su momento: proporcionar por configuración local/entorno la URL dev y su Publishable key.
-4. Mantener la implementación pausada hasta reanudarla explícitamente. Google OAuth sigue pendiente de configurar como parte de las tareas futuras.
+4. Respetar el alcance vigente y las reservas publicadas en `main`: Vercel está autorizado; Google OAuth sigue pendiente de su tarea y credenciales. No inferir autorización SQL/Auth de la configuración de Vercel.
 
 ## Referencias verificadas
 

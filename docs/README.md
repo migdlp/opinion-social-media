@@ -4,7 +4,7 @@ Esta carpeta reúne el contexto que debe conocer cualquier persona que trabaje e
 
 ## Lectura inicial para cualquier agente
 
-Leer [AGENTS.md](../AGENTS.md), el [contexto de la aplicación](contexto-aplicacion.md) y la [guía de Supabase](supabase-acceso.md). La organización es **Los tres cerditos**; el destino de trabajo es **opinion-social-media-dev**. Las instrucciones incluyen referencias y URLs exactas para no confundir desarrollo con producción. La implementación permanece pausada.
+Leer [AGENTS.md](../AGENTS.md), el [contexto de la aplicación](contexto-aplicacion.md) y la [guía de Supabase](supabase-acceso.md). La organización es **Los tres cerditos**; el destino de trabajo es **opinion-social-media-dev**. Las instrucciones incluyen referencias y URLs exactas para no confundir desarrollo con producción. La operación de Vercel está autorizada a Codex /root (opinion_social_media); consultar su [guía](vercel-operacion.md), las dependencias y las reservas vigentes de `main`.
 
 ## Documentos
 
@@ -22,6 +22,7 @@ Leer [AGENTS.md](../AGENTS.md), el [contexto de la aplicación](contexto-aplicac
 | [Prioridades y orden](orden-ejecucion.md) | Siguiente tarea, secuencia válida y reserva por agente |
 | [Estado del proyecto](estado-proyecto.md) | Evidencias de acceso e infraestructura creada |
 | [Acceso a Supabase](supabase-acceso.md) | Proyectos, URLs y conexión de colaboradores, agentes, app, CLI y SQL |
+| [Operación de Vercel](vercel-operacion.md) | Responsable, permisos de colaboradores, variables, despliegue y recuperación |
 | [Decisiones](decisiones.md) | Decisiones confirmadas y cuestiones por resolver |
 | [Skills](skills.md) | Skill solicitada, procedencia y revisión fijada |
 
@@ -35,4 +36,4 @@ Leer [AGENTS.md](../AGENTS.md), el [contexto de la aplicación](contexto-aplicac
 
 ## Fuente y precedencia
 
-El backlog adjunto por el propietario se conserva íntegro como `fuentes/backlog-v1.md`. El backlog vigente `backlog.md` incorpora el brief adicional: excluye borradores y fija el esquema obligatorio. Las instrucciones posteriores del propietario prevalecen. La petición inicial de ejecutar todas las tareas sigue pausada; la publicación de épicas y tareas es trabajo de planificación autorizado.
+El backlog adjunto por el propietario se conserva íntegro como `fuentes/backlog-v1.md`. El backlog vigente `backlog.md` incorpora el brief adicional: excluye borradores y fija el esquema obligatorio. Las instrucciones posteriores del propietario prevalecen. La pausa histórica se conserva como D-005; D-VERCEL-001 autoriza a Codex a operar Vercel. Las instrucciones posteriores no eliminan dependencias ni reservas: consultar siempre `main` actualizado antes de trabajar.
