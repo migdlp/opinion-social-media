@@ -27,6 +27,7 @@ El propietario confirmó crear ambos proyectos en «Los tres cerditos», región
 - Tras la pausa se repitió `list_tables` sobre `public`: ambos devolvieron una lista vacía.
 - No se aplicaron migraciones, tablas, políticas ni funciones de la aplicación.
 - No se habilitó Google OAuth ni se verificó un login real.
+- Comprobación posterior: `SELECT 1` correcto en ambos proyectos mediante el conector; Auth `/auth/v1/settings` HTTP 200 con clave publicable y Google deshabilitado. Ver [guía de acceso](supabase-acceso.md) para alcance de las pruebas y acceso de otros agentes.
 - No se creó proyecto ni despliegue de esta aplicación en Vercel.
 - No se ejecutaron tests de aplicación, seguridad o producción: aún no hay implementación que verificar.
 

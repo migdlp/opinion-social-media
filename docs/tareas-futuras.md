@@ -17,6 +17,7 @@ El [backlog revisado](backlog.md) contiene la descripción y los criterios de ac
 | DOC-005 | Crear cinco épicas y 53 tickets reales con prioridades y dependencias | Creado y verificado | /root |
 | DOC-006 | Incorporar y verificar la skill karpathy-guidelines | Documentado y verificado | /root |
 | DOC-007 | Documentar reserva por agente y orden recomendado | Documentado | /root |
+| DOC-008 | Verificar acceso Supabase y documentar cómo conectar otros colaboradores y agentes | Documentado; SQL y Auth verificados | /root |
 
 La pausa quedó levantada con D-013; las tareas se inician una a una respetando dependencias y reservas.
 

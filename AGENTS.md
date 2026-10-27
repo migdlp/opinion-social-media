@@ -4,12 +4,33 @@
 
 El propietario pausó la implementación (D-005) y la **reanudó el 26 de octubre de 2026** (D-013, `docs/decisiones.md`). Incorporar sus próximos mensajes a `docs/` y mantener la trazabilidad de decisiones y requisitos.
 
-- Leer `README.md`, `docs/contexto-aplicacion.md`, `docs/decisiones.md` y `docs/estado-proyecto.md` antes de trabajar.
+- Leer `README.md`, `docs/contexto-aplicacion.md`, `docs/decisiones.md`, `docs/estado-proyecto.md` y `docs/supabase-acceso.md` antes de trabajar.
 - Trabajar tarea a tarea según `docs/orden-ejecucion.md` y el protocolo de reserva de abajo.
 - Configurar OAuth, aplicar SQL en proyectos Supabase, crear infraestructura o desplegar sólo cuando lo exija la tarea reservada y se disponga de los datos y confirmaciones necesarios.
 - No equiparar documentación o borradores con implementación verificada.
 - No guardar secretos, tokens ni claves administrativas en Git.
 - Informar del avance en español y registrar cualquier bloqueo real.
+
+## Contexto obligatorio de conexión a Supabase
+
+La organización de Supabase de este proyecto es **Los tres cerditos**, ID `drifadkhohwebqljdlvw`, región **Irlanda (`eu-west-1`)**. Estos proyectos ya existen: no crear otra organización ni otros proyectos para sustituirlos si falta acceso.
+
+| Uso | Proyecto | Project ref | API URL |
+|---|---|---|---|
+| Desarrollo local, previews y trabajo de agentes | `opinion-social-media-dev` | `ltlrujmqenhktiilsnis` | `https://ltlrujmqenhktiilsnis.supabase.co` |
+| Producción, sólo para tareas de producción autorizadas | `opinion-social-media-prod` | `qchpdrolulcgmiliysvr` | `https://qchpdrolulcgmiliysvr.supabase.co` |
+
+Antes de conectar, leer [la guía de acceso](docs/supabase-acceso.md) y comprobar que la referencia elegida es la de desarrollo. Salvo que la tarea reservada requiera escribir en desarrollo, usar MCP de desarrollo en modo de solo lectura:
+
+```text
+https://mcp.supabase.com/mcp?project_ref=ltlrujmqenhktiilsnis&read_only=true
+```
+
+Cada cliente o entorno de agente debe completar su propia autorización OAuth con una cuenta que tenga acceso a **Los tres cerditos**. Clonar este repositorio no concede acceso. Si falta, comunicar el bloqueo al propietario para que conecte el cliente o invite la cuenta desde [Team](https://supabase.com/dashboard/org/drifadkhohwebqljdlvw/team); no pedir que pegue tokens, contraseñas o claves administrativas en el chat o en Git.
+
+Para el SDK de la app, cuando se reanude, usar URL y Publishable key del mismo proyecto mediante configuración del entorno. No usar una clave publicable como credencial de administración ni exponer claves privilegiadas. No conectar desarrollo o previews a producción.
+
+La última verificación confirmó acceso SQL y Auth en ambos proyectos, `public` vacío y Google OAuth deshabilitado. Es un estado observado, no una configuración que deba restaurarse automáticamente: comprobar el estado actual antes de cualquier tarea futura. Falta de tablas no significa que deba crearse otro proyecto.
 
 ## Contratos a preservar cuando se reanude
 

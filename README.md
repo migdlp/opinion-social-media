@@ -15,6 +15,7 @@ Repositorio de contexto y planificación del MVP. **El desarrollo está pausado 
 - [Plan de trabajo y estado de las tareas](docs/tareas-futuras.md)
 - [Prioridades, orden recomendado y siguiente tarea](docs/orden-ejecucion.md)
 - [Accesos, recursos creados y verificaciones](docs/estado-proyecto.md)
+- [Supabase: conexión de colaboradores y agentes](docs/supabase-acceso.md)
 - [Decisiones y cuestiones pendientes](docs/decisiones.md)
 - [Skill karpathy-guidelines](docs/skills.md)
 
