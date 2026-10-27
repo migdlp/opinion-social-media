@@ -27,6 +27,23 @@ select pg_temp.login('00000000-0000-0000-0000-00000000000a');
 select pg_temp.expect_error($$select * from public.get_poll_results('10000000-0000-0000-0000-000000000001')$$, 'NOT_VOTED');
 select pg_temp.expect_error($$select * from public.get_poll_results('10000000-0000-0000-0000-0000000000ff')$$, 'POLL_UNAVAILABLE');
 
+-- El autor sólo ve resultados a partir de su propio voto (MVP-043): antes NOT_VOTED,
+-- después cuatro votos en total y su opción marcada.
+do $$
+declare r record;
+begin
+  select * into strict r from public.vote_poll('10000000-0000-0000-0000-000000000001', '20000000-0000-0000-0000-000000000013');
+  assert (select total_votes from public.get_poll_results('10000000-0000-0000-0000-000000000001') limit 1) = 4,
+    'el autor no ve el total tras votar';
+  assert (select my_option_id from public.get_poll_results('10000000-0000-0000-0000-000000000001') limit 1)
+    = '20000000-0000-0000-0000-000000000013', 'el autor no ve su opción';
+  assert (select votes from public.get_poll_results('10000000-0000-0000-0000-000000000001') where position = 3) = 1,
+    'el voto del autor no cuenta';
+end $$;
+reset role;
+-- Su voto se revierte para que el resto del fichero mantenga el reparto 2/1/0.
+delete from public.votes where user_id = '00000000-0000-0000-0000-00000000000a';
+
 -- Quien votó recibe todas las opciones, en orden, con ceros, total y su opción.
 select pg_temp.login('00000000-0000-0000-0000-00000000000d');
 do $$
