@@ -79,7 +79,7 @@ describe.each([
 });
 
 // Quien ya votó sí recibe los resultados, directamente en el HTML y sin formulario
-// (MVP-037, criterio 2: también al volver desde otro dispositivo o sesión).
+// (MVP-037 y MVP-038: también al volver desde otro dispositivo o sesión).
 describe("quien ya votó", () => {
   const resultRows = [
     {
@@ -117,5 +117,24 @@ describe("quien ya votó", () => {
     expect(html).not.toContain('type="radio"');
     expect(html).not.toContain("Votar");
     expect(queries.map((q) => q.target)).toContain("rpc:get_poll_results");
+  });
+
+  it("ve los resultados en la tarjeta del feed solo de las encuestas en las que votó", async () => {
+    user = { id: "u1" };
+    const other = { ...row, id: "99999999-2222-4333-8444-555555555555", question: "¿Otra?" };
+    responses = {
+      polls: { data: [row, other], error: null },
+      votes: { data: [{ poll_id: ID, option_id: "a" }], error: null },
+      "rpc:get_poll_results": { data: resultRows, error: null },
+    };
+
+    const html = renderToStaticMarkup(await Feed());
+
+    expect(html.match(/75,0\s*%/g)).toHaveLength(1);
+    expect(html).toContain("Tu voto");
+    // Una sola consulta de votos propios para el lote y resultados sólo de la votada.
+    const targets = queries.map((q) => q.target);
+    expect(targets.filter((t) => t === "votes")).toHaveLength(1);
+    expect(targets.filter((t) => t === "rpc:get_poll_results")).toHaveLength(1);
   });
 });

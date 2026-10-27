@@ -105,4 +105,43 @@ describe("FeedMore", () => {
     expect(loadMore.mock.calls).toEqual([["c1"], ["c1"]]);
     expect(screen.queryByRole("alert")).toBeNull();
   });
+
+  it("las tarjetas votadas de páginas siguientes muestran sus resultados", async () => {
+    const voted = poll("p9", "¿Votada?");
+    const loadMore = vi.fn(async (): Promise<Result<FeedPage>> => ({
+      ok: true,
+      data: {
+        items: [
+          {
+            poll: voted,
+            viewer: {
+              kind: "voted",
+              results: {
+                pollId: "p9",
+                totalVotes: 2,
+                myOptionId: "p9-a",
+                options: [
+                  { id: "p9-a", text: "Sí", position: 1, votes: 1, percentage: 50 },
+                  { id: "p9-b", text: "No", position: 2, votes: 1, percentage: 50 },
+                ],
+              },
+            },
+          },
+          { poll: poll("p10", "¿Sin votar?"), viewer: { kind: "not_voted" } },
+        ],
+        nextCursor: null,
+      },
+    }));
+    render(<FeedMore cursor="c1" seenIds={[]} loadMore={loadMore} now={NOW} />);
+
+    fireEvent.click(button());
+
+    const votedCard = (await screen.findByRole("heading", { name: "¿Votada?" })).closest(
+      "article",
+    )!;
+    expect(within(votedCard).getByText("Tu voto")).toBeDefined();
+    const otherCard = screen.getByRole("heading", { name: "¿Sin votar?" }).closest("article")!;
+    expect(within(otherCard).queryByText("Tu voto")).toBeNull();
+    expect(within(otherCard).getAllByText("?? %")).toHaveLength(2);
+  });
 });
