@@ -91,3 +91,10 @@ Agente `claude-code (session_019ZfidxHjR16hC5t8nHGq9M)`, con el conector Supabas
 - `npm run test:db:concurrency`: 10 `create_poll` simultáneas con 4 previas → 1 OK y 9 `RATE_LIMITED` (5 en total); 10 `vote_poll` simultáneos → 1 OK y 9 `ALREADY_VOTED`. Sin el `pg_advisory_xact_lock` el test falla (14 encuestas).
 - Prueba de humo en desarrollo (transacción revertida): validación, normalización, voto, duplicado, `NOT_VOTED`, resultados 50/50 y `POLL_UNAVAILABLE` tras ocultar. Quedan 0 filas.
 - Advisor de seguridad: `authenticated_security_definer_function_executable` (WARN) en las tres funciones. Es intencionado (son la API autenticada y necesitan privilegios que los clientes no tienen); se revisa y documenta en MVP-020.
+
+## MVP-020: endurecimiento de permisos (27-10-2026)
+
+- Aplicada en **desarrollo**: `20261027195157_harden_default_privileges`.
+- `008_privileges.test.sql` OK en local y en desarrollo: 3 funciones `SECURITY DEFINER` con `search_path=""`, sin EXECUTE para PUBLIC/anon; ninguna escritura de clientes; `user_id` no legible; sin vistas; una función o tabla nueva nace sin permisos de cliente.
+- Antes de la migración, la primera versión del test detectó que una función nueva seguía siendo ejecutable por `anon` vía PUBLIC; se corrigió con la revocación global.
+- REST de desarrollo: agregados → `PGRST123`; embedding de `votes` → `42501`. Revisión completa en `docs/seguridad-rpc.md`.

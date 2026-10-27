@@ -37,3 +37,7 @@ begin
   perform set_config('request.jwt.claims', '', true);
   perform set_config('role', 'anon', true);
 end $$;
+
+-- Las funciones nuevas nacen sin EXECUTE para PUBLIC (MVP-020): se concede a las utilidades.
+grant execute on function pg_temp.expect_error(text, text), pg_temp.expect_denied(text),
+  pg_temp.login(uuid), pg_temp.logout() to public;
