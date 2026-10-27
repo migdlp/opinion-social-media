@@ -2,7 +2,7 @@
 
 ## Objetivo, problema y alcance autorizado
 
-El propietario pide reservar para Codex las tareas de Vercel y resolver sus bloqueos. El proyecto existe y está vinculado a GitHub, pero carece de variables y main contiene sólo documentación. Configurar Vercel y documentar accesos/operación sin tomar implementaciones reservadas a otros agentes ni declarar una aplicación publicada por un deploy estático READY.
+El propietario pide reservar para Codex las tareas de Vercel y resolver sus bloqueos. Estado inicial histórico: el proyecto carecía de variables y main contenía sólo documentación. El propietario pide ahora completar cada tarea reservada con su PR y merge; en 79f80f5 ya están integrados scaffold, CI y backend base. Configurar Vercel y documentar accesos/operación sin tomar implementaciones reservadas a otros agentes ni declarar una aplicación publicada por un deploy estático READY.
 
 Responsable: `Codex /root (opinion_social_media)`, mediante la conexión del propietario `migdlp`. Equipo `team_Iu3JavtCo0Kv8xW8ebnGukLb`; proyecto `prj_tUC8ZwzxHISZkmzMKd2z2UmVcN5E`.
 
@@ -10,9 +10,9 @@ Responsable: `Codex /root (opinion_social_media)`, mediante la conexión del pro
 
 - Estado y reservas: commits exclusivos directos a main actualizado; respetar concurrencia y sincronizar issues.
 - Otros documentos/código: rama, PR y merge con comprobaciones observadas.
-- TDD ON por instrucción explícita del propietario: RED, GREEN y REFACTOR para comportamiento. Runner: no existe en main durante exploración; no introducir comportamiento sin runner y RED. Configuración externa y documentación: inspección antes/después, coherencia y enlaces; no inventar ciclos de tests.
+- TDD ON por instrucción explícita del propietario: RED, GREEN y REFACTOR para comportamiento. Runner actual: Vitest 5.0.5, `npm run test -- src/lib/supabase/env.test.ts`; suite `npm run check`, secretos `npm run check:secrets`; SQL `npm run test:db` y `npm run test:db:concurrency` requieren PostgreSQL. No introducir comportamiento sin runner y RED. Configuración externa y documentación: inspección antes/después, coherencia y enlaces; no inventar ciclos de tests.
 - RDD off por configuración global previamente observada; entrega disabled/unmanaged, sin revisión nativa.
-- Preview/development usan Supabase dev; production usa prod. Sólo URL y Publishable key en NEXT_PUBLIC_*. No cambiar SQL, Auth ni credenciales administrativas.
+- Preview/development usan Supabase dev; production usa prod. Sólo URL y Publishable key en NEXT_PUBLIC_*. La nueva petición autoriza tareas de despliegue y sus requisitos, pero las escrituras SQL/Auth de producción sólo se harán cuando sus dependencias estén verificadas y exista configuración real; no eludir reservas ajenas ni inventar credenciales.
 - Heurística de unas 400 líneas por tarea orientativa, no límite ni motivo para comprimir o retirar verificaciones.
 - Engram no expone herramientas en esta sesión. Mirror `odd/vercel-operations/tasks`: pendiente; conservar documento completo y localizador `odd/tasks/vercel-operations.md` para sincronizar cuando esté disponible.
 
@@ -48,3 +48,27 @@ V01 verificada: reservas publicadas en main (b067424) y cuerpos de #13/#55–58 
 ## Cierre del alcance de desbloqueo
 
 Configuración Vercel corregida y documentación fusionada. No se cierran tareas del MVP por infraestructura parcial; dependencias y próximos pasos constan en main e issues. No se ejecutaron tests de aplicación, login real, SQL/migraciones ni pruebas de producción en este alcance. La prueba HTTP usa acceso autorizado, no acredita acceso anónimo. Mirror Engram permanece pendiente por falta de herramientas.
+
+## Reanudación: una PR por tarea
+
+Petición explícita: implementar las tareas reservadas, una PR por tarea y merge después de verificar. La fase anterior se conserva completada y no equivale al cierre del MVP. Engram sigue sin herramientas: espejo pendiente; reconciliado este archivo con main 79f80f5.
+
+- [x] V05 / MVP-008 — completar previews y protección de configuración pública; PR propia, preview del SHA correcto, HTTPS y entorno dev. Dependencias MVP-003/007 ya integradas.
+- [ ] V06 / MVP-022 — requisito libre de infraestructura: reproducibilidad de migraciones y tipos generados en CI; reservar antes de implementar, PR propia y comprobar runner real.
+- [ ] V07 / MVP-048 — runbook de producción verificable tras MVP-008/020/022; PR propia.
+- [ ] V08 / MVP-049 — despliegue productivo tras MVP-008/022/047/048, OAuth y migraciones reales; PR propia y pruebas observadas.
+- [ ] V09 / MVP-050 — smoke y seguridad producción tras MVP-044/045/046/049; dos cuentas reales; PR propia.
+- [ ] V10 / MVP-051 — checklist final tras MVP-047/049/050; PR propia; no declarar release completa con criterios pendientes.
+
+Siguiente paso: retomar MVP-008 como En progreso en main e issue, instalar dependencias fijadas y ejecutar RED antes de cambiar comportamiento. Las reservas ajenas MVP-004/018/019/025/028 se mantienen.
+
+### MVP-008: implementación y comprobaciones antes de PR
+
+- Cambios: vercel.json versiona Next.js e ignoreCommand; lector público exige clave sb_publishable_ no vacía y rechaza secretos/JWT sin revelar valores.
+- Node24.22.1 y Vitest5.0.5. RED focal: 6 fallos/4 pasan por comportamiento ausente; GREEN y REFACTOR tras formato: 10/10. Suite global: 19/19; formato, lint y typecheck correctos.
+- check:secrets detectó inicialmente el JWT falso literal de un test; se sustituyó por construcción desde JSON/base64url sin debilitar el scanner, y pasó (62 commits revisados).
+- npm ci tuvo un error inicial por cargar /dev/null como config global y usuario; corregido con config global temporal distinta. Node25 del sistema está fuera del rango declarado de Vitest: las comprobaciones usan Node24 incluido.
+- Build local por Turbopack bloqueado por restricción del SO al abrir puerto interno, también al solicitar ejecución ampliada. No se atribuye a código ni se declara check completo local correcto. Validación del build pendiente en CI/Vercel remotos.
+- SQL local no ejecutado: psql/Docker ausentes. Sus checks se ejecutarán en la CI existente de la PR.
+
+MVP-008 cerrada: PR #70 fusionada e877f02; CI 40577319870 app/build+SQL+secretos verde, preview Git automática SHA2aadfbf READY y /,/login,/create HTTP200 autorizado; inventario remoto confirmado dev/prod. Build local bloqueado por SO documentado, build remoto correcto. Siguiente: MVP-022 reservada en main/issue27. Mirror Engram pendiente.

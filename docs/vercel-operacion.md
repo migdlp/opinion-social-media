@@ -40,6 +40,8 @@ Los siete registros configurados separan los destinos; no copiar valores de clav
 
 Dev es `ltlrujmqenhktiilsnis`; prod es `qchpdrolulcgmiliysvr`. Obtener credenciales del proyecto correspondiente mediante el acceso autorizado descrito en [Supabase](supabase-acceso.md). No usar `service_role`, `sb_secret_`, PAT ni secretos OAuth en `NEXT_PUBLIC_*`. Los cambios de variables se aplican a nuevos deployments; verificar el entorno antes de redesplegar. Ver [variables de Vercel](https://vercel.com/docs/environment-variables).
 
+El lector público `getSupabaseEnv()` exige una clave con prefijo `sb_publishable_` y contenido no vacío; rechaza claves secretas, JWT y otros valores sin reproducirlos en sus errores. Mantiene el rechazo de la URL de producción fuera de Production. Esta comprobación de formato no acredita que una clave pertenezca al proyecto: hay que obtener URL y clave del mismo proyecto y verificar su conexión. `NEXT_PUBLIC_*` se incrusta durante el build de Next.js; un error del lector no elimina una clave incorrecta que ya se haya incluido en el bundle. Si se expone una clave privilegiada, revocarla y generar un deployment corregido.
+
 ## Preview y diagnóstico del build
 
 1. Publicar la rama de la tarea y abrir su PR; observar el deployment vinculado al SHA esperado.
@@ -50,6 +52,10 @@ Dev es `ltlrujmqenhktiilsnis`; prod es `qchpdrolulcgmiliysvr`. Obtener credencia
 Diagnóstico observado: las PR #59 y #65 fallaban con `STATIC_BUILD_NO_OUT_DIR`, buscando `public` pese a terminar `next build`. El framework estaba sin seleccionar. Se corrigió a `nextjs` y se dejaron `rootDirectory`, `outputDirectory`, `buildCommand` e `installCommand` sin sobrescrituras, usando los valores predeterminados de Next.js.
 
 Para el arranque documental, el Ignored Build Step es `test ! -f package.json`: omite únicamente checkouts sin manifest. Se comprobaron antes de configurarlo tres casos: sin manifest (exit 0, omitir), manifest presente (exit 1, compilar) y manifest inválido (exit 1, dejar que el build informe del error). No omite builds de una app por cambiar sólo documentación.
+
+`vercel.json` versiona `framework: nextjs` y ese mismo `ignoreCommand`, conservando los valores predeterminados de instalación, build y salida. Sus propiedades y la semántica de los códigos de salida se contrastaron con la [referencia oficial de configuración](https://vercel.com/docs/project-configuration/vercel-json).
+
+Al retomar MVP-008, `main` ya incluye el scaffold y CI (MVP-003 y MVP-007 integradas, referencia `79f80f5`). Las comprobaciones locales de configuración pública no sustituyen la evidencia runtime: hay que registrar una nueva preview del SHA de esta tarea, su HTTPS y conexión a Supabase dev antes de cerrarla. Las previews históricas de la tabla siguiente conservan su alcance original.
 
 La preview de [PR #65](https://github.com/migdlp/opinion-social-media/pull/65), SHA `d0e4bed`, terminó READY: [abrir preview](https://opinion-social-media-q76klsgc9-miguels-projects-b8307fdb.vercel.app), deployment `dpl_A6ihuQeRcxgiX4c5yVeVDUDbJoVx`. La consulta autenticada mediante el conector devolvió HTTP 200, título «Opinión» y «Feed público de encuestas (MVP-033)»: es un scaffold, sin acreditar todos los flujos ni acceso anónimo. Se conserva Deployment Protection (`all_except_custom_domains`); no se deshabilitó para probar.
 
@@ -73,7 +79,7 @@ Esto elimina el fallo de build de Vercel observado; no fusiona las PR ni acredit
 4. Para redeploy desde el panel, seleccionar el deployment del SHA correcto y **Redeploy**; confirmar el destino y la configuración de entorno mostrada antes de ejecutar. Si la configuración cambió, crear el deployment que la incorpore y volver a verificarla.
 5. Comprobar HTTPS, login y retorno Google, publicación y voto con cuentas de prueba, separación de bases, RLS y resultados inaccesibles antes de votar. Guardar evidencias en MVP-049/050/051; no cerrar por el mero estado READY.
 
-Los comandos reales y pruebas de aplicación se documentarán cuando el código y el runner estén integrados. Esta guía no acredita un ciclo RED/GREEN ni sustituye el checklist de producción.
+El runner de la aplicación ya está integrado: Vitest (`npm run test`), con las comprobaciones conjuntas en `npm run check`. Los comandos y resultados observados de cada tarea se registran en su PR; esta guía no sustituye el checklist de producción.
 
 ## Incidentes y recuperación
 
@@ -85,7 +91,7 @@ Los comandos reales y pruebas de aplicación se documentarán cuando el código 
 
 ## Pendiente para cerrar las tareas
 
-- MVP-008: integrar sus dependencias y comprobar una preview funcional con URL, SHA y Supabase dev.
+- MVP-008: con sus dependencias integradas, comprobar una nueva preview funcional con URL, SHA y Supabase dev.
 - MVP-048: completar runbook de migraciones, secretos/OAuth y recuperación de base con mecanismos realmente disponibles.
 - MVP-049: publicar aplicación real y verificar esquema, HTTPS y login en producción.
 - MVP-050: ejecutar pruebas funcionales y de seguridad de producción con evidencias.
