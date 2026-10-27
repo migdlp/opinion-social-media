@@ -1,3 +1,4 @@
+import { CopyLinkButton } from "@/components/copy-link-button";
 import { LockedOptions } from "@/components/locked-options";
 import type { PollDetail } from "@/lib/data/types";
 import { formatApproximateDate } from "@/lib/utils/date";
@@ -21,6 +22,7 @@ export function PollDetailView({ detail, now = new Date() }: PollDetailViewProps
         {" · "}
         <time dateTime={poll.createdAt}>{formatApproximateDate(poll.createdAt, now)}</time>
       </p>
+      <CopyLinkButton path={`/polls/${poll.id}`} />
     </article>
   );
 }
