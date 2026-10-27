@@ -1,20 +1,35 @@
 @import "tailwindcss";
 
+/* Tokens mínimos de diseño (MVP-024): color, borde, ancho de contenido y foco. */
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --muted: #5c5c5c;
+  --border: #e2e2e2;
+  --accent: #1d4ed8;
+  --accent-foreground: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --muted: #a3a3a3;
+    --border: #2e2e2e;
+    --accent: #60a5fa;
+    --accent-foreground: #0a0a0a;
   }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  /* Ancho de lectura común a header y contenido. */
+  --container-content: 42rem;
 }
 
 body {
@@ -26,4 +41,11 @@ body {
     "Segoe UI",
     Roboto,
     sans-serif;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
