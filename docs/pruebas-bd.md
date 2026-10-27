@@ -19,3 +19,13 @@ Qué cubre cada suite y dónde se ejecuta. Todas corren en CI en cada push (`.gi
 | Reproducible sin cambios manuales de consola | `db-test-local.sh` parte siempre de una base nueva; `check-db-reproducibility.sh` (MVP-022) reproduce en Supabase real, compara el historial con los ficheros, repite `db push` sin cambios y regenera los tipos |
 
 Comprobación de que los tests no son vacíos (mutaciones temporales, revertidas): quitar el `WHERE status = 'published'` del índice del feed → `001` falla con «definición del índice del feed»; quitar `ON DELETE CASCADE` de `votes.user_id` → `002` falla con «las FK de votes deben ser ON DELETE CASCADE».
+
+## MVP-042 — `create_poll` y cuota
+
+| Criterio | Cobertura |
+|---|---|
+| Opciones vacías, duplicadas o fuera de límites → error y sin filas huérfanas | `005_create_poll`: `VALIDATION_OPTION_COUNT` (nulo, 1, 5, array 2D), `VALIDATION_QUESTION_LENGTH` (corta, nula, colapsada, 281), `VALIDATION_OPTION_LENGTH` (sólo espacios, nula, 101), `VALIDATION_OPTION_DUPLICATE` («Sí»/« SÍ », espacios internos); tras todos los fallos quedan 0 encuestas y 0 opciones extra; sin sesión `AUTH_REQUIRED`, anon `42501` |
+| Cinco en una hora → la siguiente falla; al salir una de la ventana, permite otra | `005`: la sexta → `RATE_LIMITED` y otra cuenta no se ve afectada; con 5 creadas hace 10–50 min, al envejecer **sólo** la más antigua cabe exactamente una y la siguiente vuelve a `RATE_LIMITED`; nunca más de 5 en la ventana |
+| Concurrencia cerca del límite → nunca más de cinco | `db-concurrency-local.sh`: 10 `create_poll` simultáneas de la misma cuenta con 4 previas → 1 OK, 9 `RATE_LIMITED`, total 5 |
+
+Mutaciones comprobadas: ventana de 30 minutos en vez de 60 → falla la ventana exacta de `005`; límite `>= 6` → falla la sexta de `005`; sin `pg_advisory_xact_lock` → el script de concurrencia termina con 14 encuestas y código 1.
