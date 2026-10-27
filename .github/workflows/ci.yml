@@ -62,6 +62,22 @@ jobs:
         if: always()
         run: npx --yes supabase@2.122.0 stop --no-backup
 
+  security:
+    name: Ataques a RLS por HTTP (Supabase local)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: bash scripts/check-security-local.sh
+      - name: Detener la pila local efímera
+        if: always()
+        run: npx --yes supabase@2.122.0 stop --no-backup
+
   secrets:
     name: Sin secretos ni .env en Git
     runs-on: ubuntu-latest
