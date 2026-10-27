@@ -12,6 +12,7 @@ Leer [AGENTS.md](../AGENTS.md), el [contexto de la aplicación](contexto-aplicac
 |---|---|
 | [Contexto](contexto-aplicacion.md) | Objetivo, usuarios, flujos y reglas del producto |
 | [Arquitectura](arquitectura.md) | Stack previsto, contratos, seguridad y entornos |
+| [Contratos de datos y RPC](contratos-api.md) | Argumentos, respuestas, tipos y códigos de error (MVP-013) |
 | [Brief consolidado](brief-producto.md) | Contexto adicional del propietario y requisitos obligatorios |
 | [Backlog vigente v1.1](backlog.md) | 53 tareas revisadas, dependencias y aceptación |
 | [Fuente histórica v1](fuentes/backlog-v1.md) | Documento original conservado sin modificaciones |
@@ -20,6 +21,8 @@ Leer [AGENTS.md](../AGENTS.md), el [contexto de la aplicación](contexto-aplicac
 | [JSON](backlog.json) / [CSV](backlog.csv) | Exportación de cinco épicas y 53 tareas; CSV contiene las tareas |
 | [Tareas futuras](tareas-futuras.md) | Registro de estado, fases y trabajo pendiente |
 | [Prioridades y orden](orden-ejecucion.md) | Siguiente tarea, secuencia válida y reserva por agente |
+| [Seguridad de datos y RPC](seguridad-rpc.md) | Revisión de funciones, permisos y rutas alternativas (MVP-020) |
+| [Entornos y variables](entornos.md) | Proyectos dev/prod, variables públicas, secretos y protecciones |
 | [Estado del proyecto](estado-proyecto.md) | Evidencias de acceso e infraestructura creada |
 | [Acceso a Supabase](supabase-acceso.md) | Proyectos, URLs y conexión de colaboradores, agentes, app, CLI y SQL |
 | [Operación de Vercel](vercel-operacion.md) | Responsable, permisos de colaboradores, variables, despliegue y recuperación |

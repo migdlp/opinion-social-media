@@ -1,0 +1,46 @@
+-- MVP-020: inventario de permisos. Falla si aparece cualquier ruta de cliente no prevista.
+
+do $$
+declare r record;
+begin
+  -- Funciones de public: SECURITY DEFINER con search_path vacío, sin EXECUTE para PUBLIC ni anon.
+  for r in select p.oid, p.proname, p.prosecdef, p.proconfig, p.proacl from pg_proc p
+           where p.pronamespace = 'public'::regnamespace loop
+    assert r.prosecdef, r.proname || ' no es SECURITY DEFINER';
+    assert r.proconfig = array['search_path=""'], r.proname || ' sin search_path vacío';
+    assert r.proacl is not null and not exists (select 1 from aclexplode(r.proacl) a where a.grantee = 0),
+      r.proname || ' ejecutable por PUBLIC';
+    assert not has_function_privilege('anon', r.oid, 'execute'), r.proname || ' ejecutable por anon';
+    assert has_function_privilege('authenticated', r.oid, 'execute'), r.proname || ' no ejecutable por authenticated';
+  end loop;
+  assert (select count(*) from pg_proc where pronamespace = 'public'::regnamespace) = 3,
+    'funciones en public distintas de create_poll, vote_poll y get_poll_results';
+
+  -- Tablas: ningún cliente escribe; anon no lee votes; nadie lee polls.user_id ni polls.status.
+  for r in select c.relname, role from pg_class c, unnest(array['anon', 'authenticated']) as role
+           where c.relnamespace = 'public'::regnamespace and c.relkind = 'r' loop
+    assert not has_table_privilege(r.role, 'public.' || r.relname, 'insert, update, delete, truncate, references, trigger'),
+      r.role || ' puede escribir en ' || r.relname;
+  end loop;
+  assert not has_table_privilege('anon', 'public.votes', 'select'), 'anon puede leer votes';
+  assert not has_column_privilege('anon', 'public.polls', 'user_id', 'select'), 'anon lee polls.user_id';
+  assert not has_column_privilege('authenticated', 'public.polls', 'user_id', 'select'), 'authenticated lee polls.user_id';
+  assert not has_column_privilege('anon', 'public.polls', 'status', 'select'), 'anon lee polls.status';
+  assert (select count(*) from pg_class where relnamespace = 'public'::regnamespace and relkind in ('v', 'm')) = 0,
+    'hay vistas en public';
+end $$;
+
+-- Los objetos nuevos nacen sin permisos para clientes.
+begin;
+create function public.tmp_new_function() returns int language sql as 'select 1';
+create table public.tmp_new_table (id int);
+do $$
+begin
+  assert not has_function_privilege('anon', 'public.tmp_new_function()', 'execute'), 'función nueva ejecutable por anon';
+  assert not has_function_privilege('authenticated', 'public.tmp_new_function()', 'execute'), 'función nueva ejecutable por authenticated';
+  assert not has_table_privilege('anon', 'public.tmp_new_table', 'select'), 'tabla nueva legible por anon';
+  assert not has_table_privilege('authenticated', 'public.tmp_new_table', 'insert'), 'tabla nueva escribible por authenticated';
+end $$;
+rollback;
+
+select 'ok 008_privileges' as result;

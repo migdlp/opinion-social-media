@@ -124,7 +124,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-001 — Inicializar Next.js con App Router y TypeScript
 
-- **Estado:** Pendiente — ejecución pausada
+- **Estado:** Completada — commit 3ad8c67; ver issue #6
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `frontend`, `devops`
 - **Dependencias bloqueantes:** ninguna.
 - **Descripción:** Crear la aplicación con Next.js, React, TypeScript estricto y Tailwind CSS; establecer rutas base y estructura modular sin servidor adicional.
@@ -135,7 +135,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-002 — Configurar linting, formato y comprobaciones automáticas
 
-- **Estado:** Pendiente — ejecución pausada
+- **Estado:** Completada — ver issue #7
 - **Prioridad:** P0 · **Estimación relativa:** S · **Etiquetas:** `devops`, `testing`
 - **Dependencias bloqueantes:** MVP-001.
 - **Descripción:** Definir scripts reproducibles de lint, typecheck, test y build y una configuración coherente de calidad de código.
@@ -146,7 +146,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-003 — Preparar Supabase y separación de entornos
 
-- **Estado:** Pendiente — ejecución pausada
+- **Estado:** Completada — ver [entornos.md](entornos.md) e issue #8
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `backend`, `database`, `devops`
 - **Dependencias bloqueantes:** ninguna.
 - **Descripción:** Provisionar entornos Supabase de desarrollo y producción aislados, documentando la gestión de claves y URLs sin comprometer secretos.
@@ -214,7 +214,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-009 — Crear migraciones base de polls y poll_options
 
-- **Estado:** Pendiente — ejecución pausada
+- **Estado:** Completada — ver issue #14
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `database`, `backend`
 - **Dependencias bloqueantes:** MVP-003.
 - **Descripción:** Crear esquema SQL versionado para encuestas y opciones, tipos, claves foráneas, defaults, posiciones y restricciones de campos aplicables.
@@ -226,7 +226,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-010 — Crear votes y garantías de integridad
 
-- **Estado:** Pendiente — ejecución pausada
+- **Estado:** Completada — ver issue #15
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `database`, `security`
 - **Dependencias bloqueantes:** MVP-009.
 - **Descripción:** Crear tabla `votes` y restricciones contra repetición y contra opciones de encuestas distintas; añadir índices básicos de acceso.
@@ -238,7 +238,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-011 — Activar RLS para encuestas y opciones públicas
 
-- **Estado:** Pendiente — ejecución pausada
+- **Estado:** Completada — ver issue #16
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `database`, `security`
 - **Dependencias bloqueantes:** MVP-009.
 - **Descripción:** Habilitar RLS y políticas de SELECT para publicar sólo encuestas visibles y sus opciones; bloquear CRUD directo no autorizado.
@@ -250,7 +250,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-012 — Activar RLS de votos y revocar escrituras directas
 
-- **Estado:** Pendiente — ejecución pausada
+- **Estado:** Completada — ver issue #17
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `database`, `security`
 - **Dependencias bloqueantes:** MVP-010.
 - **Descripción:** Habilitar RLS para que cada cuenta sólo pueda leer sus votos; impedir inserciones, modificaciones y eliminaciones directas desde clientes.
@@ -261,7 +261,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-013 — Definir contratos de consultas y funciones RPC
 
-- **Estado:** Pendiente — ejecución pausada
+- **Estado:** Completada — contrato en [contratos-api.md](contratos-api.md)
 - **Prioridad:** P0 · **Estimación relativa:** S · **Etiquetas:** `backend`, `frontend`, `security`
 - **Dependencias bloqueantes:** ninguna; puede definirse desde el modelo del brief antes de implementar el esquema.
 - **Descripción:** Fijar nombres, argumentos, formatos de éxito/error, tipado y seguridad del contrato de `create_poll`, `vote_poll`, `get_poll_results`, feed y detalle para desbloquear frontend con mocks.
@@ -272,7 +272,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-014 — Implementar create_poll con validación y atomicidad
 
-- **Estado:** Pendiente — ejecución pausada
+- **Estado:** Completada — ver issue #19
 - **Prioridad:** P0 · **Estimación relativa:** L · **Etiquetas:** `database`, `backend`, `security`
 - **Dependencias bloqueantes:** MVP-009, MVP-011, MVP-013.
 - **Descripción:** Crear la RPC `create_poll` para un usuario autenticado: validar contenido, normalizar espacios y guardar encuesta y 2–4 opciones en la misma transacción.
@@ -283,7 +283,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-015 — Limitar create_poll a cinco encuestas por hora y cuenta
 
-- **Estado:** Pendiente — ejecución pausada
+- **Estado:** Completada — ver issue #20
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `backend`, `database`, `security`
 - **Dependencias bloqueantes:** MVP-014.
 - **Descripción:** Incorporar límite deslizante de 5 publicaciones por 60 minutos, con protección transaccional frente a creación simultánea por la misma cuenta.
@@ -294,7 +294,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-016 — Implementar vote_poll seguro e inmutable
 
-- **Estado:** Pendiente — ejecución pausada
+- **Estado:** Completada — ver issue #21
 - **Prioridad:** P0 · **Estimación relativa:** L · **Etiquetas:** `database`, `backend`, `security`
 - **Dependencias bloqueantes:** MVP-010, MVP-011, MVP-012, MVP-013.
 - **Descripción:** Crear la RPC `vote_poll` que autentica, verifica encuesta publicada y pertenencia de opción y persiste voto atómico sin permitir cambios.
@@ -306,7 +306,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-017 — Implementar get_poll_results sin fugas
 
-- **Estado:** Pendiente — ejecución pausada
+- **Estado:** Completada — ver issue #22
 - **Prioridad:** P0 · **Estimación relativa:** L · **Etiquetas:** `database`, `backend`, `security`
 - **Dependencias bloqueantes:** MVP-010, MVP-012, MVP-013, MVP-016.
 - **Descripción:** Crear RPC privilegiada pero acotada: autenticar, validar publicación, comprobar voto propio y sólo entonces calcular agregados con barras/porcentajes calculables.
@@ -339,7 +339,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-020 — Endurecer permisos y ejecución de todas las RPC
 
-- **Estado:** Pendiente — ejecución pausada
+- **Estado:** Completada — ver [seguridad-rpc.md](seguridad-rpc.md) e issue #25
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `database`, `security`
 - **Dependencias bloqueantes:** MVP-014, MVP-015, MVP-016, MVP-017.
 - **Descripción:** Revisar `SECURITY DEFINER`, propietarios, `search_path`, uso de esquemas cualificados y `GRANT/REVOKE`; negar EXECUTE genérico.

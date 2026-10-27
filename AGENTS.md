@@ -2,12 +2,12 @@
 
 ## Alcance vigente
 
-El propietario autoriza a **Codex /root (opinion_social_media)** a encargarse de Vercel, reservar sus tareas y resolver los bloqueos de configuración y despliegue dentro de sus dependencias. Leer [la guía de operación](docs/vercel-operacion.md). Esta instrucción sustituye la pausa anterior sólo para ese alcance; no libera reservas ajenas ni autoriza cambios de aplicación, SQL u OAuth fuera de las tareas correspondientes. Incorporar sus próximos mensajes a `docs/` y mantener la trazabilidad de decisiones y requisitos.
+La implementación se pausó (D-005) y se **reanudó el 26 de octubre de 2026** (D-013, `docs/decisiones.md`). Además, el propietario encarga Vercel a **Codex /root (opinion_social_media)** (D-VERCEL-001; ver [la guía de operación](docs/vercel-operacion.md)): ese agente reserva sus tareas y resuelve los bloqueos de configuración y despliegue dentro de sus dependencias. Incorporar los próximos mensajes a `docs/` y mantener la trazabilidad de decisiones y requisitos.
 
 - Leer `README.md`, `docs/contexto-aplicacion.md`, `docs/decisiones.md`, `docs/estado-proyecto.md` y `docs/supabase-acceso.md` antes de trabajar.
-- Fuera del alcance de Vercel expresamente autorizado, mantener la pausa anterior y respetar las instrucciones y reservas vigentes de cada tarea. La documentación, planificación y comprobaciones de acceso de solo lectura siguen permitidas.
-- La autorización de Vercel permite su configuración y comprobaciones de despliegue; no permite saltarse dependencias, configurar Google OAuth ni aplicar SQL por anticipado. Un despliegue READY de documentación no acredita una aplicación funcional.
-- Mantener estados y bloqueos según la evidencia del registro de tareas; no equiparar documentación o borradores con implementación verificada.
+- Trabajar tarea a tarea según `docs/orden-ejecucion.md` y el protocolo de reserva de abajo, respetando dependencias y reservas ajenas.
+- Configurar OAuth, aplicar SQL en proyectos Supabase, crear infraestructura o desplegar sólo cuando lo exija la tarea reservada y se disponga de los datos y confirmaciones necesarios. Las tareas de Vercel corresponden a Codex salvo traspaso registrado.
+- Un despliegue READY de documentación no acredita una aplicación funcional. No equiparar documentación o borradores con implementación verificada.
 - No guardar secretos, tokens ni claves administrativas en Git.
 - Informar del avance en español y registrar cualquier bloqueo real.
 
@@ -20,7 +20,7 @@ La organización de Supabase de este proyecto es **Los tres cerditos**, ID `drif
 | Desarrollo local, previews y trabajo de agentes | `opinion-social-media-dev` | `ltlrujmqenhktiilsnis` | `https://ltlrujmqenhktiilsnis.supabase.co` |
 | Producción, sólo para tareas de producción autorizadas | `opinion-social-media-prod` | `qchpdrolulcgmiliysvr` | `https://qchpdrolulcgmiliysvr.supabase.co` |
 
-Antes de conectar, leer [la guía de acceso](docs/supabase-acceso.md) y comprobar que la referencia elegida es la de desarrollo. Durante la pausa, usar MCP de desarrollo en modo de solo lectura:
+Antes de conectar, leer [la guía de acceso](docs/supabase-acceso.md) y comprobar que la referencia elegida es la de desarrollo. Salvo que la tarea reservada requiera escribir en desarrollo, usar MCP de desarrollo en modo de solo lectura:
 
 ```text
 https://mcp.supabase.com/mcp?project_ref=ltlrujmqenhktiilsnis&read_only=true
@@ -38,13 +38,13 @@ El backlog vigente está en `docs/backlog.md`; el original está archivado en `d
 
 ## Skill del proyecto
 
-Leer y aplicar [karpathy-guidelines](.agents/skills/karpathy-guidelines/SKILL.md) al escribir, revisar o refactorizar código y, cuando corresponda, al planificar cambios: explicitar supuestos relevantes, buscar la solución sencilla, limitar el cambio al alcance pedido y verificar objetivos concretos. El alcance actual incluye la operación de Vercel autorizada y su documentación. Las instrucciones del propietario y las de mayor prioridad prevalecen sobre la skill.
+Leer y aplicar [karpathy-guidelines](.agents/skills/karpathy-guidelines/SKILL.md) al escribir, revisar o refactorizar código y, cuando corresponda, al planificar cambios: explicitar supuestos relevantes, buscar la solución sencilla, limitar el cambio al alcance pedido y verificar objetivos concretos. Las instrucciones del propietario y las de mayor prioridad prevalecen sobre la skill.
 
 La copia local conserva las pautas originales y añade las reglas específicas de colaboración y TDD de este proyecto; su procedencia y revisión están en [docs/skills.md](docs/skills.md). No requiere instalar paquetes ni ejecutar scripts externos.
 
 ## Reserva y seguimiento obligatorio de tareas
 
-Estas reglas se aplican a las tareas autorizadas. Consultar el alcance vigente antes de iniciar trabajo; la reserva no sustituye la autorización ni las dependencias.
+Estas reglas se aplican desde la reanudación (D-013) a todas las tareas. La reserva no sustituye la autorización ni las dependencias.
 
 1. Leer `docs/tareas-futuras.md`, `docs/orden-ejecucion.md` y el issue correspondiente. Elegir una tarea pendiente cuyas dependencias estén completadas y verificadas; atender P0 antes de P1.
 2. Antes de elegir o empezar una tarea y antes de cada cambio de estado, actualizar la referencia remota de `main` desde GitHub y consultar allí `docs/tareas-futuras.md`: el estado vigente de `main` es la fuente compartida de disponibilidad, no una copia antigua ni una rama de implementación. Comprobar que la tarea no esté ocupada. En su fila, cambiar el estado a **En progreso** y escribir en **Agente** el nombre o identificador real del agente que la ejecuta. Usar un identificador estable y distinguible; nunca inventar una persona o asignar trabajo a otro agente sin acuerdo.
@@ -74,3 +74,13 @@ Por instrucción explícita del propietario, toda implementación o corrección 
 5. Registrar en la tarea y la PR los comandos ejecutados y los resultados observados de RED, GREEN y REFACTOR, incluidos fallos o bloqueos. No declarar ciclos que no se hayan ejecutado.
 
 Los cambios exclusivamente documentales se verifican mediante revisión de contenido, coherencia y enlaces; registrar esa comprobación sin inventar pruebas ejecutables ni un ciclo RED/GREEN de aplicación.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

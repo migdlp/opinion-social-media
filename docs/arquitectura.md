@@ -12,7 +12,7 @@
 
 Un único repositorio, sin servidor Express/NestJS independiente, microservicios, Redis, colas ni cachés externas. Acceso a datos mediante Supabase JS SDK.
 
-Las versiones concretas y los detalles de instalación se fijarán al reanudar. Un intento de scaffold local no constituye una decisión de versión.
+Versiones fijadas en D-014 (`package.json` y `package-lock.json`). Con `cacheComponents`, los datos de sesión y resultados no se cachean salvo `use cache` explícito, que no debe usarse para ellos.
 
 ## Modelo de datos obligatorio
 
@@ -36,7 +36,7 @@ La FK compuesta de votos a `(poll_id, option_id)` garantiza que la opción perte
 | Feed | Datos públicos con opciones ordenadas, máximo 20 por lote, cursor `(created_at,id)` |
 | Detalle | Datos públicos y opción propia si existe sesión; 404 para inválida, inexistente u oculta |
 
-Los nombres de argumentos y tipos exactos se definirán en MVP-013. La respuesta de resultados nunca devuelve identidades de votantes. Los errores serán códigos controlados para sesión, validación, cuota, indisponibilidad y voto duplicado, traducidos a mensajes de interfaz sin detalles SQL.
+Los nombres de argumentos, tipos y códigos de error exactos están en [contratos-api.md](contratos-api.md) (MVP-013). La respuesta de resultados nunca devuelve identidades de votantes. Los errores serán códigos controlados para sesión, validación, cuota, indisponibilidad y voto duplicado, traducidos a mensajes de interfaz sin detalles SQL.
 
 ## Seguridad obligatoria
 
