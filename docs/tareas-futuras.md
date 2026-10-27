@@ -79,7 +79,7 @@ La columna Orden es orientativa; las dependencias y las reservas de cada fila de
 | 36 | [MVP-032](https://github.com/migdlp/opinion-social-media/issues/37) | Publicar desde formulario y redirigir al detalle | P0 | MVP-031, MVP-014, MVP-015, MVP-023, MVP-027 | Pendiente | — |
 | 37 | [MVP-033](https://github.com/migdlp/opinion-social-media/issues/38) | Integrar feed público cronológico en / | P0 | MVP-018, MVP-024, MVP-025, MVP-029, MVP-023 | En progreso | claude-code (session_01Dsh4bnE3jAdfg5WXXBh59U) |
 | 38 | [MVP-034](https://github.com/migdlp/opinion-social-media/issues/39) | Implementar paginación del feed de veinte elementos | P0 | MVP-018, MVP-033 | Pendiente | — |
-| 39 | [MVP-035](https://github.com/migdlp/opinion-social-media/issues/40) | Implementar página compartible /polls/[id] | P0 | MVP-019, MVP-024, MVP-025, MVP-029, MVP-023 | Pendiente | — |
+| 39 | [MVP-035](https://github.com/migdlp/opinion-social-media/issues/40) | Implementar página compartible /polls/[id] | P0 | MVP-019, MVP-024, MVP-025, MVP-029, MVP-023 | En progreso | claude-code (session_01Dsh4bnE3jAdfg5WXXBh59U) |
 | 40 | [MVP-036](https://github.com/migdlp/opinion-social-media/issues/41) | Integrar votación y petición de autenticación | P0 | MVP-016, MVP-027, MVP-028, MVP-035, MVP-023 | Pendiente | — |
 | 41 | [MVP-037](https://github.com/migdlp/opinion-social-media/issues/42) | Mostrar resultados sólo a quien haya votado | P0 | MVP-017, MVP-019, MVP-030, MVP-035, MVP-036, MVP-023 | Pendiente | — |
 | 42 | [MVP-038](https://github.com/migdlp/opinion-social-media/issues/43) | Integrar estado votado en tarjetas del feed | P0 | MVP-012, MVP-017, MVP-018, MVP-019, MVP-029, MVP-030, MVP-033, MVP-037 | Pendiente | — |
