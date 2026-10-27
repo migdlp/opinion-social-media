@@ -46,3 +46,16 @@ En contenedores cuyo tráfico sale por un proxy HTTPS, Node necesita `NODE_USE_E
 - Production: URL y clave de **producción**.
 - Preview y Development: URL y clave de **desarrollo**.
 - No definir ninguna clave secreta en Vercel mientras la app no la necesite.
+
+## Clientes de Supabase en la app (MVP-004)
+
+Toda la app obtiene Supabase de `src/lib/supabase/`, que lee la configuración sólo de `env.ts`:
+
+| Módulo | Dónde se usa | Sesión |
+|---|---|---|
+| `client.ts` → `createClient()` | Componentes `"use client"` | Cookies del navegador |
+| `server.ts` → `await createClient()` | Server Components, Server Actions, Route Handlers | Cookies de la petición; sin cookies actúa como `anon` |
+
+- Ambos usan únicamente URL y clave publicable; no existe cliente con clave secreta.
+- `server.ts` importa `next/headers`, por lo que no puede acabar en el bundle del navegador, y quien lo usa se renderiza por petición (sin caché compartida).
+- La renovación de la sesión en el proxy de Next.js y el callback OAuth corresponden a MVP-006; los tipos generados del esquema, a MVP-022.
