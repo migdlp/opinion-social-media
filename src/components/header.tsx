@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { Suspense } from "react";
+import { AuthButton, AuthButtonFallback } from "./auth-button";
 
 // Cabecera común: la marca vuelve al feed y la acción principal lleva a crear.
-// El botón de sesión (AuthButton) se añadirá aquí en MVP-026.
+// AuthButton refleja la sesión sin bloquear el resto de la página.
 export function Header() {
   return (
     <header className="sticky top-0 z-10 border-b border-border bg-surface">
@@ -9,15 +11,26 @@ export function Header() {
         aria-label="Principal"
         className="mx-auto flex w-full max-w-wide items-center justify-between gap-3 px-4 py-3"
       >
-        <Link href="/" className="rounded text-xl font-bold tracking-[-0.03em]">
+        <Link href="/" className="rounded text-xl font-bold tracking-[-0.03em] whitespace-nowrap">
           Opinión
         </Link>
-        <Link
-          href="/create"
-          className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-85"
-        >
-          Crear encuesta
-        </Link>
+        <div className="flex items-center gap-2 whitespace-nowrap">
+          <Suspense fallback={<AuthButtonFallback />}>
+            <AuthButton />
+          </Suspense>
+          <Link
+            href="/create"
+            className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-85"
+          >
+            <span aria-hidden="true" className="sm:hidden">
+              Crear
+            </span>
+            <span aria-hidden="true" className="hidden sm:inline">
+              Crear encuesta
+            </span>
+            <span className="sr-only">Crear encuesta</span>
+          </Link>
+        </div>
       </nav>
     </header>
   );
