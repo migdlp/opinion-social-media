@@ -15,7 +15,8 @@
     "check": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run build",
     "test:db": "bash scripts/db-test-local.sh",
     "test:db:concurrency": "bash scripts/db-concurrency-local.sh",
-    "check:secrets": "bash scripts/check-secrets.sh"
+    "check:secrets": "bash scripts/check-secrets.sh",
+    "test:security": "bash scripts/check-security-local.sh"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",
