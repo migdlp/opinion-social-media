@@ -9,7 +9,7 @@ export function LoadingState({ label = "Cargando…" }: LoadingStateProps) {
     <div role="status" className="flex items-center gap-3 py-8 text-muted">
       <span
         aria-hidden="true"
-        className="size-5 animate-spin rounded-full border-2 border-border border-t-accent motion-reduce:animate-none"
+        className="size-5 animate-spin rounded-full border-2 border-border border-t-foreground motion-reduce:animate-none"
       />
       <span>{label}</span>
     </div>

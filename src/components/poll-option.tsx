@@ -13,14 +13,14 @@ type PollOptionProps = {
 // tecnología asistiva reciban el estado (seleccionada / deshabilitada) sin ARIA extra.
 export function PollOption({ name, option, checked, onSelect }: PollOptionProps) {
   return (
-    <label className="flex cursor-pointer items-center gap-3 rounded-md border border-border px-3 py-3 has-checked:border-accent has-disabled:cursor-not-allowed has-disabled:opacity-60">
+    <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-surface px-4 py-3 text-[15px] transition-colors hover:border-foreground has-checked:border-foreground has-checked:bg-foreground has-checked:font-semibold has-checked:text-background has-disabled:cursor-not-allowed has-disabled:opacity-60 has-disabled:hover:border-border">
       <input
         type="radio"
         name={name}
         value={option.id}
         checked={checked}
         onChange={() => onSelect(option.id)}
-        className="size-4 accent-accent"
+        className="size-4 shrink-0 appearance-none rounded-full border-2 border-current checked:bg-background checked:shadow-[inset_0_0_0_3px_var(--foreground)]"
       />
       <span>{option.text}</span>
     </label>
@@ -48,7 +48,9 @@ export function PollOptionGroup({
 }: PollOptionGroupProps) {
   return (
     <fieldset disabled={disabled} className="flex flex-col gap-2">
-      <legend className="mb-2 font-semibold">{question}</legend>
+      <legend className="mb-3 text-[17px] leading-snug font-semibold tracking-[-0.01em]">
+        {question}
+      </legend>
       {options.map((option) => (
         <PollOption
           key={option.id}

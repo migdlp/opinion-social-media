@@ -57,3 +57,23 @@ describe("PollResults", () => {
     expect(container.textContent).not.toContain("NaN");
   });
 });
+
+describe("PollResults con miles de votos", () => {
+  it("separa los miles en recuentos y total", () => {
+    render(
+      <PollResults
+        results={{
+          pollId: "p2",
+          totalVotes: 1284,
+          myOptionId: "a",
+          options: [
+            { id: "a", text: "Sí", position: 1, votes: 1283, percentage: 99.9 },
+            { id: "b", text: "No", position: 2, votes: 1, percentage: 0.1 },
+          ],
+        }}
+      />,
+    );
+    expect(screen.getByText("1.283 votos")).toBeDefined();
+    expect(screen.getByText("1.284 votos en total")).toBeDefined();
+  });
+});

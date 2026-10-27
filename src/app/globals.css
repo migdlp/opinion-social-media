@@ -1,51 +1,99 @@
 @import "tailwindcss";
 
-/* Tokens mínimos de diseño (MVP-024): color, borde, ancho de contenido y foco. */
+/* «Mercado de opiniones» en blanco y negro (DESIGN.md). Tinta casi negra sobre blanco,
+   invertido en modo oscuro; el único color es el rojo de error. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --muted: #5c5c5c;
-  --border: #e2e2e2;
-  --accent: #1d4ed8;
-  --accent-foreground: #ffffff;
+  --background: #f4f4f5;
+  --surface: #ffffff;
+  --foreground: #0a0a0b;
+  --muted: #5e5e66;
+  --border: #e4e4e7;
+  --track: #ececef;
+  --bar-muted: #a9a9b0;
+  --field: #8a8a93;
+  --danger: #c4161c;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --muted: #a3a3a3;
-    --border: #2e2e2e;
-    --accent: #60a5fa;
-    --accent-foreground: #0a0a0a;
+    --background: #0a0a0b;
+    --surface: #151517;
+    --foreground: #f4f4f5;
+    --muted: #a3a3ab;
+    --border: #2a2a2e;
+    --track: #232327;
+    --bar-muted: #5d5d65;
+    --field: #707079;
+    --danger: #ff7b7b;
   }
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-border: var(--border);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
+  --color-track: var(--track);
+  --color-bar-muted: var(--bar-muted);
+  --color-field: var(--field);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
   /* Ancho de lectura común a header y contenido. */
-  --container-content: 42rem;
+  --container-content: 40rem;
+}
+
+html {
+  color-scheme: light dark;
+  scrollbar-color: var(--bar-muted) transparent;
+  accent-color: var(--foreground);
+  caret-color: var(--foreground);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family:
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
+  font-family: var(--font-sans);
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
 
+::selection {
+  background: var(--foreground);
+  color: var(--background);
+}
+
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--foreground);
   outline-offset: 2px;
+}
+
+/* Revelación de resultados: las barras crecen desde cero y las cifras aparecen. */
+@keyframes reveal-bar {
+  from {
+    width: 0;
+  }
+}
+
+@keyframes reveal-figure {
+  from {
+    opacity: 0;
+    transform: translateY(0.25em);
+    filter: blur(2px);
+  }
+}
+
+.reveal-bar {
+  animation: reveal-bar 800ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.reveal-figure {
+  animation: reveal-figure 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-bar,
+  .reveal-figure {
+    animation: none;
+  }
 }
