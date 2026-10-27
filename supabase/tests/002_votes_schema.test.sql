@@ -19,6 +19,16 @@ begin
   assert exists (select 1 from pg_indexes where indexname = 'poll_options_poll_id_position_key'), 'índice de opciones';
   assert exists (select 1 from pg_indexes where indexname = 'votes_poll_id_user_id_key'), 'índice de voto propio';
   assert exists (select 1 from pg_indexes where indexname = 'votes_poll_id_option_id_idx'), 'índice de agregados';
+  assert exists (select 1 from pg_indexes where indexname = 'votes_user_id_idx'
+    and indexdef like '%(user_id)'), 'índice de borrado en cascada por usuario';
+  -- Defaults de votes: id UUID generado y created_at automático.
+  assert (select column_default from information_schema.columns
+    where table_schema = 'public' and table_name = 'votes' and column_name = 'id') = 'gen_random_uuid()', 'default de votes.id';
+  assert (select column_default from information_schema.columns
+    where table_schema = 'public' and table_name = 'votes' and column_name = 'created_at') = 'now()', 'default de votes.created_at';
+  -- Borrar una encuesta o una cuenta borra sus votos (no quedan huérfanos).
+  assert (select count(*) from pg_constraint where conrelid = 'public.votes'::regclass and contype = 'f' and confdeltype = 'c') = 3,
+    'las FK de votes deben ser ON DELETE CASCADE';
 end $$;
 
 begin;
