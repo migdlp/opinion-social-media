@@ -244,5 +244,5 @@ Para los estados `anonymous` y `not_voted` el mismo objeto sin `results`: `"view
 
 ## 7. Puntos abiertos para las tareas de implementación
 
-- **Columna `polls.user_id` legible por API directa.** RLS filtra filas, no columnas: aunque el adaptador no la seleccione, un cliente podría pedirla. El brief no la declara secreta, pero no la necesita. MVP-011 decide si conceder `SELECT` por columnas (`id, question, status, created_at`) a `anon`/`authenticated`.
+- ~~Columna `polls.user_id` legible por API directa.~~ Resuelto en MVP-011: `anon` y `authenticated` sólo tienen `SELECT (id, question, created_at)` en `polls`; pedir `user_id`, `status` o `*` devuelve `42501`. Por eso el adaptador debe seleccionar columnas explícitas.
 - **Recuento de llamadas en el feed.** Si las hasta 20 llamadas a `get_poll_results` resultan lentas, se valorará una variante por lotes con las mismas comprobaciones; no se añade ahora.
