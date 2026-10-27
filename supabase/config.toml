@@ -1,0 +1,18 @@
+# Configuración local derivada de `supabase init` (CLI 2.122.0).
+# https://supabase.com/docs/guides/local-development/cli/config
+# Exclusiva para reproducción local/CI; no enlaza ningún proyecto alojado.
+project_id = "opinion-social-media"
+
+[db]
+port = 54322
+shadow_port = 54320
+health_timeout = "2m"
+major_version = 17
+
+[db.migrations]
+enabled = true
+schema_paths = []
+
+[db.seed]
+enabled = false
+sql_paths = []

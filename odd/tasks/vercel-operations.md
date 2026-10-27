@@ -54,8 +54,8 @@ Configuración Vercel corregida y documentación fusionada. No se cierran tareas
 Petición explícita: implementar las tareas reservadas, una PR por tarea y merge después de verificar. La fase anterior se conserva completada y no equivale al cierre del MVP. Engram sigue sin herramientas: espejo pendiente; reconciliado este archivo con main 79f80f5.
 
 - [x] V05 / MVP-008 — completar previews y protección de configuración pública; PR propia, preview del SHA correcto, HTTPS y entorno dev. Dependencias MVP-003/007 ya integradas.
-- [ ] V06 / MVP-022 — requisito libre de infraestructura: reproducibilidad de migraciones y tipos generados en CI; reservar antes de implementar, PR propia y comprobar runner real.
-- [ ] V07 / MVP-048 — runbook de producción verificable tras MVP-008/020/022; PR propia.
+- [x] V06 / MVP-022 — requisito libre de infraestructura: reproducibilidad de migraciones y tipos generados en CI; reservar antes de implementar, PR propia y comprobar runner real.
+- [ ] V07 / MVP-048 — EN PROGRESO: runbook de producción verificable tras MVP-008/020/022; reserva publicada en main bfb02b3 e issue55, rama codex/MVP-048-production-runbook. PR propia y merge pendientes.
 - [ ] V08 / MVP-049 — despliegue productivo tras MVP-008/022/047/048, OAuth y migraciones reales; PR propia y pruebas observadas.
 - [ ] V09 / MVP-050 — smoke y seguridad producción tras MVP-044/045/046/049; dos cuentas reales; PR propia.
 - [ ] V10 / MVP-051 — checklist final tras MVP-047/049/050; PR propia; no declarar release completa con criterios pendientes.
@@ -72,3 +72,23 @@ Siguiente paso: retomar MVP-008 como En progreso en main e issue, instalar depen
 - SQL local no ejecutado: psql/Docker ausentes. Sus checks se ejecutarán en la CI existente de la PR.
 
 MVP-008 cerrada: PR #70 fusionada e877f02; CI 40577319870 app/build+SQL+secretos verde, preview Git automática SHA2aadfbf READY y /,/login,/create HTTP200 autorizado; inventario remoto confirmado dev/prod. Build local bloqueado por SO documentado, build remoto correcto. Siguiente: MVP-022 reservada en main/issue27. Mirror Engram pendiente.
+
+### MVP-022: candidato inicial
+
+- Reserva publicada en main e issue27; dependencias completas. Fuente CLI oficial2.122.0 fijada, ayuda db push/gen/init/start consultada. Config local derivada de init, sin link/login remoto.
+- RED de contrato: npm run typecheck exit2 por Database ausente y assertions; runner next typegen ejecutado. Tras generar Database desde dev por MCP, GREEN y REFACTOR typecheck correctos; Vitest23/23, lint/formato/secretos/bash-n/diff correctos.
+- CI añade prueba Supabase real limpia: ledger completo, segundo db push conserva esquema/ledger/fila sintética, generación local de tipos comparada con Git. No reemplaza SQL stub ni concurrencia existentes.
+- Local carece de Docker: el script falla explícitamente en la precondición; no es GREEN ni RED de comportamiento. Un intento anterior npx sin salida fue interrumpido exit130; no hubo operación de DB. CLI ayuda local requirió escritura de telemetría fuera de sandbox; no se usaron credenciales ni proyectos remotos para CLI.
+- El artefacto inicial MCP ocupaba 257 líneas; el definitivo generado por CLI ocupa 242. No es un esquema escrito manualmente. Se conserva una PR por tarea solicitada aunque el total supere 400 líneas por ese artefacto; código/config/docs coherentes no se comprimen.
+- PR #76, CI [40578863910](https://github.com/migdlp/opinion-social-media/actions/runs/40578863910): Supabase local real reprodujo las ocho migraciones y verificó historial, esquema y conservación de la fila después del segundo db push. El job falló exclusivamente al comparar los tipos MCP iniciales con los generados por CLI2.122.0. Ese run no constituye GREEN completo del job.
+- Corrección: sustituido database.types.ts por la salida exacta de CLI del run entre MVP022_TYPES_BEGIN/END, sin inventar firmas ni eliminar la comparación. Procedencia documentada en docs/migraciones.md. Con Node 24.22.1, prettier --check del artefacto/assertions/workflow, npm run typecheck, npm run test (23/23) y npm run lint pasan de nuevo. Se conserva el RED de contrato original; no se inventa otro ciclo de comportamiento para corregir el artefacto generado.
+- V06 completada: PR #76 fusionada en 5ad69e7; CI [40579787090](https://github.com/migdlp/opinion-social-media/actions/runs/40579787090) con todos los jobs verdes, incluida reproducción Supabase real, segundo despliegue sin cambios y comparación de tipos. El fallo del run anterior se conserva como evidencia histórica. Mirror Engram pendiente por falta de herramientas.
+
+### MVP-048: runbook en progreso
+
+- Dependencias MVP-008/020/022 verificadas; reserva publicada en main e issue55 antes de escribir. Alcance exclusivamente documental en docs/vercel-operacion.md y este documento.
+- TDD ON para comportamiento; no hay cambio de comportamiento en esta tarea ni ciclo RED/GREEN aplicable. Verificación: contenido, enlaces, secretos, Prettier y diff; resultados se registrarán tras ejecutarlos. RDD off.
+- Google Auth: lectura del 27-10-2026 comunicada por el agente padre, HTTP 200 y external.google=true en dev y prod; propietario configuró Client ID y secreto. No acredita login real. Supabase Free: sin garantía de backups diarios/PITR. No existe copia/restauración ensayada; el runbook exige prepararla antes de operaciones con riesgo de datos.
+- Guía ampliada: preflight, dominio y callbacks exactos, SQL pendiente con comparación de ledger/esquema, publicación Git, límites de rollback Hobby y exportación/restauración aislada con pérdida aceptada. Conserva evidencias de MVP-008/004 completadas y distingue Google habilitado de login real pendiente; páginas login/create aún placeholders.
+- Comprobaciones ejecutadas: Prettier --write y --check de ambos documentos correctos; git diff --check correcto; npm run check:secrets correcto (99 commits). Lectura oficial de Vercel Instant Rollback/rollback production y Supabase backups/backup-restore realizada. No se ejecutaron tests de aplicación, SQL ni restauraciones para este cambio exclusivamente documental.
+- Pendiente: abrir PR y fusionar; V07 permanece abierta hasta integrar. Tras ello MVP-049 conserva MVP-047 como dependencia directa pendiente. Mirror Engram pendiente por falta de herramientas.
