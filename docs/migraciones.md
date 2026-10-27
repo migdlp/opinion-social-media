@@ -29,6 +29,16 @@ los compara con Git y ejecuta typecheck. Una diferencia hace fallar la CI.
 Los marcadores `MVP022_TYPES_BEGIN/END` muestran sólo tipos del esquema público
 para diagnosticar diferencias; no contienen credenciales ni registros.
 
+El artefacto versionado de MVP-022 procede de la generación local de la CLI
+2.122.0 en la [ejecución CI 40578863910](https://github.com/migdlp/opinion-social-media/actions/runs/40578863910)
+de la [PR #76](https://github.com/migdlp/opinion-social-media/pull/76), sobre
+las ocho migraciones versionadas. Ese run verificó reproducción y segundo
+despliegue, pero falló al comparar los tipos inicialmente obtenidos por MCP
+con los generados por la CLI fijada. Se sustituyó el fichero por la salida
+exacta entre los marcadores, sin editar sus firmas ni retirar la comparación.
+Typecheck y las pruebas locales pasan con ese artefacto; la repetición de CI
+con el fichero corregido sigue pendiente antes de cerrar la tarea.
+
 Se puede repetir el comando sin borrar la base: no usa `db reset`, ni elimina
 la base, ni reproduce SQL manualmente sobre un esquema existente. Reserva el
 contenedor `supabase_db_opinion-social-media` para esta prueba: no usarlo para
