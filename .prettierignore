@@ -4,3 +4,5 @@ package-lock.json
 next-env.d.ts
 docs/
 *.md
+.agents/skills/
+.claude/skills/
