@@ -272,7 +272,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-014 — Implementar create_poll con validación y atomicidad
 
-- **Estado:** Pendiente — ejecución pausada
+- **Estado:** Completada — ver issue #19
 - **Prioridad:** P0 · **Estimación relativa:** L · **Etiquetas:** `database`, `backend`, `security`
 - **Dependencias bloqueantes:** MVP-009, MVP-011, MVP-013.
 - **Descripción:** Crear la RPC `create_poll` para un usuario autenticado: validar contenido, normalizar espacios y guardar encuesta y 2–4 opciones en la misma transacción.
@@ -283,7 +283,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-015 — Limitar create_poll a cinco encuestas por hora y cuenta
 
-- **Estado:** Pendiente — ejecución pausada
+- **Estado:** Completada — ver issue #20
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `backend`, `database`, `security`
 - **Dependencias bloqueantes:** MVP-014.
 - **Descripción:** Incorporar límite deslizante de 5 publicaciones por 60 minutos, con protección transaccional frente a creación simultánea por la misma cuenta.
@@ -294,7 +294,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-016 — Implementar vote_poll seguro e inmutable
 
-- **Estado:** Pendiente — ejecución pausada
+- **Estado:** Completada — ver issue #21
 - **Prioridad:** P0 · **Estimación relativa:** L · **Etiquetas:** `database`, `backend`, `security`
 - **Dependencias bloqueantes:** MVP-010, MVP-011, MVP-012, MVP-013.
 - **Descripción:** Crear la RPC `vote_poll` que autentica, verifica encuesta publicada y pertenencia de opción y persiste voto atómico sin permitir cambios.
@@ -306,7 +306,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-017 — Implementar get_poll_results sin fugas
 
-- **Estado:** Pendiente — ejecución pausada
+- **Estado:** Completada — ver issue #22
 - **Prioridad:** P0 · **Estimación relativa:** L · **Etiquetas:** `database`, `backend`, `security`
 - **Dependencias bloqueantes:** MVP-010, MVP-012, MVP-013, MVP-016.
 - **Descripción:** Crear RPC privilegiada pero acotada: autenticar, validar publicación, comprobar voto propio y sólo entonces calcular agregados con barras/porcentajes calculables.

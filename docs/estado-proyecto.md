@@ -82,3 +82,12 @@ Agente `claude-code (session_019ZfidxHjR16hC5t8nHGq9M)`, con el conector Supabas
 - `npm run test:db` (PostgreSQL 16 local): 4 ficheros de test OK. Mutaciones comprobadas: conceder `user_id`, quitar el filtro de encuestas publicadas en `votes` o dejar `TRUNCATE` hacen fallar los tests.
 - Desarrollo, dentro de una transacción revertida: anon/autor no ven ocultas ni sus opciones; nadie lee `polls.user_id`; INSERT/UPDATE/DELETE/TRUNCATE denegados en las tres tablas; A sólo ve su voto, B no lo ve, anon no lee `votes`. Quedan 0 filas.
 - REST de desarrollo con clave publicable: `polls?select=id,question,created_at` → `[]`; `select=user_id` y `select=*` → `42501`; `votes` → `42501`; `DELETE votes` → `42501`. Advisor de seguridad: sin avisos.
+
+## MVP-014 a MVP-017: RPC (27-10-2026)
+
+- Aplicadas en **desarrollo**: `20261027194316_create_poll` (incluye la cuota de MVP-015), `20261027194329_vote_poll`, `20261027194339_get_poll_results`. El `md5(prosrc)` de cada función coincide entre desarrollo y la base local.
+- Permisos en desarrollo: `SECURITY DEFINER`, `search_path=""`, `EXECUTE` sólo para `authenticated` (más `postgres` y `service_role`). REST anónimo → `42501 permission denied` en las tres.
+- `npm run test:db`: 7 ficheros OK (validación y orden de códigos, normalización, atomicidad, autor desde `auth.uid()`, cuota y ventana móvil, voto único, opción de otra encuesta, encuesta oculta, resultados con ceros y redondeo, autor sin voto → `NOT_VOTED`).
+- `npm run test:db:concurrency`: 10 `create_poll` simultáneas con 4 previas → 1 OK y 9 `RATE_LIMITED` (5 en total); 10 `vote_poll` simultáneos → 1 OK y 9 `ALREADY_VOTED`. Sin el `pg_advisory_xact_lock` el test falla (14 encuestas).
+- Prueba de humo en desarrollo (transacción revertida): validación, normalización, voto, duplicado, `NOT_VOTED`, resultados 50/50 y `POLL_UNAVAILABLE` tras ocultar. Quedan 0 filas.
+- Advisor de seguridad: `authenticated_security_definer_function_executable` (WARN) en las tres funciones. Es intencionado (son la API autenticada y necesitan privilegios que los clientes no tienen); se revisa y documenta en MVP-020.
