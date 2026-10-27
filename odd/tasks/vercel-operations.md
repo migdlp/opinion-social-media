@@ -72,3 +72,12 @@ Siguiente paso: retomar MVP-008 como En progreso en main e issue, instalar depen
 - SQL local no ejecutado: psql/Docker ausentes. Sus checks se ejecutarán en la CI existente de la PR.
 
 MVP-008 cerrada: PR #70 fusionada e877f02; CI 40577319870 app/build+SQL+secretos verde, preview Git automática SHA2aadfbf READY y /,/login,/create HTTP200 autorizado; inventario remoto confirmado dev/prod. Build local bloqueado por SO documentado, build remoto correcto. Siguiente: MVP-022 reservada en main/issue27. Mirror Engram pendiente.
+
+### MVP-022: candidato inicial
+
+- Reserva publicada en main e issue27; dependencias completas. Fuente CLI oficial2.122.0 fijada, ayuda db push/gen/init/start consultada. Config local derivada de init, sin link/login remoto.
+- RED de contrato: npm run typecheck exit2 por Database ausente y assertions; runner next typegen ejecutado. Tras generar Database desde dev por MCP, GREEN y REFACTOR typecheck correctos; Vitest23/23, lint/formato/secretos/bash-n/diff correctos.
+- CI añade prueba Supabase real limpia: ledger completo, segundo db push conserva esquema/ledger/fila sintética, generación local de tipos comparada con Git. No reemplaza SQL stub ni concurrencia existentes.
+- Local carece de Docker: el script falla explícitamente en la precondición; no es GREEN ni RED de comportamiento. Un intento anterior npx sin salida fue interrumpido exit130; no hubo operación de DB. CLI ayuda local requirió escritura de telemetría fuera de sandbox; no se usaron credenciales ni proyectos remotos para CLI.
+- El artefacto generado ocupa257 líneas, no es un esquema escrito manualmente. Se conserva una PR por tarea solicitada aunque el total supere400 líneas por ese artefacto; código/config/docs coherentes no se comprimen.
+- Pendiente: ejecutar el nuevo job CI y obtener evidencia real antes de cerrar/merge.
