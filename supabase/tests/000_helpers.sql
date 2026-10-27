@@ -5,7 +5,7 @@ create function pg_temp.expect_error(sql text, expected text) returns void
 language plpgsql as $$
 begin
   execute sql;
-  raise exception 'se esperaba % y no hubo error: %', expected, sql;
+  raise exception using errcode = 'assert_failure', message = format('se esperaba %s y no hubo error: %s', expected, sql);
 exception
   when sqlstate 'P0001' then
     if sqlerrm <> expected then

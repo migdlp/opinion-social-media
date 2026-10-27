@@ -90,6 +90,31 @@ begin
   assert (select count(*) from public.polls where user_id = '00000000-0000-0000-0000-00000000000a'
     and created_at > now() - interval '60 minutes') = 1, 'ventana móvil';
 end $$;
+
+-- Ventana móvil exacta (MVP-042): con 5 en la ventana, cuando sólo la más antigua
+-- sale, cabe exactamente una más y después vuelve a bloquear.
+delete from public.polls where user_id = '00000000-0000-0000-0000-00000000000a';
+insert into public.polls (user_id, question, created_at)
+select '00000000-0000-0000-0000-00000000000a', '¿Encuesta en ventana ' || g || '?', now() - make_interval(mins => 10 * g)
+from generate_series(1, 5) g; -- hace 10, 20, 30, 40 y 50 minutos
+select pg_temp.login('00000000-0000-0000-0000-00000000000a');
+select pg_temp.expect_error($$select public.create_poll('¿Sexta dentro de la hora?', array['A','B'])$$, 'RATE_LIMITED');
+reset role;
+update public.polls set created_at = now() - interval '61 minutes'
+  where user_id = '00000000-0000-0000-0000-00000000000a' and question = '¿Encuesta en ventana 5?';
+select pg_temp.login('00000000-0000-0000-0000-00000000000a');
+select public.create_poll('¿Cabe una al salir la más antigua?', array['A','B']);
+select pg_temp.expect_error($$select public.create_poll('¿Y una más todavía?', array['A','B'])$$, 'RATE_LIMITED');
+reset role;
+do $$
+begin
+  assert (select count(*) from public.polls where user_id = '00000000-0000-0000-0000-00000000000a'
+    and created_at > now() - interval '60 minutes') = 5, 'nunca más de 5 en la ventana';
+  -- Ningún intento rechazado dejó encuestas sin opciones.
+  assert not exists (select 1 from public.polls p where not exists (select 1 from public.poll_options o where o.poll_id = p.id)
+    and p.question like '¿%' and p.user_id = '00000000-0000-0000-0000-00000000000a' and p.created_at > now() - interval '1 minute'),
+    'encuesta sin opciones';
+end $$;
 rollback;
 
 select 'ok 005_create_poll' as result;
