@@ -6,17 +6,28 @@ import { formatApproximateDate } from "@/lib/utils/date";
 type PollDetailViewProps = {
   detail: PollDetail;
   castVote: (pollId: string, optionId: string) => Promise<Result<PollResults>>;
+  loadOwnVote?: (pollId: string) => Promise<Result<PollResults | null>>;
   now?: Date;
 };
 
 // Detalle de una encuesta: pregunta como título, formulario de voto (o resultados si ya
 // se votó), autor genérico y fecha.
-export function PollDetailView({ detail, castVote, now = new Date() }: PollDetailViewProps) {
+export function PollDetailView({
+  detail,
+  castVote,
+  loadOwnVote,
+  now = new Date(),
+}: PollDetailViewProps) {
   const { poll } = detail;
   return (
     <article className="mx-auto flex w-full max-w-content flex-col gap-4 rounded-2xl border border-border bg-surface p-5">
       <h1 className="text-2xl leading-tight font-semibold tracking-[-0.02em]">{poll.question}</h1>
-      <PollVoting poll={poll} viewer={detail.viewer} castVote={castVote} />
+      <PollVoting
+        poll={poll}
+        viewer={detail.viewer}
+        castVote={castVote}
+        loadOwnVote={loadOwnVote}
+      />
       <p className="text-[13px] text-muted">
         <span>Anónimo</span>
         {" · "}

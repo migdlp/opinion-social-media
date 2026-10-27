@@ -5,13 +5,15 @@ vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({ auth: { getUser } }),
 }));
 const createPoll = vi.fn();
-vi.mock("@/lib/data/operations", () => ({ createPoll }));
+const getFeedPage = vi.fn();
+vi.mock("@/lib/data/operations", () => ({ createPoll, getFeedPage }));
 
-const { publishPoll } = await import("./create-actions");
+const { publishPoll, findPublishedPoll } = await import("./create-actions");
 
 beforeEach(() => {
   getUser.mockReset();
   createPoll.mockReset();
+  getFeedPage.mockReset();
   getUser.mockResolvedValue({ data: { user: { id: "u1" } }, error: null });
   createPoll.mockResolvedValue({ ok: true, data: { id: "p1" } });
 });
@@ -54,5 +56,61 @@ describe("publishPoll", () => {
       ok: false,
       error: "NETWORK_ERROR",
     });
+  });
+});
+
+describe("findPublishedPoll", () => {
+  const poll = (over = {}) => ({
+    id: "p7",
+    question: "¿Una pregunta válida?",
+    createdAt: new Date().toISOString(),
+    options: [
+      { id: "1", text: "a", position: 1 },
+      { id: "2", text: "b", position: 2 },
+    ],
+    ...over,
+  });
+  const feed = (...polls: object[]) => ({
+    ok: true,
+    data: {
+      items: polls.map((p) => ({ poll: p, viewer: { kind: "not_voted" } })),
+      nextCursor: null,
+    },
+  });
+
+  it("encuentra la encuesta recién publicada con la misma pregunta y opciones", async () => {
+    getFeedPage.mockResolvedValue(feed(poll({ id: "otra", question: "Otra" }), poll()));
+
+    expect(await findPublishedPoll("¿Una pregunta válida?", ["a", "b"])).toEqual({
+      ok: true,
+      data: { id: "p7" },
+    });
+  });
+
+  it("no confunde una encuesta antigua con la que se intentaba publicar", async () => {
+    const old = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    getFeedPage.mockResolvedValue(feed(poll({ createdAt: old })));
+
+    expect(await findPublishedPoll("¿Una pregunta válida?", ["a", "b"])).toEqual({
+      ok: true,
+      data: null,
+    });
+  });
+
+  it("si las opciones difieren devuelve null", async () => {
+    getFeedPage.mockResolvedValue(feed(poll()));
+
+    expect(await findPublishedPoll("¿Una pregunta válida?", ["a", "c"])).toEqual({
+      ok: true,
+      data: null,
+    });
+  });
+
+  it("sin sesión pide autenticación y con red caída devuelve error controlado", async () => {
+    getUser.mockResolvedValue({ data: { user: null }, error: null });
+    expect(await findPublishedPoll("x", ["a", "b"])).toEqual({ ok: false, error: "AUTH_REQUIRED" });
+
+    getUser.mockRejectedValue(new TypeError("fetch failed"));
+    expect(await findPublishedPoll("x", ["a", "b"])).toEqual({ ok: false, error: "NETWORK_ERROR" });
   });
 });

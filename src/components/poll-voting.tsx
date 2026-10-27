@@ -18,13 +18,15 @@ type PollVotingProps = {
   poll: PublicPoll;
   viewer: PollViewerState;
   castVote: (pollId: string, optionId: string) => Promise<Result<PollResultsData>>;
+  // Tras una caída de red: estado real del voto propio (null: aún no votó).
+  loadOwnVote?: (pollId: string) => Promise<Result<PollResultsData | null>>;
 };
 
 // Votar en una encuesta: elegir, confirmar y ver los resultados. Quien no ha votado sólo
 // recibe las opciones: los resultados llegan únicamente al votar (o si ya había votado).
 // Un visitante, o una sesión caducada, ve la petición de iniciar sesión y vuelve aquí;
 // nunca se envía un voto sin confirmación posterior.
-export function PollVoting({ poll, viewer, castVote }: PollVotingProps) {
+export function PollVoting({ poll, viewer, castVote, loadOwnVote }: PollVotingProps) {
   const [results, setResults] = useState<PollResultsData | null>(
     viewer.kind === "voted" ? viewer.results : null,
   );
@@ -33,6 +35,7 @@ export function PollVoting({ poll, viewer, castVote }: PollVotingProps) {
   const [error, setError] = useState<AppErrorCode | null>(null);
   const [needsLogin, setNeedsLogin] = useState(false);
   const sending = useRef(false);
+  const checkFirst = useRef(false);
 
   if (results) {
     return (
@@ -52,11 +55,32 @@ export function PollVoting({ poll, viewer, castVote }: PollVotingProps) {
     sending.current = true;
     setPending(true);
     setError(null);
+    // Tras una caída de red el voto quizá entró: se consulta el servidor antes de reenviarlo.
+    if (checkFirst.current && loadOwnVote) {
+      const own = await loadOwnVote(poll.id).catch((): Result<PollResultsData | null> => ({
+        ok: false,
+        error: "NETWORK_ERROR",
+      }));
+      if (!own.ok) {
+        sending.current = false;
+        setPending(false);
+        setError(own.error);
+        return;
+      }
+      if (own.data) {
+        sending.current = false;
+        setPending(false);
+        setResults(own.data);
+        return;
+      }
+      checkFirst.current = false;
+    }
     // Si la llamada ni llega al servidor, la promesa se rechaza.
     const result = await castVote(poll.id, selected).catch((): Result<PollResultsData> => ({
       ok: false,
       error: "NETWORK_ERROR",
     }));
+    checkFirst.current = !result.ok && result.error === "NETWORK_ERROR";
     sending.current = false;
     setPending(false);
     if (result.ok) setResults(result.data);
