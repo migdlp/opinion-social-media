@@ -2,12 +2,12 @@
 
 ## Alcance vigente
 
-El propietario ha pedido **pausar la implementación** y organizar primero el contexto de la aplicación, los documentos y las tareas futuras. Incorporar sus próximos mensajes a `docs/` y mantener la trazabilidad de decisiones y requisitos.
+El propietario autoriza a **Codex /root (opinion_social_media)** a encargarse de Vercel, reservar sus tareas y resolver los bloqueos de configuración y despliegue dentro de sus dependencias. Leer [la guía de operación](docs/vercel-operacion.md). Esta instrucción sustituye la pausa anterior sólo para ese alcance; no libera reservas ajenas ni autoriza cambios de aplicación, SQL u OAuth fuera de las tareas correspondientes. Incorporar sus próximos mensajes a `docs/` y mantener la trazabilidad de decisiones y requisitos.
 
 - Leer `README.md`, `docs/contexto-aplicacion.md`, `docs/decisiones.md`, `docs/estado-proyecto.md` y `docs/supabase-acceso.md` antes de trabajar.
-- Hasta recibir una instrucción explícita de reanudar, limitar los cambios a documentación y planificación, incluida la creación de épicas y tickets en GitHub Issues solicitada por el brief, y comprobaciones de acceso de solo lectura cuando sean necesarias.
-- No implementar código, aplicar SQL, configurar OAuth, crear más infraestructura ni desplegar mientras esté vigente esta pausa.
-- Mantener las tareas futuras como pendientes; no equiparar documentación o borradores con implementación verificada.
+- Fuera del alcance de Vercel expresamente autorizado, mantener la pausa anterior y respetar las instrucciones y reservas vigentes de cada tarea. La documentación, planificación y comprobaciones de acceso de solo lectura siguen permitidas.
+- La autorización de Vercel permite su configuración y comprobaciones de despliegue; no permite saltarse dependencias, configurar Google OAuth ni aplicar SQL por anticipado. Un despliegue READY de documentación no acredita una aplicación funcional.
+- Mantener estados y bloqueos según la evidencia del registro de tareas; no equiparar documentación o borradores con implementación verificada.
 - No guardar secretos, tokens ni claves administrativas en Git.
 - Informar del avance en español y registrar cualquier bloqueo real.
 
@@ -38,13 +38,13 @@ El backlog vigente está en `docs/backlog.md`; el original está archivado en `d
 
 ## Skill del proyecto
 
-Leer y aplicar [karpathy-guidelines](.agents/skills/karpathy-guidelines/SKILL.md) al escribir, revisar o refactorizar código y, cuando corresponda, al planificar cambios: explicitar supuestos relevantes, buscar la solución sencilla, limitar el cambio al alcance pedido y verificar objetivos concretos. La petición actual sigue limitada a documentación y planificación. Las instrucciones del propietario y las de mayor prioridad prevalecen sobre la skill.
+Leer y aplicar [karpathy-guidelines](.agents/skills/karpathy-guidelines/SKILL.md) al escribir, revisar o refactorizar código y, cuando corresponda, al planificar cambios: explicitar supuestos relevantes, buscar la solución sencilla, limitar el cambio al alcance pedido y verificar objetivos concretos. El alcance actual incluye la operación de Vercel autorizada y su documentación. Las instrucciones del propietario y las de mayor prioridad prevalecen sobre la skill.
 
 La copia local conserva las pautas originales y añade las reglas específicas de colaboración y TDD de este proyecto; su procedencia y revisión están en [docs/skills.md](docs/skills.md). No requiere instalar paquetes ni ejecutar scripts externos.
 
 ## Reserva y seguimiento obligatorio de tareas
 
-Estas reglas se aplican cuando el propietario reanude la implementación. No iniciar tareas mientras siga la pausa.
+Estas reglas se aplican a las tareas autorizadas. Consultar el alcance vigente antes de iniciar trabajo; la reserva no sustituye la autorización ni las dependencias.
 
 1. Leer `docs/tareas-futuras.md`, `docs/orden-ejecucion.md` y el issue correspondiente. Elegir una tarea pendiente cuyas dependencias estén completadas y verificadas; atender P0 antes de P1.
 2. Antes de elegir o empezar una tarea y antes de cada cambio de estado, actualizar la referencia remota de `main` desde GitHub y consultar allí `docs/tareas-futuras.md`: el estado vigente de `main` es la fuente compartida de disponibilidad, no una copia antigua ni una rama de implementación. Comprobar que la tarea no esté ocupada. En su fila, cambiar el estado a **En progreso** y escribir en **Agente** el nombre o identificador real del agente que la ejecuta. Usar un identificador estable y distinguible; nunca inventar una persona o asignar trabajo a otro agente sin acuerdo.
@@ -61,7 +61,7 @@ Las prioridades P0/P1 y el orden sugerido están documentados en `docs/orden-eje
 2. Publicar los commits en esa rama y abrir una pull request hacia `main`, enlazando el issue e indicando el alcance, los criterios de aceptación y las comprobaciones realizadas, incluidos fallos o comprobaciones pendientes.
 3. Fusionar la PR en `main` sólo cuando se hayan verificado los criterios de aceptación, pasado las comprobaciones aplicables y resuelto los conflictos y las observaciones pendientes. Respetar las revisiones y protecciones que tenga configuradas el repositorio; no eludirlas.
 4. Tras el merge, actualizar la copia local y sincronizar el registro de tareas y el issue con enlaces a la PR, al merge y a las pruebas. Marcar la tarea **Completada** y cerrar el issue sólo cuando su resultado esté integrado y verificado; abrir una PR no equivale a terminarla.
-5. Los commits exclusivos de reserva y actualización de estado, responsable o traspaso de tareas se publican directamente en `main`, como exige el protocolo anterior. No mezclar código ni otros cambios documentales en esos commits. Para el resto de cambios, incluida la documentación, usar rama y PR; cualquier otra publicación directa en `main` requiere una excepción explícita del propietario para el cambio concreto. Esta regla no reanuda la implementación pausada.
+5. Los commits exclusivos de reserva y actualización de estado, responsable o traspaso de tareas se publican directamente en `main`, como exige el protocolo anterior. No mezclar código ni otros cambios documentales en esos commits. Para el resto de cambios, incluida la documentación, usar rama y PR; cualquier otra publicación directa en `main` requiere una excepción explícita del propietario para el cambio concreto. Esta regla no amplía el alcance vigente.
 
 ## TDD obligatorio
 

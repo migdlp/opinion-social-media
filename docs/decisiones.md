@@ -16,8 +16,9 @@
 | D-010 | Añadir la skill `karpathy-guidelines` a este proyecto y enlazarla en las instrucciones | Enlace explícito facilitado por el propietario |
 | D-011 | Antes de trabajar en una tarea, mostrarla «En progreso» con el agente real en `tareas-futuras.md` y sincronizar el issue | Instrucción explícita del propietario sobre seguimiento por agentes |
 | D-012 | Mantener P0/P1 visibles y publicar una guía de orden para decidir la siguiente tarea disponible | Petición del propietario sobre prioridades y secuencia |
+| D-VERCEL-001 | Encargar a Codex /root (opinion_social_media) las tareas de Vercel, reservarlas y resolver sus bloqueos; reanudar ese alcance conservando dependencias y reservas ajenas | Instrucción explícita del propietario del 27 de octubre de 2026 |
 
-D-005 determina el alcance actual. Las autorizaciones anteriores no se utilizarán para continuar implementando mientras siga vigente la pausa.
+D-005 conserva el historial de pausa. D-VERCEL-001 la sustituye para el alcance de Vercel autorizado; no permite declarar finalizadas tareas sin evidencia ni tomar trabajo reservado a otros agentes. La [guía de operación](vercel-operacion.md) concreta la responsabilidad y los controles.
 
 ## Reglas del producto recogidas del backlog
 
