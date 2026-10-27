@@ -2,12 +2,12 @@
 
 ## Alcance vigente
 
-El propietario pausó la implementación (D-005) y la **reanudó el 26 de octubre de 2026** (D-013, `docs/decisiones.md`). Incorporar sus próximos mensajes a `docs/` y mantener la trazabilidad de decisiones y requisitos.
+La implementación se pausó (D-005) y se **reanudó el 26 de octubre de 2026** (D-013, `docs/decisiones.md`). Además, el propietario encarga Vercel a **Codex /root (opinion_social_media)** (D-VERCEL-001; ver [la guía de operación](docs/vercel-operacion.md)): ese agente reserva sus tareas y resuelve los bloqueos de configuración y despliegue dentro de sus dependencias. Incorporar los próximos mensajes a `docs/` y mantener la trazabilidad de decisiones y requisitos.
 
 - Leer `README.md`, `docs/contexto-aplicacion.md`, `docs/decisiones.md`, `docs/estado-proyecto.md` y `docs/supabase-acceso.md` antes de trabajar.
-- Trabajar tarea a tarea según `docs/orden-ejecucion.md` y el protocolo de reserva de abajo.
-- Configurar OAuth, aplicar SQL en proyectos Supabase, crear infraestructura o desplegar sólo cuando lo exija la tarea reservada y se disponga de los datos y confirmaciones necesarios.
-- No equiparar documentación o borradores con implementación verificada.
+- Trabajar tarea a tarea según `docs/orden-ejecucion.md` y el protocolo de reserva de abajo, respetando dependencias y reservas ajenas.
+- Configurar OAuth, aplicar SQL en proyectos Supabase, crear infraestructura o desplegar sólo cuando lo exija la tarea reservada y se disponga de los datos y confirmaciones necesarios. Las tareas de Vercel corresponden a Codex salvo traspaso registrado.
+- Un despliegue READY de documentación no acredita una aplicación funcional. No equiparar documentación o borradores con implementación verificada.
 - No guardar secretos, tokens ni claves administrativas en Git.
 - Informar del avance en español y registrar cualquier bloqueo real.
 
@@ -44,7 +44,7 @@ La copia local conserva las pautas originales y añade las reglas específicas d
 
 ## Reserva y seguimiento obligatorio de tareas
 
-Estas reglas se aplican desde la reanudación (D-013).
+Estas reglas se aplican desde la reanudación (D-013) a todas las tareas. La reserva no sustituye la autorización ni las dependencias.
 
 1. Leer `docs/tareas-futuras.md`, `docs/orden-ejecucion.md` y el issue correspondiente. Elegir una tarea pendiente cuyas dependencias estén completadas y verificadas; atender P0 antes de P1.
 2. Antes de elegir o empezar una tarea y antes de cada cambio de estado, actualizar la referencia remota de `main` desde GitHub y consultar allí `docs/tareas-futuras.md`: el estado vigente de `main` es la fuente compartida de disponibilidad, no una copia antigua ni una rama de implementación. Comprobar que la tarea no esté ocupada. En su fila, cambiar el estado a **En progreso** y escribir en **Agente** el nombre o identificador real del agente que la ejecuta. Usar un identificador estable y distinguible; nunca inventar una persona o asignar trabajo a otro agente sin acuerdo.
@@ -61,7 +61,7 @@ Las prioridades P0/P1 y el orden sugerido están documentados en `docs/orden-eje
 2. Publicar los commits en esa rama y abrir una pull request hacia `main`, enlazando el issue e indicando el alcance, los criterios de aceptación y las comprobaciones realizadas, incluidos fallos o comprobaciones pendientes.
 3. Fusionar la PR en `main` sólo cuando se hayan verificado los criterios de aceptación, pasado las comprobaciones aplicables y resuelto los conflictos y las observaciones pendientes. Respetar las revisiones y protecciones que tenga configuradas el repositorio; no eludirlas.
 4. Tras el merge, actualizar la copia local y sincronizar el registro de tareas y el issue con enlaces a la PR, al merge y a las pruebas. Marcar la tarea **Completada** y cerrar el issue sólo cuando su resultado esté integrado y verificado; abrir una PR no equivale a terminarla.
-5. Los commits exclusivos de reserva y actualización de estado, responsable o traspaso de tareas se publican directamente en `main`, como exige el protocolo anterior. No mezclar código ni otros cambios documentales en esos commits. Para el resto de cambios, incluida la documentación, usar rama y PR; cualquier otra publicación directa en `main` requiere una excepción explícita del propietario para el cambio concreto. Esta regla no reanuda la implementación pausada.
+5. Los commits exclusivos de reserva y actualización de estado, responsable o traspaso de tareas se publican directamente en `main`, como exige el protocolo anterior. No mezclar código ni otros cambios documentales en esos commits. Para el resto de cambios, incluida la documentación, usar rama y PR; cualquier otra publicación directa en `main` requiere una excepción explícita del propietario para el cambio concreto. Esta regla no amplía el alcance vigente.
 
 ## TDD obligatorio
 
