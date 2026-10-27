@@ -42,6 +42,8 @@ Leer y aplicar [karpathy-guidelines](.agents/skills/karpathy-guidelines/SKILL.md
 
 La copia local conserva las pautas originales y añade las reglas específicas de colaboración y TDD de este proyecto; su procedencia y revisión están en [docs/skills.md](docs/skills.md). No requiere instalar paquetes ni ejecutar scripts externos.
 
+Para trabajo de interfaz, aplicar además [impeccable](.agents/skills/impeccable/SKILL.md) (variante para Claude Code en `.claude/skills/impeccable/`) sin contradecir el brief: diseño sencillo, mobile-first y accesible. Sus hooks no están activados; procedencia, revisión fijada y alcance en [docs/skills.md](docs/skills.md).
+
 ## Reserva y seguimiento obligatorio de tareas
 
 Estas reglas se aplican desde la reanudación (D-013) a todas las tareas. La reserva no sustituye la autorización ni las dependencias.
