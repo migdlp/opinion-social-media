@@ -124,7 +124,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-001 — Inicializar Next.js con App Router y TypeScript
 
-- **Estado:** Pendiente — ejecución pausada
+- **Estado:** Completada — commit 3ad8c67; ver issue #6
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `frontend`, `devops`
 - **Dependencias bloqueantes:** ninguna.
 - **Descripción:** Crear la aplicación con Next.js, React, TypeScript estricto y Tailwind CSS; establecer rutas base y estructura modular sin servidor adicional.

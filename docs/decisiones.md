@@ -16,6 +16,7 @@
 | D-010 | Añadir la skill `karpathy-guidelines` a este proyecto y enlazarla en las instrucciones | Enlace explícito facilitado por el propietario |
 | D-011 | Antes de trabajar en una tarea, mostrarla «En progreso» con el agente real en `tareas-futuras.md` y sincronizar el issue | Instrucción explícita del propietario sobre seguimiento por agentes |
 | D-012 | Mantener P0/P1 visibles y publicar una guía de orden para decidir la siguiente tarea disponible | Petición del propietario sobre prioridades y secuencia |
+| D-014 | Stack inicial: Next.js 16.4.3, React 19.3, Tailwind 4, TypeScript 5 estricto, ESLint 9; plantilla oficial de `create-next-app` con `cacheComponents` activado (lo dinámico va tras `<Suspense>`; nada se cachea sin `use cache`) | MVP-001; versiones estables al 27-10-2026, fijadas por `package-lock.json` |
 | D-013 | Reanudar la implementación siguiendo el orden y el protocolo de reserva; sustituye la pausa D-005 | Mensaje del propietario del 26-10-2026: «Lee el contexto y las tareas y comienza con las tareas» |
 
 D-013 levanta la pausa de D-005. Las acciones con infraestructura compartida (OAuth, migraciones en Supabase, Vercel, producción) siguen requiriendo los datos y confirmaciones que indique cada tarea.

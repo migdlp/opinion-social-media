@@ -12,7 +12,7 @@
 
 Un único repositorio, sin servidor Express/NestJS independiente, microservicios, Redis, colas ni cachés externas. Acceso a datos mediante Supabase JS SDK.
 
-Las versiones concretas y los detalles de instalación se fijarán al reanudar. Un intento de scaffold local no constituye una decisión de versión.
+Versiones fijadas en D-014 (`package.json` y `package-lock.json`). Con `cacheComponents`, los datos de sesión y resultados no se cachean salvo `use cache` explícito, que no debe usarse para ellos.
 
 ## Modelo de datos obligatorio
 
