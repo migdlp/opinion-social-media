@@ -20,8 +20,8 @@ Responsable: `Codex /root (opinion_social_media)`, mediante la conexión del pro
 
 - [x] V01 — Reservar MVP-008 y coordinación de MVP-048/049/050/051 en main e issues. Aceptación: responsable real visible, dependencias y bloqueos conservados, sin reservas ajenas modificadas. Checks: readback remoto y diff de filas.
 - [x] V02 — Resolver configuración verificable de Vercel. Aceptación: variables públicas separadas por entorno y configuración compatible con la app prevista, sin secretos administrativos. Checks: inventario previo/posterior y despliegue de preview cuando haya código revisable disponible; registrar límites si falta integración.
-- [ ] V03 — Publicar documentación de responsabilidad, acceso, operación y evidencia. Aceptación: guía y estado reflejan recursos reales y qué pueden hacer colaboradores; PR fusionada. Checks: enlaces, consistencia, ausencia de secretos y diff --check. Rollback: revertir la PR documental sin tocar reservas ni configuración remota.
-- [ ] V04 — Conciliar estados finales y bloqueos en main e issues. Aceptación: cerrar sólo criterios observados; cada bloqueo conserva dependencia y siguiente paso. Checks: main remoto e issues leídos tras publicación; copia local limpia.
+- [x] V03 — Publicar documentación de responsabilidad, acceso, operación y evidencia. Aceptación: guía y estado reflejan recursos reales y qué pueden hacer colaboradores; PR fusionada. Checks: enlaces, consistencia, ausencia de secretos y diff --check. Rollback: revertir la PR documental sin tocar reservas ni configuración remota.
+- [x] V04 — Conciliar estados finales y bloqueos en main e issues. Aceptación: cerrar sólo criterios observados; cada bloqueo conserva dependencia y siguiente paso. Checks: main remoto e issues leídos tras publicación; copia local limpia.
 
 ## Evidencia inicial
 
@@ -32,7 +32,7 @@ Responsable: `Codex /root (opinion_social_media)`, mediante la conexión del pro
 
 ## Progreso y siguiente paso
 
-V01 verificada: reservas publicadas en main (b067424) y cuerpos de #13/#55–58 sincronizados, conservando criterios/dependencias. Readback remoto confirmó las cinco filas, aunque otro colaborador actualizó filas ajenas durante la lectura; se preservaron. Copia actualizada a 95427b5. Siguiente paso: publicar y verificar la guía operativa y los estados finales. Mirror Engram pendiente.
+V01 verificada: reservas publicadas en main (b067424) y cuerpos de #13/#55–58 sincronizados, conservando criterios/dependencias. Readback remoto confirmó las cinco filas, aunque otro colaborador actualizó filas ajenas durante la lectura; se preservaron. Copia actualizada a 95427b5. V03: PR #66 fusionada en ec0ac75; enlaces, contenido y patrones de credenciales comprobados. V04: cinco reservas/bloqueos leídos en main y cinco issues abiertos con responsable y evidencias sincronizados; checkout limpio tras integrar la PR. Siguiente paso: integrar las dependencias pendientes y después verificar MVP-008; MVP-048/049/050/051 siguen reservadas y bloqueadas. Mirror Engram pendiente.
 
 ## Evidencia V02
 
@@ -43,4 +43,8 @@ V01 verificada: reservas publicadas en main (b067424) y cuerpos de #13/#55–58 
 - PR59/62/63/64/65 reconstruidas READY y sus cinco raíces HTTP200 autenticado (título Opinión); no se fusionó código ajeno. Ver tabla de SHAs/deployments en docs/vercel-operacion.md.
 - No se desplegó producción ni se modificaron OAuth o SQL; sólo se prepararon sus variables públicas en Vercel. El cierre de MVP-008 sigue pendiente de dependencias e integración verificadas.
 
-- Ignored Build Step `test ! -f package.json`: tres escenarios comprobados antes de configurarlo (sin manifest omite; presente o inválido intenta build). Pendiente verificar la omisión integrada con la PR documental.
+- Ignored Build Step `test ! -f package.json`: tres escenarios comprobados antes de configurarlo (sin manifest omite; presente o inválido intenta build). Omisión integrada verificada en PR #66: estado Vercel success con descripción Canceled by Ignored Build Step; check Vercel Preview Comments success, sin feedback pendiente.
+
+## Cierre del alcance de desbloqueo
+
+Configuración Vercel corregida y documentación fusionada. No se cierran tareas del MVP por infraestructura parcial; dependencias y próximos pasos constan en main e issues. No se ejecutaron tests de aplicación, login real, SQL/migraciones ni pruebas de producción en este alcance. La prueba HTTP usa acceso autorizado, no acredita acceso anónimo. Mirror Engram permanece pendiente por falta de herramientas.
