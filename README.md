@@ -37,6 +37,7 @@ npm run dev                  # http://localhost:3000
 | `npm run typecheck` | Genera tipos de rutas (`next typegen`) y ejecuta `tsc --noEmit` en modo estricto |
 | `npm run test` | Tests unitarios con Vitest (`src/**/*.test.ts`) |
 | `npm run build` | Compilación de producción |
+| `npm run test:db` | Aplica `supabase/migrations` a un PostgreSQL local vacío y ejecuta `supabase/tests` (necesita `psql` y `PGHOST`/`PGPORT`/`PGUSER`; no toca Supabase) |
 | `npm run check:env` | Comprueba que `.env.local` apunta al Supabase de desarrollo |
 
 Todos terminan con código distinto de cero si fallan.

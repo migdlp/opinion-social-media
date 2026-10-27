@@ -67,3 +67,11 @@ Agente `claude-code (session_019ZfidxHjR16hC5t8nHGq9M)`, con el conector Supabas
 - `.env.local` (ignorado por Git) apunta a desarrollo; `npm run check:env` → `Proyecto: ltlrujmqenhktiilsnis · /auth/v1/health → HTTP 200`. Con URL de producción o clave `sb_secret_` el script termina con código 1.
 - `getSupabaseEnv()` rechaza producción fuera de `NEXT_PUBLIC_VERCEL_ENV=production` (probado: dev local OK; prod local y prod preview rechazados; prod production OK; variables ausentes rechazadas).
 - Producción antes y después de configurar desarrollo: 0 tablas, 0 migraciones, 0 usuarios, 0 funciones y 0 políticas en `public`; misma clave publicable (id `7ece21c7…`); Google deshabilitado, email habilitado. Se volverá a comprobar tras la primera migración en desarrollo (MVP-009).
+
+## MVP-009: primera migración en desarrollo (27-10-2026)
+
+- `supabase/migrations/20261027193208_create_polls_and_options.sql` aplicada en **desarrollo** con el conector (`list_migrations` → versión `20261027193208`, nombre `create_polls_and_options`). El nombre del archivo coincide con esa versión.
+- `npm run test:db` sobre PostgreSQL 16 local vacío: migración + `001_polls_schema.test.sql` OK. Alterando el `CHECK` de `position` a 1–5, el test falla con código 3.
+- Mismas comprobaciones de estructura y restricciones ejecutadas en desarrollo dentro de un bloque revertido: OK; quedan 0 encuestas y 0 usuarios.
+- API REST de desarrollo con la clave publicable: `GET /polls` → `[]`; `POST /polls` → `42501` (RLS). Advisor de seguridad: sólo `rls_enabled_no_policy` (INFO), esperado hasta MVP-011.
+- Producción tras la migración de desarrollo: 0 tablas, 0 usuarios, 0 funciones en `public` (seguimiento de MVP-003).

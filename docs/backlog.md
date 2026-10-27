@@ -214,7 +214,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-009 — Crear migraciones base de polls y poll_options
 
-- **Estado:** Pendiente — ejecución pausada
+- **Estado:** Completada — ver issue #14
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `database`, `backend`
 - **Dependencias bloqueantes:** MVP-003.
 - **Descripción:** Crear esquema SQL versionado para encuestas y opciones, tipos, claves foráneas, defaults, posiciones y restricciones de campos aplicables.
