@@ -46,9 +46,9 @@ Las tareas sin reserva siguen pendientes y sin agente. La columna Orden es orien
 | 3 | [MVP-001](https://github.com/migdlp/opinion-social-media/issues/6) | Inicializar Next.js con App Router y TypeScript | P0 | — | Completada (commit 3ad8c67) | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
 | 4 | [MVP-002](https://github.com/migdlp/opinion-social-media/issues/7) | Configurar linting, formato y comprobaciones automáticas | P0 | MVP-001 | Completada (ver issue #7) | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
 | 5 | [MVP-009](https://github.com/migdlp/opinion-social-media/issues/14) | Crear migraciones base de polls y poll_options | P0 | MVP-003 | Completada (ver issue #14) | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
-| 6 | [MVP-010](https://github.com/migdlp/opinion-social-media/issues/15) | Crear votes y garantías de integridad | P0 | MVP-009 | Pendiente | — |
-| 7 | [MVP-011](https://github.com/migdlp/opinion-social-media/issues/16) | Activar RLS para encuestas y opciones públicas | P0 | MVP-009 | Pendiente | — |
-| 8 | [MVP-012](https://github.com/migdlp/opinion-social-media/issues/17) | Activar RLS de votos y revocar escrituras directas | P0 | MVP-010 | Pendiente | — |
+| 6 | [MVP-010](https://github.com/migdlp/opinion-social-media/issues/15) | Crear votes y garantías de integridad | P0 | MVP-009 | En progreso | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
+| 7 | [MVP-011](https://github.com/migdlp/opinion-social-media/issues/16) | Activar RLS para encuestas y opciones públicas | P0 | MVP-009 | En progreso | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
+| 8 | [MVP-012](https://github.com/migdlp/opinion-social-media/issues/17) | Activar RLS de votos y revocar escrituras directas | P0 | MVP-010 | En progreso | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
 | 9 | [MVP-014](https://github.com/migdlp/opinion-social-media/issues/19) | Implementar create_poll con validación y atomicidad | P0 | MVP-009, MVP-011, MVP-013 | Pendiente | — |
 | 10 | [MVP-015](https://github.com/migdlp/opinion-social-media/issues/20) | Limitar create_poll a cinco encuestas por hora y cuenta | P0 | MVP-014 | Pendiente | — |
 | 11 | [MVP-016](https://github.com/migdlp/opinion-social-media/issues/21) | Implementar vote_poll seguro e inmutable | P0 | MVP-010, MVP-011, MVP-012, MVP-013 | Pendiente | — |
