@@ -72,7 +72,7 @@ La columna Orden es orientativa; las dependencias y las reservas de cada fila de
 | 29 | [MVP-025](https://github.com/migdlp/opinion-social-media/issues/30) | Crear componentes LoadingState y EmptyState reutilizables | P0 | MVP-024 | En progreso: [PR #64](https://github.com/migdlp/opinion-social-media/pull/64) pendiente de merge | claude-code (session_01Dsh4bnE3jAdfg5WXXBh59U) |
 | 30 | [MVP-026](https://github.com/migdlp/opinion-social-media/issues/31) | Implementar AuthButton, estado de sesión y cierre de sesión | P0 | MVP-006, MVP-024 | Pendiente | — |
 | 31 | [MVP-027](https://github.com/migdlp/opinion-social-media/issues/32) | Construir /login y retorno seguro a flujo previo | P0 | MVP-006, MVP-024, MVP-026 | Pendiente | — |
-| 32 | [MVP-028](https://github.com/migdlp/opinion-social-media/issues/33) | Crear componente PollOption y selector de voto | P0 | MVP-024, MVP-013 | Pendiente | — |
+| 32 | [MVP-028](https://github.com/migdlp/opinion-social-media/issues/33) | Crear componente PollOption y selector de voto | P0 | MVP-024, MVP-013 | En progreso | claude-code (session_01Dsh4bnE3jAdfg5WXXBh59U) |
 | 33 | [MVP-029](https://github.com/migdlp/opinion-social-media/issues/34) | Crear PollCard pública y estado previo al voto | P0 | MVP-024, MVP-028, MVP-013 | Pendiente | — |
 | 34 | [MVP-030](https://github.com/migdlp/opinion-social-media/issues/35) | Construir PollResults con barras, totales y elección propia | P0 | MVP-024, MVP-013 | Pendiente | — |
 | 35 | [MVP-031](https://github.com/migdlp/opinion-social-media/issues/36) | Crear formulario PollCreationForm y validaciones cliente | P0 | MVP-024, MVP-013 | Pendiente | — |
