@@ -44,8 +44,8 @@ Las tareas sin reserva siguen pendientes y sin agente. La columna Orden es orien
 | 1 | [MVP-013](https://github.com/migdlp/opinion-social-media/issues/18) | Definir contratos de consultas y funciones RPC | P0 | — | Completada: [contratos-api.md](contratos-api.md) | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
 | 2 | [MVP-003](https://github.com/migdlp/opinion-social-media/issues/8) | Preparar Supabase y separación de entornos | P0 | — | Completada ([entornos.md](entornos.md)) | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
 | 3 | [MVP-001](https://github.com/migdlp/opinion-social-media/issues/6) | Inicializar Next.js con App Router y TypeScript | P0 | — | Completada (commit 3ad8c67) | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
-| 4 | [MVP-002](https://github.com/migdlp/opinion-social-media/issues/7) | Configurar linting, formato y comprobaciones automáticas | P0 | MVP-001 | Pendiente | — |
-| 5 | [MVP-009](https://github.com/migdlp/opinion-social-media/issues/14) | Crear migraciones base de polls y poll_options | P0 | MVP-003 | Pendiente | — |
+| 4 | [MVP-002](https://github.com/migdlp/opinion-social-media/issues/7) | Configurar linting, formato y comprobaciones automáticas | P0 | MVP-001 | En progreso | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
+| 5 | [MVP-009](https://github.com/migdlp/opinion-social-media/issues/14) | Crear migraciones base de polls y poll_options | P0 | MVP-003 | En progreso | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
 | 6 | [MVP-010](https://github.com/migdlp/opinion-social-media/issues/15) | Crear votes y garantías de integridad | P0 | MVP-009 | Pendiente | — |
 | 7 | [MVP-011](https://github.com/migdlp/opinion-social-media/issues/16) | Activar RLS para encuestas y opciones públicas | P0 | MVP-009 | Pendiente | — |
 | 8 | [MVP-012](https://github.com/migdlp/opinion-social-media/issues/17) | Activar RLS de votos y revocar escrituras directas | P0 | MVP-010 | Pendiente | — |
