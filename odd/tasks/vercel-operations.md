@@ -53,7 +53,7 @@ Configuración Vercel corregida y documentación fusionada. No se cierran tareas
 
 Petición explícita: implementar las tareas reservadas, una PR por tarea y merge después de verificar. La fase anterior se conserva completada y no equivale al cierre del MVP. Engram sigue sin herramientas: espejo pendiente; reconciliado este archivo con main 79f80f5.
 
-- [ ] V05 / MVP-008 — completar previews y protección de configuración pública; PR propia, preview del SHA correcto, HTTPS y entorno dev. Dependencias MVP-003/007 ya integradas.
+- [x] V05 / MVP-008 — completar previews y protección de configuración pública; PR propia, preview del SHA correcto, HTTPS y entorno dev. Dependencias MVP-003/007 ya integradas.
 - [ ] V06 / MVP-022 — requisito libre de infraestructura: reproducibilidad de migraciones y tipos generados en CI; reservar antes de implementar, PR propia y comprobar runner real.
 - [ ] V07 / MVP-048 — runbook de producción verificable tras MVP-008/020/022; PR propia.
 - [ ] V08 / MVP-049 — despliegue productivo tras MVP-008/022/047/048, OAuth y migraciones reales; PR propia y pruebas observadas.
@@ -70,3 +70,5 @@ Siguiente paso: retomar MVP-008 como En progreso en main e issue, instalar depen
 - npm ci tuvo un error inicial por cargar /dev/null como config global y usuario; corregido con config global temporal distinta. Node25 del sistema está fuera del rango declarado de Vitest: las comprobaciones usan Node24 incluido.
 - Build local por Turbopack bloqueado por restricción del SO al abrir puerto interno, también al solicitar ejecución ampliada. No se atribuye a código ni se declara check completo local correcto. Validación del build pendiente en CI/Vercel remotos.
 - SQL local no ejecutado: psql/Docker ausentes. Sus checks se ejecutarán en la CI existente de la PR.
+
+MVP-008 cerrada: PR #70 fusionada e877f02; CI 40577319870 app/build+SQL+secretos verde, preview Git automática SHA2aadfbf READY y /,/login,/create HTTP200 autorizado; inventario remoto confirmado dev/prod. Build local bloqueado por SO documentado, build remoto correcto. Siguiente: MVP-022 reservada en main/issue27. Mirror Engram pendiente.
