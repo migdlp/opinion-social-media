@@ -43,7 +43,7 @@ Responsable: **Codex /root (opinion_social_media)**, mediante la conexión autor
 - La referencia `main` inspeccionada hasta `95427b5` contiene documentación, sin aplicación ni runner de pruebas integrado. El deployment inicial READY no cierra MVP-008 ni MVP-049.
 - Los builds de PR #59/#65 fallaban con `STATIC_BUILD_NO_OUT_DIR` por framework sin seleccionar; se corrigió a `nextjs`, sin sobrescrituras de directorio ni comandos. La preview de PR #65, SHA `d0e4bed`, quedó READY (`dpl_A6ihuQeRcxgiX4c5yVeVDUDbJoVx`); la consulta autenticada devolvió HTTP 200, título «Opinión» y feed del scaffold MVP-033. No acredita flujos completos ni acceso anónimo; Deployment Protection se conserva.
 - Las previews de PR #59/#62/#63/#64/#65 se reconstruyeron: READY y HTTP 200 autenticado. El Ignored Build Step omite sólo checkouts sin package.json, con sus tres casos comprobados antes de configurarlo. Ver SHAs y deployments en la guía.
-- MVP-008 está En progreso y reservada; falta acreditar una preview funcional con MVP-003 y MVP-007 integradas. Ver URL y diagnóstico en la guía de operación.
+- MVP-008 está Bloqueada y reservada: el fallo de Vercel está resuelto; falta acreditar una preview funcional con MVP-003 y MVP-007 integradas. Ver URL y diagnóstico en la guía de operación.
 - MVP-048/049/050/051 están bloqueadas y reservadas al mismo responsable; conservan las dependencias del [registro de tareas](tareas-futuras.md). No se han dado por completadas.
 - MVP-004/007/024/025 tienen reservas de otro agente; esta coordinación no se apropia de ellas.
 
