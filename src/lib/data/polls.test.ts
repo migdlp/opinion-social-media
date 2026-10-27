@@ -1,4 +1,3 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { describe, expect, it } from "vitest";
 import {
   FEED_PAGE_SIZE,
@@ -8,32 +7,7 @@ import {
   getOwnVoteOptionId,
   getPublicPoll,
 } from "./polls";
-
-// Cliente falso: registra la cadena de llamadas de cada consulta y responde lo
-// configurado para su tabla. Permite comprobar qué se pide a PostgREST.
-type Call = [method: string, ...args: unknown[]];
-type Response = { data: unknown; error: unknown };
-
-function fakeClient(responses: Record<string, Response>) {
-  const queries: { table: string; calls: Call[] }[] = [];
-  const client = {
-    from(table: string) {
-      const query = { table, calls: [] as Call[] };
-      queries.push(query);
-      const builder: Record<string, unknown> = {};
-      for (const method of ["select", "order", "limit", "or", "eq", "maybeSingle"]) {
-        builder[method] = (...args: unknown[]) => {
-          query.calls.push([method, ...args]);
-          return builder;
-        };
-      }
-      builder.then = (resolve: (r: Response) => unknown, reject: (e: unknown) => unknown) =>
-        Promise.resolve(responses[table] ?? { data: null, error: null }).then(resolve, reject);
-      return builder;
-    },
-  };
-  return { supabase: client as unknown as SupabaseClient, queries };
-}
+import { fakeSupabase as fakeClient } from "./testing/fake-supabase";
 
 const uuid = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 
@@ -77,8 +51,8 @@ describe("getFeedPolls (MVP-018)", () => {
     await getFeedPolls(supabase);
 
     expect(queries).toHaveLength(1);
-    const [{ table, calls }] = queries;
-    expect(table).toBe("polls");
+    const [{ target, calls }] = queries;
+    expect(target).toBe("polls");
     const select = calls.find(([m]) => m === "select")?.[1] as string;
     expect(select.replace(/\s/g, "")).toBe("id,question,created_at,poll_options(id,text,position)");
     expect(select).not.toMatch(/user_id|status|votes|\*/);
@@ -200,8 +174,8 @@ describe("getOwnVoteOptionId (MVP-019)", () => {
       votes: { data: { option_id: uuid(20) }, error: null },
     });
     expect(await getOwnVoteOptionId(supabase, uuid(3))).toEqual({ ok: true, data: uuid(20) });
-    const { table, calls } = queries[0];
-    expect(table).toBe("votes");
+    const { target, calls } = queries[0];
+    expect(target).toBe("votes");
     expect(calls).toContainEqual(["select", "option_id"]);
     expect(calls).toContainEqual(["eq", "poll_id", uuid(3)]);
   });
