@@ -19,6 +19,14 @@ export function getSupabaseEnv(): SupabaseEnv {
     );
   }
 
+  const publishablePrefix = "sb_publishable_";
+  if (
+    !publishableKey.startsWith(publishablePrefix) ||
+    !publishableKey.slice(publishablePrefix.length).trim()
+  ) {
+    throw new Error("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY debe ser una clave publicable válida.");
+  }
+
   // Desarrollo local y previews nunca usan la base de producción (docs/arquitectura.md).
   if (
     new URL(url).hostname.startsWith(`${PRODUCTION_PROJECT_REF}.`) &&
