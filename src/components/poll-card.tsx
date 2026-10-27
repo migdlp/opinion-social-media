@@ -1,3 +1,4 @@
+import { LockedOptions } from "@/components/locked-options";
 import Link from "next/link";
 import type { PublicPoll } from "@/lib/data/types";
 import { formatApproximateDate } from "@/lib/utils/date";
@@ -18,20 +19,7 @@ export function PollCard({ poll, now = new Date() }: PollCardProps) {
           {poll.question}
         </Link>
       </h2>
-      <ul className="flex flex-col">
-        {poll.options.map((option) => (
-          <li
-            key={option.id}
-            className="flex items-center justify-between gap-3 border-t border-border py-2.5 first:border-t-0"
-          >
-            <span className="text-[15px]">{option.text}</span>
-            <span className="shrink-0 rounded-md bg-track px-2 py-0.5 text-[13px] font-semibold text-muted tabular-nums">
-              <span aria-hidden="true">?? %</span>
-              <span className="sr-only">Resultado oculto hasta votar</span>
-            </span>
-          </li>
-        ))}
-      </ul>
+      <LockedOptions options={poll.options} />
       <p className="flex items-center justify-between gap-3 text-[13px] text-muted">
         <span>
           <span>Anónimo</span>

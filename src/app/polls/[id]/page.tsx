@@ -1,18 +1,16 @@
 import { Suspense } from "react";
 import { LoadingState } from "@/components/loading-state";
-import { PagePlaceholder } from "@/components/page-placeholder";
+import { PollDetailLoader } from "./poll-detail";
 
-async function PollId({ params }: { params: PageProps<"/polls/[id]">["params"] }) {
+async function Detail({ params }: { params: PageProps<"/polls/[id]">["params"] }) {
   const { id } = await params;
-  return <p className="break-all">Encuesta {id} (MVP-035).</p>;
+  return <PollDetailLoader id={id} />;
 }
 
 export default function PollPage({ params }: PageProps<"/polls/[id]">) {
   return (
-    <PagePlaceholder title="Encuesta">
-      <Suspense fallback={<LoadingState label="Cargando encuesta…" />}>
-        <PollId params={params} />
-      </Suspense>
-    </PagePlaceholder>
+    <Suspense fallback={<LoadingState label="Cargando encuesta…" />}>
+      <Detail params={params} />
+    </Suspense>
   );
 }
