@@ -57,7 +57,7 @@ Las tareas sin reserva siguen pendientes y sin agente. La columna Orden es orien
 | 14 | [MVP-004](https://github.com/migdlp/opinion-social-media/issues/9) | Integrar clientes Supabase compatibles con SSR | P0 | MVP-001, MVP-003 | Bloqueada: código y tests listos (fd25109); falta una consulta real desde la app, la red de este entorno bloquea supabase.co. Siguiente paso: permitir el dominio o ejecutarla en local (ver issue #9) | claude-code (session_01Dsh4bnE3jAdfg5WXXBh59U) |
 | 15 | [MVP-005](https://github.com/migdlp/opinion-social-media/issues/10) | Habilitar Google OAuth en Supabase | P0 | MVP-003 | Pendiente | — |
 | 16 | [MVP-006](https://github.com/migdlp/opinion-social-media/issues/11) | Implementar callback OAuth y persistencia de sesión SSR | P0 | MVP-004, MVP-005 | Pendiente | — |
-| 17 | [MVP-007](https://github.com/migdlp/opinion-social-media/issues/12) | Preparar repositorio GitHub y pipeline de integración continua | P0 | MVP-001, MVP-002 | Pendiente | — |
+| 17 | [MVP-007](https://github.com/migdlp/opinion-social-media/issues/12) | Preparar repositorio GitHub y pipeline de integración continua | P0 | MVP-001, MVP-002 | En progreso | claude-code (session_01Dsh4bnE3jAdfg5WXXBh59U) |
 | 18 | [MVP-008](https://github.com/migdlp/opinion-social-media/issues/13) | Conectar Vercel y activar despliegues de preview | P0 | MVP-003, MVP-007 | Pendiente | — |
 | 19 | [MVP-018](https://github.com/migdlp/opinion-social-media/issues/23) | Publicar consultas de feed paginado sin datos de votos | P0 | MVP-009, MVP-011, MVP-013 | Pendiente | — |
 | 20 | [MVP-019](https://github.com/migdlp/opinion-social-media/issues/24) | Consultar detalle de encuesta y estado propio de voto | P0 | MVP-009, MVP-011, MVP-012, MVP-013 | Pendiente | — |
