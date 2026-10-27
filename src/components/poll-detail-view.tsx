@@ -1,22 +1,22 @@
 import { CopyLinkButton } from "@/components/copy-link-button";
-import { LockedOptions } from "@/components/locked-options";
-import type { PollDetail } from "@/lib/data/types";
+import { PollVoting } from "@/components/poll-voting";
+import type { PollDetail, PollResults, Result } from "@/lib/data/types";
 import { formatApproximateDate } from "@/lib/utils/date";
 
 type PollDetailViewProps = {
   detail: PollDetail;
+  castVote: (pollId: string, optionId: string) => Promise<Result<PollResults>>;
   now?: Date;
 };
 
-// Detalle público de una encuesta antes de votar: pregunta como título, opciones con
-// su porcentaje bloqueado, autor genérico y fecha. Votar llega con MVP-036 y los
-// resultados para quien ya votó con MVP-037.
-export function PollDetailView({ detail, now = new Date() }: PollDetailViewProps) {
+// Detalle de una encuesta: pregunta como título, formulario de voto (o resultados si ya
+// se votó), autor genérico y fecha.
+export function PollDetailView({ detail, castVote, now = new Date() }: PollDetailViewProps) {
   const { poll } = detail;
   return (
     <article className="mx-auto flex w-full max-w-content flex-col gap-4 rounded-2xl border border-border bg-surface p-5">
       <h1 className="text-2xl leading-tight font-semibold tracking-[-0.02em]">{poll.question}</h1>
-      <LockedOptions options={poll.options} />
+      <PollVoting poll={poll} viewer={detail.viewer} castVote={castVote} />
       <p className="text-[13px] text-muted">
         <span>Anónimo</span>
         {" · "}

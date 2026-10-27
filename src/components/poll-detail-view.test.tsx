@@ -1,8 +1,10 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen, within } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { PollDetail } from "@/lib/data/types";
 import { PollDetailView } from "./poll-detail-view";
+
+const castVote = vi.fn();
 
 afterEach(cleanup);
 
@@ -22,11 +24,10 @@ const DETAIL: PollDetail = {
 
 describe("PollDetailView", () => {
   it("muestra la pregunta como título, las opciones en orden y el autor genérico", () => {
-    const { container } = render(<PollDetailView detail={DETAIL} now={NOW} />);
+    const { container } = render(<PollDetailView detail={DETAIL} castVote={castVote} now={NOW} />);
 
     expect(screen.getByRole("heading", { level: 1, name: DETAIL.poll.question })).toBeDefined();
-    const items = screen.getAllByRole("listitem");
-    expect(items.map((li) => within(li).getByText(/cebolla$/).textContent)).toEqual([
+    expect(screen.getAllByRole("radio").map((r) => r.closest("label")?.textContent)).toEqual([
       "Con cebolla",
       "Sin cebolla",
     ]);
@@ -35,17 +36,14 @@ describe("PollDetailView", () => {
   });
 
   it("ofrece copiar el enlace de la encuesta", () => {
-    render(<PollDetailView detail={DETAIL} now={NOW} />);
+    render(<PollDetailView detail={DETAIL} castVote={castVote} now={NOW} />);
 
     expect(screen.getByRole("button", { name: "Copiar enlace" })).toBeDefined();
   });
 
-  it("antes de votar no muestra ninguna cifra: cada opción tiene su porcentaje bloqueado", () => {
-    const { container } = render(<PollDetailView detail={DETAIL} now={NOW} />);
+  it("antes de votar no muestra ninguna cifra ni resultado", () => {
+    const { container } = render(<PollDetailView detail={DETAIL} castVote={castVote} now={NOW} />);
 
-    for (const li of screen.getAllByRole("listitem")) {
-      expect(within(li).getByText("?? %")).toBeDefined();
-    }
     expect(container.textContent).not.toMatch(/\d\s*%|\bvotos?\b|total/i);
   });
 });
