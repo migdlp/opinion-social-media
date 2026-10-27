@@ -21,6 +21,7 @@ Leer [AGENTS.md](../AGENTS.md), el [contexto de la aplicación](contexto-aplicac
 | [JSON](backlog.json) / [CSV](backlog.csv) | Exportación de cinco épicas y 53 tareas; CSV contiene las tareas |
 | [Tareas futuras](tareas-futuras.md) | Registro de estado, fases y trabajo pendiente |
 | [Prioridades y orden](orden-ejecucion.md) | Siguiente tarea, secuencia válida y reserva por agente |
+| [Entornos y variables](entornos.md) | Proyectos dev/prod, variables públicas, secretos y protecciones |
 | [Estado del proyecto](estado-proyecto.md) | Evidencias de acceso e infraestructura creada |
 | [Acceso a Supabase](supabase-acceso.md) | Proyectos, URLs y conexión de colaboradores, agentes, app, CLI y SQL |
 | [Decisiones](decisiones.md) | Decisiones confirmadas y cuestiones por resolver |

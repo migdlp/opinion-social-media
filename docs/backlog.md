@@ -146,7 +146,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-003 — Preparar Supabase y separación de entornos
 
-- **Estado:** Pendiente — ejecución pausada
+- **Estado:** Completada — ver [entornos.md](entornos.md) e issue #8
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `backend`, `database`, `devops`
 - **Dependencias bloqueantes:** ninguna.
 - **Descripción:** Provisionar entornos Supabase de desarrollo y producción aislados, documentando la gestión de claves y URLs sin comprometer secretos.

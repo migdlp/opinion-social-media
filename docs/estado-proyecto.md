@@ -61,3 +61,9 @@ Agente `claude-code (session_019ZfidxHjR16hC5t8nHGq9M)`, con el conector Supabas
 - Desarrollo: `SELECT 1` → `connection_ok = 1` (base `postgres`); `list_tables` sobre `public` → vacío.
 - Desarrollo: `/auth/v1/health` con la clave publicable → HTTP 200. `/auth/v1/settings`: Google deshabilitado; **proveedor email habilitado** (valor por defecto). MVP-005 debe revisarlo, porque el MVP no admite contraseñas propias.
 - El conector tiene permisos de escritura sobre la organización; no se usaron. Producción no se consultó más allá del listado.
+
+## MVP-003: separación de entornos (27-10-2026)
+
+- `.env.local` (ignorado por Git) apunta a desarrollo; `npm run check:env` → `Proyecto: ltlrujmqenhktiilsnis · /auth/v1/health → HTTP 200`. Con URL de producción o clave `sb_secret_` el script termina con código 1.
+- `getSupabaseEnv()` rechaza producción fuera de `NEXT_PUBLIC_VERCEL_ENV=production` (probado: dev local OK; prod local y prod preview rechazados; prod production OK; variables ausentes rechazadas).
+- Producción antes y después de configurar desarrollo: 0 tablas, 0 migraciones, 0 usuarios, 0 funciones y 0 políticas en `public`; misma clave publicable (id `7ece21c7…`); Google deshabilitado, email habilitado. Se volverá a comprobar tras la primera migración en desarrollo (MVP-009).
