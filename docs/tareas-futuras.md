@@ -74,7 +74,7 @@ La columna Orden es orientativa; las dependencias y las reservas de cada fila de
 | 31 | [MVP-027](https://github.com/migdlp/opinion-social-media/issues/32) | Construir /login y retorno seguro a flujo previo | P0 | MVP-006, MVP-024, MVP-026 | Pendiente | — |
 | 32 | [MVP-028](https://github.com/migdlp/opinion-social-media/issues/33) | Crear componente PollOption y selector de voto | P0 | MVP-024, MVP-013 | En progreso | claude-code (session_01Dsh4bnE3jAdfg5WXXBh59U) |
 | 33 | [MVP-029](https://github.com/migdlp/opinion-social-media/issues/34) | Crear PollCard pública y estado previo al voto | P0 | MVP-024, MVP-028, MVP-013 | Pendiente | — |
-| 34 | [MVP-030](https://github.com/migdlp/opinion-social-media/issues/35) | Construir PollResults con barras, totales y elección propia | P0 | MVP-024, MVP-013 | Pendiente | — |
+| 34 | [MVP-030](https://github.com/migdlp/opinion-social-media/issues/35) | Construir PollResults con barras, totales y elección propia | P0 | MVP-024, MVP-013 | En progreso | claude-code (session_01Dsh4bnE3jAdfg5WXXBh59U) |
 | 35 | [MVP-031](https://github.com/migdlp/opinion-social-media/issues/36) | Crear formulario PollCreationForm y validaciones cliente | P0 | MVP-024, MVP-013 | Pendiente | — |
 | 36 | [MVP-032](https://github.com/migdlp/opinion-social-media/issues/37) | Publicar desde formulario y redirigir al detalle | P0 | MVP-031, MVP-014, MVP-015, MVP-023, MVP-027 | Pendiente | — |
 | 37 | [MVP-033](https://github.com/migdlp/opinion-social-media/issues/38) | Integrar feed público cronológico en / | P0 | MVP-018, MVP-024, MVP-025, MVP-029, MVP-023 | Pendiente | — |
