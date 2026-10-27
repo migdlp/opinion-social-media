@@ -19,6 +19,27 @@ Repositorio de contexto y planificación del MVP. **El desarrollo se reanudó el
 - [Decisiones y cuestiones pendientes](docs/decisiones.md)
 - [Skill karpathy-guidelines](docs/skills.md)
 
+## Desarrollo local
+
+Requiere Node.js 22 (o ≥ 20.9) y npm.
+
+```bash
+npm ci            # instala dependencias exactas del lockfile
+npm run dev       # http://localhost:3000
+npm run build     # compilación de producción
+npm run lint      # ESLint
+npm run typecheck # genera tipos de rutas y ejecuta tsc
+```
+
+Estructura de `src/`:
+
+| Carpeta | Contenido |
+|---|---|
+| `app/` | Rutas App Router: `/`, `/create`, `/login`, `/polls/[id]` |
+| `components/` | Componentes de UI sin acceso a datos |
+| `lib/data/` | Acceso a datos y tipos del contrato (`docs/contratos-api.md`) |
+| `lib/utils/` | Utilidades puras (normalización de texto) |
+
 ## Estado actual
 
 La conexión al repositorio privado de GitHub, a Supabase y al equipo de Vercel está verificada. Se crearon proyectos Supabase separados para desarrollo y producción en Irlanda; ambos tienen el esquema `public` vacío. No hay aplicación implementada en este repositorio, migraciones aplicadas ni despliegue en Vercel.
