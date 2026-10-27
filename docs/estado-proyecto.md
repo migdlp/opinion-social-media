@@ -52,3 +52,12 @@ Antes de la pausa se inició un scaffold y se redactaron borradores de código, 
 - Skill karpathy-guidelines copiada sin modificaciones, fijada a una revisión de origen y enlazada desde AGENTS.md.
 - Instrucciones de reserva por agente y guía de orden añadidas. Ninguna tarea de implementación se ha iniciado tras la pausa.
 - Verificaciones documentales: estructura de las 53 tareas, dependencias sin ciclos, orden válido, enlaces locales y checksum de la skill. No equivalen a pruebas de aplicación ni de producción.
+
+## Verificación de conexión a Supabase (27-10-2026)
+
+Agente `claude-code (session_019ZfidxHjR16hC5t8nHGq9M)`, con el conector Supabase autorizado por el propietario. Sólo lecturas, sólo en desarrollo salvo el listado de proyectos:
+
+- `list_projects`: aparecen `opinion-social-media-dev` y `opinion-social-media-prod` en «Los tres cerditos», ambos `ACTIVE_HEALTHY`, PostgreSQL 17.11.
+- Desarrollo: `SELECT 1` → `connection_ok = 1` (base `postgres`); `list_tables` sobre `public` → vacío.
+- Desarrollo: `/auth/v1/health` con la clave publicable → HTTP 200. `/auth/v1/settings`: Google deshabilitado; **proveedor email habilitado** (valor por defecto). MVP-005 debe revisarlo, porque el MVP no admite contraseñas propias.
+- El conector tiene permisos de escritura sobre la organización; no se usaron. Producción no se consultó más allá del listado.
