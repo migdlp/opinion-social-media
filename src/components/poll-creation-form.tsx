@@ -14,7 +14,7 @@ const MIN_OPTIONS = 2;
 const MAX_OPTIONS = 4;
 
 const fieldClass =
-  "w-full rounded-md border bg-background px-3 py-2 aria-invalid:border-red-600 dark:aria-invalid:border-red-400 border-border";
+  "w-full rounded-xl border border-field bg-surface px-3.5 py-2.5 text-[15px] transition-colors hover:border-foreground focus:border-foreground focus:outline-none aria-invalid:border-danger";
 
 // Formulario de creación. Los campos sólo viven en memoria: no se guardan borradores
 // en el navegador ni en la base de datos (D-007). Publicar es responsabilidad de quien
@@ -49,7 +49,7 @@ export function PollCreationForm({ onSubmit }: PollCreationFormProps) {
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
       <div className="flex flex-col gap-1">
-        <label htmlFor={`${id}-question`} className="font-semibold">
+        <label htmlFor={`${id}-question`} className="text-[15px] font-semibold">
           Pregunta
         </label>
         <textarea
@@ -62,21 +62,21 @@ export function PollCreationForm({ onSubmit }: PollCreationFormProps) {
           className={fieldClass}
         />
         {errors?.question && (
-          <p id={questionErrorId} className="text-sm text-red-600 dark:text-red-400">
+          <p id={questionErrorId} className="text-[13px] font-medium text-danger">
             {errors.question}
           </p>
         )}
       </div>
 
-      <fieldset className="flex flex-col gap-3">
-        <legend className="mb-1 font-semibold">Opciones</legend>
+      <fieldset className="flex flex-col gap-3.5">
+        <legend className="mb-1 text-[15px] font-semibold">Opciones</legend>
         {options.map((option, index) => {
           const error = errors?.options[index];
           const inputId = `${id}-option-${index}`;
           const errorId = `${inputId}-error`;
           return (
             <div key={index} className="flex flex-col gap-1">
-              <label htmlFor={inputId} className="text-sm">
+              <label htmlFor={inputId} className="text-[13px] text-muted">
                 Opción {index + 1}
               </label>
               <div className="flex gap-2">
@@ -94,14 +94,14 @@ export function PollCreationForm({ onSubmit }: PollCreationFormProps) {
                     type="button"
                     onClick={() => removeOption(index)}
                     aria-label={`Quitar opción ${index + 1}`}
-                    className="shrink-0 rounded-md border border-border px-3"
+                    className="shrink-0 rounded-full px-3 text-[13px] font-medium text-muted underline-offset-4 hover:text-foreground hover:underline"
                   >
                     Quitar
                   </button>
                 )}
               </div>
               {error && (
-                <p id={errorId} className="text-sm text-red-600 dark:text-red-400">
+                <p id={errorId} className="text-[13px] font-medium text-danger">
                   {error}
                 </p>
               )}
@@ -112,7 +112,7 @@ export function PollCreationForm({ onSubmit }: PollCreationFormProps) {
           <button
             type="button"
             onClick={() => setOptions((current) => [...current, ""])}
-            className="self-start rounded-md border border-border px-3 py-2 text-sm"
+            className="self-start rounded-full border border-border bg-surface px-4 py-2 text-sm font-medium transition-colors hover:border-foreground"
           >
             Añadir opción
           </button>
@@ -121,7 +121,7 @@ export function PollCreationForm({ onSubmit }: PollCreationFormProps) {
 
       <button
         type="submit"
-        className="self-start rounded-md bg-accent px-4 py-2 font-semibold text-accent-foreground hover:opacity-90"
+        className="self-start rounded-full bg-foreground px-6 py-2.5 font-semibold text-background transition-opacity hover:opacity-85"
       >
         Publicar
       </button>

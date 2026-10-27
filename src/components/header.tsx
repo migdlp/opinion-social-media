@@ -4,17 +4,17 @@ import Link from "next/link";
 // El botón de sesión (AuthButton) se añadirá aquí en MVP-026.
 export function Header() {
   return (
-    <header className="sticky top-0 z-10 border-b border-border bg-background">
+    <header className="sticky top-0 z-10 border-b border-border bg-surface">
       <nav
         aria-label="Principal"
         className="mx-auto flex w-full max-w-content items-center justify-between gap-3 px-4 py-3"
       >
-        <Link href="/" className="rounded text-lg font-bold tracking-tight">
+        <Link href="/" className="rounded text-xl font-bold tracking-[-0.03em]">
           Opinión
         </Link>
         <Link
           href="/create"
-          className="rounded-md bg-accent px-3 py-2 text-sm font-semibold text-accent-foreground hover:opacity-90"
+          className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-85"
         >
           Crear encuesta
         </Link>

@@ -23,18 +23,29 @@ describe("PollCard", () => {
 
     const card = screen.getByRole("article");
     expect(within(card).getByRole("heading", { name: POLL.question })).toBeDefined();
-    expect(
-      within(card)
-        .getAllByRole("listitem")
-        .map((li) => li.textContent),
-    ).toEqual(["Café", "Té"]);
+    const items = within(card).getAllByRole("listitem");
+    expect(items.map((li) => within(li).getByText(/^(Café|Té)$/).textContent)).toEqual([
+      "Café",
+      "Té",
+    ]);
     const time = card.querySelector("time")!;
     expect(time.getAttribute("datetime")).toBe(POLL.createdAt);
     expect(time.textContent).toBe("hace 5 minutos");
     expect(within(card).getByText("Anónimo")).toBeDefined();
 
-    expect(container.textContent).not.toMatch(/%|votos?\b|total/i);
+    // Ninguna cifra real: ni porcentajes, ni recuentos, ni total.
+    expect(container.textContent).not.toMatch(/\d\s*%|\bvotos?\b|total/i);
     expect(container.querySelector("[data-bar]")).toBeNull();
+  });
+
+  it("cada opción muestra su porcentaje bloqueado hasta votar", () => {
+    render(<PollCard poll={POLL} now={NOW} />);
+
+    for (const li of screen.getAllByRole("listitem")) {
+      expect(within(li).getByText("?? %")).toBeDefined();
+      expect(within(li).getByText("Resultado oculto hasta votar")).toBeDefined();
+    }
+    expect(screen.getByText("Vota para ver")).toBeDefined();
   });
 
   it("la pregunta enlaza al detalle /polls/{id}", () => {
