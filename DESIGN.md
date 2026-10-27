@@ -58,6 +58,7 @@ spacing:
   card-padding: "16px"
   stack: "12px"
   content-width: "40rem"
+  wide-width: "64rem"
 components:
   button-primary:
     backgroundColor: "{colors.foreground}"
@@ -146,7 +147,7 @@ Una sola familia, Geist, servida desde el propio proyecto (paquete `geist`). Las
 
 ## Layout
 
-Columna única de `40rem` centrada con 16 px de margen lateral; mobile-first desde 320 px. Tarjetas apiladas con 12 px de separación. La cabecera es fija arriba. Pendiente (MVP-033): aprovechar el ancho de escritorio en el feed.
+Mobile-first desde 320 px con 16 px de margen lateral. Cabecera y feed usan el ancho amplio (`64rem`); el feed es una columna de tarjetas en móvil y dos desde 768 px (`md`), con 12 px de separación. Formularios, detalle y páginas de texto mantienen el ancho de lectura (`40rem`). La cabecera es fija arriba.
 
 ## Elevation & Depth
 
