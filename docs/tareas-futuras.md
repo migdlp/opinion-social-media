@@ -92,7 +92,7 @@ La columna Orden es orientativa; las dependencias y las reservas de cada fila de
 | 49 | [MVP-049](https://github.com/migdlp/opinion-social-media/issues/56) | Configurar y desplegar aplicación en producción | P0 | MVP-008, MVP-022, MVP-047, MVP-048 | Bloqueada; reservada: depende de MVP-008, MVP-022, MVP-047 y MVP-048 | Codex /root (opinion_social_media) |
 | 50 | [MVP-050](https://github.com/migdlp/opinion-social-media/issues/57) | Ejecutar checklist funcional y de seguridad en producción | P0 | MVP-044, MVP-045, MVP-046, MVP-049 | Bloqueada; reservada: depende de MVP-044, MVP-045, MVP-046 y MVP-049 | Codex /root (opinion_social_media) |
 | 51 | [MVP-051](https://github.com/migdlp/opinion-social-media/issues/58) | Cerrar checklist de release y documentar resultado verificable | P0 | MVP-047, MVP-049, MVP-050 | Bloqueada; reservada: depende de MVP-047, MVP-049 y MVP-050 | Codex /root (opinion_social_media) |
-| 52 | [MVP-052](https://github.com/migdlp/opinion-social-media/issues/46) | Mejorar transiciones visuales y skeletons no bloqueantes | P1 | MVP-040 | Pendiente | — |
+| 52 | [MVP-052](https://github.com/migdlp/opinion-social-media/issues/46) | Mejorar transiciones visuales y skeletons no bloqueantes | P1 | MVP-040 | En progreso: skeletons y transiciones | claude-code (migdlp local, Sonnet 5.5, worktree MVP-052) |
 | 53 | [MVP-053](https://github.com/migdlp/opinion-social-media/issues/47) | Añadir metadatos sociales básicos a URLs públicas | P1 | MVP-035 | En progreso | claude-code (session_01Dsh4bnE3jAdfg5WXXBh59U) |
 
 ## Condición de cierre
