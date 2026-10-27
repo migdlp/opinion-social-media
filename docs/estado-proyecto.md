@@ -1,10 +1,10 @@
 # Estado real del proyecto
 
-Última actualización: 26 de octubre de 2026.
+Última actualización: 27 de octubre de 2026.
 
 ## Alcance vigente
 
-**Documentación, planificación y skills del proyecto. Desarrollo pausado por petición del propietario.** La instrucción de pausa llegó después de crear los dos proyectos vacíos de Supabase. Desde entonces no se han aplicado cambios de aplicación ni de base de datos.
+**Desarrollo reanudado (D-013, 26-10-2026).** Completada MVP-013 (contrato documental en `contratos-api.md`; tipos comprobados con `tsc --strict`). Todavía no hay código de aplicación, migraciones aplicadas ni despliegues.
 
 ## Accesos verificados
 

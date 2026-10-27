@@ -12,6 +12,7 @@ Leer [AGENTS.md](../AGENTS.md), el [contexto de la aplicación](contexto-aplicac
 |---|---|
 | [Contexto](contexto-aplicacion.md) | Objetivo, usuarios, flujos y reglas del producto |
 | [Arquitectura](arquitectura.md) | Stack previsto, contratos, seguridad y entornos |
+| [Contratos de datos y RPC](contratos-api.md) | Argumentos, respuestas, tipos y códigos de error (MVP-013) |
 | [Brief consolidado](brief-producto.md) | Contexto adicional del propietario y requisitos obligatorios |
 | [Backlog vigente v1.1](backlog.md) | 53 tareas revisadas, dependencias y aceptación |
 | [Fuente histórica v1](fuentes/backlog-v1.md) | Documento original conservado sin modificaciones |

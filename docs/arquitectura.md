@@ -36,7 +36,7 @@ La FK compuesta de votos a `(poll_id, option_id)` garantiza que la opción perte
 | Feed | Datos públicos con opciones ordenadas, máximo 20 por lote, cursor `(created_at,id)` |
 | Detalle | Datos públicos y opción propia si existe sesión; 404 para inválida, inexistente u oculta |
 
-Los nombres de argumentos y tipos exactos se definirán en MVP-013. La respuesta de resultados nunca devuelve identidades de votantes. Los errores serán códigos controlados para sesión, validación, cuota, indisponibilidad y voto duplicado, traducidos a mensajes de interfaz sin detalles SQL.
+Los nombres de argumentos, tipos y códigos de error exactos están en [contratos-api.md](contratos-api.md) (MVP-013). La respuesta de resultados nunca devuelve identidades de votantes. Los errores serán códigos controlados para sesión, validación, cuota, indisponibilidad y voto duplicado, traducidos a mensajes de interfaz sin detalles SQL.
 
 ## Seguridad obligatoria
 

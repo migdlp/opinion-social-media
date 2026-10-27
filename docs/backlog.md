@@ -261,7 +261,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-013 — Definir contratos de consultas y funciones RPC
 
-- **Estado:** Pendiente — ejecución pausada
+- **Estado:** Completada — contrato en [contratos-api.md](contratos-api.md)
 - **Prioridad:** P0 · **Estimación relativa:** S · **Etiquetas:** `backend`, `frontend`, `security`
 - **Dependencias bloqueantes:** ninguna; puede definirse desde el modelo del brief antes de implementar el esquema.
 - **Descripción:** Fijar nombres, argumentos, formatos de éxito/error, tipado y seguridad del contrato de `create_poll`, `vote_poll`, `get_poll_results`, feed y detalle para desbloquear frontend con mocks.

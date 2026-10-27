@@ -1,6 +1,6 @@
 # Opinión — red social de encuestas
 
-Repositorio de contexto y planificación del MVP. **El desarrollo está pausado por indicación del propietario.** El brief adicional está incorporado; se documentan requisitos, cobertura y tareas antes de implementar.
+Repositorio de contexto y planificación del MVP. **El desarrollo se reanudó el 26-10-2026 (D-013)**; se avanza tarea a tarea según `docs/orden-ejecucion.md`. El brief adicional está incorporado; se documentan requisitos, cobertura y tareas antes de implementar.
 
 ## Documentación
 
