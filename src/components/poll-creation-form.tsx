@@ -1,13 +1,18 @@
 "use client";
 
-import { useId, useState } from "react";
+import Link from "next/link";
+import { useId, useRef, useState } from "react";
+import { loginPath } from "@/lib/auth/redirect";
+import { ERROR_MESSAGES } from "@/lib/data/errors";
+import type { AppErrorCode, Result } from "@/lib/data/types";
 import { normalizeText } from "@/lib/utils/text";
 import { hasErrors, type PollInputErrors, validatePollInput } from "@/lib/validation/poll";
 
 export type PollCreationInput = { question: string; options: string[] };
 
 type PollCreationFormProps = {
-  onSubmit: (input: PollCreationInput) => void;
+  onSubmit: (input: PollCreationInput) => Promise<Result<{ id: string }>>;
+  onPublished: (id: string) => void;
 };
 
 const MIN_OPTIONS = 2;
@@ -18,12 +23,16 @@ const fieldClass =
 
 // Formulario de creación. Los campos sólo viven en memoria: no se guardan borradores
 // en el navegador ni en la base de datos (D-007). Publicar es responsabilidad de quien
-// pasa onSubmit (MVP-032).
-export function PollCreationForm({ onSubmit }: PollCreationFormProps) {
+// pasa onSubmit; si falla, los campos se conservan para reintentar. Un solo envío a la vez
+// (MVP-032). Tras publicar con éxito, onPublished recibe el id de la nueva encuesta.
+export function PollCreationForm({ onSubmit, onPublished }: PollCreationFormProps) {
   const id = useId();
   const [question, setQuestion] = useState("");
   const [options, setOptions] = useState<string[]>(Array(MIN_OPTIONS).fill(""));
   const [errors, setErrors] = useState<PollInputErrors | null>(null);
+  const [pending, setPending] = useState(false);
+  const [failure, setFailure] = useState<AppErrorCode | null>(null);
+  const sending = useRef(false);
 
   const setOption = (index: number, value: string) =>
     setOptions((current) => current.map((option, i) => (i === index ? value : option)));
@@ -33,15 +42,31 @@ export function PollCreationForm({ onSubmit }: PollCreationFormProps) {
     setErrors(null);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (sending.current) return;
     const result = validatePollInput(question, options);
     if (hasErrors(result)) {
       setErrors(result);
       return;
     }
     setErrors(null);
-    onSubmit({ question: normalizeText(question), options: options.map(normalizeText) });
+    setFailure(null);
+    sending.current = true;
+    setPending(true);
+    // Si la llamada ni llega al servidor, la promesa se rechaza.
+    const outcome = await onSubmit({
+      question: normalizeText(question),
+      options: options.map(normalizeText),
+    }).catch((): Result<{ id: string }> => ({ ok: false, error: "NETWORK_ERROR" }));
+    if (outcome.ok) {
+      // Se mantiene bloqueado: la navegación al detalle está en curso.
+      onPublished(outcome.data.id);
+      return;
+    }
+    sending.current = false;
+    setPending(false);
+    setFailure(outcome.error);
   };
 
   const questionErrorId = `${id}-question-error`;
@@ -119,11 +144,27 @@ export function PollCreationForm({ onSubmit }: PollCreationFormProps) {
         )}
       </fieldset>
 
+      {failure === "AUTH_REQUIRED" ? (
+        <p className="rounded-xl border border-border bg-surface p-3 text-sm">
+          Inicia sesión para publicar; volverás aquí y podrás terminar la encuesta.{" "}
+          <Link href={loginPath("/create")} className="font-semibold underline">
+            Iniciar sesión
+          </Link>
+        </p>
+      ) : (
+        failure && (
+          <p role="alert" className="text-sm text-danger">
+            {ERROR_MESSAGES[failure]}
+          </p>
+        )
+      )}
+
       <button
         type="submit"
-        className="self-start rounded-full bg-foreground px-6 py-2.5 font-semibold text-background transition-opacity hover:opacity-85"
+        disabled={pending}
+        className="self-start rounded-full bg-foreground px-6 py-2.5 font-semibold text-background transition-opacity hover:opacity-85 disabled:opacity-50"
       >
-        Publicar
+        {pending ? "Publicando…" : "Publicar"}
       </button>
     </form>
   );
