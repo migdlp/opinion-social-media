@@ -34,6 +34,12 @@ describe("PollDetailView", () => {
     expect(container.querySelector("time")?.textContent).toBe("hace 1 hora");
   });
 
+  it("ofrece copiar el enlace de la encuesta", () => {
+    render(<PollDetailView detail={DETAIL} now={NOW} />);
+
+    expect(screen.getByRole("button", { name: "Copiar enlace" })).toBeDefined();
+  });
+
   it("antes de votar no muestra ninguna cifra: cada opción tiene su porcentaje bloqueado", () => {
     const { container } = render(<PollDetailView detail={DETAIL} now={NOW} />);
 
