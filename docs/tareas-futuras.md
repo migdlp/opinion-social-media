@@ -58,7 +58,7 @@ Todas las tareas de implementación siguen pendientes y sin agente mientras dure
 | 15 | [MVP-005](https://github.com/migdlp/opinion-social-media/issues/10) | Habilitar Google OAuth en Supabase | P0 | MVP-003 | Pendiente | — |
 | 16 | [MVP-006](https://github.com/migdlp/opinion-social-media/issues/11) | Implementar callback OAuth y persistencia de sesión SSR | P0 | MVP-004, MVP-005 | Pendiente | — |
 | 17 | [MVP-007](https://github.com/migdlp/opinion-social-media/issues/12) | Preparar repositorio GitHub y pipeline de integración continua | P0 | MVP-001, MVP-002 | En progreso | claude-code (session_01Dsh4bnE3jAdfg5WXXBh59U) |
-| 18 | [MVP-008](https://github.com/migdlp/opinion-social-media/issues/13) | Conectar Vercel y activar despliegues de preview | P0 | MVP-003, MVP-007 | Pendiente | — |
+| 18 | [MVP-008](https://github.com/migdlp/opinion-social-media/issues/13) | Conectar Vercel y activar despliegues de preview | P0 | MVP-003, MVP-007 | En progreso: configuración Vercel autorizada; cierre pendiente de MVP-003 y MVP-007 integradas y preview funcional | Codex /root (opinion_social_media) |
 | 19 | [MVP-018](https://github.com/migdlp/opinion-social-media/issues/23) | Publicar consultas de feed paginado sin datos de votos | P0 | MVP-009, MVP-011, MVP-013 | Pendiente | — |
 | 20 | [MVP-019](https://github.com/migdlp/opinion-social-media/issues/24) | Consultar detalle de encuesta y estado propio de voto | P0 | MVP-009, MVP-011, MVP-012, MVP-013 | Pendiente | — |
 | 21 | [MVP-021](https://github.com/migdlp/opinion-social-media/issues/26) | Habilitar moderación manual de encuestas ocultas | P0 | MVP-011, MVP-016, MVP-017, MVP-018, MVP-019 | Pendiente | — |
@@ -88,10 +88,10 @@ Todas las tareas de implementación siguen pendientes y sin agente mientras dure
 | 45 | [MVP-045](https://github.com/migdlp/opinion-social-media/issues/52) | Crear E2E de navegación, Google login, creación y voto | P0 | MVP-027, MVP-032, MVP-033, MVP-035, MVP-036, MVP-037, MVP-038 | Pendiente | — |
 | 46 | [MVP-046](https://github.com/migdlp/opinion-social-media/issues/53) | Validar concurrencia, errores de red y regresión responsive | P0 | MVP-040, MVP-042, MVP-043, MVP-044, MVP-045 | Pendiente | — |
 | 47 | [MVP-047](https://github.com/migdlp/opinion-social-media/issues/54) | Documentar instalación y operación técnica en README | P0 | MVP-006, MVP-022, MVP-023 | Pendiente | — |
-| 48 | [MVP-048](https://github.com/migdlp/opinion-social-media/issues/55) | Preparar runbook de producción, secretos y recuperación | P0 | MVP-008, MVP-020, MVP-022 | Pendiente | — |
-| 49 | [MVP-049](https://github.com/migdlp/opinion-social-media/issues/56) | Configurar y desplegar aplicación en producción | P0 | MVP-008, MVP-022, MVP-047, MVP-048 | Pendiente | — |
-| 50 | [MVP-050](https://github.com/migdlp/opinion-social-media/issues/57) | Ejecutar checklist funcional y de seguridad en producción | P0 | MVP-044, MVP-045, MVP-046, MVP-049 | Pendiente | — |
-| 51 | [MVP-051](https://github.com/migdlp/opinion-social-media/issues/58) | Cerrar checklist de release y documentar resultado verificable | P0 | MVP-047, MVP-049, MVP-050 | Pendiente | — |
+| 48 | [MVP-048](https://github.com/migdlp/opinion-social-media/issues/55) | Preparar runbook de producción, secretos y recuperación | P0 | MVP-008, MVP-020, MVP-022 | Bloqueada; reservada: depende de MVP-008, MVP-020 y MVP-022 | Codex /root (opinion_social_media) |
+| 49 | [MVP-049](https://github.com/migdlp/opinion-social-media/issues/56) | Configurar y desplegar aplicación en producción | P0 | MVP-008, MVP-022, MVP-047, MVP-048 | Bloqueada; reservada: depende de MVP-008, MVP-022, MVP-047 y MVP-048 | Codex /root (opinion_social_media) |
+| 50 | [MVP-050](https://github.com/migdlp/opinion-social-media/issues/57) | Ejecutar checklist funcional y de seguridad en producción | P0 | MVP-044, MVP-045, MVP-046, MVP-049 | Bloqueada; reservada: depende de MVP-044, MVP-045, MVP-046 y MVP-049 | Codex /root (opinion_social_media) |
+| 51 | [MVP-051](https://github.com/migdlp/opinion-social-media/issues/58) | Cerrar checklist de release y documentar resultado verificable | P0 | MVP-047, MVP-049, MVP-050 | Bloqueada; reservada: depende de MVP-047, MVP-049 y MVP-050 | Codex /root (opinion_social_media) |
 | 52 | [MVP-052](https://github.com/migdlp/opinion-social-media/issues/46) | Mejorar transiciones visuales y skeletons no bloqueantes | P1 | MVP-040 | Pendiente | — |
 | 53 | [MVP-053](https://github.com/migdlp/opinion-social-media/issues/47) | Añadir metadatos sociales básicos a URLs públicas | P1 | MVP-035 | Pendiente | — |
 
