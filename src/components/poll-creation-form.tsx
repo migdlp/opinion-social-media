@@ -13,6 +13,8 @@ export type PollCreationInput = { question: string; options: string[] };
 type PollCreationFormProps = {
   onSubmit: (input: PollCreationInput) => Promise<Result<{ id: string }>>;
   onPublished: (id: string) => void;
+  // Tras una caída de red: ¿se llegó a publicar? Evita crear un duplicado al reintentar.
+  onRecover?: (input: PollCreationInput) => Promise<Result<{ id: string } | null>>;
 };
 
 const MIN_OPTIONS = 2;
@@ -25,7 +27,7 @@ const fieldClass =
 // en el navegador ni en la base de datos (D-007). Publicar es responsabilidad de quien
 // pasa onSubmit; si falla, los campos se conservan para reintentar. Un solo envío a la vez
 // (MVP-032). Tras publicar con éxito, onPublished recibe el id de la nueva encuesta.
-export function PollCreationForm({ onSubmit, onPublished }: PollCreationFormProps) {
+export function PollCreationForm({ onSubmit, onPublished, onRecover }: PollCreationFormProps) {
   const id = useId();
   const [question, setQuestion] = useState("");
   const [options, setOptions] = useState<string[]>(Array(MIN_OPTIONS).fill(""));
@@ -33,6 +35,7 @@ export function PollCreationForm({ onSubmit, onPublished }: PollCreationFormProp
   const [pending, setPending] = useState(false);
   const [failure, setFailure] = useState<AppErrorCode | null>(null);
   const sending = useRef(false);
+  const checkFirst = useRef(false);
 
   const setOption = (index: number, value: string) =>
     setOptions((current) => current.map((option, i) => (i === index ? value : option)));
@@ -54,16 +57,40 @@ export function PollCreationForm({ onSubmit, onPublished }: PollCreationFormProp
     setFailure(null);
     sending.current = true;
     setPending(true);
-    // Si la llamada ni llega al servidor, la promesa se rechaza.
-    const outcome = await onSubmit({
+    const input = {
       question: normalizeText(question),
       options: options.map(normalizeText),
-    }).catch((): Result<{ id: string }> => ({ ok: false, error: "NETWORK_ERROR" }));
+    };
+    // Tras una caída de red la publicación quizá se completó: se consulta el servidor antes
+    // de volver a enviar. Si la consulta tampoco llega, se espera a que haya conexión.
+    if (checkFirst.current && onRecover) {
+      const recovered = await onRecover(input).catch((): Result<{ id: string } | null> => ({
+        ok: false,
+        error: "NETWORK_ERROR",
+      }));
+      if (!recovered.ok) {
+        sending.current = false;
+        setPending(false);
+        setFailure(recovered.error);
+        return;
+      }
+      if (recovered.data) {
+        onPublished(recovered.data.id);
+        return;
+      }
+      checkFirst.current = false;
+    }
+    // Si la llamada ni llega al servidor, la promesa se rechaza.
+    const outcome = await onSubmit(input).catch((): Result<{ id: string }> => ({
+      ok: false,
+      error: "NETWORK_ERROR",
+    }));
     if (outcome.ok) {
       // Se mantiene bloqueado: la navegación al detalle está en curso.
       onPublished(outcome.data.id);
       return;
     }
+    checkFirst.current = outcome.error === "NETWORK_ERROR";
     sending.current = false;
     setPending(false);
     setFailure(outcome.error);
@@ -119,7 +146,7 @@ export function PollCreationForm({ onSubmit, onPublished }: PollCreationFormProp
                     type="button"
                     onClick={() => removeOption(index)}
                     aria-label={`Quitar opción ${index + 1}`}
-                    className="shrink-0 rounded-full px-3 text-[13px] font-medium text-muted underline-offset-4 hover:text-foreground hover:underline"
+                    className="min-h-11 shrink-0 rounded-full px-3 text-[13px] font-medium text-muted underline-offset-4 hover:text-foreground hover:underline"
                   >
                     Quitar
                   </button>
@@ -137,7 +164,7 @@ export function PollCreationForm({ onSubmit, onPublished }: PollCreationFormProp
           <button
             type="button"
             onClick={() => setOptions((current) => [...current, ""])}
-            className="self-start rounded-full border border-border bg-surface px-4 py-2 text-sm font-medium transition-colors hover:border-foreground"
+            className="min-h-11 self-start rounded-full border border-border bg-surface px-4 py-2 text-sm font-medium transition-colors hover:border-foreground"
           >
             Añadir opción
           </button>

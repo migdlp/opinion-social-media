@@ -27,13 +27,15 @@ const RESULTS: PollResults = {
 let castVote: ReturnType<
   typeof vi.fn<(pollId: string, optionId: string) => Promise<Result<PollResults>>>
 >;
+let loadOwnVote: ReturnType<typeof vi.fn<(pollId: string) => Promise<Result<PollResults | null>>>>;
 const view = (viewer: PollViewerState) =>
-  render(<PollVoting poll={POLL} viewer={viewer} castVote={castVote} />);
+  render(<PollVoting poll={POLL} viewer={viewer} castVote={castVote} loadOwnVote={loadOwnVote} />);
 const pick = (name: string) => userEvent.click(screen.getByRole("radio", { name }));
 const vote = () => userEvent.click(screen.getByRole("button", { name: "Votar" }));
 
 beforeEach(() => {
   castVote = vi.fn(async () => ({ ok: true, data: RESULTS }));
+  loadOwnVote = vi.fn(async () => ({ ok: true, data: null }));
 });
 afterEach(cleanup);
 
@@ -143,5 +145,46 @@ describe("PollVoting", () => {
     expect(screen.queryByRole("button", { name: "Votar" })).toBeNull();
     expect(screen.queryAllByRole("radio")).toHaveLength(0);
     expect(castVote).not.toHaveBeenCalled();
+  });
+
+  describe("tras una caída de red (MVP-040)", () => {
+    const failOnce = async () => {
+      castVote.mockResolvedValueOnce({ ok: false, error: "NETWORK_ERROR" });
+      view({ kind: "not_voted" });
+      await pick("Con cebolla");
+      await vote();
+      await screen.findByRole("alert");
+    };
+
+    it("antes de reintentar consulta el estado del servidor: si el voto entró, muestra resultados sin votar otra vez", async () => {
+      loadOwnVote.mockResolvedValue({ ok: true, data: RESULTS });
+      await failOnce();
+
+      await vote();
+
+      expect(loadOwnVote).toHaveBeenCalledWith(POLL.id);
+      expect(await screen.findByText("Tu voto")).toBeDefined();
+      expect(castVote).toHaveBeenCalledOnce();
+    });
+
+    it("si el voto no entró, reintenta el envío", async () => {
+      await failOnce();
+
+      await vote();
+
+      expect(loadOwnVote).toHaveBeenCalledOnce();
+      expect(castVote).toHaveBeenCalledTimes(2);
+      expect(await screen.findByText("Tu voto")).toBeDefined();
+    });
+
+    it("si aún no hay conexión para consultarlo, no envía y avisa", async () => {
+      loadOwnVote.mockResolvedValue({ ok: false, error: "NETWORK_ERROR" });
+      await failOnce();
+
+      await vote();
+
+      expect(castVote).toHaveBeenCalledOnce();
+      expect((await screen.findByRole("alert")).textContent).toMatch(/No hay conexión/);
+    });
   });
 });

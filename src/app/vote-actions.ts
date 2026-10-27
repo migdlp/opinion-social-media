@@ -1,6 +1,6 @@
 "use server";
 
-import { votePoll } from "@/lib/data/operations";
+import { getPollDetail, votePoll } from "@/lib/data/operations";
 import { toAppError } from "@/lib/data/errors";
 import type { PollResults, Result } from "@/lib/data/types";
 import { createClient } from "@/lib/supabase/server";
@@ -14,6 +14,21 @@ export async function castVote(pollId: string, optionId: string): Promise<Result
     const { data } = await supabase.auth.getUser();
     if (!data.user) return { ok: false, error: "AUTH_REQUIRED" };
     return await votePoll(supabase, pollId, optionId);
+  } catch (error) {
+    return { ok: false, error: toAppError(error) };
+  }
+}
+
+// Estado real del voto propio en el servidor. Tras una caída de red permite saber si un voto
+// que quizá se completó ya está registrado antes de volver a enviarlo. null: aún no votó.
+export async function loadOwnVote(pollId: string): Promise<Result<PollResults | null>> {
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getUser();
+    const detail = await getPollDetail(supabase, pollId, { signedIn: Boolean(data.user) });
+    if (!detail.ok) return detail;
+    const viewer = detail.data.viewer;
+    return { ok: true, data: viewer.kind === "voted" ? viewer.results : null };
   } catch (error) {
     return { ok: false, error: toAppError(error) };
   }

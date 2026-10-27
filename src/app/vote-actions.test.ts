@@ -5,15 +5,17 @@ vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({ auth: { getUser } }),
 }));
 const votePoll = vi.fn();
-vi.mock("@/lib/data/operations", () => ({ votePoll }));
+const getPollDetail = vi.fn();
+vi.mock("@/lib/data/operations", () => ({ votePoll, getPollDetail }));
 
-const { castVote } = await import("./vote-actions");
+const { castVote, loadOwnVote } = await import("./vote-actions");
 
 const RESULTS = { pollId: "p", totalVotes: 1, myOptionId: "o", options: [] };
 
 beforeEach(() => {
   getUser.mockReset();
   votePoll.mockReset();
+  getPollDetail.mockReset();
   getUser.mockResolvedValue({ data: { user: { id: "u1" } }, error: null });
   votePoll.mockResolvedValue({ ok: true, data: RESULTS });
 });
@@ -39,5 +41,31 @@ describe("castVote", () => {
 
     expect(await castVote("p", "o")).toEqual({ ok: false, error: "NETWORK_ERROR" });
     expect(votePoll).not.toHaveBeenCalled();
+  });
+});
+
+describe("loadOwnVote", () => {
+  it("devuelve los resultados si el usuario ya votó", async () => {
+    getPollDetail.mockResolvedValue({
+      ok: true,
+      data: { poll: {}, viewer: { kind: "voted", results: RESULTS } },
+    });
+
+    expect(await loadOwnVote("p")).toEqual({ ok: true, data: RESULTS });
+  });
+
+  it("devuelve null si no ha votado", async () => {
+    getPollDetail.mockResolvedValue({
+      ok: true,
+      data: { poll: {}, viewer: { kind: "not_voted" } },
+    });
+
+    expect(await loadOwnVote("p")).toEqual({ ok: true, data: null });
+  });
+
+  it("propaga el error de red sin lanzar", async () => {
+    getUser.mockRejectedValue(new TypeError("fetch failed"));
+
+    expect(await loadOwnVote("p")).toEqual({ ok: false, error: "NETWORK_ERROR" });
   });
 });
