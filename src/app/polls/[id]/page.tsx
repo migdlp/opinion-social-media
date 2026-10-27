@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { LoadingState } from "@/components/loading-state";
+import { PollSkeleton } from "@/components/skeletons";
 import { PollDetailLoader } from "./poll-detail";
 
 async function Detail({ params }: { params: PageProps<"/polls/[id]">["params"] }) {
@@ -9,7 +9,7 @@ async function Detail({ params }: { params: PageProps<"/polls/[id]">["params"] }
 
 export default function PollPage({ params }: PageProps<"/polls/[id]">) {
   return (
-    <Suspense fallback={<LoadingState label="Cargando encuesta…" />}>
+    <Suspense fallback={<PollSkeleton />}>
       <Detail params={params} />
     </Suspense>
   );
