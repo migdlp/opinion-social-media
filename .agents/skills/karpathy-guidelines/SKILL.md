@@ -65,3 +65,13 @@ For multi-step tasks, state a brief plan:
 ```
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+
+## Project rules: Opinión
+
+These project-specific additions are required by the owner. Preserve the original guidelines above and follow `AGENTS.md` for the complete collaboration protocol and current authorized scope.
+
+- Before choosing or starting a task, and before changing its status, refresh the remote `main` reference and read `docs/tareas-futuras.md` there. The current state on `main` is the shared source of task availability; respect existing reservations and dependencies.
+- Publish task reservations and every change of status, agent or handoff in a dedicated commit directly to `main`. Publish the reservation before implementation and synchronize the issue. Refresh `main` immediately before publishing and never force-push. If `main` advances and rejects the push, reread its updated task state before retrying; do not overwrite another agent's reservation.
+- Keep implementation and other documentation changes in a task branch created from updated `main`, then open a PR, pass the applicable checks and merge. Only dedicated task coordination commits have the standing direct-to-`main` exception; other exceptions require the owner's explicit authorization.
+- Always use TDD for behavior changes: write and run the test before production code, observe RED for missing or incorrect behavior, implement the minimum for GREEN, then REFACTOR with tests still passing. Identify the actual runner and command first; if test infrastructure is missing, establish a working runner before implementing behavior. Missing dependencies do not count as RED.
+- Record the actual commands and observed RED, GREEN and REFACTOR results in the task and PR, including failures or blockers. For documentation-only changes, check content, consistency and links and report those checks without inventing executable tests or an application TDD cycle.
