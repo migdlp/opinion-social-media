@@ -7,7 +7,7 @@ export function Header() {
     <header className="sticky top-0 z-10 border-b border-border bg-surface">
       <nav
         aria-label="Principal"
-        className="mx-auto flex w-full max-w-content items-center justify-between gap-3 px-4 py-3"
+        className="mx-auto flex w-full max-w-wide items-center justify-between gap-3 px-4 py-3"
       >
         <Link href="/" className="rounded text-xl font-bold tracking-[-0.03em]">
           Opinión

@@ -39,8 +39,9 @@
   --color-field: var(--field);
   --color-danger: var(--danger);
   --font-sans: var(--font-geist-sans), system-ui, sans-serif;
-  /* Ancho de lectura común a header y contenido. */
+  /* Ancho de lectura de formularios y detalle; el feed y la cabecera usan el ancho. */
   --container-content: 40rem;
+  --container-wide: 64rem;
 }
 
 html {
