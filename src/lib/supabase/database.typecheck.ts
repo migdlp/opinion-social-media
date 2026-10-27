@@ -1,0 +1,57 @@
+// Compilado por npm run typecheck: verifica los contratos contra tipos generados.
+import type { Database } from "./database.types";
+
+type Equal<A, B> =
+  (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false;
+type Assert<T extends true> = T;
+type Public = Database["public"];
+
+export type DatabaseContractChecks = [
+  Assert<Equal<keyof Public["Tables"], "polls" | "poll_options" | "votes">>,
+  Assert<
+    Equal<
+      Public["Tables"]["polls"]["Row"],
+      { id: string; user_id: string; question: string; status: string; created_at: string }
+    >
+  >,
+  Assert<
+    Equal<
+      Public["Tables"]["poll_options"]["Row"],
+      { id: string; poll_id: string; text: string; position: number }
+    >
+  >,
+  Assert<
+    Equal<
+      Public["Tables"]["votes"]["Row"],
+      { id: string; poll_id: string; option_id: string; user_id: string; created_at: string }
+    >
+  >,
+  Assert<
+    Equal<Public["Functions"]["create_poll"]["Args"], { p_question: string; p_options: string[] }>
+  >,
+  Assert<Equal<Public["Functions"]["create_poll"]["Returns"], string>>,
+  Assert<
+    Equal<Public["Functions"]["vote_poll"]["Args"], { p_poll_id: string; p_option_id: string }>
+  >,
+  Assert<
+    Equal<
+      Public["Functions"]["vote_poll"]["Returns"],
+      { poll_id: string; option_id: string; created_at: string }[]
+    >
+  >,
+  Assert<Equal<Public["Functions"]["get_poll_results"]["Args"], { p_poll_id: string }>>,
+  Assert<
+    Equal<
+      Public["Functions"]["get_poll_results"]["Returns"],
+      {
+        option_id: string;
+        position: number;
+        text: string;
+        votes: number;
+        percentage: number;
+        total_votes: number;
+        my_option_id: string;
+      }[]
+    >
+  >,
+];

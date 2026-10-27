@@ -46,6 +46,22 @@ jobs:
       - run: bash scripts/db-test-local.sh
       - run: bash scripts/db-concurrency-local.sh
 
+  db-reproducibility:
+    name: Supabase real, migraciones reproducibles y tipos
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: bash scripts/check-db-reproducibility.sh
+      - name: Detener la base local efímera
+        if: always()
+        run: npx --yes supabase@2.122.0 stop --no-backup
+
   secrets:
     name: Sin secretos ni .env en Git
     runs-on: ubuntu-latest
