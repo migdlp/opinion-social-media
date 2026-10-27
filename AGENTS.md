@@ -54,3 +54,11 @@ Estas reglas se aplican cuando el propietario reanude la implementación. No ini
 6. Si un traspaso es necesario, registrar el agente entrante, el saliente y el estado de los cambios. Una sesión interrumpida no demuestra por sí sola que la tarea haya terminado ni autoriza borrar su reserva.
 
 Las prioridades P0/P1 y el orden sugerido están documentados en `docs/orden-ejecucion.md`. El orden es orientativo; las dependencias y las reservas vigentes determinan qué tarea está disponible. Este protocolo no requiere desplegar ni ejecutar acciones ajenas a la tarea.
+
+## Ramas, pull requests y merge obligatorios
+
+1. Realizar cada tarea en una rama propia creada desde `main` actualizado. Usar un nombre que identifique la tarea, por ejemplo `codex/MVP-013-contratos-rpc`. Respetar la reserva y el seguimiento anteriores antes de iniciar la implementación.
+2. Publicar los commits en esa rama y abrir una pull request hacia `main`, enlazando el issue e indicando el alcance, los criterios de aceptación y las comprobaciones realizadas, incluidos fallos o comprobaciones pendientes.
+3. Fusionar la PR en `main` sólo cuando se hayan verificado los criterios de aceptación, pasado las comprobaciones aplicables y resuelto los conflictos y las observaciones pendientes. Respetar las revisiones y protecciones que tenga configuradas el repositorio; no eludirlas.
+4. Tras el merge, actualizar la copia local y sincronizar el registro de tareas y el issue con enlaces a la PR, al merge y a las pruebas. Marcar la tarea **Completada** y cerrar el issue sólo cuando su resultado esté integrado y verificado; abrir una PR no equivale a terminarla.
+5. No publicar commits directamente en `main`, salvo una excepción explícita del propietario para el cambio concreto. Esta regla se aplica también a los cambios de documentación y seguimiento, y no reanuda la implementación pausada.
