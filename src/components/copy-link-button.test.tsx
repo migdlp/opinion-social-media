@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CopyLinkButton } from "./copy-link-button";
 
@@ -43,7 +43,8 @@ describe("CopyLinkButton", () => {
     })) as HTMLInputElement;
     expect(field.value).toBe(url());
     expect(field.readOnly).toBe(true);
-    expect(document.activeElement).toBe(field);
+    // El foco se mueve al campo tras renderizarlo: en CI llegaba a veces un instante después.
+    await waitFor(() => expect(document.activeElement).toBe(field));
     expect(screen.getByRole("status").textContent).toBe(
       "No se ha podido copiar. Selecciona el enlace y cópialo.",
     );
