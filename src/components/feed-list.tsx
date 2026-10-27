@@ -1,16 +1,18 @@
 import { EmptyState } from "@/components/empty-state";
+import { FeedMore } from "@/components/feed-more";
 import { PollCard } from "@/components/poll-card";
 import { ERROR_MESSAGES } from "@/lib/data/errors";
 import type { FeedPage, Result } from "@/lib/data/types";
 
 type FeedListProps = {
   page: Result<FeedPage>;
+  loadMore: (cursor: string) => Promise<Result<FeedPage>>;
   now?: Date;
 };
 
 // Lista del feed público: tarjetas en el orden que da el adaptador (más reciente
 // primero), un estado vacío útil o un error recuperable sin romper la página.
-export function FeedList({ page, now }: FeedListProps) {
+export function FeedList({ page, loadMore, now }: FeedListProps) {
   if (!page.ok) {
     return (
       <div role="alert">
@@ -38,6 +40,12 @@ export function FeedList({ page, now }: FeedListProps) {
       {page.data.items.map(({ poll }) => (
         <PollCard key={poll.id} poll={poll} now={now} />
       ))}
+      <FeedMore
+        cursor={page.data.nextCursor}
+        seenIds={page.data.items.map(({ poll }) => poll.id)}
+        loadMore={loadMore}
+        now={now}
+      />
     </div>
   );
 }
