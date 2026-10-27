@@ -24,12 +24,22 @@ Repositorio de contexto y planificación del MVP. **El desarrollo se reanudó el
 Requiere Node.js 22 (o ≥ 20.9) y npm.
 
 ```bash
-npm ci            # instala dependencias exactas del lockfile
-npm run dev       # http://localhost:3000
-npm run build     # compilación de producción
-npm run lint      # ESLint
-npm run typecheck # genera tipos de rutas y ejecuta tsc
+cp .env.example .env.local   # y completar la Publishable key de desarrollo (docs/entornos.md)
+npm ci                       # instala dependencias exactas del lockfile
+npm run dev                  # http://localhost:3000
 ```
+
+| Script | Qué hace |
+|---|---|
+| `npm run check` | Todo lo siguiente en orden; es lo que debe pasar antes de subir cambios |
+| `npm run format:check` / `npm run format` | Prettier: comprueba / corrige el formato |
+| `npm run lint` | ESLint (reglas de Next.js y TypeScript) |
+| `npm run typecheck` | Genera tipos de rutas (`next typegen`) y ejecuta `tsc --noEmit` en modo estricto |
+| `npm run test` | Tests unitarios con Vitest (`src/**/*.test.ts`) |
+| `npm run build` | Compilación de producción |
+| `npm run check:env` | Comprueba que `.env.local` apunta al Supabase de desarrollo |
+
+Todos terminan con código distinto de cero si fallan.
 
 Estructura de `src/`:
 

@@ -42,9 +42,7 @@ export interface PollResults {
 }
 
 export type PollViewerState =
-  | { kind: "anonymous" }
-  | { kind: "not_voted" }
-  | { kind: "voted"; results: PollResults };
+  { kind: "anonymous" } | { kind: "not_voted" } | { kind: "voted"; results: PollResults };
 
 export interface FeedItem {
   poll: PublicPoll;

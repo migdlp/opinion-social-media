@@ -24,7 +24,9 @@ export function getSupabaseEnv(): SupabaseEnv {
     new URL(url).hostname.startsWith(`${PRODUCTION_PROJECT_REF}.`) &&
     process.env.NEXT_PUBLIC_VERCEL_ENV !== "production"
   ) {
-    throw new Error("El proyecto Supabase de producción sólo puede usarse en el despliegue de producción.");
+    throw new Error(
+      "El proyecto Supabase de producción sólo puede usarse en el despliegue de producción.",
+    );
   }
 
   return { url, publishableKey };

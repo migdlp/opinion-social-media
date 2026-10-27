@@ -135,7 +135,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-002 — Configurar linting, formato y comprobaciones automáticas
 
-- **Estado:** Pendiente — ejecución pausada
+- **Estado:** Completada — ver issue #7
 - **Prioridad:** P0 · **Estimación relativa:** S · **Etiquetas:** `devops`, `testing`
 - **Dependencias bloqueantes:** MVP-001.
 - **Descripción:** Definir scripts reproducibles de lint, typecheck, test y build y una configuración coherente de calidad de código.
