@@ -1,6 +1,6 @@
 # Opinión — red social de encuestas
 
-Repositorio de contexto y planificación del MVP. **El desarrollo se reanudó el 26-10-2026 (D-013)**; se avanza tarea a tarea según `docs/orden-ejecucion.md`. El brief adicional está incorporado; se documentan requisitos, cobertura y tareas antes de implementar.
+Repositorio del MVP. **El desarrollo se reanudó el 26-10-2026 (D-013)** y se avanza tarea a tarea según `docs/orden-ejecucion.md`; **Codex /root (opinion_social_media) se encarga de Vercel** (D-VERCEL-001). Las tareas se coordinan desde el estado actualizado de `main`; sus dependencias y las reservas de otros agentes siguen vigentes.
 
 ## Documentación
 
@@ -16,6 +16,7 @@ Repositorio de contexto y planificación del MVP. **El desarrollo se reanudó el
 - [Prioridades, orden recomendado y siguiente tarea](docs/orden-ejecucion.md)
 - [Accesos, recursos creados y verificaciones](docs/estado-proyecto.md)
 - [Supabase: conexión de colaboradores y agentes](docs/supabase-acceso.md)
+- [Vercel: responsable, entornos y operación](docs/vercel-operacion.md)
 - [Decisiones y cuestiones pendientes](docs/decisiones.md)
 - [Skill karpathy-guidelines](docs/skills.md)
 
@@ -54,6 +55,6 @@ Estructura de `src/`:
 
 ## Estado actual
 
-La conexión al repositorio privado de GitHub, a Supabase y al equipo de Vercel está verificada. Se crearon proyectos Supabase separados para desarrollo y producción en Irlanda; ambos tienen el esquema `public` vacío. No hay aplicación implementada en este repositorio, migraciones aplicadas ni despliegue en Vercel.
+Vercel tiene el proyecto [opinion-social-media](https://vercel.com/miguels-projects-b8307fdb/opinion-social-media) vinculado a GitHub: `main` despliega a producción y las ramas generan previews. Sus variables públicas separan Supabase de desarrollo/preview y producción. El despliegue inicial READY contiene documentación; no demuestra una aplicación funcional. Ver [evidencia y bloqueos](docs/estado-proyecto.md).
 
 El backlog es una especificación, no evidencia de trabajo terminado. No se declara completado el MVP.

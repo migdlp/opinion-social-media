@@ -1,6 +1,6 @@
 # Prioridades y orden recomendado
 
-**No iniciar implementación hasta que el propietario la reanude.** Esta guía permite elegir la siguiente tarea cuando se levante la pausa.
+**Consultar el alcance vigente y las reservas de `main` actualizado antes de iniciar trabajo.** La pausa histórica queda sustituida para Vercel por [D-VERCEL-001](decisiones.md): Codex se encarga de [su operación](vercel-operacion.md), conservando las dependencias. Esta autorización no abre cambios SQL ni Auth por anticipado; prevalecen [AGENTS.md](../AGENTS.md) y las instrucciones posteriores del propietario.
 
 ## Qué es más importante
 

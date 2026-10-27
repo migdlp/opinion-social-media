@@ -339,7 +339,7 @@ Publicar un MVP verificado en producción y documentar cómo operarlo.
 
 #### MVP-020 — Endurecer permisos y ejecución de todas las RPC
 
-- **Estado:** Pendiente — ejecución pausada
+- **Estado:** Completada — ver [seguridad-rpc.md](seguridad-rpc.md) e issue #25
 - **Prioridad:** P0 · **Estimación relativa:** M · **Etiquetas:** `database`, `security`
 - **Dependencias bloqueantes:** MVP-014, MVP-015, MVP-016, MVP-017.
 - **Descripción:** Revisar `SECURITY DEFINER`, propietarios, `search_path`, uso de esquemas cualificados y `GRANT/REVOKE`; negar EXECUTE genérico.
