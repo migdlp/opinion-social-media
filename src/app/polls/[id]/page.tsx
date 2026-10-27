@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { LoadingState } from "@/components/loading-state";
 import { PagePlaceholder } from "@/components/page-placeholder";
 
 async function PollId({ params }: { params: PageProps<"/polls/[id]">["params"] }) {
@@ -9,7 +10,7 @@ async function PollId({ params }: { params: PageProps<"/polls/[id]">["params"] }
 export default function PollPage({ params }: PageProps<"/polls/[id]">) {
   return (
     <PagePlaceholder title="Encuesta">
-      <Suspense fallback={<p>Cargando…</p>}>
+      <Suspense fallback={<LoadingState label="Cargando encuesta…" />}>
         <PollId params={params} />
       </Suspense>
     </PagePlaceholder>
