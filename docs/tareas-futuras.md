@@ -54,7 +54,7 @@ Las tareas sin reserva siguen pendientes y sin agente. La columna Orden es orien
 | 11 | [MVP-016](https://github.com/migdlp/opinion-social-media/issues/21) | Implementar vote_poll seguro e inmutable | P0 | MVP-010, MVP-011, MVP-012, MVP-013 | Completada (ver issue #21) | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
 | 12 | [MVP-017](https://github.com/migdlp/opinion-social-media/issues/22) | Implementar get_poll_results sin fugas | P0 | MVP-010, MVP-012, MVP-013, MVP-016 | Completada (ver issue #22) | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
 | 13 | [MVP-020](https://github.com/migdlp/opinion-social-media/issues/25) | Endurecer permisos y ejecución de todas las RPC | P0 | MVP-014, MVP-015, MVP-016, MVP-017 | Completada ([seguridad-rpc.md](seguridad-rpc.md)) | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
-| 14 | [MVP-004](https://github.com/migdlp/opinion-social-media/issues/9) | Integrar clientes Supabase compatibles con SSR | P0 | MVP-001, MVP-003 | Pendiente | — |
+| 14 | [MVP-004](https://github.com/migdlp/opinion-social-media/issues/9) | Integrar clientes Supabase compatibles con SSR | P0 | MVP-001, MVP-003 | En progreso | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
 | 15 | [MVP-005](https://github.com/migdlp/opinion-social-media/issues/10) | Habilitar Google OAuth en Supabase | P0 | MVP-003 | Pendiente | — |
 | 16 | [MVP-006](https://github.com/migdlp/opinion-social-media/issues/11) | Implementar callback OAuth y persistencia de sesión SSR | P0 | MVP-004, MVP-005 | Pendiente | — |
 | 17 | [MVP-007](https://github.com/migdlp/opinion-social-media/issues/12) | Preparar repositorio GitHub y pipeline de integración continua | P0 | MVP-001, MVP-002 | Pendiente | — |
