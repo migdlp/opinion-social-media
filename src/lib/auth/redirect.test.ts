@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { safeNextPath } from "./redirect";
+import { loginPath, safeNextPath } from "./redirect";
 
 describe("safeNextPath", () => {
   it.each([
@@ -31,5 +31,15 @@ describe("safeNextPath", () => {
 
   it("evita el bucle del propio callback", () => {
     expect(safeNextPath("/auth/callback?code=1")).toBe("/");
+  });
+});
+
+describe("loginPath", () => {
+  it("lleva a /login con la ruta local codificada", () => {
+    expect(loginPath("/polls/abc?x=1")).toBe("/login?next=%2Fpolls%2Fabc%3Fx%3D1");
+  });
+
+  it("sustituye un destino externo por /", () => {
+    expect(loginPath("https://ajeno.example/")).toBe("/login?next=%2F");
   });
 });

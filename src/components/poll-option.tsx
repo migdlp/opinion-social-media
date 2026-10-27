@@ -34,6 +34,8 @@ type PollOptionGroupProps = {
   value: string | null;
   onValueChange: (optionId: string) => void;
   disabled?: boolean;
+  // La pregunta ya es el título de la página: se deja sólo para tecnología asistiva.
+  hideQuestion?: boolean;
 };
 
 // Selector de voto de selección única. Es controlado: quien lo usa guarda la opción
@@ -45,10 +47,13 @@ export function PollOptionGroup({
   value,
   onValueChange,
   disabled = false,
+  hideQuestion = false,
 }: PollOptionGroupProps) {
   return (
     <fieldset disabled={disabled} className="flex flex-col gap-2">
-      <legend className="mb-3 text-[17px] leading-snug font-semibold tracking-[-0.01em]">
+      <legend
+        className={`mb-3 text-[17px] leading-snug font-semibold tracking-[-0.01em] ${hideQuestion ? "sr-only" : ""}`}
+      >
         {question}
       </legend>
       {options.map((option) => (

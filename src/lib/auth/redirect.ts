@@ -10,3 +10,8 @@ export function safeNextPath(next: string | null | undefined, fallback = "/"): s
   if (next === CALLBACK_PATH || next.startsWith(`${CALLBACK_PATH}?`)) return fallback;
   return next;
 }
+
+// Enlace a /login que, tras autenticarse, devuelve a una ruta local (MVP-027).
+export function loginPath(next: string): string {
+  return `/login?next=${encodeURIComponent(safeNextPath(next))}`;
+}
