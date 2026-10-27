@@ -66,7 +66,7 @@ La forma del archivo de configuración depende del cliente. Por ejemplo, en clie
 }
 ```
 
-No se ha creado ese archivo en este repositorio: el usuario debe incorporar la configuración en su cliente concreto y autorizarla. Para otros clientes, seguir el formato específico en la [guía oficial de MCP](https://supabase.com/docs/guides/ai-tools/mcp).
+Desde el 27-10-2026 el repositorio incluye `.mcp.json` con este servidor (`supabase`, desarrollo, solo lectura), añadido con `claude mcp add --scope project`. Cada cliente debe aprobarlo y completar su propia autorización OAuth; el archivo no contiene credenciales. El entorno debe permitir salida a `mcp.supabase.com` y `*.supabase.co`. Para otros clientes, seguir el formato específico en la [guía oficial de MCP](https://supabase.com/docs/guides/ai-tools/mcp).
 
 Verificar después del login listando tablas o ejecutando `SELECT 1`; con alcance por proyecto pueden no estar disponibles las herramientas de listado de cuenta. Debe verse el proyecto de desarrollo. La ausencia de tablas en `public` es correcta en este momento.
 
