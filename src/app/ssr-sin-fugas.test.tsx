@@ -78,20 +78,44 @@ describe.each([
   });
 });
 
-// Control: el escenario "con voto" sí pide el RPC de resultados. Hoy el detalle aún no los
-// pinta (llega con MVP-037), así que se comprueba la consulta, no el HTML; los tests de
-// arriba fallarían si el HTML o las consultas de quien no ha votado incluyeran agregados.
-describe("control: quien ya votó sí dispara la consulta de resultados", () => {
-  it("el detalle de un votante llama a get_poll_results", async () => {
+// Quien ya votó sí recibe los resultados, directamente en el HTML y sin formulario
+// (MVP-037, criterio 2: también al volver desde otro dispositivo o sesión).
+describe("quien ya votó", () => {
+  const resultRows = [
+    {
+      option_id: "a",
+      text: "Con cebolla",
+      position: 1,
+      votes: 3,
+      percentage: 75,
+      total_votes: 4,
+      my_option_id: "a",
+    },
+    {
+      option_id: "b",
+      text: "Sin cebolla",
+      position: 2,
+      votes: 1,
+      percentage: 25,
+      total_votes: 4,
+      my_option_id: "a",
+    },
+  ];
+
+  it("ve los resultados en el detalle, con su voto señalado y sin poder votar otra vez", async () => {
     user = { id: "u1" };
     responses = {
       polls: { data: row, error: null },
       votes: { data: { option_id: "a" }, error: null },
-      "rpc:get_poll_results": { data: [], error: null },
+      "rpc:get_poll_results": { data: resultRows, error: null },
     };
 
-    await PollDetailLoader({ id: ID });
+    const html = renderToStaticMarkup(await PollDetailLoader({ id: ID }));
 
+    expect(html).toMatch(/75,0\s*%/);
+    expect(html).toContain("Tu voto");
+    expect(html).not.toContain('type="radio"');
+    expect(html).not.toContain("Votar");
     expect(queries.map((q) => q.target)).toContain("rpc:get_poll_results");
   });
 });
