@@ -68,7 +68,7 @@ Las tareas sin reserva siguen pendientes y sin agente. La columna Orden es orien
 | 25 | [MVP-043](https://github.com/migdlp/opinion-social-media/issues/50) | Automatizar pruebas de voto y agregación de resultados | P0 | MVP-016, MVP-017, MVP-020, MVP-041 | Pendiente | — |
 | 26 | [MVP-023](https://github.com/migdlp/opinion-social-media/issues/28) | Configurar códigos de error seguros y adaptadores de datos | P0 | MVP-013, MVP-014, MVP-016, MVP-017, MVP-018, MVP-019 | Pendiente | — |
 | 27 | [MVP-044](https://github.com/migdlp/opinion-social-media/issues/51) | Probar ataques a RLS y canales de filtración | P0 | MVP-011, MVP-012, MVP-017, MVP-020, MVP-021, MVP-023 | Pendiente | — |
-| 28 | [MVP-024](https://github.com/migdlp/opinion-social-media/issues/29) | Definir diseño base mobile-first y navegación | P0 | MVP-001 | En progreso | claude-code (session_01Dsh4bnE3jAdfg5WXXBh59U) |
+| 28 | [MVP-024](https://github.com/migdlp/opinion-social-media/issues/29) | Definir diseño base mobile-first y navegación | P0 | MVP-001 | Completada (commit 1a58c32, ver issue #29) | claude-code (session_01Dsh4bnE3jAdfg5WXXBh59U) |
 | 29 | [MVP-025](https://github.com/migdlp/opinion-social-media/issues/30) | Crear componentes LoadingState y EmptyState reutilizables | P0 | MVP-024 | Pendiente | — |
 | 30 | [MVP-026](https://github.com/migdlp/opinion-social-media/issues/31) | Implementar AuthButton, estado de sesión y cierre de sesión | P0 | MVP-006, MVP-024 | Pendiente | — |
 | 31 | [MVP-027](https://github.com/migdlp/opinion-social-media/issues/32) | Construir /login y retorno seguro a flujo previo | P0 | MVP-006, MVP-024, MVP-026 | Pendiente | — |
