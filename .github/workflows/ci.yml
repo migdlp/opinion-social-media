@@ -1,9 +1,9 @@
 name: CI
 
+# En cada push a cualquier rama: así la CI corre aunque la PR tenga conflictos.
 on:
-  pull_request:
   push:
-    branches: [main]
+  pull_request:
 
 permissions:
   contents: read
@@ -44,6 +44,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: bash scripts/db-test-local.sh
+      - run: bash scripts/db-concurrency-local.sh
 
   secrets:
     name: Sin secretos ni .env en Git
