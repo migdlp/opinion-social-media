@@ -16,8 +16,11 @@
 | D-010 | Añadir la skill `karpathy-guidelines` a este proyecto y enlazarla en las instrucciones | Enlace explícito facilitado por el propietario |
 | D-011 | Antes de trabajar en una tarea, mostrarla «En progreso» con el agente real en `tareas-futuras.md` y sincronizar el issue | Instrucción explícita del propietario sobre seguimiento por agentes |
 | D-012 | Mantener P0/P1 visibles y publicar una guía de orden para decidir la siguiente tarea disponible | Petición del propietario sobre prioridades y secuencia |
+| D-014 | Stack inicial: Next.js 16.4.3, React 19.3, Tailwind 4, TypeScript 5 estricto, ESLint 9; plantilla oficial de `create-next-app` con `cacheComponents` activado (lo dinámico va tras `<Suspense>`; nada se cachea sin `use cache`) | MVP-001; versiones estables al 27-10-2026, fijadas por `package-lock.json` |
+| D-013 | Reanudar la implementación siguiendo el orden y el protocolo de reserva; sustituye la pausa D-005 | Instrucción del usuario de la sesión `claude-code (session_019ZfidxHjR16hC5t8nHGq9M)` el 26-10-2026 («Lee el contexto y las tareas y comienza con las tareas»), ampliada el 27-10-2026 con permiso para publicar estado en `main`, coordinarse con otros agentes y fusionar PR |
+| D-VERCEL-001 | Encargar a Codex /root (opinion_social_media) las tareas de Vercel, reservarlas y resolver sus bloqueos; reanudar ese alcance conservando dependencias y reservas ajenas | Instrucción explícita del propietario del 27 de octubre de 2026 |
 
-D-005 determina el alcance actual. Las autorizaciones anteriores no se utilizarán para continuar implementando mientras siga vigente la pausa.
+D-005 conserva el historial de pausa. D-013 la levanta para el resto de tareas y D-VERCEL-001 asigna Vercel a Codex; ninguna permite declarar finalizadas tareas sin evidencia ni tomar trabajo reservado a otros agentes. La [guía de operación](vercel-operacion.md) concreta la responsabilidad y los controles de Vercel. Las acciones con infraestructura compartida (OAuth, migraciones en Supabase, producción) siguen requiriendo los datos y confirmaciones que indique cada tarea.
 
 ## Reglas del producto recogidas del backlog
 

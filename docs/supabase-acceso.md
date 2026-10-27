@@ -1,5 +1,7 @@
 # Supabase: conexión y acceso para colaboradores y agentes
 
+La autorización posterior [D-VERCEL-001](decisiones.md) permite a Codex configurar y operar Vercel según [su guía](vercel-operacion.md). Las comprobaciones siguientes y las referencias a la pausa son históricas; prevalecen [AGENTS.md](../AGENTS.md) y las instrucciones posteriores del propietario. Esta autorización no abre cambios SQL ni Auth por anticipado.
+
 ## Conexión verificada
 
 Comprobación de solo lectura realizada el 26 de octubre de 2026:
@@ -66,7 +68,7 @@ La forma del archivo de configuración depende del cliente. Por ejemplo, en clie
 }
 ```
 
-No se ha creado ese archivo en este repositorio: el usuario debe incorporar la configuración en su cliente concreto y autorizarla. Para otros clientes, seguir el formato específico en la [guía oficial de MCP](https://supabase.com/docs/guides/ai-tools/mcp).
+Desde el 27-10-2026 el repositorio incluye `.mcp.json` con este servidor (`supabase`, desarrollo, solo lectura), añadido con `claude mcp add --scope project`. Cada cliente debe aprobarlo y completar su propia autorización OAuth; el archivo no contiene credenciales. El entorno debe permitir salida a `mcp.supabase.com` y `*.supabase.co`. Para otros clientes, seguir el formato específico en la [guía oficial de MCP](https://supabase.com/docs/guides/ai-tools/mcp).
 
 Verificar después del login listando tablas o ejecutando `SELECT 1`; con alcance por proyecto pueden no estar disponibles las herramientas de listado de cuenta. Debe verse el proyecto de desarrollo. La ausencia de tablas en `public` es correcta en este momento.
 
@@ -89,7 +91,7 @@ La clave publicable identifica el proyecto para clientes públicos; no es una co
 
 Nunca poner `service_role`, claves `sb_secret_`, tokens personales o la contraseña Postgres en variables `NEXT_PUBLIC_*`. Las claves publicables existen y se han comprobado mediante Auth, pero no se fijan sus valores en Git para evitar copias desactualizadas; cada entorno debe obtenerlas del Dashboard del proyecto correspondiente.
 
-Cuando se configure Vercel: desarrollo y preview usan el proyecto dev; producción usa el proyecto prod. Todavía no se han creado los clientes de la aplicación, sus políticas ni ese despliegue.
+Vercel tiene configuradas las variables públicas: desarrollo y preview usan el proyecto dev; producción usa el proyecto prod. Ver [configuración y evidencia](vercel-operacion.md). Esto no acredita clientes, políticas ni flujos de aplicación completos.
 
 ## 4. CLI de Supabase
 
@@ -126,7 +128,7 @@ La contraseña de PostgreSQL es distinta de la clave publicable y no se ha recup
 1. Para otro desarrollador: invitar su email desde Team con el alcance y rol apropiados.
 2. Para otro agente: conectar Supabase en su cliente mediante OAuth y apuntar al MCP de desarrollo anterior, inicialmente de solo lectura.
 3. Para conectar la app en su momento: proporcionar por configuración local/entorno la URL dev y su Publishable key.
-4. Mantener la implementación pausada hasta reanudarla explícitamente. Google OAuth sigue pendiente de configurar como parte de las tareas futuras.
+4. Respetar el alcance vigente y las reservas publicadas en `main`: Vercel está autorizado; Google OAuth sigue pendiente de su tarea y credenciales. No inferir autorización SQL/Auth de la configuración de Vercel.
 
 ## Referencias verificadas
 

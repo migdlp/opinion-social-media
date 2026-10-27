@@ -10,7 +10,7 @@ Nombre de trabajo: **Opinión**. No hay una identidad visual definitiva confirma
 
 Supabase está en la organización **Los tres cerditos** (`drifadkhohwebqljdlvw`), región Irlanda. El proyecto de trabajo es **`opinion-social-media-dev`** (`ltlrujmqenhktiilsnis`); **`opinion-social-media-prod`** (`qchpdrolulcgmiliysvr`) se reserva para producción. Desarrollo local, previews y agentes deben apuntar a desarrollo.
 
-La [guía de acceso a Supabase](supabase-acceso.md) contiene las URLs, dashboards, invitaciones al equipo, OAuth/MCP, variables de aplicación y conexiones CLI/SQL. Su lectura es obligatoria para los agentes según [AGENTS.md](../AGENTS.md). Cada entorno debe autorizar su conexión; el acceso no se hereda al clonar el repositorio. Mientras siga la pausa, las comprobaciones son de solo lectura.
+La [guía de acceso a Supabase](supabase-acceso.md) contiene las URLs, dashboards, invitaciones al equipo, OAuth/MCP, variables de aplicación y conexiones CLI/SQL. Su lectura es obligatoria para los agentes según [AGENTS.md](../AGENTS.md). Cada entorno debe autorizar su conexión; el acceso no se hereda al clonar el repositorio. La pausa histórica se interpreta según el alcance vigente de [AGENTS.md](../AGENTS.md): [D-VERCEL-001](decisiones.md) autoriza a Codex a configurar y operar Vercel, sin ampliar por sí sola el permiso para SQL o Auth. Ver [operación de Vercel](vercel-operacion.md).
 
 ## Personas y permisos
 
@@ -65,4 +65,4 @@ Perfiles públicos, usernames, seguidores, comentarios, likes, mensajes, notific
 
 ## Información adicional
 
-El [brief adicional](brief-producto.md) está incorporado al [backlog revisado](backlog.md). La [matriz de cobertura](cobertura-brief.md) documenta las 27 agrupaciones originales y los 16 casos límite. Su objetivo es validar la interacción central, sin ampliar el producto a una red social completa. La implementación permanece pausada.
+El [brief adicional](brief-producto.md) está incorporado al [backlog revisado](backlog.md). La [matriz de cobertura](cobertura-brief.md) documenta las 27 agrupaciones originales y los 16 casos límite. Su objetivo es validar la interacción central, sin ampliar el producto a una red social completa. Las referencias a la pausa conservan el contexto histórico; prevalecen las instrucciones posteriores del propietario, las dependencias y las reservas vigentes en `main`.

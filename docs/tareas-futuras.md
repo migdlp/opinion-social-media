@@ -2,7 +2,7 @@
 
 ## Estado y regla de seguimiento
 
-**Implementación pausada.** Las 53 tareas del backlog permanecen pendientes de implementación y verificación. Hay preparación parcial de infraestructura en MVP-003 (dos proyectos vacíos); no cumple todavía sus criterios completos ni se marca terminada.
+**Estado compartido en main.** La operación de Vercel está autorizada a Codex /root (opinion_social_media); ver AGENTS.md para el alcance vigente. Las filas siguientes reflejan reservas, dependencias y verificaciones; la infraestructura configurada no equivale a una aplicación terminada.
 
 El [backlog revisado](backlog.md) contiene la descripción y los criterios de aceptación de cada tarea. Este registro refleja la revisión v1.1; la versión original está archivada en `fuentes/backlog-v1.md`.
 
@@ -13,13 +13,13 @@ El [backlog revisado](backlog.md) contiene la descripción y los criterios de ac
 | DOC-001 | Conservar backlog y organizar contexto, arquitectura, decisiones y accesos | Documentado | /root |
 | DOC-002 | Incorporar el brief adicional del propietario | Documentado | /root |
 | DOC-003 | Revisar cobertura, alcance y dependencias con el nuevo brief | Revisado | /root |
-| DOC-004 | Recibir instrucción del propietario para reanudar desarrollo | Pendiente | — |
+| DOC-004 | Recibir instrucción del propietario para reanudar desarrollo | Recibida (26-10-2026); ver D-013 | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
 | DOC-005 | Crear cinco épicas y 53 tickets reales con prioridades y dependencias | Creado y verificado | /root |
 | DOC-006 | Incorporar y verificar la skill karpathy-guidelines | Documentado y verificado | /root |
 | DOC-007 | Documentar reserva por agente y orden recomendado | Documentado | /root |
 | DOC-008 | Verificar acceso Supabase y documentar cómo conectar otros colaboradores y agentes | Documentado; SQL y Auth verificados | /root |
 
-No se iniciarán tareas de implementación mientras siga vigente la pausa.
+Antes de iniciar trabajo, comprobar la autorización aplicable, las dependencias y las reservas del main remoto actualizado.
 
 ## Secuencia futura orientativa
 
@@ -37,28 +37,28 @@ La secuencia no sustituye a las dependencias individuales ni establece fechas co
 
 **Antes de empezar:** el agente debe publicar la reserva, cambiando el estado a **En progreso** y sustituyendo `—` en **Agente** por su nombre o identificador real. La misma información debe figurar en el issue. No tomar tareas ocupadas ni borrar una reserva ajena. Ver el protocolo completo en [AGENTS.md](../AGENTS.md).
 
-Todas las tareas de implementación siguen pendientes y sin agente mientras dure la pausa. La columna Orden es orientativa; las dependencias determinan qué está disponible. Ver [prioridades y orden](orden-ejecucion.md).
+La columna Orden es orientativa; las dependencias y las reservas de cada fila determinan qué está disponible. Ver [prioridades y orden](orden-ejecucion.md).
 
 | Orden | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|---|
-| 1 | [MVP-013](https://github.com/migdlp/opinion-social-media/issues/18) | Definir contratos de consultas y funciones RPC | P0 | — | Pendiente | — |
-| 2 | [MVP-003](https://github.com/migdlp/opinion-social-media/issues/8) | Preparar Supabase y separación de entornos | P0 | — | Pendiente; proyectos creados, falta verificar criterios | — |
-| 3 | [MVP-001](https://github.com/migdlp/opinion-social-media/issues/6) | Inicializar Next.js con App Router y TypeScript | P0 | — | Pendiente | — |
-| 4 | [MVP-002](https://github.com/migdlp/opinion-social-media/issues/7) | Configurar linting, formato y comprobaciones automáticas | P0 | MVP-001 | Pendiente | — |
-| 5 | [MVP-009](https://github.com/migdlp/opinion-social-media/issues/14) | Crear migraciones base de polls y poll_options | P0 | MVP-003 | Pendiente | — |
-| 6 | [MVP-010](https://github.com/migdlp/opinion-social-media/issues/15) | Crear votes y garantías de integridad | P0 | MVP-009 | Pendiente | — |
-| 7 | [MVP-011](https://github.com/migdlp/opinion-social-media/issues/16) | Activar RLS para encuestas y opciones públicas | P0 | MVP-009 | Pendiente | — |
-| 8 | [MVP-012](https://github.com/migdlp/opinion-social-media/issues/17) | Activar RLS de votos y revocar escrituras directas | P0 | MVP-010 | Pendiente | — |
-| 9 | [MVP-014](https://github.com/migdlp/opinion-social-media/issues/19) | Implementar create_poll con validación y atomicidad | P0 | MVP-009, MVP-011, MVP-013 | Pendiente | — |
-| 10 | [MVP-015](https://github.com/migdlp/opinion-social-media/issues/20) | Limitar create_poll a cinco encuestas por hora y cuenta | P0 | MVP-014 | Pendiente | — |
-| 11 | [MVP-016](https://github.com/migdlp/opinion-social-media/issues/21) | Implementar vote_poll seguro e inmutable | P0 | MVP-010, MVP-011, MVP-012, MVP-013 | Pendiente | — |
-| 12 | [MVP-017](https://github.com/migdlp/opinion-social-media/issues/22) | Implementar get_poll_results sin fugas | P0 | MVP-010, MVP-012, MVP-013, MVP-016 | Pendiente | — |
-| 13 | [MVP-020](https://github.com/migdlp/opinion-social-media/issues/25) | Endurecer permisos y ejecución de todas las RPC | P0 | MVP-014, MVP-015, MVP-016, MVP-017 | Pendiente | — |
+| 1 | [MVP-013](https://github.com/migdlp/opinion-social-media/issues/18) | Definir contratos de consultas y funciones RPC | P0 | — | Completada: [PR #59](https://github.com/migdlp/opinion-social-media/pull/59), merge `b52aed7` | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
+| 2 | [MVP-003](https://github.com/migdlp/opinion-social-media/issues/8) | Preparar Supabase y separación de entornos | P0 | — | Completada: [PR #59](https://github.com/migdlp/opinion-social-media/pull/59), merge `b52aed7` | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
+| 3 | [MVP-001](https://github.com/migdlp/opinion-social-media/issues/6) | Inicializar Next.js con App Router y TypeScript | P0 | — | Completada: [PR #59](https://github.com/migdlp/opinion-social-media/pull/59), merge `b52aed7` | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
+| 4 | [MVP-002](https://github.com/migdlp/opinion-social-media/issues/7) | Configurar linting, formato y comprobaciones automáticas | P0 | MVP-001 | Completada: [PR #59](https://github.com/migdlp/opinion-social-media/pull/59), merge `b52aed7` | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
+| 5 | [MVP-009](https://github.com/migdlp/opinion-social-media/issues/14) | Crear migraciones base de polls y poll_options | P0 | MVP-003 | Completada: [PR #59](https://github.com/migdlp/opinion-social-media/pull/59), merge `b52aed7` | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
+| 6 | [MVP-010](https://github.com/migdlp/opinion-social-media/issues/15) | Crear votes y garantías de integridad | P0 | MVP-009 | Completada: [PR #59](https://github.com/migdlp/opinion-social-media/pull/59), merge `b52aed7` | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
+| 7 | [MVP-011](https://github.com/migdlp/opinion-social-media/issues/16) | Activar RLS para encuestas y opciones públicas | P0 | MVP-009 | Completada: [PR #59](https://github.com/migdlp/opinion-social-media/pull/59), merge `b52aed7` | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
+| 8 | [MVP-012](https://github.com/migdlp/opinion-social-media/issues/17) | Activar RLS de votos y revocar escrituras directas | P0 | MVP-010 | Completada: [PR #59](https://github.com/migdlp/opinion-social-media/pull/59), merge `b52aed7` | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
+| 9 | [MVP-014](https://github.com/migdlp/opinion-social-media/issues/19) | Implementar create_poll con validación y atomicidad | P0 | MVP-009, MVP-011, MVP-013 | Completada: [PR #59](https://github.com/migdlp/opinion-social-media/pull/59), merge `b52aed7` | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
+| 10 | [MVP-015](https://github.com/migdlp/opinion-social-media/issues/20) | Limitar create_poll a cinco encuestas por hora y cuenta | P0 | MVP-014 | Completada: [PR #59](https://github.com/migdlp/opinion-social-media/pull/59), merge `b52aed7` | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
+| 11 | [MVP-016](https://github.com/migdlp/opinion-social-media/issues/21) | Implementar vote_poll seguro e inmutable | P0 | MVP-010, MVP-011, MVP-012, MVP-013 | Completada: [PR #59](https://github.com/migdlp/opinion-social-media/pull/59), merge `b52aed7` | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
+| 12 | [MVP-017](https://github.com/migdlp/opinion-social-media/issues/22) | Implementar get_poll_results sin fugas | P0 | MVP-010, MVP-012, MVP-013, MVP-016 | Completada: [PR #59](https://github.com/migdlp/opinion-social-media/pull/59), merge `b52aed7` | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
+| 13 | [MVP-020](https://github.com/migdlp/opinion-social-media/issues/25) | Endurecer permisos y ejecución de todas las RPC | P0 | MVP-014, MVP-015, MVP-016, MVP-017 | Completada: [PR #59](https://github.com/migdlp/opinion-social-media/pull/59), merge `b52aed7` | claude-code (session_019ZfidxHjR16hC5t8nHGq9M) |
 | 14 | [MVP-004](https://github.com/migdlp/opinion-social-media/issues/9) | Integrar clientes Supabase compatibles con SSR | P0 | MVP-001, MVP-003 | Bloqueada: código y tests en [PR #65](https://github.com/migdlp/opinion-social-media/pull/65); falta una consulta real a Supabase dev, la red del entorno del agente bloquea supabase.co. Siguiente paso en el issue | claude-code (session_01Dsh4bnE3jAdfg5WXXBh59U) |
 | 15 | [MVP-005](https://github.com/migdlp/opinion-social-media/issues/10) | Habilitar Google OAuth en Supabase | P0 | MVP-003 | Pendiente | — |
 | 16 | [MVP-006](https://github.com/migdlp/opinion-social-media/issues/11) | Implementar callback OAuth y persistencia de sesión SSR | P0 | MVP-004, MVP-005 | Pendiente | — |
 | 17 | [MVP-007](https://github.com/migdlp/opinion-social-media/issues/12) | Preparar repositorio GitHub y pipeline de integración continua | P0 | MVP-001, MVP-002 | En progreso: criterios verificados en GitHub Actions, [PR #62](https://github.com/migdlp/opinion-social-media/pull/62) pendiente de merge | claude-code (session_01Dsh4bnE3jAdfg5WXXBh59U) |
-| 18 | [MVP-008](https://github.com/migdlp/opinion-social-media/issues/13) | Conectar Vercel y activar despliegues de preview | P0 | MVP-003, MVP-007 | En progreso: configuración Vercel autorizada; cierre pendiente de MVP-003 y MVP-007 integradas y preview funcional | Codex /root (opinion_social_media) |
+| 18 | [MVP-008](https://github.com/migdlp/opinion-social-media/issues/13) | Conectar Vercel y activar despliegues de preview | P0 | MVP-003, MVP-007 | Bloqueada; reservada: Vercel corregido, cinco previews READY/HTTP 200; falta integrar y verificar MVP-003 y MVP-007. Evidencias en PR #66 | Codex /root (opinion_social_media) |
 | 19 | [MVP-018](https://github.com/migdlp/opinion-social-media/issues/23) | Publicar consultas de feed paginado sin datos de votos | P0 | MVP-009, MVP-011, MVP-013 | Pendiente | — |
 | 20 | [MVP-019](https://github.com/migdlp/opinion-social-media/issues/24) | Consultar detalle de encuesta y estado propio de voto | P0 | MVP-009, MVP-011, MVP-012, MVP-013 | Pendiente | — |
 | 21 | [MVP-021](https://github.com/migdlp/opinion-social-media/issues/26) | Habilitar moderación manual de encuestas ocultas | P0 | MVP-011, MVP-016, MVP-017, MVP-018, MVP-019 | Pendiente | — |
