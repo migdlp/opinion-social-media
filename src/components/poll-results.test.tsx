@@ -76,4 +76,30 @@ describe("PollResults con miles de votos", () => {
     expect(screen.getByText("1.283 votos")).toBeDefined();
     expect(screen.getByText("1.284 votos en total")).toBeDefined();
   });
+
+  describe("animación (V2-015)", () => {
+    const bars = (container: HTMLElement) =>
+      Array.from(container.querySelectorAll<HTMLElement>("[data-bar]"));
+
+    it("por defecto (resultados ya conocidos) no anima barras ni cifras", () => {
+      const { container } = render(<PollResults results={RESULTS} />);
+
+      expect(container.querySelector(".reveal-bar")).toBeNull();
+      expect(container.querySelector(".reveal-figure")).toBeNull();
+    });
+
+    it("con animate las barras crecen escalonadas por opción", () => {
+      const { container } = render(<PollResults results={RESULTS} animate />);
+
+      expect(bars(container).every((b) => b.classList.contains("reveal-bar"))).toBe(true);
+      expect(bars(container).map((b) => b.style.animationDelay)).toEqual(["0ms", "80ms", "160ms"]);
+    });
+
+    it("las cifras están en el DOM desde el principio, también animando", () => {
+      render(<PollResults results={RESULTS} animate />);
+
+      expect(screen.getByText("66,7 %")).toBeDefined();
+      expect(screen.getByText("3 votos en total")).toBeDefined();
+    });
+  });
 });

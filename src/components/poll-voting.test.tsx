@@ -138,6 +138,18 @@ describe("PollVoting", () => {
     expect((await screen.findByRole("alert")).textContent).toMatch(/No hay conexión/);
   });
 
+  it("anima las barras sólo justo después de votar, no con resultados ya conocidos", async () => {
+    const { container, unmount } = view({ kind: "not_voted" });
+    await pick("Con cebolla");
+    await vote();
+    await screen.findByText(/en total/);
+    expect(container.querySelectorAll(".reveal-bar")).toHaveLength(2);
+    unmount();
+
+    const reloaded = view({ kind: "voted", results: RESULTS });
+    expect(reloaded.container.querySelector(".reveal-bar")).toBeNull();
+  });
+
   it("quien ya había votado ve los resultados directamente, sin formulario", () => {
     view({ kind: "voted", results: RESULTS });
 

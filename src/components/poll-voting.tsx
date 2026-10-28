@@ -30,6 +30,8 @@ export function PollVoting({ poll, viewer, castVote, loadOwnVote }: PollVotingPr
   const [results, setResults] = useState<PollResultsData | null>(
     viewer.kind === "voted" ? viewer.results : null,
   );
+  // Sólo se anima la revelación de un voto emitido ahora, no unos resultados ya conocidos.
+  const [justVoted, setJustVoted] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<AppErrorCode | null>(null);
@@ -40,7 +42,7 @@ export function PollVoting({ poll, viewer, castVote, loadOwnVote }: PollVotingPr
   if (results) {
     return (
       <div aria-live="polite">
-        <PollResults results={results} />
+        <PollResults results={results} animate={justVoted} />
       </div>
     );
   }
@@ -83,8 +85,10 @@ export function PollVoting({ poll, viewer, castVote, loadOwnVote }: PollVotingPr
     checkFirst.current = !result.ok && result.error === "NETWORK_ERROR";
     sending.current = false;
     setPending(false);
-    if (result.ok) setResults(result.data);
-    else if (result.error === "AUTH_REQUIRED") setNeedsLogin(true);
+    if (result.ok) {
+      setJustVoted(true);
+      setResults(result.data);
+    } else if (result.error === "AUTH_REQUIRED") setNeedsLogin(true);
     else setError(result.error);
   }
 
