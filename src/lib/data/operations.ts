@@ -191,6 +191,12 @@ async function closedViewer(
   return results;
 }
 
+// Sólo los datos públicos de la encuesta (sin estado de voto ni resultados, aunque esté cerrada):
+// para metadatos y vista previa social, que nunca deben incluir cifras.
+export function getPollSummary(supabase: SupabaseClient, id: string): Promise<Result<PublicPoll>> {
+  return guard(() => getPublicPoll(supabase, id));
+}
+
 export function getPollDetail(
   supabase: SupabaseClient,
   id: string,
