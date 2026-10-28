@@ -122,3 +122,48 @@ export async function votesOf(pollId: string) {
   if (error) throw error;
   return data;
 }
+
+// Encuesta sembrada con la clave secreta local (sin pasar por create_poll, que limita a 5 por hora y
+// autor). category: slug de la lista cerrada o null. Queda abierta; para cerrarla tras votar, closePoll.
+export async function seedPoll(
+  author: TestUser,
+  question: string,
+  options: { category?: string | null; options?: string[] } = {},
+) {
+  const inserted = await admin
+    .from("polls")
+    .insert({ user_id: author.id, question, category_slug: options.category ?? null })
+    .select("id")
+    .single();
+  if (inserted.error) throw inserted.error;
+  const id = inserted.data.id as string;
+  const texts = options.options ?? ["Sí", "No"];
+  const opts = await admin
+    .from("poll_options")
+    .insert(texts.map((text, index) => ({ poll_id: id, text, position: index + 1 })));
+  if (opts.error) throw opts.error;
+  return id;
+}
+
+// Cierra una encuesta hace `hoursAgo` horas (la crea antes para cumplir closes_at > created_at).
+export async function closePoll(pollId: string, hoursAgo: number) {
+  const closes = new Date(Date.now() - hoursAgo * 3_600_000);
+  const created = new Date(closes.getTime() - 48 * 3_600_000);
+  const { error } = await admin
+    .from("polls")
+    .update({ created_at: created.toISOString(), closes_at: closes.toISOString() })
+    .eq("id", pollId);
+  if (error) throw error;
+}
+
+// Relación de seguimiento creada sin pasar por follow_user (cuota de 60 minutos).
+export async function addFollow(
+  follower: TestUser,
+  followee: TestUser,
+  status: "accepted" | "pending",
+) {
+  const { error } = await admin
+    .from("follows")
+    .upsert({ follower_id: follower.id, followee_id: followee.id, status });
+  if (error) throw error;
+}
