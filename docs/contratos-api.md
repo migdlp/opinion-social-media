@@ -43,6 +43,9 @@ Modelo de datos: el del [brief §5](brief-producto.md#5-modelo-de-datos-obligato
 | `USERNAME_RESERVED` | `upsert_my_profile` | Nombre de la lista reservada (`admin`, `settings`, `u`, `api`…) | «Ese usuario está reservado. Prueba con otro.» |
 | `DISPLAY_NAME_INVALID` | `upsert_my_profile` | Nombre visible normalizado fuera de 1–50 (vacío incluido; `null` es válido) | «El nombre debe tener entre 1 y 50 caracteres.» |
 | `PROFILE_REQUIRED` | `set_profile_privacy`; `create_poll` y `vote_poll` (trigger) | La cuenta aún no tiene perfil | «Elige primero tu usuario.» |
+| `USER_NOT_FOUND` | `follow_user`, `unfollow_user`, `respond_follow_request`, `remove_follower` | El `@usuario` no existe; en `respond_follow_request`, tampoco hay solicitud pendiente de esa cuenta | «No existe ese usuario.» |
+| `CANNOT_FOLLOW_SELF` | `follow_user` | El `@usuario` es el propio | «No puedes seguirte a ti mismo.» |
+| `FOLLOW_RATE_LIMITED` | `follow_user` | 200 seguimientos nuevos de la cuenta en 60 minutos (el límite cuenta filas creadas; repetir uno existente no cuenta) | «Has seguido a demasiadas cuentas. Inténtalo más tarde.» |
 | `NETWORK_ERROR` | Adaptador (cliente) | `fetch` falla o no llega respuesta | «No hay conexión. Comprueba tu red y vuelve a intentarlo.» |
 | `UNKNOWN` | Adaptador (cliente) | Cualquier otro error | «Algo ha fallado. Vuelve a intentarlo.» |
 
@@ -54,6 +57,7 @@ Orden de comprobación dentro de cada RPC (determina qué código gana si hay va
 - `report_poll`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `REPORT_INVALID` → `ALREADY_REPORTED` → `REPORT_RATE_LIMITED`.
 - `upsert_my_profile`: `AUTH_REQUIRED` → `USERNAME_INVALID` → `USERNAME_RESERVED` → `DISPLAY_NAME_INVALID` → `USERNAME_TAKEN`.
 - `set_profile_privacy`: `AUTH_REQUIRED` → `PROFILE_REQUIRED`.
+- `follow_user`: `AUTH_REQUIRED` → `PROFILE_REQUIRED` → `USER_NOT_FOUND` → `CANNOT_FOLLOW_SELF` → `FOLLOW_RATE_LIMITED`. `unfollow_user` y `remove_follower`: `AUTH_REQUIRED` → `USER_NOT_FOUND`. `respond_follow_request`: `AUTH_REQUIRED` → `USER_NOT_FOUND`.
 
 ## 3. RPC
 
@@ -128,10 +132,23 @@ public.set_profile_privacy(p_private boolean) returns void
 ```
 
 - `upsert_my_profile` crea o edita el perfil de `auth.uid()`; `username` se guarda en minúsculas y `display_name` se normaliza como en §1. No cambia `is_private`. Nunca devuelve `user_id`.
-- `set_profile_privacy` cambia `is_private`. Al pasar a pública deberá aceptar las solicitudes pendientes (hueco para V2-004).
+- `set_profile_privacy` cambia `is_private`. Al pasar a pública acepta todas las solicitudes pendientes (S-6, V2-004).
 - `get_my_profile()` (V2-002) → `table (username, display_name, is_private)` de la cuenta con sesión; ninguna fila si aún no tiene perfil. Es la forma de saber si hay perfil sin exponer `user_id`; la usa el callback de OAuth para enviar a `/onboarding`.
 - **Perfil obligatorio (S-1):** triggers `BEFORE INSERT` en `polls` y `votes` lanzan `PROFILE_REQUIRED` cuando hay sesión de cliente (`auth.uid()` no nulo) y el autor/votante no tiene perfil. `create_poll` y `vote_poll` no cambian. La interfaz lo convierte en un enlace a `/onboarding?next=…`.
 - Lectura directa: `profiles.select('username, display_name, is_private, created_at')` para `anon` y `authenticated`. `user_id` y `updated_at` no se conceden.
+
+### 3.6. Seguimiento (V2-004)
+
+```sql
+public.follow_user(p_username text) returns text                       -- 'accepted' | 'pending'
+public.unfollow_user(p_username text) returns void
+public.respond_follow_request(p_username text, p_accept boolean) returns void
+public.remove_follower(p_username text) returns void
+```
+
+- Todas por `@usuario` (sin distinguir mayúsculas), nunca por `user_id`. Exigen sesión; `follow_user` además exige perfil propio (`PROFILE_REQUIRED`, S-1).
+- `follow_user` es idempotente: cuenta pública → `accepted`; privada → `pending`. `unfollow_user` también cancela una solicitud pendiente. `respond_follow_request` lo ejecuta el **seguido** sobre la solicitud de `p_username`: aceptar la pasa a `accepted`, rechazar la borra. `remove_follower` borra la relación de un seguidor (o una solicitud) hacia la cuenta propia.
+- Lectura directa: `follows` solo para `authenticated`, solo las filas donde la cuenta es `follower_id` o `followee_id`. Los contadores públicos y las listas se sirven por RPC en V2-006/V2-009.
 
 ## 4. Lecturas directas (RLS)
 
@@ -196,6 +213,9 @@ export type AppErrorCode =
   | 'USERNAME_RESERVED'
   | 'DISPLAY_NAME_INVALID'
   | 'PROFILE_REQUIRED'
+  | 'USER_NOT_FOUND'
+  | 'CANNOT_FOLLOW_SELF'
+  | 'FOLLOW_RATE_LIMITED'
   | 'NETWORK_ERROR'
   | 'UNKNOWN'
 

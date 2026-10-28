@@ -13,7 +13,7 @@ begin
     assert not has_function_privilege('anon', r.oid, 'execute'), r.proname || ' ejecutable por anon';
     assert has_function_privilege('authenticated', r.oid, 'execute'), r.proname || ' no ejecutable por authenticated';
   end loop;
-  assert (select count(*) from pg_proc where pronamespace = 'public'::regnamespace and prorettype <> 'trigger'::regtype) = 7,
+  assert (select count(*) from pg_proc where pronamespace = 'public'::regnamespace and prorettype <> 'trigger'::regtype) = 11,
     'funciones en public distintas de las RPC previstas';
 
   -- Perfiles (V2-001): sólo se leen columnas públicas; user_id nunca.
@@ -22,6 +22,10 @@ begin
   assert not has_column_privilege('authenticated', 'public.profiles', 'user_id', 'select'), 'authenticated lee profiles.user_id';
   assert not has_function_privilege('anon', 'public.upsert_my_profile(text, text)', 'execute'), 'anon ejecuta upsert_my_profile';
   assert not has_function_privilege('anon', 'public.set_profile_privacy(boolean)', 'execute'), 'anon ejecuta set_profile_privacy';
+
+  -- Seguidores (V2-004): sólo authenticated lee follows, y nunca anon.
+  assert not has_table_privilege('anon', 'public.follows', 'select'), 'anon lee follows';
+  assert has_table_privilege('authenticated', 'public.follows', 'select'), 'authenticated no lee follows';
 
   -- Funciones de trigger: SECURITY DEFINER con search_path vacío y sin EXECUTE para clientes.
   for r in select p.oid, p.proname, p.prosecdef, p.proconfig from pg_proc p
