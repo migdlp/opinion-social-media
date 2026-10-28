@@ -13,8 +13,15 @@ begin
     assert not has_function_privilege('anon', r.oid, 'execute'), r.proname || ' ejecutable por anon';
     assert has_function_privilege('authenticated', r.oid, 'execute'), r.proname || ' no ejecutable por authenticated';
   end loop;
-  assert (select count(*) from pg_proc where pronamespace = 'public'::regnamespace) = 4,
-    'funciones en public distintas de create_poll, vote_poll, get_poll_results y report_poll';
+  assert (select count(*) from pg_proc where pronamespace = 'public'::regnamespace) = 6,
+    'funciones en public distintas de las RPC previstas';
+
+  -- Perfiles (V2-001): sólo se leen columnas públicas; user_id nunca.
+  assert has_column_privilege('anon', 'public.profiles', 'username', 'select'), 'anon no lee profiles.username';
+  assert not has_column_privilege('anon', 'public.profiles', 'user_id', 'select'), 'anon lee profiles.user_id';
+  assert not has_column_privilege('authenticated', 'public.profiles', 'user_id', 'select'), 'authenticated lee profiles.user_id';
+  assert not has_function_privilege('anon', 'public.upsert_my_profile(text, text)', 'execute'), 'anon ejecuta upsert_my_profile';
+  assert not has_function_privilege('anon', 'public.set_profile_privacy(boolean)', 'execute'), 'anon ejecuta set_profile_privacy';
 
   -- Tablas: ningún cliente escribe; anon no lee votes; nadie lee polls.user_id ni polls.status.
   for r in select c.relname, role from pg_class c, unnest(array['anon', 'authenticated']) as role

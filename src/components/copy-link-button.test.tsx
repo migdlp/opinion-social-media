@@ -13,9 +13,14 @@ function mockClipboard(writeText: ((text: string) => Promise<void>) | undefined)
   });
 }
 
+function mockShare(share: ((data: ShareData) => Promise<void>) | undefined) {
+  Object.defineProperty(navigator, "share", { configurable: true, value: share });
+}
+
 afterEach(() => {
   cleanup();
   mockClipboard(undefined);
+  mockShare(undefined);
 });
 
 describe("CopyLinkButton", () => {
@@ -61,5 +66,55 @@ describe("CopyLinkButton", () => {
       name: "Enlace de la encuesta",
     })) as HTMLInputElement;
     expect(field.value).toBe(url());
+  });
+
+  describe("hoja nativa de compartir (V2-018)", () => {
+    const QUESTION = "¿Tortilla con o sin cebolla?";
+
+    it("con navigator.share ofrece «Compartir» y comparte título y URL, nunca resultados", async () => {
+      const share = vi.fn<(data: ShareData) => Promise<void>>(async () => {});
+      mockShare(share);
+      render(<CopyLinkButton path={`/polls/${ID}`} title={QUESTION} />);
+
+      fireEvent.click(await screen.findByRole("button", { name: "Compartir" }));
+
+      await waitFor(() => expect(share).toHaveBeenCalledOnce());
+      expect(share).toHaveBeenCalledWith({ title: QUESTION, url: url() });
+      expect(screen.queryByRole("button", { name: "Copiar enlace" })).toBeNull();
+    });
+
+    it("si el usuario cancela la hoja no aparece ningún error ni mensaje", async () => {
+      mockShare(vi.fn(async () => Promise.reject(new DOMException("cancel", "AbortError"))));
+      mockClipboard(vi.fn(async () => {}));
+      render(<CopyLinkButton path={`/polls/${ID}`} title={QUESTION} />);
+
+      fireEvent.click(await screen.findByRole("button", { name: "Compartir" }));
+
+      await waitFor(() => expect(navigator.share).toHaveBeenCalled());
+      expect(screen.getByRole("status").textContent).toBe("");
+      expect(screen.queryByRole("alert")).toBeNull();
+      expect(navigator.clipboard.writeText).not.toHaveBeenCalled();
+    });
+
+    it("si la hoja falla por otro motivo, copia el enlace y lo confirma", async () => {
+      mockShare(vi.fn(async () => Promise.reject(new Error("no disponible"))));
+      const writeText = vi.fn(async () => {});
+      mockClipboard(writeText);
+      render(<CopyLinkButton path={`/polls/${ID}`} title={QUESTION} />);
+
+      fireEvent.click(await screen.findByRole("button", { name: "Compartir" }));
+
+      await screen.findByText("Enlace copiado");
+      expect(writeText).toHaveBeenCalledWith(url());
+    });
+
+    it("sin navigator.share sigue copiando el enlace", async () => {
+      mockClipboard(vi.fn(async () => {}));
+      render(<CopyLinkButton path={`/polls/${ID}`} title={QUESTION} />);
+
+      fireEvent.click(screen.getByRole("button", { name: "Copiar enlace" }));
+
+      await screen.findByText("Enlace copiado");
+    });
   });
 });

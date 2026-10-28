@@ -37,7 +37,7 @@ export function PollDetailView({
         {" · "}
         <time dateTime={poll.createdAt}>{formatApproximateDate(poll.createdAt, now)}</time>
       </p>
-      <CopyLinkButton path={`/polls/${poll.id}`} />
+      <CopyLinkButton path={`/polls/${poll.id}`} title={poll.question} />
     </article>
   );
 }

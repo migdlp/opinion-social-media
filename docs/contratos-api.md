@@ -36,6 +36,11 @@ Modelo de datos: el del [brief §5](brief-producto.md#5-modelo-de-datos-obligato
 | `ALREADY_REPORTED` | `report_poll` | La cuenta ya había denunciado esa encuesta | «Ya has denunciado esta encuesta.» |
 | `REPORT_RATE_LIMITED` | `report_poll` | 20 denuncias de la cuenta en los últimos 60 minutos | «Has enviado demasiadas denuncias. Inténtalo más tarde.» |
 | `REPORT_INVALID` | `report_poll` | Motivo ausente o fuera de la lista, o detalle de más de 500 caracteres | «Elige un motivo; el detalle admite hasta 500 caracteres.» |
+| `USERNAME_INVALID` | `upsert_my_profile` | `p_username` nulo o fuera de `^[a-z][a-z0-9_]{2,19}$` tras pasar a minúsculas (sin recortar espacios) | «El usuario debe tener de 3 a 20 caracteres (letras minúsculas, números o _) y empezar por una letra.» |
+| `USERNAME_TAKEN` | `upsert_my_profile` | Otro perfil ya usa ese `@usuario` (sin distinguir mayúsculas) | «Ese usuario ya está en uso. Prueba con otro.» |
+| `USERNAME_RESERVED` | `upsert_my_profile` | Nombre de la lista reservada (`admin`, `settings`, `u`, `api`…) | «Ese usuario está reservado. Prueba con otro.» |
+| `DISPLAY_NAME_INVALID` | `upsert_my_profile` | Nombre visible normalizado fuera de 1–50 (vacío incluido; `null` es válido) | «El nombre debe tener entre 1 y 50 caracteres.» |
+| `PROFILE_REQUIRED` | `set_profile_privacy` | La cuenta aún no tiene perfil | «Elige primero tu usuario.» |
 | `NETWORK_ERROR` | Adaptador (cliente) | `fetch` falla o no llega respuesta | «No hay conexión. Comprueba tu red y vuelve a intentarlo.» |
 | `UNKNOWN` | Adaptador (cliente) | Cualquier otro error | «Algo ha fallado. Vuelve a intentarlo.» |
 
@@ -45,10 +50,12 @@ Orden de comprobación dentro de cada RPC (determina qué código gana si hay va
 - `vote_poll`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `OPTION_INVALID` → `ALREADY_VOTED`.
 - `get_poll_results`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `NOT_VOTED`. Ningún agregado se calcula antes de superar las tres.
 - `report_poll`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `REPORT_INVALID` → `ALREADY_REPORTED` → `REPORT_RATE_LIMITED`.
+- `upsert_my_profile`: `AUTH_REQUIRED` → `USERNAME_INVALID` → `USERNAME_RESERVED` → `DISPLAY_NAME_INVALID` → `USERNAME_TAKEN`.
+- `set_profile_privacy`: `AUTH_REQUIRED` → `PROFILE_REQUIRED`.
 
 ## 3. RPC
 
-Las tres funciones: `EXECUTE` sólo para `authenticated`, revocado a `PUBLIC` y `anon`. Si son `SECURITY DEFINER`, llevan `SET search_path = ''` y referencias cualificadas (`public.polls`). Detalle de endurecimiento en MVP-020.
+Las funciones: `EXECUTE` sólo para `authenticated`, revocado a `PUBLIC` y `anon`. Si son `SECURITY DEFINER`, llevan `SET search_path = ''` y referencias cualificadas (`public.polls`). Detalle de endurecimiento en MVP-020.
 
 ### 3.1. `create_poll`
 
@@ -108,6 +115,17 @@ public.report_poll(p_poll_id uuid, p_reason text, p_details text default null) r
 
 - Motivos: `spam`, `odio`, `acoso`, `sexual`, `violencia`, `otro`. `p_details` (opcional, ≤ 500) se normaliza; vacío se guarda como `null`.
 - Guarda una fila en `poll_reports` (única por encuesta y denunciante; máx. 20 por hora y cuenta). Sólo se puede denunciar una encuesta publicada. La tabla no es legible ni escribible por clientes; no se oculta nada automáticamente (S-8): ver [moderacion.md](moderacion.md).
+### 3.4. `upsert_my_profile` y `set_profile_privacy` (V2-001)
+
+```sql
+public.upsert_my_profile(p_username text, p_display_name text)
+  returns table (username text, display_name text, is_private boolean, created_at timestamptz)
+public.set_profile_privacy(p_private boolean) returns void
+```
+
+- `upsert_my_profile` crea o edita el perfil de `auth.uid()`; `username` se guarda en minúsculas y `display_name` se normaliza como en §1. No cambia `is_private`. Nunca devuelve `user_id`.
+- `set_profile_privacy` cambia `is_private`. Al pasar a pública deberá aceptar las solicitudes pendientes (hueco para V2-004).
+- Lectura directa: `profiles.select('username, display_name, is_private, created_at')` para `anon` y `authenticated`. `user_id` y `updated_at` no se conceden.
 
 ## 4. Lecturas directas (RLS)
 
@@ -165,6 +183,11 @@ export type AppErrorCode =
   | 'ALREADY_REPORTED'
   | 'REPORT_RATE_LIMITED'
   | 'REPORT_INVALID'
+  | 'USERNAME_INVALID'
+  | 'USERNAME_TAKEN'
+  | 'USERNAME_RESERVED'
+  | 'DISPLAY_NAME_INVALID'
+  | 'PROFILE_REQUIRED'
   | 'NETWORK_ERROR'
   | 'UNKNOWN'
 
