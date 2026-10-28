@@ -128,4 +128,12 @@ export type DatabaseContractChecks = [
       { p_username: string; p_cursor?: string }
     >
   >,
+  Assert<Equal<Public["Functions"]["count_follow_requests"]["Returns"], number>>,
+  Assert<Equal<Public["Functions"]["list_follow_requests"]["Args"], { p_cursor?: string }>>,
+  Assert<
+    Equal<Public["Functions"]["list_followers"]["Args"], { p_username: string; p_cursor?: string }>
+  >,
+  Assert<
+    Equal<Public["Functions"]["list_following"]["Args"], { p_username: string; p_cursor?: string }>
+  >,
 ];

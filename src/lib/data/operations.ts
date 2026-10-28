@@ -8,6 +8,7 @@ import { getFeedPolls, getOwnVoteOptionId, getPublicPoll, getPublicPollsByIds } 
 import type {
   Category,
   FeedPage,
+  FollowPage,
   PollDetail,
   PollResults,
   PollViewerState,
@@ -483,6 +484,99 @@ export function followUser(
 export function unfollowUser(supabase: SupabaseClient, username: string): Promise<Result<void>> {
   return guard(async () => {
     const { error } = await supabase.rpc("unfollow_user", { p_username: username });
+    if (error) return { ok: false, error: toAppError(error) };
+    return { ok: true, data: undefined };
+  });
+}
+
+export const FOLLOW_PAGE_SIZE = 30;
+
+type FollowRow = { username: string; display_name: string | null; cursor: string };
+
+// Páginas de 30 (V2-009): la RPC devuelve una fila más para saber si hay página siguiente.
+function toFollowPage(data: unknown): FollowPage {
+  const rows = (data ?? []) as FollowRow[];
+  const page = rows.slice(0, FOLLOW_PAGE_SIZE);
+  return {
+    users: page.map((row) => ({ username: row.username, displayName: row.display_name })),
+    nextCursor: rows.length > FOLLOW_PAGE_SIZE ? page[page.length - 1].cursor : null,
+  };
+}
+
+// Seguidores aceptados de @username. Errores: USER_NOT_FOUND, PROFILE_PRIVATE.
+export function listFollowers(
+  supabase: SupabaseClient,
+  username: string,
+  cursor?: string | null,
+): Promise<Result<FollowPage>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("list_followers", {
+      p_username: username,
+      p_cursor: cursor ?? null,
+    });
+    if (error) return { ok: false, error: toAppError(error) };
+    return { ok: true, data: toFollowPage(data) };
+  });
+}
+
+// Cuentas que sigue @username (relaciones aceptadas). Errores: USER_NOT_FOUND, PROFILE_PRIVATE.
+export function listFollowing(
+  supabase: SupabaseClient,
+  username: string,
+  cursor?: string | null,
+): Promise<Result<FollowPage>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("list_following", {
+      p_username: username,
+      p_cursor: cursor ?? null,
+    });
+    if (error) return { ok: false, error: toAppError(error) };
+    return { ok: true, data: toFollowPage(data) };
+  });
+}
+
+// Solicitudes pendientes recibidas por la cuenta con sesión. Sin sesión: AUTH_REQUIRED.
+export function listFollowRequests(
+  supabase: SupabaseClient,
+  cursor?: string | null,
+): Promise<Result<FollowPage>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("list_follow_requests", {
+      p_cursor: cursor ?? null,
+    });
+    if (error) return { ok: false, error: toAppError(error) };
+    return { ok: true, data: toFollowPage(data) };
+  });
+}
+
+export function countFollowRequests(supabase: SupabaseClient): Promise<Result<number>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("count_follow_requests");
+    if (error) return { ok: false, error: toAppError(error) };
+    return { ok: true, data: Number(data ?? 0) };
+  });
+}
+
+// Acepta o rechaza la solicitud pendiente de @username. Sin solicitud: USER_NOT_FOUND.
+export function respondFollowRequest(
+  supabase: SupabaseClient,
+  username: string,
+  accept: boolean,
+): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("respond_follow_request", {
+      p_username: username,
+      p_accept: accept,
+    });
+    if (error) return { ok: false, error: toAppError(error) };
+    return { ok: true, data: undefined };
+  });
+}
+
+// Elimina a @username de los seguidores propios. Idempotente.
+export function removeFollower(supabase: SupabaseClient, username: string): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("remove_follower", { p_username: username });
     if (error) return { ok: false, error: toAppError(error) };
     return { ok: true, data: undefined };
   });

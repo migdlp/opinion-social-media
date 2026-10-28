@@ -50,4 +50,32 @@ describe("ProfileHeader", () => {
     render(<ProfileHeader profile={{ ...PROFILE, viewerRelation: "self" }} {...props} />);
     expect(screen.getByRole("link", { name: "Editar perfil" })).toBeDefined();
   });
+
+  it("en el perfil propio con solicitudes pendientes enlaza a la bandeja con el número", () => {
+    render(
+      <ProfileHeader
+        profile={{ ...PROFILE, viewerRelation: "self" }}
+        pendingRequests={3}
+        {...props}
+      />,
+    );
+    const link = screen.getByRole("link", { name: "Solicitudes de seguimiento: 3 pendientes" });
+    expect(link.getAttribute("href")).toBe("/solicitudes");
+  });
+
+  it("sin solicitudes pendientes el propio perfil enlaza a la bandeja sin indicador", () => {
+    render(
+      <ProfileHeader
+        profile={{ ...PROFILE, viewerRelation: "self" }}
+        pendingRequests={0}
+        {...props}
+      />,
+    );
+    expect(screen.getByRole("link", { name: "Solicitudes de seguimiento" })).toBeDefined();
+  });
+
+  it("en el perfil de otra persona nunca aparece la bandeja", () => {
+    render(<ProfileHeader profile={PROFILE} pendingRequests={5} {...props} />);
+    expect(screen.queryByRole("link", { name: /Solicitudes/ })).toBeNull();
+  });
 });

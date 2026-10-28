@@ -7,6 +7,8 @@ const number = new Intl.NumberFormat("es-ES", { useGrouping: "always" });
 
 type ProfileHeaderProps = {
   profile: ProfileView;
+  // Solicitudes de seguimiento pendientes; sólo se muestra en el perfil propio (V2-009).
+  pendingRequests?: number;
   signedIn: boolean;
   onFollow: (username: string) => Promise<Result<"accepted" | "pending">>;
   onUnfollow: (username: string) => Promise<Result<void>>;
@@ -14,7 +16,13 @@ type ProfileHeaderProps = {
 
 // Cabecera del perfil (V2-006): avatar de iniciales, nombre visible, @usuario, contadores (que
 // enlazan a las listas de V2-009; son públicos también en cuentas privadas, S-4) y botón de seguir.
-export function ProfileHeader({ profile, signedIn, onFollow, onUnfollow }: ProfileHeaderProps) {
+export function ProfileHeader({
+  profile,
+  pendingRequests = 0,
+  signedIn,
+  onFollow,
+  onUnfollow,
+}: ProfileHeaderProps) {
   const base = `/u/${profile.username}`;
   return (
     <header className="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-5">
@@ -54,13 +62,36 @@ export function ProfileHeader({ profile, signedIn, onFollow, onUnfollow }: Profi
           <span className="text-muted">{profile.pollsCount === 1 ? "encuesta" : "encuestas"}</span>
         </li>
       </ul>
-      <FollowButton
-        username={profile.username}
-        relation={profile.viewerRelation}
-        signedIn={signedIn}
-        onFollow={onFollow}
-        onUnfollow={onUnfollow}
-      />
+      <div className="flex flex-wrap items-center gap-3">
+        <FollowButton
+          username={profile.username}
+          relation={profile.viewerRelation}
+          signedIn={signedIn}
+          onFollow={onFollow}
+          onUnfollow={onUnfollow}
+        />
+        {profile.viewerRelation === "self" && (
+          <Link
+            href="/solicitudes"
+            aria-label={
+              pendingRequests > 0
+                ? `Solicitudes de seguimiento: ${pendingRequests} ${pendingRequests === 1 ? "pendiente" : "pendientes"}`
+                : "Solicitudes de seguimiento"
+            }
+            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-field px-5 text-sm font-semibold transition-colors hover:border-foreground"
+          >
+            Solicitudes
+            {pendingRequests > 0 && (
+              <span
+                aria-hidden="true"
+                className="rounded-full bg-foreground px-2 text-[12px] leading-5 text-background tabular-nums"
+              >
+                {number.format(pendingRequests)}
+              </span>
+            )}
+          </Link>
+        )}
+      </div>
     </header>
   );
 }
