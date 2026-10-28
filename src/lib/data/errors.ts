@@ -18,6 +18,7 @@ export const ERROR_MESSAGES: Record<AppErrorCode, string> = {
   REPORT_INVALID: "Elige un motivo; el detalle admite hasta 500 caracteres.",
   INVALID_CLOSES_AT: "El cierre debe estar entre 1 hora y 30 días desde ahora.",
   POLL_CLOSED: "Esta encuesta ya está cerrada y no admite votos.",
+  INVALID_CATEGORY: "Elige una categoría válida.",
   USERNAME_INVALID:
     "El usuario debe tener de 3 a 20 caracteres (letras minúsculas, números o _) y empezar por una letra.",
   USERNAME_TAKEN: "Ese nombre ya está en uso.",
@@ -49,6 +50,7 @@ const RPC_CODES = new Set<string>([
   "REPORT_INVALID",
   "INVALID_CLOSES_AT",
   "POLL_CLOSED",
+  "INVALID_CATEGORY",
   "USERNAME_INVALID",
   "USERNAME_TAKEN",
   "USERNAME_RESERVED",

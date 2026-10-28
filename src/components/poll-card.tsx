@@ -21,6 +21,14 @@ export function PollCard({ poll, viewer, now = new Date() }: PollCardProps) {
   const closed = isClosed(poll.closesAt, now);
   return (
     <article className="relative flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4 transition-colors focus-within:border-foreground hover:border-bar-muted">
+      {poll.category && (
+        <p
+          data-category
+          className="self-start rounded-full border border-border px-2.5 py-0.5 text-[12px] font-medium text-muted"
+        >
+          {poll.category.name}
+        </p>
+      )}
       <div className="flex items-start justify-between gap-2">
         <h2 className="text-[17px] leading-snug font-semibold tracking-[-0.01em]">
           <Link

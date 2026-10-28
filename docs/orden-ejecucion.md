@@ -93,3 +93,7 @@ Este orden es una ordenación válida del grafo de dependencias y orienta la eje
 - **Completada:** criterios verificados y evidencias enlazadas; conservar el agente que la completó.
 
 Un agente que libere una tarea debe devolverla a Pendiente y retirar su reserva explícitamente. Un traspaso conserva trazabilidad. El procedimiento obligatorio está en [AGENTS.md](../AGENTS.md).
+
+## Feed aprobado (V2-031–036)
+
+Prioridad P0 para el nuevo feed; no cambia las condiciones del MVP original. Tras cerrar V2-030 y cumplir las dependencias, se pueden tomar V2-031 (lecturas/permisos/categoría/24h) y V2-033 (voto en tarjeta) en paralelo. Después V2-032 (pestañas y categorías), V2-034 (scroll y botón), V2-035 (seguridad, también depende de V2-024) y V2-036 (E2E y documentación). Consultar el [mapa](backlog-v2.md#4-mapa-de-dependencias) y las reservas de main: no iniciar tareas ajenas ni saltar dependencias. V2-023 conserva P1; optimizar por lotes no bloquea este feed.

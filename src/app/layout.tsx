@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import { Header } from "@/components/header";
+import { Suspense } from "react";
+import { MobileNavigation, MobileNavigationFallback } from "@/components/mobile-navigation";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -11,7 +13,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="es" className={`${GeistSans.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col">
+      <body className="flex min-h-full flex-col pb-[calc(5rem+env(safe-area-inset-bottom))] sm:pb-0">
         <a
           href="#contenido"
           className="sr-only rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-20"
@@ -25,6 +27,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           {children}
         </main>
+        <Suspense fallback={<MobileNavigationFallback />}>
+          <MobileNavigation />
+        </Suspense>
       </body>
     </html>
   );

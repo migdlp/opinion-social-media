@@ -4,14 +4,21 @@ import Link from "next/link";
 import { useId, useRef, useState } from "react";
 import { loginPath, onboardingPath } from "@/lib/auth/redirect";
 import { ERROR_MESSAGES } from "@/lib/data/errors";
-import type { AppErrorCode, Result } from "@/lib/data/types";
+import type { AppErrorCode, Category, Result } from "@/lib/data/types";
 import { normalizeText } from "@/lib/utils/text";
 import { hasErrors, type PollInputErrors, validatePollInput } from "@/lib/validation/poll";
 
 // closesAt: instante ISO en UTC; ausente si la encuesta no cierra (V2-013).
-export type PollCreationInput = { question: string; options: string[]; closesAt?: string };
+export type PollCreationInput = {
+  question: string;
+  options: string[];
+  closesAt?: string;
+  category?: string;
+};
 
 type PollCreationFormProps = {
+  // Lista cerrada de categorías (V2-021). Vacía: no se muestra el selector.
+  categories?: Category[];
   onSubmit: (input: PollCreationInput) => Promise<Result<{ id: string }>>;
   onPublished: (id: string) => void;
   // Tras una caída de red: ¿se llegó a publicar? Evita crear un duplicado al reintentar.
@@ -54,13 +61,19 @@ const fieldClass =
 // en el navegador ni en la base de datos (D-007). Publicar es responsabilidad de quien
 // pasa onSubmit; si falla, los campos se conservan para reintentar. Un solo envío a la vez
 // (MVP-032). Tras publicar con éxito, onPublished recibe el id de la nueva encuesta.
-export function PollCreationForm({ onSubmit, onPublished, onRecover }: PollCreationFormProps) {
+export function PollCreationForm({
+  onSubmit,
+  onPublished,
+  onRecover,
+  categories = [],
+}: PollCreationFormProps) {
   const id = useId();
   const [question, setQuestion] = useState("");
   const [options, setOptions] = useState<string[]>(Array(MIN_OPTIONS).fill(""));
   const [closeChoice, setCloseChoice] = useState("none");
   const [customClose, setCustomClose] = useState("");
   const [closeError, setCloseError] = useState(false);
+  const [category, setCategory] = useState("");
   const [errors, setErrors] = useState<PollInputErrors | null>(null);
   const [pending, setPending] = useState(false);
   const [failure, setFailure] = useState<AppErrorCode | null>(null);
@@ -102,6 +115,7 @@ export function PollCreationForm({ onSubmit, onPublished, onRecover }: PollCreat
       question: normalizeText(question),
       options: options.map(normalizeText),
       ...(closesAt ? { closesAt } : {}),
+      ...(category ? { category } : {}),
     };
     // Tras una caída de red la publicación quizá se completó: se consulta el servidor antes
     // de volver a enviar. Si la consulta tampoco llega, se espera a que haya conexión.
@@ -220,6 +234,27 @@ export function PollCreationForm({ onSubmit, onPublished, onRecover }: PollCreat
           </button>
         )}
       </fieldset>
+
+      {categories.length > 0 && (
+        <div className="flex flex-col gap-1">
+          <label htmlFor={`${id}-category`} className="text-[15px] font-semibold">
+            Categoría (opcional)
+          </label>
+          <select
+            id={`${id}-category`}
+            value={category}
+            onChange={(event) => setCategory(event.target.value)}
+            className={fieldClass}
+          >
+            <option value="">Sin categoría</option>
+            {categories.map((option) => (
+              <option key={option.slug} value={option.slug}>
+                {option.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <div className="flex flex-col gap-1">
         <label htmlFor={`${id}-close`} className="text-[15px] font-semibold">

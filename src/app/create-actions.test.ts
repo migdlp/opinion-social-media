@@ -27,6 +27,7 @@ describe("publishPoll", () => {
       "¿Qué tomas por la mañana?",
       ["Café", "Té"],
       undefined,
+      undefined,
     ]);
     expect(res).toEqual({ ok: true, data: { id: "p1" } });
   });
@@ -38,6 +39,18 @@ describe("publishPoll", () => {
       "¿Qué tomas por la mañana?",
       ["Café", "Té"],
       "2026-10-28T10:00:00.000Z",
+      undefined,
+    ]);
+  });
+
+  it("pasa la categoría elegida a create_poll", async () => {
+    await publishPoll("¿Qué tomas por la mañana?", ["Café", "Té"], undefined, "ciencia");
+
+    expect(createPoll.mock.calls[0].slice(1)).toEqual([
+      "¿Qué tomas por la mañana?",
+      ["Café", "Té"],
+      undefined,
+      "ciencia",
     ]);
   });
 

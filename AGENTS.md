@@ -11,6 +11,12 @@ La implementación se pausó (D-005) y se **reanudó el 26 de octubre de 2026** 
 - No guardar secretos, tokens ni claves administrativas en Git.
 - Informar del avance en español y registrar cualquier bloqueo real.
 
+## Dirección creativa obligatoria para todas las IAs
+
+El propietario ha elegido provisionalmente el estilo **After Sunset de la lámina PEEK** (D-026, 28-10-2026). Antes de cualquier tarea visual, leer [PRODUCT.md](PRODUCT.md), [DESIGN.md](DESIGN.md) y [la referencia descrita](docs/direccion-creativa.md). Esa dirección sustituye el monocromo anterior: azul noche, blanco frío, CTA melocotón y lavanda; curiosidad, mirada y revelación, con ambos temas accesibles.
+
+Aplicarla dentro del alcance de la tarea reservada y coordinar tokens compartidos por #73. La imagen no autoriza nuevas funciones ni revoca perfiles/privacidad o el feed acordado. PEEK es la referencia creativa; no hay cambio de nombre confirmado. Esta actualización documental no acredita que el CSS haya sido migrado ni permite desplegar. Las instrucciones visuales históricas contradictorias ceden ante D-026; las reglas funcionales y de seguridad siguen vigentes.
+
 ## Contexto obligatorio de conexión a Supabase
 
 La organización de Supabase de este proyecto es **Los tres cerditos**, ID `drifadkhohwebqljdlvw`, región **Irlanda (`eu-west-1`)**. Estos proyectos ya existen: no crear otra organización ni otros proyectos para sustituirlos si falta acceso.
