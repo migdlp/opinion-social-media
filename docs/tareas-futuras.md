@@ -134,6 +134,12 @@ Tareas de [backlog-v2.md](backlog-v2.md), con el mismo protocolo de reserva. Ant
 | [V2-035](https://github.com/migdlp/opinion-social-media/issues/182) | Ataques a la privacidad del nuevo feed | P0 | V2-031, V2-033, V2-024 | Pendiente | — |
 | [V2-036](https://github.com/migdlp/opinion-social-media/issues/183) | E2E y cierre del feed | P0 | V2-032, V2-033, V2-034, V2-035 | Pendiente | — |
 
+## Coordinación de diseño
+
+| ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
+|---|---|---|---|---|---|
+| [DESIGN-001](https://github.com/migdlp/opinion-social-media/issues/185) | Registrar y comunicar dirección creativa After Sunset | P0 | — | En progreso | Codex /root (opinion_social_media) |
+
 ## Condición de cierre
 
 Cada tarea requiere evidencia de sus criterios de aceptación antes de pasar a completada. Crear documentos, escribir un borrador o disponer de acceso a un servicio no basta. MVP-051 permanece pendiente hasta verificar todas las condiciones obligatorias del checklist global del backlog.
