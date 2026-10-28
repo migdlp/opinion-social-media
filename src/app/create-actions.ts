@@ -11,12 +11,13 @@ import { createClient } from "@/lib/supabase/server";
 export async function publishPoll(
   question: string,
   options: string[],
+  closesAt?: string | null,
 ): Promise<Result<{ id: string }>> {
   try {
     const supabase = await createClient();
     const { data } = await supabase.auth.getUser();
     if (!data.user) return { ok: false, error: "AUTH_REQUIRED" };
-    return await createPoll(supabase, question, options);
+    return await createPoll(supabase, question, options, closesAt);
   } catch (error) {
     return { ok: false, error: toAppError(error) };
   }

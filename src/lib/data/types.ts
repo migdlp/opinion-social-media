@@ -14,6 +14,8 @@ export type AppErrorCode =
   | "ALREADY_REPORTED"
   | "REPORT_RATE_LIMITED"
   | "REPORT_INVALID"
+  | "INVALID_CLOSES_AT"
+  | "POLL_CLOSED"
   | "USERNAME_INVALID"
   | "USERNAME_TAKEN"
   | "USERNAME_RESERVED"
@@ -34,6 +36,8 @@ export interface PublicPoll {
   id: string;
   question: string;
   createdAt: string;
+  // Cierre opcional (V2-013): desde esta fecha no se admiten votos.
+  closesAt?: string | null;
   options: PollOption[];
 }
 

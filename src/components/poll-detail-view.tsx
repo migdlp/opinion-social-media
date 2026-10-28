@@ -2,7 +2,7 @@ import { CopyLinkButton } from "@/components/copy-link-button";
 import { PollVoting } from "@/components/poll-voting";
 import { ReportPoll } from "@/components/report-poll";
 import type { PollDetail, PollResults, Result } from "@/lib/data/types";
-import { formatApproximateDate } from "@/lib/utils/date";
+import { formatApproximateDate, formatCloseStatus, isClosed } from "@/lib/utils/date";
 
 type PollDetailViewProps = {
   detail: PollDetail;
@@ -31,11 +31,18 @@ export function PollDetailView({
         viewer={detail.viewer}
         castVote={castVote}
         loadOwnVote={loadOwnVote}
+        closed={isClosed(poll.closesAt, now)}
       />
       <p className="text-[13px] text-muted">
         <span>Anónimo</span>
         {" · "}
         <time dateTime={poll.createdAt}>{formatApproximateDate(poll.createdAt, now)}</time>
+        {poll.closesAt && (
+          <>
+            {" · "}
+            <time dateTime={poll.closesAt}>{formatCloseStatus(poll.closesAt, now)}</time>
+          </>
+        )}
       </p>
       <CopyLinkButton path={`/polls/${poll.id}`} title={poll.question} />
     </article>

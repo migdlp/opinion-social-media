@@ -9,7 +9,7 @@ export function CreatePoll() {
   const router = useRouter();
   return (
     <PollCreationForm
-      onSubmit={({ question, options }) => publishPoll(question, options)}
+      onSubmit={({ question, options, closesAt }) => publishPoll(question, options, closesAt)}
       onRecover={({ question, options }) => findPublishedPoll(question, options)}
       onPublished={(id) => router.push(`/polls/${id}`)}
     />

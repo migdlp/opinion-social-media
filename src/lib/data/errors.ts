@@ -16,6 +16,8 @@ export const ERROR_MESSAGES: Record<AppErrorCode, string> = {
   ALREADY_REPORTED: "Ya has denunciado esta encuesta.",
   REPORT_RATE_LIMITED: "Has enviado demasiadas denuncias. Inténtalo más tarde.",
   REPORT_INVALID: "Elige un motivo; el detalle admite hasta 500 caracteres.",
+  INVALID_CLOSES_AT: "El cierre debe estar entre 1 hora y 30 días desde ahora.",
+  POLL_CLOSED: "Esta encuesta ya está cerrada y no admite votos.",
   USERNAME_INVALID:
     "El usuario debe tener de 3 a 20 caracteres (letras minúsculas, números o _) y empezar por una letra.",
   USERNAME_TAKEN: "Ese usuario ya está en uso. Prueba con otro.",
@@ -41,6 +43,8 @@ const RPC_CODES = new Set<string>([
   "ALREADY_REPORTED",
   "REPORT_RATE_LIMITED",
   "REPORT_INVALID",
+  "INVALID_CLOSES_AT",
+  "POLL_CLOSED",
   "USERNAME_INVALID",
   "USERNAME_TAKEN",
   "USERNAME_RESERVED",

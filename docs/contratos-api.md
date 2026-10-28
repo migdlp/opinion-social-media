@@ -28,6 +28,8 @@ Modelo de datos: el del [brief §5](brief-producto.md#5-modelo-de-datos-obligato
 | `VALIDATION_OPTION_COUNT` | `create_poll` | `p_options` nulo o con menos de 2 / más de 6 elementos | «Añade entre 2 y 6 opciones.» |
 | `VALIDATION_OPTION_LENGTH` | `create_poll` | Alguna opción normalizada fuera de 1–100 (incluye vacías) | «Cada opción debe tener entre 1 y 100 caracteres.» |
 | `VALIDATION_OPTION_DUPLICATE` | `create_poll` | Dos opciones iguales según §1 | «Hay opciones repetidas.» |
+| `INVALID_CLOSES_AT` | `create_poll` | `p_closes_at` fuera de [ahora + 1 hora, ahora + 30 días] | «El cierre debe estar entre 1 hora y 30 días desde ahora.» |
+| `POLL_CLOSED` | `vote_poll` (trigger en `votes`) | `now() >= closes_at`; gana también sobre `ALREADY_VOTED` | «Esta encuesta ya está cerrada y no admite votos.» |
 | `RATE_LIMITED` | `create_poll` | Ya hay 5 encuestas de la cuenta en los últimos 60 minutos | «Has alcanzado el límite de 5 encuestas por hora. Inténtalo más tarde.» |
 | `POLL_UNAVAILABLE` | `vote_poll`, `get_poll_results`, detalle | UUID mal formado, inexistente u oculto; no se distingue entre ellos | «Esta encuesta no está disponible.» |
 | `OPTION_INVALID` | `vote_poll` | La opción no existe o pertenece a otra encuesta | «Esa opción no es válida para esta encuesta.» |
@@ -46,8 +48,8 @@ Modelo de datos: el del [brief §5](brief-producto.md#5-modelo-de-datos-obligato
 
 Orden de comprobación dentro de cada RPC (determina qué código gana si hay varios fallos):
 
-- `create_poll`: `AUTH_REQUIRED` → `VALIDATION_OPTION_COUNT` → `VALIDATION_QUESTION_LENGTH` → `VALIDATION_OPTION_LENGTH` → `VALIDATION_OPTION_DUPLICATE` → `RATE_LIMITED`.
-- `vote_poll`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `OPTION_INVALID` → `ALREADY_VOTED`.
+- `create_poll`: `AUTH_REQUIRED` → `VALIDATION_OPTION_COUNT` → `VALIDATION_QUESTION_LENGTH` → `VALIDATION_OPTION_LENGTH` → `VALIDATION_OPTION_DUPLICATE` → `INVALID_CLOSES_AT` → `RATE_LIMITED`.
+- `vote_poll`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `OPTION_INVALID` → `POLL_CLOSED` → `ALREADY_VOTED`.
 - `get_poll_results`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `NOT_VOTED`. Ningún agregado se calcula antes de superar las tres.
 - `report_poll`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `REPORT_INVALID` → `ALREADY_REPORTED` → `REPORT_RATE_LIMITED`.
 - `upsert_my_profile`: `AUTH_REQUIRED` → `USERNAME_INVALID` → `USERNAME_RESERVED` → `DISPLAY_NAME_INVALID` → `USERNAME_TAKEN`.
@@ -60,12 +62,13 @@ Las funciones: `EXECUTE` sólo para `authenticated`, revocado a `PUBLIC` y `anon
 ### 3.1. `create_poll`
 
 ```sql
-public.create_poll(p_question text, p_options text[]) returns uuid
+public.create_poll(p_question text, p_options text[], p_closes_at timestamptz default null) returns uuid
 ```
 
 - Normaliza y valida según §1 y §2; el orden del array define `position` 1..n.
 - Inserta `polls` (`status = 'published'`, `user_id = auth.uid()`, `created_at = now()`) y sus opciones en la misma transacción. Cualquier error revierte todo.
 - Cuota: cuenta las encuestas de `auth.uid()` con `created_at > now() - interval '60 minutes'` tras serializar por cuenta (p. ej. `pg_advisory_xact_lock` sobre el usuario). La técnica concreta se decide en MVP-015; el contrato sólo fija `RATE_LIMITED`.
+- `p_closes_at` (V2-013, opcional): si se indica debe estar entre 1 hora y 30 días desde ahora (`INVALID_CLOSES_AT`). Se guarda en `polls.closes_at` y no se puede editar. La firma de dos argumentos sigue valiendo.
 - Devuelve el `id` de la encuesta.
 
 ```ts
@@ -86,6 +89,7 @@ public.vote_poll(p_poll_id uuid, p_option_id uuid)
 - Inserta en `votes` con `user_id = auth.uid()`. El duplicado se resuelve con `UNIQUE(poll_id,user_id)` (p. ej. `ON CONFLICT DO NOTHING`); si no se insertó fila, `ALREADY_VOTED`. Dos peticiones simultáneas producen un voto y un `ALREADY_VOTED`.
 - Devuelve una fila con el voto creado (llamar con `.single()`). No devuelve recuentos: los resultados se piden con `get_poll_results`.
 - El autor puede votar en su encuesta con las mismas reglas.
+- Encuesta cerrada (`closes_at <= now()`): el trigger `votes_reject_closed_poll` (BEFORE INSERT) rechaza con `POLL_CLOSED`; `vote_poll` no cambia.
 
 ### 3.3. `get_poll_results`
 
@@ -140,7 +144,7 @@ No son RPC: el adaptador consulta tablas con el SDK. RLS (MVP-011, MVP-012) limi
 ```ts
 let q = supabase
   .from('polls')
-  .select('id, question, created_at, poll_options(id, text, position)')
+  .select('id, question, created_at, closes_at, poll_options(id, text, position)')
   .order('created_at', { ascending: false })
   .order('id', { ascending: false })
   .order('position', { referencedTable: 'poll_options', ascending: true })
@@ -156,7 +160,7 @@ La fecha va entre comillas dobles porque contiene `:` y `.`, caracteres reservad
 ### 4.2. Detalle (MVP-019)
 
 1. Si `id` no es un UUID válido → `POLL_UNAVAILABLE` sin consultar (evita el error `22P02`).
-2. `polls.select('id, question, created_at, poll_options(id, text, position)').eq('id', id).maybeSingle()`; `null` → `POLL_UNAVAILABLE` (inexistente u oculta, indistinguibles). La ruta responde 404.
+2. `polls.select('id, question, created_at, closes_at, poll_options(id, text, position)').eq('id', id).maybeSingle()`; `null` → `POLL_UNAVAILABLE` (inexistente u oculta, indistinguibles). La ruta responde 404.
 3. Con sesión: `votes.select('option_id').eq('poll_id', id).maybeSingle()` → opción propia o `null`.
 4. Si hay voto propio: `get_poll_results`. Si no, no se llama.
 
@@ -183,6 +187,8 @@ export type AppErrorCode =
   | 'ALREADY_REPORTED'
   | 'REPORT_RATE_LIMITED'
   | 'REPORT_INVALID'
+  | 'INVALID_CLOSES_AT'
+  | 'POLL_CLOSED'
   | 'USERNAME_INVALID'
   | 'USERNAME_TAKEN'
   | 'USERNAME_RESERVED'
@@ -203,6 +209,7 @@ export interface PublicPoll {
   id: string
   question: string
   createdAt: string // ISO 8601
+  closesAt?: string | null // ISO 8601; V2-013, null/ausente = sin cierre
   options: PollOption[] // ordenadas por position
 }
 

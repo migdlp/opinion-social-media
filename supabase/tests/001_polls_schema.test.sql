@@ -6,7 +6,7 @@ declare cols text;
 begin
   select string_agg(column_name || ':' || data_type, ',' order by ordinal_position) into cols
   from information_schema.columns where table_schema = 'public' and table_name = 'polls';
-  assert cols = 'id:uuid,user_id:uuid,question:text,status:text,created_at:timestamp with time zone',
+  assert cols = 'id:uuid,user_id:uuid,question:text,status:text,created_at:timestamp with time zone,closes_at:timestamp with time zone',
     'columnas de polls: ' || cols;
 
   select string_agg(column_name || ':' || data_type, ',' order by ordinal_position) into cols

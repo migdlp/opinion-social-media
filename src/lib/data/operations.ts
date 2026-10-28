@@ -87,11 +87,13 @@ export function createPoll(
   supabase: SupabaseClient,
   question: string,
   options: string[],
+  closesAt?: string | null,
 ): Promise<Result<{ id: string }>> {
   return guard(async () => {
     const { data, error } = await supabase.rpc("create_poll", {
       p_question: question,
       p_options: options,
+      ...(closesAt ? { p_closes_at: closesAt } : {}),
     });
     if (error) return { ok: false, error: toAppError(error) };
     return { ok: true, data: { id: data as string } };
