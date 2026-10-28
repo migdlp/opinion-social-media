@@ -116,7 +116,7 @@ Tareas de [backlog-v2.md](backlog-v2.md), con el mismo protocolo de reserva. Ant
 | [V2-013](https://github.com/migdlp/opinion-social-media/issues/127) | Fecha de cierre opcional | P0 | V2-012 | En progreso | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
 | [V2-014](https://github.com/migdlp/opinion-social-media/issues/133) | Resultados públicos al cerrarse | P0 | V2-005, V2-013 | Pendiente | — |
 | [V2-015](https://github.com/migdlp/opinion-social-media/issues/118) | Animar las barras al revelar resultados | P1 | — | Completada: [PR #146](https://github.com/migdlp/opinion-social-media/pull/146), merge `4b439d5`; CI verde; TDD RED (3 tests) → GREEN, 240 tests; reduced-motion por la regla CSS existente, sin revisar en navegador | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
-| [V2-016](https://github.com/migdlp/opinion-social-media/issues/119) | Mensaje «Coincides con el X %» tras votar | P1 | — | Pendiente | — |
+| [V2-016](https://github.com/migdlp/opinion-social-media/issues/119) | Mensaje «Coincides con el X %» tras votar | P1 | — | En progreso | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
 | [V2-017](https://github.com/migdlp/opinion-social-media/issues/120) | Modo oscuro | P1 | — | Pendiente | — |
 | [V2-018](https://github.com/migdlp/opinion-social-media/issues/121) | Compartir con la hoja nativa | P1 | — | Completada: [PR #147](https://github.com/migdlp/opinion-social-media/pull/147), merge `6c7c3de`; CI verde; TDD RED (3 tests) → GREEN; no probada con hoja nativa en un móvil real | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
 | [V2-019](https://github.com/migdlp/opinion-social-media/issues/134) | Imagen OG dinámica por encuesta | P1 | V2-005 | Pendiente | — |
