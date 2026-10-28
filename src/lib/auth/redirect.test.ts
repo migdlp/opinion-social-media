@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { loginPath, safeNextPath } from "./redirect";
+import { loginPath, onboardingPath, safeNextPath } from "./redirect";
 
 describe("safeNextPath", () => {
   it.each([
@@ -41,5 +41,17 @@ describe("loginPath", () => {
 
   it("sustituye un destino externo por /", () => {
     expect(loginPath("https://ajeno.example/")).toBe("/login?next=%2F");
+  });
+});
+
+describe("onboardingPath", () => {
+  it("lleva a /onboarding conservando un destino local", () => {
+    expect(onboardingPath("/polls/abc")).toBe("/onboarding?next=%2Fpolls%2Fabc");
+  });
+
+  it("sin destino o con uno externo no añade next", () => {
+    expect(onboardingPath("/")).toBe("/onboarding");
+    expect(onboardingPath("//ajeno.example")).toBe("/onboarding");
+    expect(onboardingPath(undefined)).toBe("/onboarding");
   });
 });

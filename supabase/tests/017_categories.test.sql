@@ -2,6 +2,7 @@
 
 begin;
 insert into auth.users (id) values ('00000000-0000-0000-0000-00000000000a');
+insert into public.profiles (user_id, username) values ('00000000-0000-0000-0000-00000000000a', 'cuenta_a');
 
 -- Lista inicial cerrada, de lectura pública y sin escrituras.
 select pg_temp.logout();

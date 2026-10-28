@@ -40,10 +40,10 @@ Modelo de datos: el del [brief §5](brief-producto.md#5-modelo-de-datos-obligato
 | `REPORT_RATE_LIMITED` | `report_poll` | 20 denuncias de la cuenta en los últimos 60 minutos | «Has enviado demasiadas denuncias. Inténtalo más tarde.» |
 | `REPORT_INVALID` | `report_poll` | Motivo ausente o fuera de la lista, o detalle de más de 500 caracteres | «Elige un motivo; el detalle admite hasta 500 caracteres.» |
 | `USERNAME_INVALID` | `upsert_my_profile` | `p_username` nulo o fuera de `^[a-z][a-z0-9_]{2,19}$` tras pasar a minúsculas (sin recortar espacios) | «El usuario debe tener de 3 a 20 caracteres (letras minúsculas, números o _) y empezar por una letra.» |
-| `USERNAME_TAKEN` | `upsert_my_profile` | Otro perfil ya usa ese `@usuario` (sin distinguir mayúsculas) | «Ese usuario ya está en uso. Prueba con otro.» |
+| `USERNAME_TAKEN` | `upsert_my_profile` | Otro perfil ya usa ese `@usuario` (sin distinguir mayúsculas) | «Ese nombre ya está en uso.» |
 | `USERNAME_RESERVED` | `upsert_my_profile` | Nombre de la lista reservada (`admin`, `settings`, `u`, `api`…) | «Ese usuario está reservado. Prueba con otro.» |
 | `DISPLAY_NAME_INVALID` | `upsert_my_profile` | Nombre visible normalizado fuera de 1–50 (vacío incluido; `null` es válido) | «El nombre debe tener entre 1 y 50 caracteres.» |
-| `PROFILE_REQUIRED` | `set_profile_privacy` | La cuenta aún no tiene perfil | «Elige primero tu usuario.» |
+| `PROFILE_REQUIRED` | `set_profile_privacy`; `create_poll` y `vote_poll` (trigger) | La cuenta aún no tiene perfil | «Elige primero tu usuario.» |
 | `USER_NOT_FOUND` | `follow_user`, `unfollow_user`, `respond_follow_request`, `remove_follower` | El `@usuario` no existe; en `respond_follow_request`, tampoco hay solicitud pendiente de esa cuenta | «No existe ese usuario.» |
 | `CANNOT_FOLLOW_SELF` | `follow_user` | El `@usuario` es el propio | «No puedes seguirte a ti mismo.» |
 | `FOLLOW_RATE_LIMITED` | `follow_user` | 200 seguimientos nuevos de la cuenta en 60 minutos (el límite cuenta filas creadas; repetir uno existente no cuenta) | «Has seguido a demasiadas cuentas. Inténtalo más tarde.» |
@@ -135,6 +135,8 @@ public.set_profile_privacy(p_private boolean) returns void
 
 - `upsert_my_profile` crea o edita el perfil de `auth.uid()`; `username` se guarda en minúsculas y `display_name` se normaliza como en §1. No cambia `is_private`. Nunca devuelve `user_id`.
 - `set_profile_privacy` cambia `is_private`. Al pasar a pública acepta todas las solicitudes pendientes (S-6, V2-004).
+- `get_my_profile()` (V2-002) → `table (username, display_name, is_private)` de la cuenta con sesión; ninguna fila si aún no tiene perfil. Es la forma de saber si hay perfil sin exponer `user_id`; la usa el callback de OAuth para enviar a `/onboarding`.
+- **Perfil obligatorio (S-1):** triggers `BEFORE INSERT` en `polls` y `votes` lanzan `PROFILE_REQUIRED` cuando hay sesión de cliente (`auth.uid()` no nulo) y el autor/votante no tiene perfil. `create_poll` y `vote_poll` no cambian. La interfaz lo convierte en un enlace a `/onboarding?next=…`.
 - Lectura directa: `profiles.select('username, display_name, is_private, created_at')` para `anon` y `authenticated`. `user_id` y `updated_at` no se conceden.
 
 ### 3.6. Seguimiento (V2-004)

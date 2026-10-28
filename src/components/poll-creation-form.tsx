@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useId, useRef, useState } from "react";
-import { loginPath } from "@/lib/auth/redirect";
+import { loginPath, onboardingPath } from "@/lib/auth/redirect";
 import { ERROR_MESSAGES } from "@/lib/data/errors";
 import type { AppErrorCode, Category, Result } from "@/lib/data/types";
 import { normalizeText } from "@/lib/utils/text";
@@ -82,6 +82,15 @@ export function PollCreationForm({
 
   const setOption = (index: number, value: string) =>
     setOptions((current) => current.map((option, i) => (i === index ? value : option)));
+
+  // Plantilla de dos opciones (V2-011). Si ya hay texto escrito, se pide confirmación.
+  const applyYesNo = () => {
+    const hasText = options.some((option) => option.trim() !== "");
+    if (hasText && !window.confirm("Se sustituirán las opciones escritas por Sí y No. ¿Continuar?"))
+      return;
+    setOptions(["Sí", "No"]);
+    setErrors(null);
+  };
 
   const removeOption = (index: number) => {
     setOptions((current) => current.filter((_, i) => i !== index));
@@ -170,6 +179,13 @@ export function PollCreationForm({
 
       <fieldset className="flex flex-col gap-3.5">
         <legend className="mb-1 text-[15px] font-semibold">Opciones</legend>
+        <button
+          type="button"
+          onClick={applyYesNo}
+          className="min-h-11 self-start rounded-full border border-border bg-surface px-4 py-2 text-sm font-medium transition-colors hover:border-foreground"
+        >
+          Sí / No
+        </button>
         {options.map((option, index) => {
           const error = errors?.options[index];
           const inputId = `${id}-option-${index}`;
@@ -291,6 +307,13 @@ export function PollCreationForm({
           Inicia sesión para publicar; volverás aquí y podrás terminar la encuesta.{" "}
           <Link href={loginPath("/create")} className="font-semibold underline">
             Iniciar sesión
+          </Link>
+        </p>
+      ) : failure === "PROFILE_REQUIRED" ? (
+        <p className="rounded-xl border border-border bg-surface p-3 text-sm">
+          Elige tu usuario para publicar; volverás aquí y podrás terminar la encuesta.{" "}
+          <Link href={onboardingPath("/create")} className="font-semibold underline">
+            Elegir mi usuario
           </Link>
         </p>
       ) : (

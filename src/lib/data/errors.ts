@@ -21,7 +21,7 @@ export const ERROR_MESSAGES: Record<AppErrorCode, string> = {
   INVALID_CATEGORY: "Elige una categoría válida.",
   USERNAME_INVALID:
     "El usuario debe tener de 3 a 20 caracteres (letras minúsculas, números o _) y empezar por una letra.",
-  USERNAME_TAKEN: "Ese usuario ya está en uso. Prueba con otro.",
+  USERNAME_TAKEN: "Ese nombre ya está en uso.",
   USERNAME_RESERVED: "Ese usuario está reservado. Prueba con otro.",
   DISPLAY_NAME_INVALID: "El nombre debe tener entre 1 y 50 caracteres.",
   PROFILE_REQUIRED: "Elige primero tu usuario.",

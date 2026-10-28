@@ -3,9 +3,11 @@ import {
   createPoll,
   getCategories,
   getFeedPage,
+  getMyProfile,
   getPollDetail,
   getPollResults,
   reportPoll,
+  upsertMyProfile,
   votePoll,
 } from "./operations";
 import { fakeSupabase, networkThrow } from "./testing/fake-supabase";
@@ -372,4 +374,56 @@ describe("getCategories (V2-021)", () => {
     const { supabase } = fakeSupabase({ categories: networkThrow });
     expect(await getCategories(supabase)).toEqual({ ok: false, error: "NETWORK_ERROR" });
   });
+});
+
+describe("perfil propio (V2-002)", () => {
+  it("getMyProfile devuelve el perfil o null si aún no hay", async () => {
+    const withProfile = fakeSupabase({
+      "rpc:get_my_profile": {
+        data: [{ username: "ana_23", display_name: "Ana", is_private: false }],
+        error: null,
+      },
+    });
+    expect(await getMyProfile(withProfile.supabase)).toEqual({
+      ok: true,
+      data: { username: "ana_23", displayName: "Ana", isPrivate: false },
+    });
+    expect(withProfile.queries[0].calls[0]).toEqual(["rpc", "get_my_profile", undefined]);
+
+    const none = fakeSupabase({ "rpc:get_my_profile": { data: [], error: null } });
+    expect(await getMyProfile(none.supabase)).toEqual({ ok: true, data: null });
+  });
+
+  it("getMyProfile propaga AUTH_REQUIRED y los fallos de red", async () => {
+    const auth = fakeSupabase({ "rpc:get_my_profile": rpcError("AUTH_REQUIRED") });
+    expect(await getMyProfile(auth.supabase)).toEqual({ ok: false, error: "AUTH_REQUIRED" });
+    const net = fakeSupabase({ "rpc:get_my_profile": networkThrow });
+    expect(await getMyProfile(net.supabase)).toEqual({ ok: false, error: "NETWORK_ERROR" });
+  });
+
+  it("upsertMyProfile llama a upsert_my_profile y devuelve el perfil", async () => {
+    const { supabase, queries } = fakeSupabase({
+      "rpc:upsert_my_profile": {
+        data: [{ username: "ana_23", display_name: null, is_private: false, created_at: "x" }],
+        error: null,
+      },
+    });
+    expect(await upsertMyProfile(supabase, "Ana_23", null)).toEqual({
+      ok: true,
+      data: { username: "ana_23", displayName: null, isPrivate: false },
+    });
+    expect(queries[0].calls[0]).toEqual([
+      "rpc",
+      "upsert_my_profile",
+      { p_username: "Ana_23", p_display_name: null },
+    ]);
+  });
+
+  it.each(["USERNAME_TAKEN", "USERNAME_INVALID", "USERNAME_RESERVED", "DISPLAY_NAME_INVALID"])(
+    "upsertMyProfile propaga %s",
+    async (code) => {
+      const { supabase } = fakeSupabase({ "rpc:upsert_my_profile": rpcError(code) });
+      expect(await upsertMyProfile(supabase, "ana", null)).toEqual({ ok: false, error: code });
+    },
+  );
 });
