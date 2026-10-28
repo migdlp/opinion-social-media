@@ -1,24 +1,28 @@
 ---
 name: Opinión
-description: Mercado de opiniones en blanco y negro; los resultados se revelan al votar.
+description: Dirección creativa After Sunset, basada en la referencia PEEK aprobada por el propietario.
 colors:
-  background: "#f4f4f5"
-  surface: "#ffffff"
-  foreground: "#0a0a0b"
-  muted: "#5e5e66"
-  border: "#e4e4e7"
-  track: "#ececef"
-  bar-muted: "#767680"
-  field: "#8a8a93"
+  background: "#F9F9FF"
+  surface: "#FFFFFF"
+  foreground: "#161E2E"
+  muted: "#354861"
+  border: "#B4C8F5"
+  track: "#F9F9FF"
+  bar-muted: "#354861"
+  field: "#354861"
+  accent: "#FFB16B"
+  accent-soft: "#B4C8F5"
   danger: "#c4161c"
-  background-dark: "#0a0a0b"
-  surface-dark: "#151517"
-  foreground-dark: "#f4f4f5"
-  muted-dark: "#a3a3ab"
-  border-dark: "#2a2a2e"
-  track-dark: "#232327"
-  bar-muted-dark: "#787882"
-  field-dark: "#707079"
+  background-dark: "#161E2E"
+  surface-dark: "#354861"
+  foreground-dark: "#F9F9FF"
+  muted-dark: "#B4C8F5"
+  border-dark: "#B4C8F5"
+  track-dark: "#161E2E"
+  bar-muted-dark: "#B4C8F5"
+  field-dark: "#B4C8F5"
+  accent-dark: "#FFB16B"
+  accent-soft-dark: "#B4C8F5"
   danger-dark: "#ff7b7b"
 typography:
   brand:
@@ -59,145 +63,54 @@ spacing:
   stack: "12px"
   content-width: "40rem"
   wide-width: "64rem"
-components:
-  button-primary:
-    backgroundColor: "{colors.foreground}"
-    textColor: "{colors.surface}"
-    rounded: "{rounded.pill}"
-    padding: "8px 16px"
-  button-secondary:
-    backgroundColor: "{colors.surface}"
-    textColor: "{colors.foreground}"
-    rounded: "{rounded.pill}"
-    padding: "8px 16px"
-  card:
-    backgroundColor: "{colors.surface}"
-    rounded: "{rounded.card}"
-    padding: "{spacing.card-padding}"
-  chip-locked:
-    backgroundColor: "{colors.track}"
-    textColor: "{colors.muted}"
-    typography: "{typography.meta}"
-    rounded: "{rounded.chip}"
-    padding: "2px 8px"
-  option-selected:
-    backgroundColor: "{colors.foreground}"
-    textColor: "{colors.surface}"
-    rounded: "{rounded.field}"
-    padding: "12px 16px"
-  input:
-    backgroundColor: "{colors.surface}"
-    textColor: "{colors.foreground}"
-    rounded: "{rounded.field}"
-    padding: "10px 14px"
 ---
 
-# Design System: Opinión
+# Diseño de Opinión — After Sunset
 
-## Overview
+## Autoridad y estado
 
-**Creative North Star: "El mercado de opiniones"**
+**Dirección vigente provisional, D-026 (28-10-2026).** El propietario pide seguir el estilo de la lámina PEEK que adjuntó. La [guía de referencia](docs/direccion-creativa.md) describe la imagen para agentes sin acceso a la conversación y delimita su alcance. Esta dirección sustituye las restricciones anteriores de blanco y negro y ausencia de color de marca.
 
-Cada encuesta se presenta como un pequeño mercado, a la manera de Polymarket: una tarjeta con la pregunta, sus opciones y una cifra por opción. La diferencia es el gancho del producto: antes de votar, cada cifra es un `?? %` bloqueado; al votar, las cifras aparecen y las barras crecen. La interfaz es una pantalla de uso (modo Operate): controles conocidos, cifras tabulares y nada que compita con las preguntas de la gente.
+Este archivo especifica el diseño objetivo. Los tokens de arriba **todavía no están migrados al CSS** por esta tarea documental; no confundirlos con una captura del estado implementado. El nombre sigue siendo Opinión: PEEK es la referencia creativa, sin cambio de naming confirmado.
 
-El MVP es en blanco y negro por decisión del propietario. La personalidad curiosa y lúdica no vive en el color sino en la revelación, en el contraste rotundo y en el tono de los textos.
+## Concepto: votar abre una nueva perspectiva
 
-**Key Characteristics:**
+Curiosidad, mirada y descubrimiento: una abertura revela una forma cálida sobre azul noche. Traducirlo a la interfaz con selección clara y una revelación breve de barras tras confirmar el voto. La aplicación es una superficie de uso: pregunta y opciones primero, controles familiares, decoración contenida. Las ilustraciones con volumen suave, luz melocotón o cortinas se reservan para piezas de marca y estados que las necesiten, sin recargar cada tarjeta.
 
-- Tinta casi negra sobre blanco; invertido en modo oscuro siguiendo la preferencia del sistema.
-- Cifras grandes, apretadas y tabulares como protagonistas tras votar.
-- El `?? %` bloqueado en cada opción antes de votar.
-- Píldoras negras para la acción principal; tarjetas blancas de borde fino sobre fondo gris claro.
+La apariencia será amable y expresiva: azul noche, blanco frío, melocotón y lavanda, tarjetas redondeadas, tipografía geométrica clara y CTA cálida. Evitar volver al monocromo como identidad por defecto o añadir una paleta distinta por pantalla.
 
-## Colors
+## Color, temas y contraste
 
-Paleta restringida a tinta y papel. No hay color de marca.
+- **Claro:** fondo blanco frío, tarjetas blancas, texto azul noche y meta azul pizarra. Melocotón para CTA/selección; lavanda para apoyo visual.
+- **Oscuro:** fondo azul noche, tarjetas azul pizarra, texto blanco frío y meta lavanda. Acentos melocotón conservados; los temas no se obtienen invirtiendo colores automáticamente.
+- **Texto de CTA:** azul noche sobre melocotón (≈9,33:1), también en oscuro. Evitar texto blanco sobre melocotón (≈1,79:1).
+- **Otros pares de referencia:** azul noche sobre blanco frío ≈15,90:1; pizarra sobre blanco frío ≈8,90:1; lavanda sobre azul noche ≈9,94:1. Son contrastes de colores planos calculados, no una auditoría del mockup ni del CSS existente.
+- **Controles:** borde/foco azul noche o pizarra en claro, lavanda/melocotón en oscuro. Lavanda y melocotón sobre blanco son decorativos; no bastan como único borde, foco o marca de selección.
+- **Resultados:** barra propia azul noche en claro y melocotón en oscuro; barras secundarias pizarra en claro y lavanda en oscuro. Si se usa melocotón en una barra clara, asegurar un contorno contrastado y etiquetas completas. «Tu voto» y el estado semántico identifican siempre la selección, además del color.
+- **Errores:** `danger` sigue siendo semántico, con texto e icono/mensaje; no se confunde con el acento cálido.
 
-### Primary
+Al implementar, comprobar WCAG AA: texto normal ≥4,5:1, texto grande y elementos necesarios para identificar controles ≥3:1, también en hover/focus/disabled y con transparencias.
 
-- **Tinta** (`foreground`, `#0a0a0b`; oscuro `#f4f4f5`): texto principal, acción principal, opción elegida, barra del voto propio, foco y selección de texto.
+## Tipografía, forma y composición
 
-### Neutral
+Mantener Geist local, cifras tabulares y jerarquía de los tokens. Marca contundente y geométrica; preguntas legibles y compactas. No imitar el lettering de PEEK con caracteres deformados ni sustituir el nombre por un logo que aún no existe como activo.
 
-- **Fondo** (`background`, `#f4f4f5`; oscuro `#0a0a0b`): suelo de la página.
-- **Superficie** (`surface`, `#ffffff`; oscuro `#151517`): tarjetas, cabecera, campos.
-- **Texto secundario** (`muted`, `#5e5e66`; oscuro `#a3a3ab`): meta, recuentos, etiquetas. 6,4:1 sobre blanco.
-- **Borde** (`border`, `#e4e4e7`; oscuro `#2a2a2e`): separadores y contornos decorativos.
-- **Pista** (`track`, `#ececef`; oscuro `#232327`): fondo de barras y del chip bloqueado.
-- **Barra secundaria** (`bar-muted`, `#767680`; oscuro `#787882`; contraste ≥ 3:1 con la pista y la superficie): barras de las opciones que no son tu voto.
-- **Campo** (`field`, `#8a8a93`; oscuro `#707079`): borde de campos de texto, ≥3:1 frente a superficie y fondo.
+Mobile-first desde 320 px; márgenes y padding de 16 px, separación de 12 px, tarjeta de radio 16 px y opciones de 12 px. Anchos actuales de 40rem para lectura/formularios y 64rem para feed/cabecera. Mantener espacio para la navegación inferior y áreas seguras. Superficies limpias con borde fino; una sombra suave y desplazada puede separar capas cuando ayude. El volumen de la ilustración de marca no se convierte en sombras pesadas en todos los controles.
 
-### Named Rules
+## Componentes y estados
 
-**The Único Color Rule.** El único tono fuera del gris es el rojo de error (`danger`, `#c4161c`; oscuro `#ff7b7b`), y sólo aparece cuando hay un error que corregir.
+- **CTA principal:** fondo melocotón con texto azul noche, nombre según la acción real: «Votar y descubrir», «Publicar» o «Crear encuesta». Hover, foco y carga distinguibles; no usar «descubrir» en acciones que no revelan nada.
+- **Opciones:** superficie suave, radio y selector reconocible. Al seleccionar, relleno melocotón, texto/borde azul noche y estado accesible `checked`; no enviar el voto al tocar una opción si el flujo exige confirmación.
+- **Antes del voto:** pregunta y opciones, texto «Vota para descubrir» y, si se conserva, chip `?? %` con nombre accesible «Resultado oculto hasta votar». Nunca cifras reales, totales, barras con longitudes sugeridas ni popularidad implícita por opción.
+- **Después del voto:** barras horizontales, porcentaje, recuento, total y «Tu voto». La animación de revelación se limita a datos autorizados y respeta `prefers-reduced-motion`.
+- **Cerradas:** resultados visibles sólo según D-020 y permisos. Su permanencia de 24 horas en el feed no afecta a su apariencia ni autoriza nuevos votos.
+- **Campos:** fondos de superficie y borde contrastado, etiquetas visibles, foco claro y errores asociados. No sacrificar legibilidad por una superficie pastel.
+- **Navegación:** misma familia visual para cabecera, avatar inicial, menú y barra Feed/Crear/Perfil. En el feed, Recientes/Siguiendo y categoría Todas según D-022–D-025; no copiar pestañas de la lámina.
+- **Tarjetas con voto:** no envolver controles interactivos en un enlace global; conservar un acceso claro al detalle. Respetar el estado de implementación y los contratos de V2-033.
+- **Iconos:** trazos y peso coherentes, ojos/aberturas sólo como recurso pertinente de marca. Sin emoji como iconos de controles. No añadir botones sin funcionalidad autorizada para imitar la referencia.
 
-**The Voto Propio Rule.** La opción propia se distingue por la palabra «Tu voto» y el peso, y además por la barra en tinta plena; nunca sólo por el tono.
+## Reglas para agentes
 
-## Typography
+Leer también [PRODUCT.md](PRODUCT.md), [AGENTS.md](AGENTS.md) y la [guía creativa](docs/direccion-creativa.md). Perfiles y privacidad siguen el backlog: el claim «sin perfiles públicos» y los likes/comentarios/campanas dibujados en la imagen son ilustrativos. Mantener backend, accesibilidad y alcance funcional acordados.
 
-Una sola familia, Geist, servida desde el propio proyecto (paquete `geist`). Las cifras usan `tabular-nums`.
-
-### Hierarchy
-
-- **Marca** (`brand`): 20 px, 700, tracking -0,03em. Sólo el logotipo textual «Opinión».
-- **Pregunta** (`question`): 17 px, 600, tracking -0,01em. Títulos de tarjeta y leyenda del selector.
-- **Cifra** (`figure`): 22 px, 700, tracking -0,03em, tabular. Porcentajes revelados.
-- **Cuerpo** (`body`): 15 px. Opciones y campos.
-- **Meta** (`meta`): 13 px. Autor, fecha, recuentos, etiquetas de campo, chip bloqueado.
-
-## Layout
-
-Mobile-first desde 320 px con 16 px de margen lateral. Cabecera y feed usan el ancho amplio (`64rem`); el feed es una columna de tarjetas en móvil y dos desde 768 px (`md`), con 12 px de separación. Formularios, detalle y páginas de texto mantienen el ancho de lectura (`40rem`). La cabecera es fija arriba.
-
-## Elevation & Depth
-
-Plano. Sin sombras: la profundidad la dan la superficie blanca sobre el fondo gris y el borde fino.
-
-## Shapes
-
-Esquinas suaves y consistentes: chip 6 px, campo y opción 12 px, tarjeta 16 px, botones en píldora.
-
-## Components
-
-### Buttons
-
-- **Primario:** píldora en tinta con texto en superficie («Crear encuesta», «Publicar»). Hover: opacidad 85 %.
-- **Secundario:** píldora en superficie con borde («Añadir opción»); el borde pasa a tinta al pasar el cursor.
-- **Terciario:** texto secundario que se subraya al pasar el cursor («Quitar»).
-
-### Chips
-
-- **Bloqueado** (`?? %`): fondo pista, texto secundario, con texto accesible «Resultado oculto hasta votar».
-- **Tu voto:** píldora con borde de tinta junto a la opción elegida.
-
-### Cards / Containers
-
-Tarjeta en superficie, borde fino, radio 16 px, 16 px de padding. Toda la tarjeta enlaza al detalle; el borde se oscurece al pasar el cursor y pasa a tinta con el foco.
-
-### Inputs / Fields
-
-Campo en superficie con borde `field`, radio 12 px. Foco: borde en tinta. Error: borde y mensaje en `danger`, enlazados con `aria-describedby`.
-
-### Navigation
-
-Cabecera fija en superficie con la marca a la izquierda (vuelve al feed) y la píldora «Crear encuesta» a la derecha.
-
-### Mercado (Signature Component)
-
-Antes de votar, cada opción es una fila con su texto y el chip `?? %`, y el pie dice «Vota para ver». Tras votar, cada opción muestra la cifra grande, la barra fina (tinta para tu voto, gris para el resto) y el recuento; al montarse, las cifras aparecen y las barras crecen (800 ms, ease-out exponencial; desactivado con `prefers-reduced-motion`).
-
-## Do's and Don'ts
-
-### Do:
-
-- **Do** mostrar el `?? %` en cada opción antes de votar; nunca cifras reales.
-- **Do** usar `tabular-nums` en toda cifra.
-- **Do** reservar la píldora en tinta para la acción principal de cada pantalla.
-- **Do** comprobar el modo oscuro: los tokens se invierten solos.
-
-### Don't:
-
-- **Don't** introducir colores de marca, degradados ni sombras en el MVP.
-- **Don't** usar el rojo para nada que no sea un error.
-- **Don't** añadir gráficas de evolución: el MVP no guarda historial de votos.
-- **Don't** usar etiquetas o «kickers» sobre los títulos ni iconos hechos con emoji.
+Coordinar cambios de tokens compartidos en [#73](https://github.com/migdlp/opinion-social-media/issues/73), aplicarlos en tareas reservadas y verificar imágenes reales de claro/oscuro y móvil/escritorio. No declarar esta dirección implementada sólo porque estos `.md` se hayan actualizado.
