@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { EmptyState } from "@/components/empty-state";
 import { PollDetailView } from "@/components/poll-detail-view";
+import { castVote, loadOwnVote } from "@/app/vote-actions";
 import { ERROR_MESSAGES } from "@/lib/data/errors";
 import { getPollDetail } from "@/lib/data/operations";
 import { createClient } from "@/lib/supabase/server";
@@ -26,5 +27,5 @@ export async function PollDetailLoader({ id }: { id: string }) {
     );
   }
 
-  return <PollDetailView detail={detail.data} />;
+  return <PollDetailView detail={detail.data} castVote={castVote} loadOwnVote={loadOwnVote} />;
 }

@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { PollCard } from "@/components/poll-card";
 import { ERROR_MESSAGES } from "@/lib/data/errors";
-import type { AppErrorCode, FeedPage, PublicPoll, Result } from "@/lib/data/types";
+import type { AppErrorCode, FeedItem, FeedPage, Result } from "@/lib/data/types";
 
 type FeedMoreProps = {
   cursor: string | null;
@@ -16,7 +16,7 @@ type FeedMoreProps = {
 // llega del servidor). Descarta encuestas ya vistas, bloquea el control mientras hay
 // una petición y lo retira al llegar al final.
 export function FeedMore({ cursor: firstCursor, seenIds, loadMore, now }: FeedMoreProps) {
-  const [polls, setPolls] = useState<PublicPoll[]>([]);
+  const [polls, setPolls] = useState<FeedItem[]>([]);
   const [cursor, setCursor] = useState(firstCursor);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<AppErrorCode | null>(null);
@@ -36,18 +36,16 @@ export function FeedMore({ cursor: firstCursor, seenIds, loadMore, now }: FeedMo
       setError(page.error);
       return;
     }
-    const fresh = page.data.items
-      .map((item) => item.poll)
-      .filter((poll) => !seen.current.has(poll.id));
-    fresh.forEach((poll) => seen.current.add(poll.id));
+    const fresh = page.data.items.filter(({ poll }) => !seen.current.has(poll.id));
+    fresh.forEach(({ poll }) => seen.current.add(poll.id));
     setPolls((previous) => [...previous, ...fresh]);
     setCursor(page.data.nextCursor);
   }
 
   return (
     <>
-      {polls.map((poll) => (
-        <PollCard key={poll.id} poll={poll} now={now} />
+      {polls.map(({ poll, viewer }) => (
+        <PollCard key={poll.id} poll={poll} viewer={viewer} now={now} />
       ))}
       <div className="flex flex-col items-center gap-2 py-2 md:col-span-2">
         {error && (

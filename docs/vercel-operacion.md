@@ -13,7 +13,7 @@ Antes de trabajar, actualizar `main` y consultar [tareas y responsables](tareas-
 | Equipo | «Miguel's projects», `team_Iu3JavtCo0Kv8xW8ebnGukLb` |
 | Repositorio | [migdlp/opinion-social-media](https://github.com/migdlp/opinion-social-media) |
 | Dominio asignado | [opinion-social-media.vercel.app](https://opinion-social-media.vercel.app) |
-| Producción | Rama `main`; framework Next.js |
+| Producción | Rama `release` una vez configurada en Vercel (hoy sigue siendo `main`); framework Next.js. Reglas de despliegue en [AGENTS.md](../AGENTS.md#despliegues-de-producción-por-sprint) |
 
 No compartir la cuenta, sesión o token del propietario. Cada colaborador que necesite panel debe usar su propia cuenta con permisos adecuados; no se ha verificado aquí el plan contratado ni se han enviado invitaciones. El propietario gestiona miembros desde [Settings → Members](https://vercel.com/miguels-projects-b8307fdb/~/settings/members).
 
@@ -23,7 +23,7 @@ No compartir la cuenta, sesión o token del propietario. Cada colaborador que ne
 |---|---|
 | Publicar ramas y PR | Permisos del repositorio GitHub |
 | Disparar previews | Publicar una rama mediante la integración Git; pueden existir controles de autorización |
-| Disparar producción | Un cambio publicado en `main` puede activar el despliegue, incluidos commits de estado |
+| Disparar producción | Hoy, un cambio publicado en `main` activa el despliegue, incluidos commits de estado. Tras el cambio de rama, sólo `release` (ver AGENTS.md) |
 | Cambiar variables, dominio o versión desde el panel | Acceso autorizado a Vercel |
 
 Asignar Vercel a Codex es una regla de coordinación, no un bloqueo técnico de despliegues de otros autores. Coordinar los merges y comprobar siempre el SHA publicado; no asumir que controlar el panel evita que GitHub active un build. Ver [integración Git](https://vercel.com/docs/git).

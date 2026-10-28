@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import type { PublicPoll } from "@/lib/data/types";
+import type { PollResults, PublicPoll } from "@/lib/data/types";
 import { PollCard } from "./poll-card";
 
 afterEach(cleanup);
@@ -53,4 +53,43 @@ describe("PollCard", () => {
     const link = screen.getByRole("link", { name: POLL.question });
     expect(link.getAttribute("href")).toBe(`/polls/${POLL.id}`);
   });
+
+  describe("con voto propio", () => {
+    const RESULTS: PollResults = {
+      pollId: POLL.id,
+      totalVotes: 4,
+      myOptionId: "o1",
+      options: [
+        { id: "o1", text: "Café", position: 1, votes: 3, percentage: 75 },
+        { id: "o2", text: "Té", position: 2, votes: 1, percentage: 25 },
+      ],
+    };
+
+    it("muestra los resultados en lugar de las cifras bloqueadas y marca su voto", () => {
+      render(<PollCard poll={POLL} viewer={{ kind: "voted", results: RESULTS }} now={NOW} />);
+
+      expect(screen.getByText(/75,0\s*%/)).toBeDefined();
+      expect(screen.getByText("Tu voto")).toBeDefined();
+      expect(screen.queryByText("?? %")).toBeNull();
+      expect(screen.queryByText("Vota para ver")).toBeNull();
+    });
+
+    it("sigue llevando al detalle de la encuesta", () => {
+      render(<PollCard poll={POLL} viewer={{ kind: "voted", results: RESULTS }} now={NOW} />);
+
+      expect(screen.getByRole("link", { name: POLL.question }).getAttribute("href")).toBe(
+        `/polls/${POLL.id}`,
+      );
+    });
+  });
+
+  it.each([{ kind: "anonymous" as const }, { kind: "not_voted" as const }])(
+    "con estado %j sigue sin cifras",
+    (viewer) => {
+      const { container } = render(<PollCard poll={POLL} viewer={viewer} now={NOW} />);
+
+      expect(container.textContent).not.toMatch(/\d\s*%|\bvotos?\b|total/i);
+      expect(screen.getAllByText("?? %")).toHaveLength(2);
+    },
+  );
 });
