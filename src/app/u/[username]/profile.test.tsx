@@ -1,6 +1,7 @@
 // V2-006: HTML SSR de /u/[username]. Una cuenta privada sin acceso muestra sólo cabecera y aviso,
 // y ni sus encuestas ni sus votos llegan al HTML (criterio 2); una inexistente responde 404.
-import { renderToStaticMarkup } from "react-dom/server";
+import { Writable } from "node:stream";
+import { renderToPipeableStream } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fakeSupabase, type FakeResponse } from "@/lib/data/testing/fake-supabase";
 
@@ -45,8 +46,34 @@ const pollRow = {
     { id: "b", text: "Sin cebolla", position: 2 },
   ],
 };
+// La página contiene componentes asíncronos (pestañas): se espera a que todo esté resuelto.
+function toHtml(element: React.ReactElement): Promise<string> {
+  return new Promise((resolve, reject) => {
+    let html = "";
+    const sink = new Writable({
+      write(chunk, _encoding, done) {
+        html += chunk.toString();
+        done();
+      },
+      final(done) {
+        resolve(html);
+        done();
+      },
+    });
+    const stream = renderToPipeableStream(element, {
+      onAllReady: () => stream.pipe(sink),
+      onError: reject,
+    });
+  });
+}
+// Texto visible: sin etiquetas ni los comentarios que React intercala entre nodos de texto.
+const visible = (html: string) =>
+  html
+    .replace(/<!--.*?-->/g, "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ");
 const render = async (tab?: string, username = "perfil_b") =>
-  renderToStaticMarkup(
+  toHtml(
     await ProfileContent({
       params: Promise.resolve({ username }),
       searchParams: Promise.resolve(tab ? { tab } : {}),
@@ -73,7 +100,7 @@ describe("/u/[username]", () => {
     const html = await render();
 
     expect(html).toContain("Beto");
-    expect(html).toContain("@perfil_b");
+    expect(visible(html)).toContain("@perfil_b");
     expect(html).toContain("¿Tortilla con o sin cebolla?");
     expect(html).toMatch(/aria-current="page"[^>]*>Creadas/);
     expect(html).toContain("Votadas");
@@ -108,7 +135,7 @@ describe("/u/[username]", () => {
 
     expect(html).toMatch(/aria-current="page"[^>]*>Votadas/);
     expect(html).toContain("Votó · vota para ver su elección");
-    expect(html).not.toMatch(/\d\s*%/);
+    expect(visible(html)).not.toMatch(/\d\s*%/);
     expect(queries.map((q) => q.target)).not.toContain("rpc:get_profile_polls");
   });
 

@@ -127,4 +127,5 @@ export type DatabaseContractChecks = [
       { p_username: string; p_cursor?: string }
     >
   >,
+  Assert<Equal<Public["Functions"]["get_feed_results"]["Args"], { p_poll_ids: string[] }>>,
 ];

@@ -55,7 +55,7 @@ Orden de comprobación dentro de cada RPC (determina qué código gana si hay va
 
 - `create_poll`: `AUTH_REQUIRED` → `VALIDATION_OPTION_COUNT` → `VALIDATION_QUESTION_LENGTH` → `VALIDATION_OPTION_LENGTH` → `VALIDATION_OPTION_DUPLICATE` → `INVALID_CLOSES_AT` → `INVALID_CATEGORY` → `RATE_LIMITED`.
 - `vote_poll`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `OPTION_INVALID` → `POLL_CLOSED` → `ALREADY_VOTED`.
-- `get_poll_results`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `NOT_VOTED`. Ningún agregado se calcula antes de superar las tres.
+- `get_poll_results`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `NOT_VOTED`. Ningún agregado se calcula antes de superar las tres. **Excepción D-020 (V2-014):** si la encuesta está publicada, es visible para quien llama y `closes_at <= now()`, no se exige sesión ni voto y se devuelven los agregados. Para un visitante, una cerrada privada o inexistente sigue siendo `AUTH_REQUIRED`; con sesión, `POLL_UNAVAILABLE`.
 - `report_poll`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `REPORT_INVALID` → `ALREADY_REPORTED` → `REPORT_RATE_LIMITED`.
 - `upsert_my_profile`: `AUTH_REQUIRED` → `USERNAME_INVALID` → `USERNAME_RESERVED` → `DISPLAY_NAME_INVALID` → `USERNAME_TAKEN`.
 - `set_profile_privacy`: `AUTH_REQUIRED` → `PROFILE_REQUIRED`.
@@ -108,8 +108,8 @@ public.get_poll_results(p_poll_id uuid)
     text         text,
     votes        integer,       -- >= 0; aparecen todas las opciones
     percentage   numeric(4,1),  -- ROUND(100.0 * votes / total_votes, 1); 100.0 evita división entera
-    total_votes  integer,       -- igual en todas las filas; >= 1
-    my_option_id uuid           -- igual en todas las filas
+    total_votes  integer,       -- igual en todas las filas; >= 1 (>= 0 si está cerrada)
+    my_option_id uuid           -- igual en todas las filas; nulo en una cerrada si no votó o no hay sesión
   )
 ```
 
@@ -117,6 +117,7 @@ public.get_poll_results(p_poll_id uuid)
 - La suma de porcentajes puede no ser exactamente 100,0 por el redondeo; se acepta.
 - **No contiene** `user_id`, identidades de votantes, fechas de voto ni otro dato por votante. Sólo agregados por opción, el total y la opción propia.
 - Sin caché compartida: se llama con la sesión del usuario y la página que la usa es dinámica (`no-store`).
+- **Encuestas cerradas (V2-014, D-020):** `EXECUTE` también para `anon`. Si `closes_at <= now()` y la encuesta es visible (§3.8), devuelve los resultados a quien los pida, con o sin sesión y haya votado o no; `my_option_id` es nulo si no votó o no hay sesión. Con 0 votos devuelve todas las opciones con `votes = 0`, `percentage = 0.0` y `total_votes = 0`. El estado de la interfaz es `closed` (o `voted` si la cuenta votó). Las abiertas no cambian en nada.
 
 ### 3.5. `report_poll` (V2-020)
 
@@ -206,6 +207,18 @@ public.get_profile_polls(p_username text, p_cursor text default null)
 - `get_profile_polls` sólo devuelve ids y cursor (hasta 21 filas, mismo formato de cursor que `get_profile_votes`); el adaptador `getProfilePolls` pide después las encuestas por RLS (`polls ... in (ids)`) y les añade el estado de voto como el feed.
 - Adaptadores: `getProfileView`, `getProfilePolls`, `followUser`, `unfollowUser`.
 
+### 3.11. `get_feed_results` (V2-023)
+
+```sql
+public.get_feed_results(p_poll_ids uuid[])
+  returns table (poll_id uuid, option_id uuid, "position" smallint, text text, votes integer,
+                 percentage numeric(4,1), total_votes integer, my_option_id uuid)
+```
+
+- Máximo 20 ids por llamada (los demás se ignoran). Por **cada** encuesta aplica la misma autorización que `get_poll_results` (publicada, visible para quien llama, y cerrada o votada por quien llama) y devuelve sólo las autorizadas, **sin error** por las demás: una lista mezclada no filtra agregados de las no votadas. Las filas de una encuesta salen ordenadas por `position`.
+- `EXECUTE` también para `anon` (las cerradas son públicas). Hay que mantenerla sincronizada con `get_poll_results` si cambia la autorización.
+- Adaptador: `getFeedPage` hace, como máximo, una consulta de encuestas, una de votos propios y una de resultados por página (más la de autores).
+
 ## 4. Lecturas directas (RLS)
 
 `categories` (V2-021) es de lectura pública (`slug, name, position`) y sin escrituras de clientes; el formulario de creación la lee con `getCategories`. Feed y detalle incluyen `category:categories(slug, name)`.
@@ -231,7 +244,7 @@ if (cursor) q = q.or(`created_at.lt."${cursor.c}",and(created_at.eq."${cursor.c}
 
 La fecha va entre comillas dobles porque contiene `:` y `.`, caracteres reservados en los filtros `or()` de PostgREST. Antes de usarlo, el adaptador valida que `c` es una fecha ISO e `i` un UUID; si no, trata el cursor como ilegible.
 
-- Con sesión, después de la página: `votes.select('poll_id, option_id').in('poll_id', ids)` (RLS devuelve sólo los propios). Para cada encuesta votada se llama a `get_poll_results` (hasta 20 llamadas en paralelo; aceptable para el MVP sin RPC adicional).
+- Con sesión, después de la página: `votes.select('poll_id, option_id').in('poll_id', ids)` (RLS devuelve sólo los propios). Los resultados de las votadas y de las cerradas llegan con **una sola** llamada por página a `get_feed_results` (§3.11; V2-023).
 - Sin sesión no se consulta `votes` ni resultados.
 
 ### 4.2. Detalle (MVP-019)
@@ -305,7 +318,7 @@ export interface OptionResult extends PollOption {
 export interface PollResults {
   pollId: string
   totalVotes: number // >= 1
-  myOptionId: string
+  myOptionId: string | null // V2-014: nulo en una cerrada si no votó o no hay sesión
   options: OptionResult[] // todas, ordenadas por position
 }
 
@@ -314,6 +327,7 @@ export type PollViewerState =
   | { kind: 'anonymous' }                         // sin sesión: puede seleccionar, no votar
   | { kind: 'not_voted' }                         // con sesión, sin voto: selector
   | { kind: 'voted'; results: PollResults }       // con sesión y voto: resultados
+  | { kind: 'closed'; results: PollResults; signedIn: boolean } // V2-014: cerrada, resultados públicos (D-020)
 
 export interface FeedItem {
   poll: PublicPoll

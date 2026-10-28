@@ -175,6 +175,24 @@ describe("PollVoting", () => {
     );
   });
 
+  it("una cerrada muestra los resultados públicos sin formulario ni mensaje de coincidencia", () => {
+    const closed = { ...RESULTS, myOptionId: null };
+    render(
+      <PollVoting
+        poll={POLL}
+        viewer={{ kind: "closed", results: closed, signedIn: false }}
+        castVote={castVote}
+        closed
+      />,
+    );
+
+    expect(screen.getByText("75,0 %")).toBeDefined();
+    expect(screen.queryAllByRole("radio")).toHaveLength(0);
+    expect(screen.queryByRole("button", { name: "Votar" })).toBeNull();
+    expect(screen.queryByText("Tu voto")).toBeNull();
+    expect(screen.queryByText(/Coincides|primero en votar/)).toBeNull();
+  });
+
   it("quien ya había votado ve los resultados directamente, sin formulario", () => {
     view({ kind: "voted", results: RESULTS });
 

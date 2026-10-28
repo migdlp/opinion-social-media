@@ -31,7 +31,7 @@ type PollVotingProps = {
 // nunca se envía un voto sin confirmación posterior.
 export function PollVoting({ poll, viewer, castVote, loadOwnVote, closed }: PollVotingProps) {
   const [results, setResults] = useState<PollResultsData | null>(
-    viewer.kind === "voted" ? viewer.results : null,
+    viewer.kind === "voted" || viewer.kind === "closed" ? viewer.results : null,
   );
   // Sólo se anima la revelación de un voto emitido ahora, no unos resultados ya conocidos.
   const [justVoted, setJustVoted] = useState(false);
@@ -46,7 +46,11 @@ export function PollVoting({ poll, viewer, castVote, loadOwnVote, closed }: Poll
   if (results) {
     return (
       <div aria-live="polite">
-        <PollResults results={results} animate={justVoted} showMatch />
+        <PollResults
+          results={results}
+          animate={justVoted}
+          showMatch={results.myOptionId !== null}
+        />
       </div>
     );
   }

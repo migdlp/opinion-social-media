@@ -17,6 +17,16 @@ const POLL: PublicPoll = {
   ],
 };
 
+const CLOSED_RESULTS: PollResults = {
+  pollId: "11111111-2222-3333-4444-555555555555",
+  totalVotes: 4,
+  myOptionId: null,
+  options: [
+    { id: "o1", text: "Café", position: 1, votes: 3, percentage: 75 },
+    { id: "o2", text: "Té", position: 2, votes: 1, percentage: 25 },
+  ],
+};
+
 describe("PollCard", () => {
   it("muestra pregunta, opciones, fecha y autor genérico, sin datos agregados", () => {
     const { container } = render(<PollCard poll={POLL} now={NOW} />);
@@ -125,6 +135,31 @@ describe("PollCard", () => {
 
     expect(screen.getByText("Anónimo")).toBeDefined();
     expect(screen.queryByRole("link", { name: /^@/ })).toBeNull();
+  });
+
+  it("una cerrada muestra resultados públicos aunque no se haya votado, sin «Tu voto»", () => {
+    const poll = { ...POLL, closesAt: "2026-10-27T18:00:00Z" };
+    render(
+      <PollCard
+        poll={poll}
+        viewer={{ kind: "closed", results: CLOSED_RESULTS, signedIn: false }}
+        now={NOW}
+      />,
+    );
+
+    expect(screen.getByText("75,0 %")).toBeDefined();
+    expect(screen.getByText("4 votos en total")).toBeDefined();
+    expect(screen.queryByText("Tu voto")).toBeNull();
+    expect(screen.queryByText("Vota para ver")).toBeNull();
+    expect(screen.queryByText("?? %")).toBeNull();
+  });
+
+  it("una abierta sin voto sigue sin cifras", () => {
+    const poll = { ...POLL, closesAt: "2026-10-28T18:00:00Z" };
+    const { container } = render(<PollCard poll={poll} viewer={{ kind: "not_voted" }} now={NOW} />);
+
+    expect(container.textContent).not.toMatch(/\d\s*%|\bvotos?\b|total/i);
+    expect(screen.getByText("Vota para ver")).toBeDefined();
   });
 
   it("muestra la etiqueta de la categoría, y ninguna si no tiene", () => {

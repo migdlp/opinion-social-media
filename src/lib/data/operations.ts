@@ -2,6 +2,7 @@
 // pantallas usan estas funciones: reciben el cliente Supabase del contexto
 // (src/lib/supabase/server.ts o client.ts) y devuelven Result con AppErrorCode.
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { isClosed } from "@/lib/utils/date";
 import { toAppError } from "./errors";
 import { getFeedPolls, getOwnVoteOptionId, getPublicPoll, getPublicPollsByIds } from "./polls";
 import type {
@@ -239,6 +240,35 @@ async function viewerFor(
   return results.ok ? { ok: true, data: { kind: "voted", results: results.data } } : results;
 }
 
+// Encuesta cerrada (D-020): sus resultados son públicos. Se piden con o sin sesión; quien votó
+// (myOptionId) los ve como «voted» y el resto como «closed». El reloj es el de la aplicación: si
+// la base de datos aún la considera abierta (desfase), devuelve null y se sigue el flujo normal.
+async function closedViewer(
+  supabase: SupabaseClient,
+  poll: PublicPoll,
+  signedIn: boolean,
+): Promise<Result<PollViewerState | null>> {
+  if (!isClosed(poll.closesAt, new Date())) return { ok: true, data: null };
+  const results = await getPollResults(supabase, poll.id);
+  if (results.ok) {
+    return {
+      ok: true,
+      data: results.data.myOptionId
+        ? { kind: "voted", results: results.data }
+        : { kind: "closed", results: results.data, signedIn },
+    };
+  }
+  if (results.error === "AUTH_REQUIRED" || results.error === "NOT_VOTED")
+    return { ok: true, data: null };
+  return results;
+}
+
+// Sólo los datos públicos de la encuesta (sin estado de voto ni resultados, aunque esté cerrada):
+// para metadatos y vista previa social, que nunca deben incluir cifras.
+export function getPollSummary(supabase: SupabaseClient, id: string): Promise<Result<PublicPoll>> {
+  return guard(() => getPublicPoll(supabase, id));
+}
+
 export function getPollDetail(
   supabase: SupabaseClient,
   id: string,
@@ -247,6 +277,9 @@ export function getPollDetail(
   return guard(async () => {
     const poll = await getPublicPoll(supabase, id);
     if (!poll.ok) return poll;
+    const closed = await closedViewer(supabase, poll.data, viewer.signedIn);
+    if (!closed.ok) return closed;
+    if (closed.data) return { ok: true, data: { poll: poll.data, viewer: closed.data } };
     if (!viewer.signedIn)
       return { ok: true, data: { poll: poll.data, viewer: { kind: "anonymous" } } };
 
@@ -262,11 +295,66 @@ export function getPollDetail(
   });
 }
 
-function anonymousPage(polls: PublicPoll[], nextCursor: string | null): Result<FeedPage> {
-  return {
-    ok: true,
-    data: { items: polls.map((poll) => ({ poll, viewer: { kind: "anonymous" } })), nextCursor },
-  };
+type FeedResultRow = ResultRow & { poll_id: string };
+
+// Resultados de un lote (≤ 20 encuestas) con UNA llamada (V2-023). La base de datos aplica a cada
+// encuesta la misma autorización que get_poll_results y omite las no autorizadas sin error.
+async function getFeedResults(
+  supabase: SupabaseClient,
+  pollIds: string[],
+): Promise<Result<Map<string, PollResults>>> {
+  const byPoll = new Map<string, PollResults>();
+  if (pollIds.length === 0) return { ok: true, data: byPoll };
+  const { data, error } = await supabase.rpc("get_feed_results", { p_poll_ids: pollIds });
+  if (error) return { ok: false, error: toAppError(error) };
+  for (const row of (data ?? []) as FeedResultRow[]) {
+    let results = byPoll.get(row.poll_id);
+    if (!results) {
+      results = {
+        pollId: row.poll_id,
+        totalVotes: row.total_votes,
+        myOptionId: row.my_option_id,
+        options: [],
+      };
+      byPoll.set(row.poll_id, results);
+    }
+    results.options.push({
+      id: row.option_id,
+      text: row.text,
+      position: row.position,
+      votes: row.votes,
+      percentage: Number(row.percentage),
+    });
+  }
+  return { ok: true, data: byPoll };
+}
+
+// Estado de cada encuesta de una página para quien mira. Los resultados (de las votadas y de las
+// cerradas, D-020) llegan con una única consulta por lote; el resto sigue sin cifras.
+async function withViewerStates(
+  supabase: SupabaseClient,
+  polls: PublicPoll[],
+  nextCursor: string | null,
+  own: Map<string, string>,
+  signedIn: boolean,
+): Promise<Result<FeedPage>> {
+  const now = new Date();
+  const wanted = polls.filter((p) => isClosed(p.closesAt, now) || own.has(p.id)).map((p) => p.id);
+  const results = await getFeedResults(supabase, wanted);
+  if (!results.ok) return results;
+
+  const items = polls.map((poll) => {
+    const found = results.data.get(poll.id);
+    const viewer: PollViewerState = found
+      ? found.myOptionId
+        ? { kind: "voted", results: found }
+        : { kind: "closed", results: found, signedIn }
+      : signedIn
+        ? { kind: "not_voted" }
+        : { kind: "anonymous" };
+    return { poll, viewer };
+  });
+  return { ok: true, data: { items, nextCursor } };
 }
 
 export function getFeedPage(
@@ -277,22 +365,22 @@ export function getFeedPage(
   return guard(async () => {
     const page = await getFeedPolls(supabase, cursor);
     if (!page.ok) return page;
-    return withViewerStates(supabase, page.data.polls, page.data.nextCursor, viewer);
+    return withOwnVotes(supabase, page.data.polls, page.data.nextCursor, viewer);
   });
 }
 
-// Estado de cada encuesta de una página para quien mira (voto propio, resultados de las cerradas).
-async function withViewerStates(
+// Voto propio de cada encuesta de la página (una sola consulta; RLS sólo devuelve los del usuario)
+// y estado de cada una para quien mira.
+async function withOwnVotes(
   supabase: SupabaseClient,
   polls: PublicPoll[],
   nextCursor: string | null,
   viewer: Viewer,
 ): Promise<Result<FeedPage>> {
   if (!viewer.signedIn || polls.length === 0) {
-    return anonymousPage(supabase, polls, nextCursor);
+    return withViewerStates(supabase, polls, nextCursor, new Map(), false);
   }
 
-  // Una consulta de votos propios para todo el lote (RLS sólo devuelve los del usuario).
   const { data, error } = await supabase
     .from("votes")
     .select("poll_id, option_id")
@@ -302,30 +390,14 @@ async function withViewerStates(
     );
   if (error) {
     if (toAppError(error) === "AUTH_REQUIRED") {
-      return anonymousPage(supabase, polls, nextCursor);
+      return withViewerStates(supabase, polls, nextCursor, new Map(), false);
     }
     return { ok: false, error: toAppError(error) };
   }
   const own = new Map(
     (data as { poll_id: string; option_id: string }[]).map((v) => [v.poll_id, v.option_id]),
   );
-
-  const states = await Promise.all(
-    polls.map(async (p): Promise<Result<PollViewerState>> => {
-      const closed = await closedViewer(supabase, p, true);
-      if (!closed.ok) return closed;
-      return closed.data
-        ? { ok: true, data: closed.data }
-        : viewerFor(supabase, p.id, own.get(p.id) ?? null);
-    }),
-  );
-  const items = [];
-  for (let i = 0; i < polls.length; i++) {
-    const state = states[i];
-    if (!state.ok) return state;
-    items.push({ poll: polls[i], viewer: state.data });
-  }
-  return { ok: true, data: { items, nextCursor } };
+  return withViewerStates(supabase, polls, nextCursor, own, true);
 }
 
 type ProfileViewRow = {
@@ -391,7 +463,7 @@ export function getProfilePolls(
       page.map((row) => row.poll_id),
     );
     if (!polls.ok) return polls;
-    return withViewerStates(supabase, polls.data, nextCursor, viewer);
+    return withOwnVotes(supabase, polls.data, nextCursor, viewer);
   });
 }
 
