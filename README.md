@@ -85,6 +85,10 @@ Cómo añadir o cambiar migraciones: [migraciones](docs/migraciones.md). Cobertu
 
 Sólo hay acceso con Google; el correo y la contraseña están desactivados. Pasos para crear el cliente en Google Cloud y activarlo en Supabase: [google-oauth](docs/google-oauth.md). La app usa `/login` (acepta `?next=` con una ruta local; cualquier destino externo se ignora), `/auth/callback` y `src/proxy.ts`.
 
+### Feed
+
+`/` ofrece las pestañas Recientes y Siguiendo y un filtro de categoría (selección en la URL), con scroll infinito y botón «Cargar más», voto desde la propia tarjeta y retención de 24 h tras el cierre de cada encuesta. Reglas, evidencias, lo no verificado y la comprobación posterior a una publicación autorizada: [cierre del feed](docs/feed-cierre.md).
+
 ### Moderación
 
 No hay panel: una encuesta se oculta cambiando su `status` a `hidden` desde el SQL editor de Supabase. Procedimiento paso a paso, restauración y qué no hacer en [moderación](docs/moderacion.md).

@@ -72,4 +72,4 @@ Frontend de tarjetas (V2-033) puede avanzar con el contrato existente de voto/re
 - F-7: V2-033, recuperación de autenticación y voto único.
 - F-8: V2-034, scroll y botón accesible.
 - Privacidad y regresión completa: V2-035/036.
-- Este documento define el resultado, no acredita que la implementación ni producción estén terminadas.
+- Este documento define el resultado, no acredita que la implementación ni producción estén terminadas. El cierre de la implementación (reglas, evidencias, lo no verificado y la comprobación en producción) está en [feed-cierre](feed-cierre.md).
