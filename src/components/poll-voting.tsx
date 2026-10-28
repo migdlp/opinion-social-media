@@ -42,7 +42,7 @@ export function PollVoting({ poll, viewer, castVote, loadOwnVote }: PollVotingPr
   if (results) {
     return (
       <div aria-live="polite">
-        <PollResults results={results} animate={justVoted} />
+        <PollResults results={results} animate={justVoted} showMatch />
       </div>
     );
   }
