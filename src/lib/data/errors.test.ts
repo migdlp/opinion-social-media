@@ -23,6 +23,9 @@ const BUSINESS: AppErrorCode[] = [
   "USERNAME_RESERVED",
   "DISPLAY_NAME_INVALID",
   "PROFILE_REQUIRED",
+  "USER_NOT_FOUND",
+  "CANNOT_FOLLOW_SELF",
+  "FOLLOW_RATE_LIMITED",
 ];
 
 describe("toAppError", () => {
