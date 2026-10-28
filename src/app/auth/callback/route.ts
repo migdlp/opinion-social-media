@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { safeNextPath } from "@/lib/auth/redirect";
+import { onboardingPath, safeNextPath } from "@/lib/auth/redirect";
+import { getMyProfile } from "@/lib/data/operations";
 import { createClient } from "@/lib/supabase/server";
 
 // Retorno de Google OAuth (flujo PKCE): Supabase redirige aquí con ?code. Se canjea por
@@ -19,13 +20,18 @@ export async function GET(request: Request) {
 
   if (!code || searchParams.has("error")) return failed();
 
+  let destination = next;
   try {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (error) return failed();
+    // Sin @usuario no se puede crear, votar ni seguir (S-1): primero el onboarding. Si no se
+    // puede comprobar, no se bloquea el acceso; las acciones piden el perfil cuando hace falta.
+    const profile = await getMyProfile(supabase);
+    if (profile.ok && profile.data === null) destination = onboardingPath(next);
   } catch {
     return failed();
   }
 
-  return NextResponse.redirect(new URL(next, origin));
+  return NextResponse.redirect(new URL(destination, origin));
 }

@@ -3,6 +3,9 @@
 begin;
 insert into auth.users (id) values
   ('00000000-0000-0000-0000-00000000000a'), ('00000000-0000-0000-0000-00000000000b');
+-- V2-002: crear y votar exigen perfil.
+insert into public.profiles (user_id, username)
+  select id, 'u' || replace(right(id::text, 4), '-', '') from auth.users;
 insert into public.polls (id, user_id, question, status) values
   ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000a', '¿Encuesta publicada?', 'published'),
   ('10000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-00000000000a', '¿Encuesta oculta?', 'hidden'),

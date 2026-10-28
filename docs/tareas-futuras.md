@@ -102,7 +102,7 @@ Tareas de [backlog-v2.md](backlog-v2.md), con el mismo protocolo de reserva. Ant
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|
 | [V2-001](https://github.com/migdlp/opinion-social-media/issues/115) | Crear tabla `profiles` y RPC de perfil | P0 | — | Completada: [PR #143](https://github.com/migdlp/opinion-social-media/pull/143), merge `7b7e70d`; CI verde (SQL 001–010, RLS, E2E, tipos reproducibles); TDD RED (008 y errores) → GREEN; migración sin aplicar aún a dev | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
-| [V2-002](https://github.com/migdlp/opinion-social-media/issues/124) | Onboarding: elegir `@usuario` tras el primer login | P0 | V2-001 | En progreso | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
+| [V2-002](https://github.com/migdlp/opinion-social-media/issues/124) | Onboarding: elegir `@usuario` tras el primer login | P0 | V2-001 | Completada: [PR #152](https://github.com/migdlp/opinion-social-media/pull/152), merge `c0b3953`; CI verde incl. E2E con perfiles; TDD RED (005 y 11 tests) → GREEN; flujo Google → onboarding no probado con Google real; migración sin aplicar aún a dev | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
 | [V2-003](https://github.com/migdlp/opinion-social-media/issues/125) | Firmar encuestas con `@usuario` | P0 | V2-001 | Completada: [PR #151](https://github.com/migdlp/opinion-social-media/pull/151), merge `ba98720`; CI verde; RPC get_poll_authors en lugar de vista (la vista exigiría permiso sobre user_id); TDD RED (014 y 7 tests) → GREEN; V2-005 debe añadir can_view_author; migración sin aplicar aún a dev | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
 | [V2-004](https://github.com/migdlp/opinion-social-media/issues/126) | Crear tabla `follows` con solicitudes | P0 | V2-001 | Completada: [PR #150](https://github.com/migdlp/opinion-social-media/pull/150), merge `41362a5`; CI verde; TDD RED (008) → GREEN, SQL 013; cuota cuenta filas creadas (bucle seguir/dejar la elude); sin adaptadores TS (los traen V2-006/008/009); migración sin aplicar aún a dev | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
 | [V2-005](https://github.com/migdlp/opinion-social-media/issues/128) | Visibilidad de cuentas privadas en RLS y RPC | P0 | V2-001, V2-004 | En progreso | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
@@ -121,12 +121,12 @@ Tareas de [backlog-v2.md](backlog-v2.md), con el mismo protocolo de reserva. Ant
 | [V2-018](https://github.com/migdlp/opinion-social-media/issues/121) | Compartir con la hoja nativa | P1 | — | Completada: [PR #147](https://github.com/migdlp/opinion-social-media/pull/147), merge `6c7c3de`; CI verde; TDD RED (3 tests) → GREEN; no probada con hoja nativa en un móvil real | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
 | [V2-019](https://github.com/migdlp/opinion-social-media/issues/134) | Imagen OG dinámica por encuesta | P1 | V2-005 | Pendiente | — |
 | [V2-020](https://github.com/migdlp/opinion-social-media/issues/122) | Denunciar una encuesta | P0 | — | Completada: [PR #148](https://github.com/migdlp/opinion-social-media/pull/148), merge `ebce121`; CI verde; TDD RED (008 y vitest) → GREEN, SQL 012 y 264 tests; atrapado de foco del diálogo no comprobado en navegador real; migración sin aplicar aún a dev | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
-| [V2-021](https://github.com/migdlp/opinion-social-media/issues/131) | Categorías fijas al crear y en la tarjeta | P1 | V2-013 | Pendiente | — |
+| [V2-021](https://github.com/migdlp/opinion-social-media/issues/131) | Categorías fijas al crear y en la tarjeta | P1 | V2-013 | En progreso | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
 | [V2-022](https://github.com/migdlp/opinion-social-media/issues/139) | Guardar para luego | P1 | V2-006 | Pendiente | — |
 | [V2-023](https://github.com/migdlp/opinion-social-media/issues/136) | RPC de resultados por lotes para el feed | P1 | V2-014 | Pendiente | — |
 | [V2-024](https://github.com/migdlp/opinion-social-media/issues/137) | Pruebas de fugas de privacidad y cierre | P0 | V2-005, V2-007, V2-014 | Pendiente | — |
 | [V2-025](https://github.com/migdlp/opinion-social-media/issues/140) | E2E del ciclo social | P0 | V2-002, V2-006, V2-009 | Pendiente | — |
-| [V2-030](https://github.com/migdlp/opinion-social-media/issues/123) | Definir el feed con el propietario | P0 | — | Pendiente | — |
+| [V2-030](https://github.com/migdlp/opinion-social-media/issues/123) | Definir el feed con el propietario | P0 | — | En progreso: preguntas de producto enviadas; pendiente de respuestas del propietario | Codex /root (opinion_social_media) |
 
 ## Condición de cierre
 

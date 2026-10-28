@@ -33,6 +33,10 @@ export async function createUser(label: string): Promise<TestUser> {
     email_confirm: true,
   });
   if (error) throw error;
+  // Crear y votar exigen @usuario (V2-002): se crea el perfil como tras el onboarding.
+  const username = `${label}${Date.now() % 1_000_000}${counter}`.slice(0, 20);
+  const profile = await admin.from("profiles").insert({ user_id: data.user.id, username });
+  if (profile.error) throw profile.error;
   return { id: data.user.id, email };
 }
 

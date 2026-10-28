@@ -198,6 +198,14 @@ export type Database = {
         Returns: string;
       };
       follow_user: { Args: { p_username: string }; Returns: string };
+      get_my_profile: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          display_name: string;
+          is_private: boolean;
+          username: string;
+        }[];
+      };
       get_poll_authors: {
         Args: { p_poll_ids: string[] };
         Returns: {
