@@ -140,6 +140,12 @@ Tareas de [backlog-v2.md](backlog-v2.md), con el mismo protocolo de reserva. Ant
 |---|---|---|---|---|---|
 | [DESIGN-001](https://github.com/migdlp/opinion-social-media/issues/185) | Registrar y comunicar dirección creativa After Sunset | P0 | — | Completada: [PR #186](https://github.com/migdlp/opinion-social-media/pull/186), merge `d1ef642`; [CI verde](https://github.com/migdlp/opinion-social-media/actions/runs/40684033014); D-026 y siete .md coherentes, enlaces y contraste revisados; aviso publicado en #73; sin cambios de CSS ni despliegues | Codex /root (opinion_social_media) |
 
+## Auditoría de cobertura
+
+| ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
+|---|---|---|---|---|---|
+| [AUDIT-001](https://github.com/migdlp/opinion-social-media/issues/187) | Completar tareas faltantes del alcance aprobado | P0 | — | En progreso | Codex /root (opinion_social_media) |
+
 ## Condición de cierre
 
 Cada tarea requiere evidencia de sus criterios de aceptación antes de pasar a completada. Crear documentos, escribir un borrador o disponer de acceso a un servicio no basta. MVP-051 permanece pendiente hasta verificar todas las condiciones obligatorias del checklist global del backlog.
