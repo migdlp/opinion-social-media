@@ -132,3 +132,21 @@ La implementación está reanudada (D-013). Crear estos tickets no ejecuta las t
 | V2-036 | [#183: E2E y cierre del feed](https://github.com/migdlp/opinion-social-media/issues/183) | P0 | [E10](https://github.com/migdlp/opinion-social-media/issues/113) |
 
 Las seis tareas del feed tienen dependencias nativas de GitHub y pertenecen como sub-issues a E10. El orden está en el mapa de backlog-v2; V2-031 y V2-033 pueden desarrollarse en paralelo al cumplirse sus dependencias.
+
+## Auditoría de tareas faltantes (AUDIT-001)
+
+Nueve tickets nuevos del alcance ya aprobado, con sub-issues E08/E11 y dependencias nativas; [detalle y matriz](auditoria-tareas.md). Auditoría #187; el estilo se había documentado en DESIGN-001 #185.
+
+| ID / issue | Tarea | Prioridad | Tamaño | Dependencias |
+|---|---|---|---|---|
+| [DESIGN-002](https://github.com/migdlp/opinion-social-media/issues/188) | Migrar tokens y estilos base a After Sunset | P0 | M | DESIGN-001 |
+| [DESIGN-003](https://github.com/migdlp/opinion-social-media/issues/189) | Adaptar feed, detalle, creación y acceso al nuevo estilo | P0 | L | DESIGN-002 |
+| [DESIGN-004](https://github.com/migdlp/opinion-social-media/issues/190) | Adaptar perfiles, ajustes y solicitudes a After Sunset | P0 | M | DESIGN-002, V2-006, V2-008, V2-009 |
+| [DESIGN-005](https://github.com/migdlp/opinion-social-media/issues/191) | Adaptar las imágenes sociales a la nueva identidad | P0 | S | DESIGN-002, V2-019 |
+| [DESIGN-006](https://github.com/migdlp/opinion-social-media/issues/192) | Verificar la adaptación visual completa y su accesibilidad | P0 | L | DESIGN-003, DESIGN-004, DESIGN-005, V2-025, V2-036 |
+| [SEC-001](https://github.com/migdlp/opinion-social-media/issues/193) | Impedir que borrar seguimientos reinicie la cuota | P0 | M | V2-004 |
+| [OPS-001](https://github.com/migdlp/opinion-social-media/issues/194) | Integrar las migraciones de fase 2 en Supabase dev | P0 | L | V2-007, V2-014, V2-021, V2-031, SEC-001 |
+| [OPS-002](https://github.com/migdlp/opinion-social-media/issues/195) | Validar fase 2 integrada con Google real en desarrollo | P0 | L | OPS-001, MVP-005, V2-025, V2-036 |
+| [DOC-001](https://github.com/migdlp/opinion-social-media/issues/196) | Actualizar documentación operativa al candidato de fase 2 | P0 | M | OPS-002, DESIGN-006 |
+
+Se incorpora además V2-052 [#169](https://github.com/migdlp/opinion-social-media/issues/169), P1/S, como ticket existente; no se crea otro ni se incorpora el resto de la propuesta #184.

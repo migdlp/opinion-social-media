@@ -21,6 +21,8 @@ Leer [AGENTS.md](../AGENTS.md), el [contexto de la aplicación](contexto-aplicac
 | [Cobertura del brief](cobertura-brief.md) | Equivalencia T01–T27, casos límite y cambios de requisitos |
 | [GitHub Issues](github-issues.md) | Identificadores reales, épicas, tareas y enlaces |
 | [JSON](backlog.json) / [CSV](backlog.csv) | Exportación de cinco épicas y 53 tareas; CSV contiene las tareas |
+| [Auditoría de cobertura](auditoria-tareas.md) | Huecos reales, tareas existentes y propuestas separadas |
+| [Backlog adicional](backlog-adicional.md) | Nueve tareas nuevas; [JSON](tareas-adicionales.json) / [CSV](tareas-adicionales.csv) |
 | [Tareas futuras](tareas-futuras.md) | Registro de estado, fases y trabajo pendiente |
 | [Prioridades y orden](orden-ejecucion.md) | Siguiente tarea, secuencia válida y reserva por agente |
 | [Google OAuth](google-oauth.md) | Pasos para crear el cliente OAuth y activarlo en Supabase (MVP-005) |

@@ -643,3 +643,23 @@ El diseño del feed está **definido** en D-022 a D-025. Las respuestas y la cob
 ## 6. Registro
 
 El estado de cada tarea se lleva en [tareas-futuras.md](tareas-futuras.md), sección «Fase 2», con el mismo protocolo de reserva del MVP. Issues: épicas #109–#114, tareas iniciales #115–#140 y feed #178–#183 (tabla en [github-issues.md](github-issues.md#fase-2)). Cada issue repite sus dependencias y a quién bloquea.
+
+## 7. Cobertura adicional del alcance aprobado
+
+La [auditoría](auditoria-tareas.md) añade nueve tareas P0 de implementación visual, cuota, integración y documentación; [requisitos y criterios completos](backlog-adicional.md). No reemplazan tareas existentes ni convierten las propuestas de E12 en requisitos.
+
+| ID / issue | Tarea | Prioridad | Tamaño | Dependencias |
+|---|---|---|---|---|
+| [DESIGN-002](https://github.com/migdlp/opinion-social-media/issues/188) | Migrar tokens y estilos base a After Sunset | P0 | M | DESIGN-001 |
+| [DESIGN-003](https://github.com/migdlp/opinion-social-media/issues/189) | Adaptar feed, detalle, creación y acceso al nuevo estilo | P0 | L | DESIGN-002 |
+| [DESIGN-004](https://github.com/migdlp/opinion-social-media/issues/190) | Adaptar perfiles, ajustes y solicitudes a After Sunset | P0 | M | DESIGN-002, V2-006, V2-008, V2-009 |
+| [DESIGN-005](https://github.com/migdlp/opinion-social-media/issues/191) | Adaptar las imágenes sociales a la nueva identidad | P0 | S | DESIGN-002, V2-019 |
+| [DESIGN-006](https://github.com/migdlp/opinion-social-media/issues/192) | Verificar la adaptación visual completa y su accesibilidad | P0 | L | DESIGN-003, DESIGN-004, DESIGN-005, V2-025, V2-036 |
+| [SEC-001](https://github.com/migdlp/opinion-social-media/issues/193) | Impedir que borrar seguimientos reinicie la cuota | P0 | M | V2-004 |
+| [OPS-001](https://github.com/migdlp/opinion-social-media/issues/194) | Integrar las migraciones de fase 2 en Supabase dev | P0 | L | V2-007, V2-014, V2-021, V2-031, SEC-001 |
+| [OPS-002](https://github.com/migdlp/opinion-social-media/issues/195) | Validar fase 2 integrada con Google real en desarrollo | P0 | L | OPS-001, MVP-005, V2-025, V2-036 |
+| [DOC-001](https://github.com/migdlp/opinion-social-media/issues/196) | Actualizar documentación operativa al candidato de fase 2 | P0 | M | OPS-002, DESIGN-006 |
+
+### V2-052 — Conservar la elección al iniciar sesión
+
+Ticket existente [#169](https://github.com/migdlp/opinion-social-media/issues/169), P1/S, frontend/auth, sin dependencias bloqueantes nuevas. Recupera en detalle y a través del onboarding la selección previa al login sin voto automático, almacenamiento local ni opción de otra encuesta. [Criterios preservados y relación con V2-033](backlog-adicional.md#v2-052--conservar-la-elección-al-iniciar-sesión). Se incorpora al registro sin duplicarlo ni aprobar otras apuestas de crecimiento.
