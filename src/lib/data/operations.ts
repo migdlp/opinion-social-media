@@ -3,6 +3,7 @@
 // (src/lib/supabase/server.ts o client.ts) y devuelven Result con AppErrorCode.
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { toAppError } from "./errors";
+import { isClosed } from "@/lib/utils/date";
 import { getFeedPolls, getOwnVoteOptionId, getPublicPoll } from "./polls";
 import type {
   FeedPage,
@@ -167,6 +168,29 @@ async function viewerFor(
   return results.ok ? { ok: true, data: { kind: "voted", results: results.data } } : results;
 }
 
+// Encuesta cerrada (D-020): sus resultados son públicos. Se piden con o sin sesión; quien votó
+// (myOptionId) los ve como «voted» y el resto como «closed». El reloj es el de la aplicación: si
+// la base de datos aún la considera abierta (desfase), devuelve null y se sigue el flujo normal.
+async function closedViewer(
+  supabase: SupabaseClient,
+  poll: PublicPoll,
+  signedIn: boolean,
+): Promise<Result<PollViewerState | null>> {
+  if (!isClosed(poll.closesAt, new Date())) return { ok: true, data: null };
+  const results = await getPollResults(supabase, poll.id);
+  if (results.ok) {
+    return {
+      ok: true,
+      data: results.data.myOptionId
+        ? { kind: "voted", results: results.data }
+        : { kind: "closed", results: results.data, signedIn },
+    };
+  }
+  if (results.error === "AUTH_REQUIRED" || results.error === "NOT_VOTED")
+    return { ok: true, data: null };
+  return results;
+}
+
 export function getPollDetail(
   supabase: SupabaseClient,
   id: string,
@@ -175,6 +199,9 @@ export function getPollDetail(
   return guard(async () => {
     const poll = await getPublicPoll(supabase, id);
     if (!poll.ok) return poll;
+    const closed = await closedViewer(supabase, poll.data, viewer.signedIn);
+    if (!closed.ok) return closed;
+    if (closed.data) return { ok: true, data: { poll: poll.data, viewer: closed.data } };
     if (!viewer.signedIn)
       return { ok: true, data: { poll: poll.data, viewer: { kind: "anonymous" } } };
 
@@ -190,11 +217,20 @@ export function getPollDetail(
   });
 }
 
-function anonymousPage(polls: PublicPoll[], nextCursor: string | null): Result<FeedPage> {
-  return {
-    ok: true,
-    data: { items: polls.map((poll) => ({ poll, viewer: { kind: "anonymous" } })), nextCursor },
-  };
+// Visitante: tarjetas anónimas, salvo las cerradas, que muestran sus resultados públicos.
+async function anonymousPage(
+  supabase: SupabaseClient,
+  polls: PublicPoll[],
+  nextCursor: string | null,
+): Promise<Result<FeedPage>> {
+  const closed = await Promise.all(polls.map((poll) => closedViewer(supabase, poll, false)));
+  const items = [];
+  for (let i = 0; i < polls.length; i++) {
+    const state = closed[i];
+    if (!state.ok) return state;
+    items.push({ poll: polls[i], viewer: state.data ?? { kind: "anonymous" as const } });
+  }
+  return { ok: true, data: { items, nextCursor } };
 }
 
 export function getFeedPage(
@@ -208,7 +244,7 @@ export function getFeedPage(
     const { polls, nextCursor } = page.data;
 
     if (!viewer.signedIn || polls.length === 0) {
-      return anonymousPage(polls, nextCursor);
+      return anonymousPage(supabase, polls, nextCursor);
     }
 
     // Una consulta de votos propios para todo el lote (RLS sólo devuelve los del usuario).
@@ -221,7 +257,7 @@ export function getFeedPage(
       );
     if (error) {
       if (toAppError(error) === "AUTH_REQUIRED") {
-        return anonymousPage(polls, nextCursor);
+        return anonymousPage(supabase, polls, nextCursor);
       }
       return { ok: false, error: toAppError(error) };
     }
@@ -230,7 +266,13 @@ export function getFeedPage(
     );
 
     const states = await Promise.all(
-      polls.map((p) => viewerFor(supabase, p.id, own.get(p.id) ?? null)),
+      polls.map(async (p): Promise<Result<PollViewerState>> => {
+        const closed = await closedViewer(supabase, p, true);
+        if (!closed.ok) return closed;
+        return closed.data
+          ? { ok: true, data: closed.data }
+          : viewerFor(supabase, p.id, own.get(p.id) ?? null);
+      }),
     );
     const items = [];
     for (let i = 0; i < polls.length; i++) {

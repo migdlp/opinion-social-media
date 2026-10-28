@@ -178,3 +178,63 @@ describe("autor de la encuesta", () => {
     expect(html).not.toContain("/u/");
   });
 });
+
+// V2-014, criterio 4 y D-020: justo antes de cerrar no hay agregados en el HTML; cerrada, sus
+// resultados son públicos incluso para un visitante sin sesión.
+describe("cierre de la encuesta", () => {
+  const closedRows = [
+    {
+      option_id: "a",
+      text: "Con cebolla",
+      position: 1,
+      votes: 3,
+      percentage: 75,
+      total_votes: 4,
+      my_option_id: null,
+    },
+    {
+      option_id: "b",
+      text: "Sin cebolla",
+      position: 2,
+      votes: 1,
+      percentage: 25,
+      total_votes: 4,
+      my_option_id: null,
+    },
+  ];
+  const closingIn = (ms: number) => ({
+    ...row,
+    closes_at: new Date(Date.now() + ms).toISOString(),
+  });
+
+  it("un segundo antes de cerrar ni el feed ni el detalle incluyen agregados ni piden resultados", async () => {
+    const poll = closingIn(60_000);
+    responses = {
+      polls: { data: [poll], error: null },
+      "rpc:get_poll_results": { data: closedRows, error: null },
+    };
+    expectNoAggregates(renderToStaticMarkup(await Feed()));
+    responses = {
+      polls: { data: poll, error: null },
+      "rpc:get_poll_results": { data: closedRows, error: null },
+    };
+    expectNoAggregates(renderToStaticMarkup(await PollDetailLoader({ id: ID })));
+  });
+
+  it("una vez cerrada, un visitante ve los resultados en el feed y en el detalle, sin «Tu voto»", async () => {
+    const poll = closingIn(-60_000);
+    for (const [name, render, data] of [
+      ["feed", () => Feed(), [poll]],
+      ["detalle", () => PollDetailLoader({ id: ID }), poll],
+    ] as const) {
+      responses = {
+        polls: { data, error: null },
+        "rpc:get_poll_results": { data: closedRows, error: null },
+      };
+      const html = renderToStaticMarkup(await render());
+      expect(html, name).toMatch(/75,0\s*%/);
+      expect(html, name).not.toContain("Tu voto");
+      expect(html, name).not.toContain('type="radio"');
+    }
+  });
+});

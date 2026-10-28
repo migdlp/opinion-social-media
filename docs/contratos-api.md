@@ -53,7 +53,7 @@ Orden de comprobación dentro de cada RPC (determina qué código gana si hay va
 
 - `create_poll`: `AUTH_REQUIRED` → `VALIDATION_OPTION_COUNT` → `VALIDATION_QUESTION_LENGTH` → `VALIDATION_OPTION_LENGTH` → `VALIDATION_OPTION_DUPLICATE` → `INVALID_CLOSES_AT` → `RATE_LIMITED`.
 - `vote_poll`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `OPTION_INVALID` → `POLL_CLOSED` → `ALREADY_VOTED`.
-- `get_poll_results`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `NOT_VOTED`. Ningún agregado se calcula antes de superar las tres.
+- `get_poll_results`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `NOT_VOTED`. Ningún agregado se calcula antes de superar las tres. **Excepción D-020 (V2-014):** si la encuesta está publicada, es visible para quien llama y `closes_at <= now()`, no se exige sesión ni voto y se devuelven los agregados. Para un visitante, una cerrada privada o inexistente sigue siendo `AUTH_REQUIRED`; con sesión, `POLL_UNAVAILABLE`.
 - `report_poll`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `REPORT_INVALID` → `ALREADY_REPORTED` → `REPORT_RATE_LIMITED`.
 - `upsert_my_profile`: `AUTH_REQUIRED` → `USERNAME_INVALID` → `USERNAME_RESERVED` → `DISPLAY_NAME_INVALID` → `USERNAME_TAKEN`.
 - `set_profile_privacy`: `AUTH_REQUIRED` → `PROFILE_REQUIRED`.
@@ -105,8 +105,8 @@ public.get_poll_results(p_poll_id uuid)
     text         text,
     votes        integer,       -- >= 0; aparecen todas las opciones
     percentage   numeric(4,1),  -- ROUND(100.0 * votes / total_votes, 1); 100.0 evita división entera
-    total_votes  integer,       -- igual en todas las filas; >= 1
-    my_option_id uuid           -- igual en todas las filas
+    total_votes  integer,       -- igual en todas las filas; >= 1 (>= 0 si está cerrada)
+    my_option_id uuid           -- igual en todas las filas; nulo en una cerrada si no votó o no hay sesión
   )
 ```
 
@@ -114,6 +114,7 @@ public.get_poll_results(p_poll_id uuid)
 - La suma de porcentajes puede no ser exactamente 100,0 por el redondeo; se acepta.
 - **No contiene** `user_id`, identidades de votantes, fechas de voto ni otro dato por votante. Sólo agregados por opción, el total y la opción propia.
 - Sin caché compartida: se llama con la sesión del usuario y la página que la usa es dinámica (`no-store`).
+- **Encuestas cerradas (V2-014, D-020):** `EXECUTE` también para `anon`. Si `closes_at <= now()` y la encuesta es visible (§3.8), devuelve los resultados a quien los pida, con o sin sesión y haya votado o no; `my_option_id` es nulo si no votó o no hay sesión. Con 0 votos devuelve todas las opciones con `votes = 0`, `percentage = 0.0` y `total_votes = 0`. El estado de la interfaz es `closed` (o `voted` si la cuenta votó). Las abiertas no cambian en nada.
 
 ### 3.5. `report_poll` (V2-020)
 
@@ -267,7 +268,7 @@ export interface OptionResult extends PollOption {
 export interface PollResults {
   pollId: string
   totalVotes: number // >= 1
-  myOptionId: string
+  myOptionId: string | null // V2-014: nulo en una cerrada si no votó o no hay sesión
   options: OptionResult[] // todas, ordenadas por position
 }
 
@@ -276,6 +277,7 @@ export type PollViewerState =
   | { kind: 'anonymous' }                         // sin sesión: puede seleccionar, no votar
   | { kind: 'not_voted' }                         // con sesión, sin voto: selector
   | { kind: 'voted'; results: PollResults }       // con sesión y voto: resultados
+  | { kind: 'closed'; results: PollResults; signedIn: boolean } // V2-014: cerrada, resultados públicos (D-020)
 
 export interface FeedItem {
   poll: PublicPoll

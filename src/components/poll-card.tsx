@@ -17,7 +17,8 @@ type PollCardProps = {
 // («?? %») para invitar a votar. Si el usuario ya votó, muestra los resultados. Toda la
 // tarjeta lleva al detalle.
 export function PollCard({ poll, viewer, now = new Date() }: PollCardProps) {
-  const results = viewer?.kind === "voted" ? viewer.results : null;
+  // Votó (resultados propios) o la encuesta está cerrada (resultados públicos, D-020).
+  const results = viewer?.kind === "voted" || viewer?.kind === "closed" ? viewer.results : null;
   const closed = isClosed(poll.closesAt, now);
   return (
     <article className="relative flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4 transition-colors focus-within:border-foreground hover:border-bar-muted">
@@ -30,7 +31,12 @@ export function PollCard({ poll, viewer, now = new Date() }: PollCardProps) {
             {poll.question}
           </Link>
         </h2>
-        <ReportPoll pollId={poll.id} signedIn={viewer ? viewer.kind !== "anonymous" : true} />
+        <ReportPoll
+          pollId={poll.id}
+          signedIn={
+            !viewer || (viewer.kind === "closed" ? viewer.signedIn : viewer.kind !== "anonymous")
+          }
+        />
       </div>
       {results ? <PollResults results={results} /> : <LockedOptions options={poll.options} />}
       <p className="flex items-center justify-between gap-3 text-[13px] text-muted">
