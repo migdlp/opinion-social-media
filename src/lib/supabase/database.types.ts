@@ -198,7 +198,7 @@ export type Database = {
       };
       follow_user: { Args: { p_username: string }; Returns: string };
       get_my_profile: {
-        Args: never;
+        Args: Record<PropertyKey, never>;
         Returns: {
           display_name: string;
           is_private: boolean;
