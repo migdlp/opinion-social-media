@@ -4,7 +4,9 @@
 
 Crear una red social sencilla de encuestas públicas. La experiencia principal es **explorar → elegir → votar → descubrir resultados → seguir explorando**. El incentivo para participar consiste en que los resultados sólo se descubren después de votar.
 
-Nombre de trabajo: **Opinión**. No hay una identidad visual definitiva confirmada. Idioma del MVP: español de España.
+Nombre de trabajo: **Opinión**. Dirección creativa provisional: **After Sunset**, basada en la lámina PEEK del propietario (D-026, 28-10-2026). Leer [la referencia](direccion-creativa.md) y [DESIGN.md](../DESIGN.md): sustituye el monocromo anterior, sin cambio de nombre confirmado. Idioma: español de España.
+
+Las secciones funcionales originales siguientes se interpretan con las decisiones posteriores de fase 2 (D-015–D-025 y backlog-v2): perfiles, privacidad, 2–6 opciones, cierre y feed aprobado. La lámina visual no modifica esas reglas.
 
 ## Contexto de conexión para el equipo y los agentes
 
