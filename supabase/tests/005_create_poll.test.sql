@@ -2,6 +2,9 @@
 
 begin;
 insert into auth.users (id) values ('00000000-0000-0000-0000-00000000000a'), ('00000000-0000-0000-0000-00000000000b');
+-- V2-002: crear y votar exigen perfil.
+insert into public.profiles (user_id, username)
+  select id, 'u' || replace(right(id::text, 4), '-', '') from auth.users;
 
 -- Sin sesión: anon no puede ejecutarla; authenticated sin sub recibe AUTH_REQUIRED.
 select pg_temp.logout();

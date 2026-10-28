@@ -174,6 +174,14 @@ export type Database = {
         Args: { p_closes_at?: string; p_options: string[]; p_question: string };
         Returns: string;
       };
+      get_my_profile: {
+        Args: never;
+        Returns: {
+          display_name: string;
+          is_private: boolean;
+          username: string;
+        }[];
+      };
       get_poll_results: {
         Args: { p_poll_id: string };
         Returns: {

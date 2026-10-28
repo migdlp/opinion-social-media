@@ -137,6 +137,20 @@ describe("PollCreationForm", () => {
       resolve(OK);
     });
 
+    it("sin @usuario (PROFILE_REQUIRED) ofrece elegirlo y volver al formulario", async () => {
+      const user = userEvent.setup();
+      const onSubmit = vi.fn(async () => ({ ok: false, error: "PROFILE_REQUIRED" }) as const);
+      render(<PollCreationForm {...props({ onSubmit })} />);
+
+      await publish(user);
+
+      const link = await screen.findByRole("link", { name: "Elegir mi usuario" });
+      expect(link.getAttribute("href")).toBe("/onboarding?next=%2Fcreate");
+      expect((screen.getByRole("textbox", { name: "Pregunta" }) as HTMLTextAreaElement).value).toBe(
+        VALID[0],
+      );
+    });
+
     it("si falla mantiene los campos, explica el motivo y permite reintentar", async () => {
       const user = userEvent.setup();
       const onSubmit = vi

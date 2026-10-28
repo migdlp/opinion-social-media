@@ -9,6 +9,7 @@ import type {
   PollDetail,
   PollResults,
   PollViewerState,
+  Profile,
   PublicPoll,
   Result,
 } from "./types";
@@ -118,6 +119,41 @@ export function reportPoll(
     });
     if (error) return { ok: false, error: toAppError(error) };
     return { ok: true, data: undefined };
+  });
+}
+
+type ProfileRow = { username: string; display_name: string | null; is_private: boolean };
+
+const toProfile = (row: ProfileRow): Profile => ({
+  username: row.username,
+  displayName: row.display_name,
+  isPrivate: row.is_private,
+});
+
+// Perfil de la cuenta con sesión; null si aún no ha elegido @usuario (V2-002).
+export function getMyProfile(supabase: SupabaseClient): Promise<Result<Profile | null>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("get_my_profile");
+    if (error) return { ok: false, error: toAppError(error) };
+    const row = ((data ?? []) as ProfileRow[])[0];
+    return { ok: true, data: row ? toProfile(row) : null };
+  });
+}
+
+// Crea o edita el perfil propio. Errores: USERNAME_INVALID/TAKEN/RESERVED, DISPLAY_NAME_INVALID.
+export function upsertMyProfile(
+  supabase: SupabaseClient,
+  username: string,
+  displayName: string | null,
+): Promise<Result<Profile>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("upsert_my_profile", {
+      p_username: username,
+      p_display_name: displayName,
+    });
+    if (error) return { ok: false, error: toAppError(error) };
+    const row = ((data ?? []) as ProfileRow[])[0];
+    return row ? { ok: true, data: toProfile(row) } : { ok: false, error: "UNKNOWN" };
   });
 }
 

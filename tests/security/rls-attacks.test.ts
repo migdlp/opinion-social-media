@@ -28,6 +28,14 @@ async function user(email: string): Promise<Session> {
     email_confirm: true,
   });
   if (created.error && !/already/i.test(created.error.message)) throw created.error;
+  // Crear y votar exigen @usuario (V2-002).
+  if (created.data.user) {
+    const username = `u${created.data.user.id.replaceAll("-", "").slice(0, 12)}`;
+    const profile = await admin
+      .from("profiles")
+      .insert({ user_id: created.data.user.id, username });
+    if (profile.error) throw profile.error;
+  }
   const client = createClient(URL_, PUBLISHABLE, opts);
   const { data, error } = await client.auth.signInWithPassword({ email, password: PASSWORD });
   if (error) throw error;

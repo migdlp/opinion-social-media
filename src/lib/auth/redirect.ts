@@ -15,3 +15,9 @@ export function safeNextPath(next: string | null | undefined, fallback = "/"): s
 export function loginPath(next: string): string {
   return `/login?next=${encodeURIComponent(safeNextPath(next))}`;
 }
+
+// Enlace a /onboarding (elegir @usuario) que, al terminar, devuelve a una ruta local (V2-002).
+export function onboardingPath(next: string | null | undefined): string {
+  const safe = safeNextPath(next);
+  return safe === "/" ? "/onboarding" : `/onboarding?next=${encodeURIComponent(safe)}`;
+}

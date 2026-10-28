@@ -15,6 +15,7 @@ sql() { psql -X -q -tA -v ON_ERROR_STOP=1 -d "$DB" -c "$1"; }
 
 sql "truncate public.votes, public.poll_options, public.polls cascade; delete from auth.users;
      insert into auth.users (id) values ('$A'), ('$B');
+     insert into public.profiles (user_id, username) values ('$A', 'cuenta_a'), ('$B', 'cuenta_b');
      insert into public.polls (id, user_id, question) values ('$P', '$B', '¿Encuesta para votar?');
      insert into public.poll_options (id, poll_id, text, position) values ('$O', '$P', 'A', 1), (gen_random_uuid(), '$P', 'B', 2);
      insert into public.polls (user_id, question) select '$A', '¿Encuesta previa ' || g || '?' from generate_series(1, 4) g;"
