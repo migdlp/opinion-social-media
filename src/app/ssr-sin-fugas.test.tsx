@@ -22,7 +22,26 @@ vi.mock("next/navigation", () => ({
   },
 }));
 
-const { Feed } = await import("./feed");
+const { Feed: RealFeed } = await import("./feed");
+// V2-032: el feed pide los ids por RPC (get_feed) y las encuestas por RLS. Estos tests describen
+// las filas de `polls`; de ellas se deducen los ids que devolvería la RPC.
+const Feed = () => {
+  const polls = responses.polls;
+  if (!responses["rpc:get_feed"] && polls && !Array.isArray(polls) && typeof polls !== "function") {
+    const rows = (Array.isArray(polls.data) ? polls.data : []) as {
+      id: string;
+      created_at: string;
+    }[];
+    responses = {
+      ...responses,
+      "rpc:get_feed": {
+        data: rows.map((r) => ({ poll_id: r.id, created_at: r.created_at, cursor: "c" })),
+        error: null,
+      },
+    };
+  }
+  return RealFeed();
+};
 const { PollDetailLoader } = await import("./polls/[id]/poll-detail");
 
 const ID = "11111111-2222-4333-8444-555555555555";
