@@ -149,6 +149,19 @@ beforeAll(async () => {
   await close(privClosed);
 }, 90_000);
 
+const VIEWER_NAMES = ["anon", "extraño", "solicitud pendiente"];
+const INSIDER_NAMES = ["la propia cuenta", "seguidor aceptado"];
+// Los tokens existen sólo tras beforeAll: it.each recibe nombres y los resuelve al ejecutar.
+const tokenOf = (name: string) =>
+  name === "anon"
+    ? undefined
+    : name === "extraño"
+      ? STR.token
+      : name === "solicitud pendiente"
+        ? PEN.token
+        : name === "la propia cuenta"
+          ? PRIV.token
+          : FOL.token;
 const viewers = () => [
   ["anon", undefined],
   ["extraño", STR.token],
@@ -161,7 +174,8 @@ const insiders = () => [
 
 describe("encuestas de una cuenta privada: lectura directa", () => {
   const ids = () => `in.(${privOpen},${privClosed})`;
-  it.each(viewers())("%s no ve encuestas ni opciones privadas por REST", async (_, token) => {
+  it.each(VIEWER_NAMES)("%s no ve encuestas ni opciones privadas por REST", async (name) => {
+    const token = tokenOf(name);
     for (const path of [
       `/rest/v1/polls?select=id,question&id=${ids()}`,
       `/rest/v1/poll_options?select=id,text&poll_id=${ids()}`,
@@ -173,7 +187,8 @@ describe("encuestas de una cuenta privada: lectura directa", () => {
     }
   });
 
-  it.each(insiders())("%s sí las ve", async (_, token) => {
+  it.each(INSIDER_NAMES)("%s sí las ve", async (name) => {
+    const token = tokenOf(name);
     const r = await http(`/rest/v1/polls?select=id&id=${ids()}`, { token });
     expect(
       rows(r)
@@ -182,16 +197,18 @@ describe("encuestas de una cuenta privada: lectura directa", () => {
     ).toEqual([privOpen, privClosed].sort());
   });
 
-  it.each([...viewers(), ...insiders()])("%s ve las encuestas públicas", async (_, token) => {
+  it.each([...VIEWER_NAMES, ...INSIDER_NAMES])("%s ve las encuestas públicas", async (name) => {
+    const token = tokenOf(name);
     const r = await http(`/rest/v1/polls?select=id&id=in.(${pubOpen},${pubClosed})`, { token });
     expect(rows(r)).toHaveLength(2);
   });
 });
 
 describe("encuestas de una cuenta privada: RPC indistinguibles de una inexistente", () => {
-  it.each(viewers().filter(([name]) => name !== "anon"))(
+  it.each(VIEWER_NAMES.filter((name) => name !== "anon"))(
     "%s: votar, pedir resultados y denunciar responden igual que ante un id inexistente",
-    async (_, token) => {
+    async (name) => {
+      const token = tokenOf(name);
       for (const poll of [privOpen, privClosed]) {
         const attempts: [string, (id: string) => Promise<Reply>][] = [
           [
@@ -308,9 +325,10 @@ describe("encuestas abiertas y cerradas", () => {
 });
 
 describe("perfiles y enumeración de usuarios", () => {
-  it.each([...viewers(), ...insiders()])(
+  it.each([...VIEWER_NAMES, ...INSIDER_NAMES])(
     "%s no lee user_id de profiles ni filtra por él",
-    async (_, token) => {
+    async (name) => {
+      const token = tokenOf(name);
       for (const path of [
         "/rest/v1/profiles?select=user_id",
         "/rest/v1/profiles?select=*",
@@ -386,9 +404,10 @@ describe("perfiles y enumeración de usuarios", () => {
 });
 
 describe("contenido del perfil: encuestas y votos", () => {
-  it.each(viewers())(
+  it.each(VIEWER_NAMES)(
     "%s: get_profile_polls y get_profile_votes de una cuenta privada",
-    async (_, token) => {
+    async (name) => {
+      const token = tokenOf(name);
       for (const name of ["get_profile_polls", "get_profile_votes"]) {
         const r = await rpc(name, { p_username: PRIV.username }, token);
         expect(message(r), name).toBe("PROFILE_PRIVATE");
@@ -398,7 +417,8 @@ describe("contenido del perfil: encuestas y votos", () => {
     },
   );
 
-  it.each(insiders())("%s lee las encuestas del perfil privado", async (_, token) => {
+  it.each(INSIDER_NAMES)("%s lee las encuestas del perfil privado", async (name) => {
+    const token = tokenOf(name);
     const r = await rpc("get_profile_polls", { p_username: PRIV.username }, token);
     expect(
       rows(r)
