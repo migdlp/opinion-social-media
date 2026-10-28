@@ -1,7 +1,7 @@
-import { LockedOptions } from "@/components/locked-options";
 import Link from "next/link";
+import { castVote, loadOwnVote } from "@/app/vote-actions";
 import { PollAuthor } from "@/components/poll-author";
-import { PollResults } from "@/components/poll-results";
+import { PollVoting } from "@/components/poll-voting";
 import { ReportPoll } from "@/components/report-poll";
 import { SavePoll } from "@/components/save-poll";
 import type { PollViewerState, PublicPoll } from "@/lib/data/types";
@@ -15,13 +15,12 @@ type PollCardProps = {
   now?: Date;
 };
 
-// Tarjeta de una encuesta del feed: pregunta, opciones, fecha y autor genérico. Sin voto
-// propio no recibe ni muestra datos agregados: cada opción enseña su porcentaje bloqueado
-// («?? %») para invitar a votar. Si el usuario ya votó, muestra los resultados. Toda la
-// tarjeta lleva al detalle.
+// Tarjeta de una encuesta del feed (D-023, V2-033): pregunta, opciones, fecha y autor. Se vota
+// desde la propia tarjeta con el mismo componente y la misma acción que el detalle: elegir, confirmar
+// y ver los resultados. Sin voto propio no recibe ni muestra datos agregados; las votadas y las
+// cerradas (D-020) muestran los resultados desde la carga y las cerradas no admiten voto. Toda la
+// tarjeta lleva al detalle salvo los controles, que van por encima del enlace.
 export function PollCard({ poll, viewer, saved, now = new Date() }: PollCardProps) {
-  // Votó (resultados propios) o la encuesta está cerrada (resultados públicos, D-020).
-  const results = viewer?.kind === "voted" || viewer?.kind === "closed" ? viewer.results : null;
   const closed = isClosed(poll.closesAt, now);
   const signedIn =
     !viewer || (viewer.kind === "closed" ? viewer.signedIn : viewer.kind !== "anonymous");
@@ -49,7 +48,16 @@ export function PollCard({ poll, viewer, saved, now = new Date() }: PollCardProp
           <ReportPoll pollId={poll.id} signedIn={signedIn} />
         </div>
       </div>
-      {results ? <PollResults results={results} /> : <LockedOptions options={poll.options} />}
+      {/* Por encima del enlace que cubre la tarjeta: los controles de voto no van dentro de un enlace. */}
+      <div className="relative z-10">
+        <PollVoting
+          poll={poll}
+          viewer={viewer ?? { kind: "anonymous" }}
+          castVote={castVote}
+          loadOwnVote={loadOwnVote}
+          closed={closed}
+        />
+      </div>
       <p className="flex items-center justify-between gap-3 text-[13px] text-muted">
         <span>
           <PollAuthor author={poll.author} />
@@ -62,7 +70,6 @@ export function PollCard({ poll, viewer, saved, now = new Date() }: PollCardProp
             </>
           )}
         </span>
-        {!results && !closed && <span className="font-medium text-foreground">Vota para ver</span>}
       </p>
     </article>
   );

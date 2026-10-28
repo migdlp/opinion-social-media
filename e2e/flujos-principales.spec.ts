@@ -27,7 +27,8 @@ test("visitante: navega por feed y detalle y sólo ve opciones, sin resultados",
   await expect(card).toBeVisible();
   await expect(card).toContainText("Rojo");
   await expect(card).not.toContainText(AGGREGATES);
-  await expect(card.getByText("Vota para ver")).toBeVisible();
+  // Se vota desde la propia tarjeta (V2-033): opciones para elegir y confirmar, sin cifras.
+  await expect(card.getByRole("button", { name: "Votar" })).toBeVisible();
 
   await card.getByRole("link", { name: question }).click();
   await expect(page).toHaveURL(`/polls/${pollId}`);
@@ -110,5 +111,5 @@ test("sesión persistente: tras recargar, la encuesta votada sigue con resultado
   await ready(page, "/");
   const card = page.locator("article", { hasText: question });
   await expect(card.getByText("Tu voto")).toBeVisible();
-  await expect(card.getByText("Vota para ver")).toHaveCount(0);
+  await expect(card.getByRole("button", { name: "Votar" })).toHaveCount(0);
 });

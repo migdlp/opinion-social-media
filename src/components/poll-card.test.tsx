@@ -1,9 +1,19 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen, within } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
-import type { PollResults, PublicPoll } from "@/lib/data/types";
-import { PollCard } from "./poll-card";
+import userEvent from "@testing-library/user-event";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { PollResults, PublicPoll, Result } from "@/lib/data/types";
 
+const castVote = vi.fn<(pollId: string, optionId: string) => Promise<Result<PollResults>>>();
+const loadOwnVote = vi.fn<(pollId: string) => Promise<Result<PollResults | null>>>();
+vi.mock("@/app/vote-actions", () => ({ castVote, loadOwnVote }));
+
+const { PollCard } = await import("./poll-card");
+
+beforeEach(() => {
+  castVote.mockReset();
+  loadOwnVote.mockReset();
+});
 afterEach(cleanup);
 
 const NOW = new Date("2026-10-27T20:00:00Z");
@@ -14,6 +24,16 @@ const POLL: PublicPoll = {
   options: [
     { id: "o1", text: "Café", position: 1 },
     { id: "o2", text: "Té", position: 2 },
+  ],
+};
+
+const RESULTS_VOTED: PollResults = {
+  pollId: "11111111-2222-3333-4444-555555555555",
+  totalVotes: 4,
+  myOptionId: "o2",
+  options: [
+    { id: "o1", text: "Café", position: 1, votes: 3, percentage: 75 },
+    { id: "o2", text: "Té", position: 2, votes: 1, percentage: 25 },
   ],
 };
 
@@ -33,11 +53,11 @@ describe("PollCard", () => {
 
     const card = screen.getByRole("article");
     expect(within(card).getByRole("heading", { name: POLL.question })).toBeDefined();
-    const items = within(card).getAllByRole("listitem");
-    expect(items.map((li) => within(li).getByText(/^(Café|Té)$/).textContent)).toEqual([
-      "Café",
-      "Té",
-    ]);
+    expect(
+      within(card)
+        .getAllByRole("radio")
+        .map((r) => r.closest("label")?.textContent),
+    ).toEqual(["Café", "Té"]);
     const time = card.querySelector("time")!;
     expect(time.getAttribute("datetime")).toBe(POLL.createdAt);
     expect(time.textContent).toBe("hace 5 minutos");
@@ -48,14 +68,65 @@ describe("PollCard", () => {
     expect(container.querySelector("[data-bar]")).toBeNull();
   });
 
-  it("cada opción muestra su porcentaje bloqueado hasta votar", () => {
-    render(<PollCard poll={POLL} now={NOW} />);
+  it("V2-033: antes de votar ofrece elegir y confirmar en la propia tarjeta, sin cifras", () => {
+    const { container } = render(<PollCard poll={POLL} viewer={{ kind: "not_voted" }} now={NOW} />);
 
-    for (const li of screen.getAllByRole("listitem")) {
-      expect(within(li).getByText("?? %")).toBeDefined();
-      expect(within(li).getByText("Resultado oculto hasta votar")).toBeDefined();
-    }
-    expect(screen.getByText("Vota para ver")).toBeDefined();
+    expect(screen.getAllByRole("radio")).toHaveLength(2);
+    expect((screen.getByRole("button", { name: "Votar" }) as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+    expect(container.textContent).not.toMatch(/\d\s*%|\?\?\s*%|\bvotos?\b|total/i);
+    expect(container.querySelector("[data-bar]")).toBeNull();
+  });
+
+  it("V2-033: al elegir y confirmar vota y esa tarjeta pasa a mostrar los resultados", async () => {
+    castVote.mockResolvedValue({
+      ok: true,
+      data: { ...RESULTS_VOTED, myOptionId: "o2" },
+    });
+    render(<PollCard poll={POLL} viewer={{ kind: "not_voted" }} now={NOW} />);
+
+    await userEvent.click(screen.getByRole("radio", { name: "Té" }));
+    await userEvent.click(screen.getByRole("button", { name: "Votar" }));
+
+    expect(castVote).toHaveBeenCalledOnce();
+    expect(castVote).toHaveBeenCalledWith(POLL.id, "o2");
+    expect(await screen.findByText("Tu voto")).toBeDefined();
+    expect(screen.getAllByText(/75,0\s*%/).length).toBeGreaterThan(0);
+    expect(screen.queryByRole("button", { name: "Votar" })).toBeNull();
+  });
+
+  it("V2-033: un visitante que confirma va al login con la encuesta y la opción, sin voto", async () => {
+    render(<PollCard poll={POLL} viewer={{ kind: "anonymous" }} now={NOW} />);
+
+    await userEvent.click(screen.getByRole("radio", { name: "Café" }));
+    await userEvent.click(screen.getByRole("button", { name: "Votar" }));
+
+    expect(castVote).not.toHaveBeenCalled();
+    expect(screen.getByRole("link", { name: "Iniciar sesión" }).getAttribute("href")).toBe(
+      `/login?next=${encodeURIComponent(`/polls/${POLL.id}?option=o1`)}`,
+    );
+  });
+
+  it("V2-033: los controles de voto no están dentro de ningún enlace", () => {
+    const { container } = render(<PollCard poll={POLL} viewer={{ kind: "not_voted" }} now={NOW} />);
+    expect(container.querySelectorAll("a input, a button, a label")).toHaveLength(0);
+    // Y quedan por encima del enlace que cubre la tarjeta.
+    expect(container.querySelector("form")?.closest("[class*='z-10']")).not.toBeNull();
+  });
+
+  it("V2-033: una cerrada no admite voto y muestra los resultados desde la carga", () => {
+    const closed = { ...POLL, closesAt: "2026-10-27T18:00:00Z" };
+    render(
+      <PollCard
+        poll={closed}
+        viewer={{ kind: "closed", results: CLOSED_RESULTS, signedIn: true }}
+        now={NOW}
+      />,
+    );
+    expect(screen.queryByRole("radio")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Votar" })).toBeNull();
+    expect(screen.getByText(/75,0\s*%/)).toBeDefined();
   });
 
   it("la pregunta enlaza al detalle /polls/{id}", () => {
@@ -78,10 +149,9 @@ describe("PollCard", () => {
     it("muestra los resultados en lugar de las cifras bloqueadas y marca su voto", () => {
       render(<PollCard poll={POLL} viewer={{ kind: "voted", results: RESULTS }} now={NOW} />);
 
-      expect(screen.getByText(/75,0\s*%/)).toBeDefined();
+      expect(screen.getAllByText(/75,0\s*%/).length).toBeGreaterThan(0);
       expect(screen.getByText("Tu voto")).toBeDefined();
       expect(screen.queryByText("?? %")).toBeNull();
-      expect(screen.queryByText("Vota para ver")).toBeNull();
     });
 
     it("sigue llevando al detalle de la encuesta", () => {
@@ -99,7 +169,7 @@ describe("PollCard", () => {
       const { container } = render(<PollCard poll={POLL} viewer={viewer} now={NOW} />);
 
       expect(container.textContent).not.toMatch(/\d\s*%|\bvotos?\b|total/i);
-      expect(screen.getAllByText("?? %")).toHaveLength(2);
+      expect(screen.queryByText("?? %")).toBeNull();
     },
   );
 
@@ -117,7 +187,6 @@ describe("PollCard", () => {
     const closed = { ...POLL, closesAt: "2026-10-27T18:00:00Z" };
     render(<PollCard poll={closed} now={NOW} />);
     expect(screen.getByText("Cerrada hace 2 h")).toBeDefined();
-    expect(screen.queryByText("Vota para ver")).toBeNull();
   });
 
   it("firma con @usuario y nombre visible, enlazado a su perfil", () => {
@@ -150,7 +219,6 @@ describe("PollCard", () => {
     expect(screen.getByText("75,0 %")).toBeDefined();
     expect(screen.getByText("4 votos en total")).toBeDefined();
     expect(screen.queryByText("Tu voto")).toBeNull();
-    expect(screen.queryByText("Vota para ver")).toBeNull();
     expect(screen.queryByText("?? %")).toBeNull();
   });
 
@@ -159,7 +227,7 @@ describe("PollCard", () => {
     const { container } = render(<PollCard poll={poll} viewer={{ kind: "not_voted" }} now={NOW} />);
 
     expect(container.textContent).not.toMatch(/\d\s*%|\bvotos?\b|total/i);
-    expect(screen.getByText("Vota para ver")).toBeDefined();
+    expect(screen.getByRole("button", { name: "Votar" })).toBeDefined();
   });
 
   it("muestra la etiqueta de la categoría, y ninguna si no tiene", () => {

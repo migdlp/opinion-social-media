@@ -135,8 +135,17 @@ describe("quien ya votó", () => {
 
     const html = renderToStaticMarkup(await Feed());
 
-    expect(html.match(/75,0\s*%/g)).toHaveLength(1);
-    expect(html).toContain("Tu voto");
+    // Resultados sólo en la tarjeta votada (V2-033: la votada puede repetir la cifra en el aviso de
+    // coincidencia); la otra tarjeta no lleva ninguna cifra.
+    expect(html.match(/Tu voto/g)).toHaveLength(1);
+    const cards = html.split("<article").slice(1);
+    const [voted, notVoted] = [
+      cards.find((c) => c.includes("¿Tortilla")),
+      cards.find((c) => c.includes("¿Otra?")),
+    ];
+    expect(voted).toMatch(/75,0\s*%/);
+    expect(notVoted).toBeDefined();
+    expect(notVoted).not.toMatch(/\d\s*%/);
     // Una sola consulta de votos propios para el lote y resultados sólo de la votada.
     const targets = queries.map((q) => q.target);
     expect(targets.filter((t) => t === "votes")).toHaveLength(1);

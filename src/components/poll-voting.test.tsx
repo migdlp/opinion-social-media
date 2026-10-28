@@ -89,10 +89,43 @@ describe("PollVoting", () => {
 
     expect(castVote).not.toHaveBeenCalled();
     const link = screen.getByRole("link", { name: "Iniciar sesión" });
+    // Vuelve a la encuesta con la opción elegida marcada, pero sin votarla (V2-033).
     expect(link.getAttribute("href")).toBe(
-      `/login?next=${encodeURIComponent(`/polls/${POLL.id}`)}`,
+      `/login?next=${encodeURIComponent(`/polls/${POLL.id}?option=b`)}`,
     );
     expect(screen.queryByText("Tu voto")).toBeNull();
+  });
+
+  it("initialSelected marca la opción al volver del login pero no emite ningún voto", () => {
+    render(
+      <PollVoting
+        poll={POLL}
+        viewer={{ kind: "not_voted" }}
+        castVote={castVote}
+        loadOwnVote={loadOwnVote}
+        initialSelected="b"
+      />,
+    );
+    expect((screen.getByRole("radio", { name: "Sin cebolla" }) as HTMLInputElement).checked).toBe(
+      true,
+    );
+    expect(castVote).not.toHaveBeenCalled();
+    expect((screen.getByRole("button", { name: "Votar" }) as HTMLButtonElement).disabled).toBe(
+      false,
+    );
+  });
+
+  it("initialSelected con una opción que no existe se ignora", () => {
+    render(
+      <PollVoting
+        poll={POLL}
+        viewer={{ kind: "not_voted" }}
+        castVote={castVote}
+        loadOwnVote={loadOwnVote}
+        initialSelected="zzz"
+      />,
+    );
+    expect(screen.getAllByRole("radio").every((r) => !(r as HTMLInputElement).checked)).toBe(true);
   });
 
   it("si la sesión caducó (AUTH_REQUIRED) ofrece iniciar sesión sin error técnico", async () => {
@@ -114,7 +147,7 @@ describe("PollVoting", () => {
 
     const link = await screen.findByRole("link", { name: "Elegir mi usuario" });
     expect(link.getAttribute("href")).toBe(
-      `/onboarding?next=${encodeURIComponent(`/polls/${POLL.id}`)}`,
+      `/onboarding?next=${encodeURIComponent(`/polls/${POLL.id}?option=a`)}`,
     );
     expect(screen.queryByText("Tu voto")).toBeNull();
     expect(screen.queryByRole("alert")).toBeNull();

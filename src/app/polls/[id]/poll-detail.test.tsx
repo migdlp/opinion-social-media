@@ -74,4 +74,19 @@ describe("PollDetailLoader (/polls/[id])", () => {
       `/polls/${ID}`,
     );
   });
+
+  it("V2-033: al volver del login marca la opción elegida, sin votarla; una ajena se ignora", async () => {
+    responses = { polls: { data: row, error: null } };
+
+    render(await PollDetailLoader({ id: ID, option: "b" }));
+    expect((screen.getByRole("radio", { name: "Sin cebolla" }) as HTMLInputElement).checked).toBe(
+      true,
+    );
+    expect(queries.map((q) => q.target)).not.toContain("rpc:vote_poll");
+    cleanup();
+
+    responses = { polls: { data: row, error: null } };
+    render(await PollDetailLoader({ id: ID, option: "zzz" }));
+    expect(screen.getAllByRole("radio").every((r) => !(r as HTMLInputElement).checked)).toBe(true);
+  });
 });

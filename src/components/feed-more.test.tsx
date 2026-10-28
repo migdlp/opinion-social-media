@@ -142,6 +142,8 @@ describe("FeedMore", () => {
     expect(within(votedCard).getByText("Tu voto")).toBeDefined();
     const otherCard = screen.getByRole("heading", { name: "¿Sin votar?" }).closest("article")!;
     expect(within(otherCard).queryByText("Tu voto")).toBeNull();
-    expect(within(otherCard).getAllByText("?? %")).toHaveLength(2);
+    // Sin votar: opciones para elegir y confirmar (V2-033), sin ninguna cifra.
+    expect(within(otherCard).getAllByRole("radio")).toHaveLength(2);
+    expect(within(otherCard).queryByText(/\d\s*%/)).toBeNull();
   });
 });
