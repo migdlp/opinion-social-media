@@ -101,7 +101,7 @@ Tareas de [backlog-v2.md](backlog-v2.md), con el mismo protocolo de reserva. Ant
 
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|
-| [V2-001](https://github.com/migdlp/opinion-social-media/issues/115) | Crear tabla `profiles` y RPC de perfil | P0 | — | En progreso | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
+| [V2-001](https://github.com/migdlp/opinion-social-media/issues/115) | Crear tabla `profiles` y RPC de perfil | P0 | — | Completada: [PR #143](https://github.com/migdlp/opinion-social-media/pull/143), merge `7b7e70d`; CI verde (SQL 001–010, RLS, E2E, tipos reproducibles); TDD RED (008 y errores) → GREEN; migración sin aplicar aún a dev | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
 | [V2-002](https://github.com/migdlp/opinion-social-media/issues/124) | Onboarding: elegir `@usuario` tras el primer login | P0 | V2-001 | Pendiente | — |
 | [V2-003](https://github.com/migdlp/opinion-social-media/issues/125) | Firmar encuestas con `@usuario` | P0 | V2-001 | Pendiente | — |
 | [V2-004](https://github.com/migdlp/opinion-social-media/issues/126) | Crear tabla `follows` con solicitudes | P0 | V2-001 | Pendiente | — |
@@ -115,12 +115,12 @@ Tareas de [backlog-v2.md](backlog-v2.md), con el mismo protocolo de reserva. Ant
 | [V2-012](https://github.com/migdlp/opinion-social-media/issues/117) | Permitir hasta 6 opciones | P0 | — | Completada: [PR #142](https://github.com/migdlp/opinion-social-media/pull/142), merge `d7affbc`; CI verde (SQL, E2E, RLS, reproducibilidad); TDD RED (001 y vitest) → GREEN, 224 tests; 6 opciones a 320 px sin revisar en navegador; migración sin aplicar aún a dev | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
 | [V2-013](https://github.com/migdlp/opinion-social-media/issues/127) | Fecha de cierre opcional | P0 | V2-012 | En progreso | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
 | [V2-014](https://github.com/migdlp/opinion-social-media/issues/133) | Resultados públicos al cerrarse | P0 | V2-005, V2-013 | Pendiente | — |
-| [V2-015](https://github.com/migdlp/opinion-social-media/issues/118) | Animar las barras al revelar resultados | P1 | — | Pendiente | — |
+| [V2-015](https://github.com/migdlp/opinion-social-media/issues/118) | Animar las barras al revelar resultados | P1 | — | En progreso | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
 | [V2-016](https://github.com/migdlp/opinion-social-media/issues/119) | Mensaje «Coincides con el X %» tras votar | P1 | — | Pendiente | — |
 | [V2-017](https://github.com/migdlp/opinion-social-media/issues/120) | Modo oscuro | P1 | — | Pendiente | — |
-| [V2-018](https://github.com/migdlp/opinion-social-media/issues/121) | Compartir con la hoja nativa | P1 | — | Pendiente | — |
+| [V2-018](https://github.com/migdlp/opinion-social-media/issues/121) | Compartir con la hoja nativa | P1 | — | En progreso | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
 | [V2-019](https://github.com/migdlp/opinion-social-media/issues/134) | Imagen OG dinámica por encuesta | P1 | V2-005 | Pendiente | — |
-| [V2-020](https://github.com/migdlp/opinion-social-media/issues/122) | Denunciar una encuesta | P0 | — | Pendiente | — |
+| [V2-020](https://github.com/migdlp/opinion-social-media/issues/122) | Denunciar una encuesta | P0 | — | En progreso | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
 | [V2-021](https://github.com/migdlp/opinion-social-media/issues/131) | Categorías fijas al crear y en la tarjeta | P1 | V2-013 | Pendiente | — |
 | [V2-022](https://github.com/migdlp/opinion-social-media/issues/139) | Guardar para luego | P1 | V2-006 | Pendiente | — |
 | [V2-023](https://github.com/migdlp/opinion-social-media/issues/136) | RPC de resultados por lotes para el feed | P1 | V2-014 | Pendiente | — |
