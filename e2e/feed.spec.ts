@@ -43,14 +43,19 @@ test.beforeAll(async () => {
 });
 
 async function loadAll(page: Page) {
-  // El botón siempre está disponible: se pulsa hasta llegar al final de la lista.
-  for (let guard = 0; guard < 10; guard++) {
-    const more = page.getByRole("button", { name: "Cargar más" });
-    if (!(await more.isVisible().catch(() => false))) break;
-    await more.click();
-    await page.waitForLoadState("networkidle");
+  // El botón siempre está disponible: se pulsa hasta llegar al final de la lista. No se usa
+  // «networkidle» (no se reevalúa tras la carga inicial): se espera a que lleguen más tarjetas.
+  const end = page.getByText("No hay más encuestas");
+  for (let guard = 0; guard < 10 && !(await end.isVisible()); guard++) {
+    const before = await cards(page).count();
+    await page.getByRole("button", { name: "Cargar más" }).click();
+    await expect
+      .poll(async () => (await cards(page).count()) > before || (await end.isVisible()), {
+        timeout: 15_000,
+      })
+      .toBe(true);
   }
-  await expect(page.getByText("No hay más encuestas")).toBeVisible();
+  await expect(end).toBeVisible();
 }
 
 test("visitante: entra en Recientes, Siguiendo pide login y el filtro de categoría va en la URL", async ({
@@ -67,7 +72,10 @@ test("visitante: entra en Recientes, Siguiendo pide login y el filtro de categor
   );
 
   await ready(page, "/?tab=siguiendo");
-  await expect(page.getByRole("link", { name: "Iniciar sesión" })).toBeVisible();
+  // La cabecera también tiene un «Iniciar sesión»: se acota al contenido de la página.
+  await expect(
+    page.locator("#contenido").getByRole("link", { name: "Iniciar sesión" }),
+  ).toBeVisible();
   await expect(cards(page)).toHaveCount(0);
 
   await ready(page, "/");
@@ -304,12 +312,12 @@ test("peticiones lentas, doble clic y error de red al cargar más: no se duplica
       else await route.continue();
     });
     await more.click();
-    await expect(page.getByRole("alert")).toBeVisible();
+    await expect(page.locator("p[role=alert]")).toBeVisible();
     await expect(cards(page)).toHaveCount(afterSlow);
     await page.unroute("**/*");
     await more.click();
     await page.waitForLoadState("networkidle");
-    await expect(page.getByRole("alert")).toHaveCount(0);
+    await expect(page.locator("p[role=alert]")).toHaveCount(0);
   }
 });
 
