@@ -71,17 +71,20 @@ Las prioridades P0/P1 y el orden sugerido están documentados en `docs/orden-eje
 2. Publicar los commits en esa rama y abrir una pull request hacia `main`, enlazando el issue e indicando el alcance, los criterios de aceptación y las comprobaciones realizadas, incluidos fallos o comprobaciones pendientes.
 3. Fusionar la PR en `main` sólo cuando se hayan verificado los criterios de aceptación, pasado las comprobaciones aplicables y resuelto los conflictos y las observaciones pendientes. Respetar las revisiones y protecciones que tenga configuradas el repositorio; no eludirlas.
 4. Tras el merge, actualizar la copia local y sincronizar el registro de tareas y el issue con enlaces a la PR, al merge y a las pruebas. Marcar la tarea **Completada** y cerrar el issue sólo cuando su resultado esté integrado y verificado; abrir una PR no equivale a terminarla.
-5. Los commits exclusivos de reserva y actualización de estado, responsable o traspaso de tareas se publican directamente en `main`, como exige el protocolo anterior. No mezclar código ni otros cambios documentales en esos commits. Para el resto de cambios, incluida la documentación, usar rama y PR; cualquier otra publicación directa en `main` requiere una excepción explícita del propietario para el cambio concreto. Esta regla no amplía el alcance vigente.
+5. **Cerrar el issue es obligatorio.** Quien termina una tarea y fusiona su PR en `main` cierra su issue (motivo «completed») en la misma sesión, justo después de publicar en `main` la fila **Completada**, con el cuerpo actualizado al mismo estado y los enlaces. Una tarea **Completada** en `docs/tareas-futuras.md` con el issue abierto es un registro incoherente: corregirlo antes de reservar otra tarea.
+6. Los commits exclusivos de reserva y actualización de estado, responsable o traspaso de tareas se publican directamente en `main`, como exige el protocolo anterior. No mezclar código ni otros cambios documentales en esos commits. Para el resto de cambios, incluida la documentación, usar rama y PR; cualquier otra publicación directa en `main` requiere una excepción explícita del propietario para el cambio concreto. Esta regla no amplía el alcance vigente.
 
 ## Despliegues de producción por sprint
 
-Producción se despliega desde la rama `release`, no desde `main`. Cuando Vercel tenga `release` como rama de producción, `main` no genera despliegues de producción; las PR siguen teniendo preview.
+Producción se despliega desde la rama `release`, no desde `main`. **Vercel sólo despliega `release`** (D-VERCEL-002): `vercel.json` desactiva los deployments Git de cualquier otra rama (`git.deploymentEnabled`), así que ni `main` ni las PR generan previews. La compilación, las pruebas y las pipelines de GitHub Actions siguen ejecutándose en ramas y PR.
+
+**Créditos del plan gratuito de Vercel.** Ninguna acción que cree un deployment en Vercel o consuma su cuota gratuita (builds, previews, redeploys, `vercel` o `vercel --prod` por CLI, `deploy_to_vercel` o `create_deployment` por conector, promociones) se hace salvo por el paso de `main` a `release` descrito abajo. No reactivar previews ni desplegar ramas de trabajo para probar: verificar en local y en CI.
 
 1. Ningún agente hace merge en `release`, ni despliega a producción ni dispara `vercel --prod`, sin una orden explícita del propietario para esa versión.
-2. Una versión sólo se publica en `release` cuando el sprint está cerrado: CI verde del SHA candidato, tareas **Completada** con enlaces a PR y pruebas, y flujos críticos verificados en preview.
+2. Una versión sólo se publica en `release` cuando el sprint está cerrado: CI verde del SHA candidato (incluidos los E2E), tareas **Completada** con enlaces a PR y pruebas, y flujos críticos verificados en local o CI.
 3. El merge de `main` a `release` lo propone un agente en una PR y lo aprueba el propietario. Lleva como cuerpo la lista de tareas incluidas y el SHA.
 4. Los arreglos urgentes en producción salen de `release` por rama propia, con PR hacia `release`, y después se integran en `main`.
-5. La configuración de Vercel (rama de producción y `ignoreCommand`) la gestiona Codex /root según [la guía de operación](docs/vercel-operacion.md); cualquier otro agente que necesite cambiarla lo pide por el issue #73.
+5. La configuración de Vercel (rama de producción, `git.deploymentEnabled` e `ignoreCommand`) la gestiona Codex /root según [la guía de operación](docs/vercel-operacion.md); cualquier otro agente que necesite cambiarla lo pide por el issue #73.
 
 ## TDD obligatorio
 

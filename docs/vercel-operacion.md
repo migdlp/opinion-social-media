@@ -22,8 +22,8 @@ No compartir la cuenta, sesión o token del propietario. Cada colaborador que ne
 | Acción | Vía y condición |
 |---|---|
 | Publicar ramas y PR | Permisos del repositorio GitHub |
-| Disparar previews | Publicar una rama mediante la integración Git; pueden existir controles de autorización |
-| Disparar producción | El guard versionado omite `main` y sólo admite Production desde `release`. La rama de producción configurada en Vercel debe verificarse aparte (ver AGENTS.md) |
+| Disparar previews | Desactivado: `git.deploymentEnabled` sólo crea deployments Git desde `release` (D-VERCEL-002). No desplegar ramas de trabajo por CLI ni conector |
+| Disparar producción | Sólo un push a `release`, con orden del propietario (AGENTS.md). La rama de producción configurada en Vercel debe verificarse aparte |
 | Cambiar variables, dominio o versión desde el panel | Acceso autorizado a Vercel |
 
 Asignar Vercel a Codex es una regla de coordinación, no un bloqueo técnico de despliegues de otros autores. Coordinar los merges y comprobar siempre el SHA publicado; no asumir que controlar el panel evita que GitHub active un build. Ver [integración Git](https://vercel.com/docs/git).
@@ -44,6 +44,8 @@ El lector público `getSupabaseEnv()` exige una clave con prefijo `sb_publishabl
 
 ## Preview y diagnóstico del build
 
+Desde D-VERCEL-002 (28-10-2026) **no hay previews**: el plan gratuito agotó el límite de 100 deployments diarios (`api-deployments-free-per-day`), consumidos por commits de estado en `main` y pushes de ramas de PR. `vercel.json` incluye `"git": {"deploymentEnabled": {"**": false, "release": true}}`: Vercel no crea deployment alguno para otra rama, ni siquiera uno cancelado. La verificación de ramas y PR se hace en local y en CI (incluidos los E2E con Supabase local). Los pasos siguientes son históricos y sólo aplican si el propietario reactiva previews.
+
 1. Publicar la rama de la tarea y abrir su PR; observar el deployment vinculado al SHA esperado.
 2. En Deployments, comprobar destino **Preview**, framework **Next.js**, variables dev y logs de instalación/build.
 3. Abrir la URL y verificar la aplicación por HTTPS, rutas y conexión a dev. Si Deployment Protection pide acceso, usar una sesión autorizada; registrar la limitación si no puede comprobarse.
@@ -51,7 +53,7 @@ El lector público `getSupabaseEnv()` exige una clave con prefijo `sb_publishabl
 
 Diagnóstico observado: las PR #59 y #65 fallaban con `STATIC_BUILD_NO_OUT_DIR`, buscando `public` pese a terminar `next build`. El framework estaba sin seleccionar. Se corrigió a `nextjs` y se dejaron `rootDirectory`, `outputDirectory`, `buildCommand` e `installCommand` sin sobrescrituras, usando los valores predeterminados de Next.js.
 
-El Ignored Build Step versionado es `node scripts/vercel-ignore-build.mjs`:
+El Ignored Build Step versionado es `node scripts/vercel-ignore-build.mjs`. Con `git.deploymentEnabled` sólo llegan a él los commits de `release`; se mantiene como segunda barrera:
 
 - Sin `package.json`: exit 0, omitir.
 - Rama `main`: exit 0, omitir, incluso en Preview. Los commits de estado no necesitan un deployment.
@@ -120,7 +122,7 @@ Sustituir el marcador por la URL exacta del deployment probado, autorizar sólo 
 ### Publicación y redeploy
 
 1. Verificar dependencias de MVP-049: MVP-008, MVP-022, MVP-047 y MVP-048 completas. No confundir sus PR con el cumplimiento de OAuth, pruebas y recuperación previas.
-2. Verificar el guard y la rama de producción `release`. Coordinar la PR de versión con el propietario: `main` se omite mediante el Ignored Build Step, y las ramas de trabajo siguen generando Preview. Vercel no garantiza por este script que espere a CI; comprobar los checks antes del merge autorizado a `release` y seguir el deployment por su SHA exacto.
+2. Verificar el guard y la rama de producción `release`. Coordinar la PR de versión con el propietario: `git.deploymentEnabled` sólo crea deployments desde `release` y el Ignored Build Step lo refuerza; ni `main` ni las ramas de trabajo generan Preview. Cada push a `release` crea un deployment de producción: fusionar la PR de versión en un único merge. Vercel no garantiza por este script que espere a CI; comprobar los checks antes del merge autorizado a `release` y seguir el deployment por su SHA exacto.
 3. Verificar en Deployments destino **Production**, SHA, variables prod, logs y dominio. READY sólo confirma build/deployment; no autoriza declarar el MVP listo.
 4. Si hace falta redeploy, elegir el deployment del SHA correcto en el panel y **Redeploy**; confirmar target, configuración y variables que se incorporarán antes de ejecutarlo. Un cambio de `NEXT_PUBLIC_*` requiere un build nuevo; no promover una preview compilada contra dev como si fuera prod.
 5. Comprobar HTTPS, feed/detalle públicos, Google login/retorno, sesión y logout, publicación y voto con dos cuentas autorizadas, voto inmutable y ausencia de resultados antes de votar incluso para el autor. Revisar bundle, peticiones, RLS, contadores y separación de bases; no registrar tokens ni datos personales en evidencias públicas.
