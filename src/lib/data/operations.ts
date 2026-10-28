@@ -4,7 +4,15 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { isClosed } from "@/lib/utils/date";
 import { toAppError } from "./errors";
-import { getFeedPolls, getOwnVoteOptionId, getPublicPoll, getPublicPollsByIds } from "./polls";
+import {
+  decodeFeedCursor,
+  encodeFeedCursor,
+  FEED_PAGE_SIZE,
+  getFeedPolls,
+  getOwnVoteOptionId,
+  getPublicPoll,
+  getPublicPollsByIds,
+} from "./polls";
 import type {
   Category,
   FeedPage,
@@ -275,12 +283,15 @@ export function getPollDetail(
   id: string,
   viewer: Viewer,
 ): Promise<Result<PollDetail>> {
-  return guard(async () => {
+  return guard<PollDetail>(async () => {
     const poll = await getPublicPoll(supabase, id);
     if (!poll.ok) return poll;
     const closed = await closedViewer(supabase, poll.data, viewer.signedIn);
     if (!closed.ok) return closed;
-    if (closed.data) return { ok: true, data: { poll: poll.data, viewer: closed.data } };
+    if (closed.data) {
+      const saved = viewer.signedIn ? await isSaved(supabase, id) : undefined;
+      return { ok: true, data: { poll: poll.data, viewer: closed.data, saved } };
+    }
     if (!viewer.signedIn)
       return { ok: true, data: { poll: poll.data, viewer: { kind: "anonymous" } } };
 
@@ -292,7 +303,9 @@ export function getPollDetail(
       return own;
     }
     const state = await viewerFor(supabase, id, own.data);
-    return state.ok ? { ok: true, data: { poll: poll.data, viewer: state.data } } : state;
+    if (!state.ok) return state;
+    const saved = await isSaved(supabase, id);
+    return { ok: true, data: { poll: poll.data, viewer: state.data, saved } };
   });
 }
 
@@ -355,7 +368,44 @@ async function withViewerStates(
         : { kind: "anonymous" };
     return { poll, viewer };
   });
-  return { ok: true, data: { items, nextCursor } };
+  const page = { items, nextCursor };
+  return { ok: true, data: signedIn ? await markSaved(supabase, page) : page };
+}
+
+// Marca cuáles de las encuestas de la página tiene guardadas la cuenta (V2-022) con UNA consulta.
+// Es un adorno: si falla, la página se entrega sin el marcador en lugar de fallar entera.
+async function markSaved(supabase: SupabaseClient, page: FeedPage): Promise<FeedPage> {
+  if (page.items.length === 0) return page;
+  try {
+    const { data, error } = await supabase
+      .from("saved_polls")
+      .select("poll_id")
+      .in(
+        "poll_id",
+        page.items.map((item) => item.poll.id),
+      );
+    if (error) return page;
+    const saved = new Set(((data ?? []) as { poll_id: string }[]).map((row) => row.poll_id));
+    return {
+      ...page,
+      items: page.items.map((item) => ({ ...item, saved: saved.has(item.poll.id) })),
+    };
+  } catch {
+    return page;
+  }
+}
+
+async function isSaved(supabase: SupabaseClient, pollId: string): Promise<boolean | undefined> {
+  try {
+    const { data, error } = await supabase
+      .from("saved_polls")
+      .select("poll_id")
+      .in("poll_id", [pollId]);
+    if (error) return undefined;
+    return ((data ?? []) as unknown[]).length > 0;
+  } catch {
+    return undefined;
+  }
 }
 
 export function getFeedPage(
@@ -579,5 +629,82 @@ export function removeFollower(supabase: SupabaseClient, username: string): Prom
     const { error } = await supabase.rpc("remove_follower", { p_username: username });
     if (error) return { ok: false, error: toAppError(error) };
     return { ok: true, data: undefined };
+  });
+}
+
+// Guarda la encuesta para volver a ella (V2-022). Idempotente: guardar dos veces no duplica. Sólo
+// se guarda lo que la cuenta puede ver: la RLS lo impone y una violación se informa como
+// POLL_UNAVAILABLE, igual que una encuesta inexistente. La sesión la comprueba quien llama.
+export function savePoll(supabase: SupabaseClient, pollId: string): Promise<Result<void>> {
+  return guard(async () => {
+    if (!UUID.test(pollId)) return { ok: false, error: "POLL_UNAVAILABLE" };
+    const { error } = await supabase
+      .from("saved_polls")
+      .upsert({ poll_id: pollId }, { onConflict: "user_id,poll_id", ignoreDuplicates: true });
+    if (error) {
+      if (error.code === "42501" && /row-level security/i.test(error.message))
+        return { ok: false, error: "POLL_UNAVAILABLE" };
+      return { ok: false, error: toAppError(error) };
+    }
+    return { ok: true, data: undefined };
+  });
+}
+
+// Quita la encuesta de las guardadas. Idempotente.
+export function unsavePoll(supabase: SupabaseClient, pollId: string): Promise<Result<void>> {
+  return guard(async () => {
+    if (!UUID.test(pollId)) return { ok: true, data: undefined };
+    const { error } = await supabase.from("saved_polls").delete().eq("poll_id", pollId);
+    if (error) return { ok: false, error: toAppError(error) };
+    return { ok: true, data: undefined };
+  });
+}
+
+// Pestaña «Guardadas» del perfil propio (V2-022): las más recientemente guardadas primero, con el
+// estado de voto de cada una. La RLS de polls oculta las que ya no se pueden ver (ocultas o de una
+// cuenta privada a la que no se sigue). Cursor por (fecha de guardado, encuesta).
+export function getSavedPolls(
+  supabase: SupabaseClient,
+  cursor?: string | null,
+): Promise<Result<FeedPage>> {
+  return guard(async () => {
+    let query = supabase
+      .from("saved_polls")
+      .select("poll_id, created_at, polls!inner(id)")
+      .order("created_at", { ascending: false })
+      .order("poll_id", { ascending: false })
+      .limit(FEED_PAGE_SIZE + 1);
+    const after = decodeFeedCursor(cursor);
+    if (after) {
+      query = query.or(
+        `created_at.lt."${after.createdAt}",and(created_at.eq."${after.createdAt}",poll_id.lt.${after.id})`,
+      );
+    }
+    const { data, error } = await query;
+    if (error) return { ok: false, error: toAppError(error) };
+
+    const rows = (data ?? []) as unknown as { poll_id: string; created_at: string }[];
+    const page = rows.slice(0, FEED_PAGE_SIZE);
+    if (page.length === 0) return { ok: true, data: { items: [], nextCursor: null } };
+    const last = page[page.length - 1];
+    const nextCursor =
+      rows.length > FEED_PAGE_SIZE
+        ? encodeFeedCursor({ createdAt: last.created_at, id: last.poll_id })
+        : null;
+
+    const polls = await getPublicPollsByIds(
+      supabase,
+      page.map((row) => row.poll_id),
+    );
+    if (!polls.ok) return polls;
+    const withVotes = await withOwnVotes(supabase, polls.data, nextCursor, { signedIn: true });
+    if (!withVotes.ok) return withVotes;
+    return {
+      ok: true,
+      data: {
+        ...withVotes.data,
+        items: withVotes.data.items.map((item) => ({ ...item, saved: true })),
+      },
+    };
   });
 }

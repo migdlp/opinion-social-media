@@ -178,4 +178,17 @@ describe("PollCard", () => {
     render(<PollCard poll={POLL} now={NOW} />);
     expect(screen.queryByText(/Cierra|Cerrada/)).toBeNull();
   });
+
+  it("V2-022: ofrece guardar; con sesión refleja si ya estaba guardada y un visitante va al login", () => {
+    render(<PollCard poll={POLL} viewer={{ kind: "not_voted" }} saved={false} now={NOW} />);
+    expect(screen.getByRole("button", { name: "Guardar para luego" })).toBeDefined();
+    cleanup();
+    render(<PollCard poll={POLL} viewer={{ kind: "not_voted" }} saved now={NOW} />);
+    expect(screen.getByRole("button", { name: "Quitar de guardadas" })).toBeDefined();
+    cleanup();
+    render(<PollCard poll={POLL} viewer={{ kind: "anonymous" }} now={NOW} />);
+    expect(screen.getByRole("link", { name: "Guardar para luego" }).getAttribute("href")).toBe(
+      `/login?next=${encodeURIComponent(`/polls/${POLL.id}`)}`,
+    );
+  });
 });

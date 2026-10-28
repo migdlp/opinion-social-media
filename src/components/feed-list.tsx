@@ -39,8 +39,8 @@ export function FeedList({ page, loadMore, now, empty }: FeedListProps) {
 
   return (
     <div role="feed" aria-label="Encuestas" className="grid items-start gap-3 md:grid-cols-2">
-      {page.data.items.map(({ poll, viewer }) => (
-        <PollCard key={poll.id} poll={poll} viewer={viewer} now={now} />
+      {page.data.items.map(({ poll, viewer, saved }) => (
+        <PollCard key={poll.id} poll={poll} viewer={viewer} saved={saved} now={now} />
       ))}
       <FeedMore
         cursor={page.data.nextCursor}

@@ -2,6 +2,7 @@ import { CopyLinkButton } from "@/components/copy-link-button";
 import { PollAuthor } from "@/components/poll-author";
 import { PollVoting } from "@/components/poll-voting";
 import { ReportPoll } from "@/components/report-poll";
+import { SavePoll } from "@/components/save-poll";
 import type { PollDetail, PollResults, Result } from "@/lib/data/types";
 import { formatApproximateDate, formatCloseStatus, isClosed } from "@/lib/utils/date";
 
@@ -21,6 +22,8 @@ export function PollDetailView({
   now = new Date(),
 }: PollDetailViewProps) {
   const { poll } = detail;
+  const signedIn =
+    detail.viewer.kind === "closed" ? detail.viewer.signedIn : detail.viewer.kind !== "anonymous";
   return (
     <article className="mx-auto flex w-full max-w-content flex-col gap-4 rounded-2xl border border-border bg-surface p-5">
       {poll.category && (
@@ -33,14 +36,10 @@ export function PollDetailView({
       )}
       <div className="flex items-start justify-between gap-2">
         <h1 className="text-2xl leading-tight font-semibold tracking-[-0.02em]">{poll.question}</h1>
-        <ReportPoll
-          pollId={poll.id}
-          signedIn={
-            detail.viewer.kind === "closed"
-              ? detail.viewer.signedIn
-              : detail.viewer.kind !== "anonymous"
-          }
-        />
+        <div className="flex items-center">
+          <SavePoll pollId={poll.id} signedIn={signedIn} initialSaved={detail.saved} />
+          <ReportPoll pollId={poll.id} signedIn={signedIn} />
+        </div>
       </div>
       <PollVoting
         poll={poll}

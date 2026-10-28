@@ -8,7 +8,10 @@ import {
   getProfilePolls,
   getProfileView,
   getProfileVotes,
+  getSavedPolls,
+  savePoll,
   unfollowUser,
+  unsavePoll,
   countFollowRequests,
   listFollowRequests,
   listFollowers,
@@ -216,7 +219,13 @@ describe("getPollDetail", () => {
     });
     const r = await getPollDetail(supabase, P1, { signedIn: true });
     expect(r).toMatchObject({ ok: true, data: { viewer: { kind: "not_voted" } } });
-    expect(queries.map((q) => q.target)).toEqual(["polls", "rpc:get_poll_authors", "votes"]);
+    expect(queries.map((q) => q.target)).toEqual([
+      "polls",
+      "rpc:get_poll_authors",
+      "votes",
+      "saved_polls",
+    ]);
+    expect(r).toMatchObject({ data: { saved: false } });
   });
 
   it("con sesión y voto: voted con resultados", async () => {
@@ -238,6 +247,7 @@ describe("getPollDetail", () => {
           options: pollRow(P1).poll_options,
         },
         viewer: { kind: "voted", results },
+        saved: false,
       },
     });
   });
@@ -899,5 +909,146 @@ describe("listas de seguidores y solicitudes (V2-009)", () => {
       "remove_follower",
       { p_username: "seguidor_d" },
     ]);
+  });
+});
+
+describe("guardar para luego (V2-022)", () => {
+  const rlsError = {
+    code: "42501",
+    message: 'new row violates row-level security policy for table "saved_polls"',
+  };
+
+  it("savePoll inserta sin duplicar y sin enviar user_id", async () => {
+    const { supabase, queries } = fakeSupabase({ saved_polls: { data: null, error: null } });
+    expect(await savePoll(supabase, P1)).toEqual({ ok: true, data: undefined });
+    expect(queries[0].calls).toEqual([
+      ["from", "saved_polls"],
+      ["upsert", { poll_id: P1 }, { onConflict: "user_id,poll_id", ignoreDuplicates: true }],
+    ]);
+  });
+
+  it("savePoll: una encuesta que no se puede ver (RLS) es POLL_UNAVAILABLE", async () => {
+    const { supabase } = fakeSupabase({ saved_polls: { data: null, error: rlsError } });
+    expect(await savePoll(supabase, P1)).toEqual({ ok: false, error: "POLL_UNAVAILABLE" });
+  });
+
+  it("savePoll: un id inválido no consulta; un fallo de red es controlado", async () => {
+    const none = fakeSupabase({});
+    expect(await savePoll(none.supabase, "basura")).toEqual({
+      ok: false,
+      error: "POLL_UNAVAILABLE",
+    });
+    expect(none.queries).toEqual([]);
+    const down = fakeSupabase({ saved_polls: networkThrow });
+    expect(await savePoll(down.supabase, P1)).toEqual({ ok: false, error: "NETWORK_ERROR" });
+  });
+
+  it("unsavePoll borra sólo esa encuesta y es idempotente", async () => {
+    const { supabase, queries } = fakeSupabase({ saved_polls: { data: null, error: null } });
+    expect(await unsavePoll(supabase, P1)).toEqual({ ok: true, data: undefined });
+    expect(queries[0].calls).toEqual([["from", "saved_polls"], ["delete"], ["eq", "poll_id", P1]]);
+  });
+
+  const savedRow = (id: string, at = "2026-10-27T12:00:00.5+00:00") => ({
+    poll_id: id,
+    created_at: at,
+    polls: { id },
+  });
+
+  it("getSavedPolls lista las visibles, más recientes primero, marcadas como guardadas", async () => {
+    const { supabase, queries } = fakeSupabase({
+      saved_polls: { data: [savedRow(P2), savedRow(P1)], error: null },
+      polls: { data: [pollRow(P1), pollRow(P2)], error: null },
+      votes: { data: [{ poll_id: P2, option_id: B }], error: null },
+      "rpc:get_feed_results": {
+        data: resultRows.map((r) => ({ ...r, poll_id: P2 })),
+        error: null,
+      },
+    });
+    const r = await getSavedPolls(supabase, null);
+    expect(r.ok && r.data.items.map((i) => i.poll.id)).toEqual([P2, P1]);
+    expect(r.ok && r.data.items.every((i) => i.saved === true)).toBe(true);
+    expect(r.ok && r.data.items[0].viewer.kind).toBe("voted");
+    expect(r.ok && r.data.items[1].viewer.kind).toBe("not_voted");
+    expect(r.ok && r.data.nextCursor).toBeNull();
+    const first = queries[0];
+    expect(first.calls).toContainEqual(["select", "poll_id, created_at, polls!inner(id)"]);
+    expect(first.calls).toContainEqual(["order", "created_at", { ascending: false }]);
+    expect(first.calls).toContainEqual(["order", "poll_id", { ascending: false }]);
+    expect(first.calls).toContainEqual(["limit", 21]);
+  });
+
+  it("con 21 filas entrega 20 y un cursor que sirve para la página siguiente", async () => {
+    const ids = Array.from({ length: 21 }, (_, i) => uuid(500 + i));
+    const { supabase } = fakeSupabase({
+      saved_polls: { data: ids.map((id) => savedRow(id)), error: null },
+      polls: { data: ids.map((id) => pollRow(id)), error: null },
+      votes: { data: [], error: null },
+    });
+    const page = await getSavedPolls(supabase, null);
+    expect(page.ok && page.data.items).toHaveLength(20);
+    const cursor = page.ok ? page.data.nextCursor : null;
+    expect(cursor).toBeTruthy();
+
+    const next = fakeSupabase({ saved_polls: { data: [], error: null } });
+    await getSavedPolls(next.supabase, cursor);
+    const or = next.queries[0].calls.find(([m]) => m === "or");
+    expect(or?.[1]).toContain('created_at.lt."2026-10-27T12:00:00.5+00:00"');
+    expect(or?.[1]).toContain(`poll_id.lt.${ids[19]}`);
+  });
+
+  it("sin guardadas devuelve una página vacía sin pedir encuestas", async () => {
+    const { supabase, queries } = fakeSupabase({ saved_polls: { data: [], error: null } });
+    expect(await getSavedPolls(supabase, null)).toEqual({
+      ok: true,
+      data: { items: [], nextCursor: null },
+    });
+    expect(queries.map((q) => q.target)).toEqual(["saved_polls"]);
+  });
+
+  it("getSavedPolls sin sesión es AUTH_REQUIRED", async () => {
+    const { supabase } = fakeSupabase({
+      saved_polls: {
+        data: null,
+        error: { code: "42501", message: "permission denied for table saved_polls" },
+      },
+    });
+    expect(await getSavedPolls(supabase, null)).toEqual({ ok: false, error: "AUTH_REQUIRED" });
+  });
+
+  it("el feed, el perfil y el detalle marcan lo guardado con UNA consulta por página", async () => {
+    const feed = fakeSupabase({
+      polls: { data: [pollRow(P1), pollRow(P2)], error: null },
+      votes: { data: [], error: null },
+      saved_polls: { data: [{ poll_id: P2 }], error: null },
+    });
+    const f = await getFeedPage(feed.supabase, null, { signedIn: true });
+    expect(f.ok && f.data.items.map((i) => i.saved)).toEqual([false, true]);
+    const savedQuery = feed.queries.filter((q) => q.target === "saved_polls");
+    expect(savedQuery).toHaveLength(1);
+    expect(savedQuery[0].calls).toContainEqual(["in", "poll_id", [P1, P2]]);
+
+    const anon = fakeSupabase({ polls: { data: [pollRow(P1)], error: null } });
+    const a = await getFeedPage(anon.supabase, null, { signedIn: false });
+    expect(a.ok && a.data.items[0].saved).toBeUndefined();
+    expect(anon.queries.map((q) => q.target)).not.toContain("saved_polls");
+
+    const detail = fakeSupabase({
+      polls: { data: pollRow(P1), error: null },
+      votes: { data: null, error: null },
+      saved_polls: { data: [{ poll_id: P1 }], error: null },
+    });
+    const d = await getPollDetail(detail.supabase, P1, { signedIn: true });
+    expect(d.ok && d.data.saved).toBe(true);
+  });
+
+  it("si falla la consulta de guardadas, el feed sigue funcionando sin el marcador", async () => {
+    const { supabase } = fakeSupabase({
+      polls: { data: [pollRow(P1)], error: null },
+      votes: { data: [], error: null },
+      saved_polls: networkThrow,
+    });
+    const r = await getFeedPage(supabase, null, { signedIn: true });
+    expect(r.ok && r.data.items[0].saved).toBeUndefined();
   });
 });

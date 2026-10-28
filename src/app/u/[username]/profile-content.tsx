@@ -6,6 +6,7 @@ import {
   loadMoreProfileVotes,
   unfollowAction,
 } from "@/app/follow-actions";
+import { loadMoreSaved } from "@/app/save-actions";
 import { EmptyState } from "@/components/empty-state";
 import { FeedList } from "@/components/feed-list";
 import { ProfileHeader } from "@/components/profile-header";
@@ -16,6 +17,7 @@ import {
   getProfilePolls,
   getProfileView,
   getProfileVotes,
+  getSavedPolls,
 } from "@/lib/data/operations";
 import { createClient } from "@/lib/supabase/server";
 
@@ -27,7 +29,9 @@ const first = (value: string | string[] | undefined) => (Array.isArray(value) ? 
 const TABS = [
   { id: "creadas", label: "Creadas" },
   { id: "votadas", label: "Votadas" },
+  { id: "guardadas", label: "Guardadas" },
 ] as const;
+type TabId = (typeof TABS)[number]["id"];
 
 // Página de perfil (V2-006): cabecera, botón de seguir y pestañas «Creadas» y «Votadas». La
 // pestaña activa va en la URL (?tab=votadas). Una cuenta privada sin acceso sólo muestra la
@@ -41,7 +45,7 @@ export async function ProfileContent({
   searchParams: SearchParams;
 }) {
   const { username } = await params;
-  const tab = first((await searchParams).tab) === "votadas" ? "votadas" : "creadas";
+  const requestedTab = first((await searchParams).tab);
 
   const supabase = await createClient();
   const { data } = await supabase.auth.getUser();
@@ -61,6 +65,9 @@ export async function ProfileContent({
     );
   }
   const view = profile.data;
+  // «Guardadas» es privada (S-9): sólo existe en el perfil propio.
+  const tabs = TABS.filter((t) => t.id !== "guardadas" || view.viewerRelation === "self");
+  const tab: TabId = tabs.find((t) => t.id === requestedTab)?.id ?? "creadas";
   // El indicador de solicitudes sólo existe en el perfil propio; si falla, se omite sin romper.
   const requests = view.viewerRelation === "self" ? await countFollowRequests(supabase) : null;
 
@@ -76,7 +83,7 @@ export async function ProfileContent({
       {view.canViewContent ? (
         <>
           <nav aria-label="Contenido del perfil" className="flex gap-2">
-            {TABS.map(({ id, label }) => (
+            {tabs.map(({ id, label }) => (
               <Link
                 key={id}
                 href={id === "creadas" ? `/u/${view.username}` : `/u/${view.username}?tab=${id}`}
@@ -87,11 +94,9 @@ export async function ProfileContent({
               </Link>
             ))}
           </nav>
-          {tab === "creadas" ? (
-            <CreatedTab username={view.username} signedIn={signedIn} />
-          ) : (
-            <VotedTab username={view.username} />
-          )}
+          {tab === "creadas" && <CreatedTab username={view.username} signedIn={signedIn} />}
+          {tab === "votadas" && <VotedTab username={view.username} />}
+          {tab === "guardadas" && <SavedTab />}
         </>
       ) : (
         <p className="rounded-2xl border border-border bg-surface p-5">
@@ -137,6 +142,21 @@ async function VotedTab({ username }: { username: string }) {
       initialVotes={page.data.votes}
       initialCursor={page.data.nextCursor}
       loadMore={loadMoreProfileVotes.bind(null, username)}
+    />
+  );
+}
+
+async function SavedTab() {
+  const supabase = await createClient();
+  const page = await getSavedPolls(supabase, null);
+  return (
+    <FeedList
+      page={page}
+      loadMore={loadMoreSaved}
+      empty={{
+        title: "Todavía no has guardado ninguna encuesta",
+        description: "Usa el marcador de una encuesta para volver a ella más tarde.",
+      }}
     />
   );
 }

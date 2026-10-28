@@ -3,12 +3,15 @@ import Link from "next/link";
 import { PollAuthor } from "@/components/poll-author";
 import { PollResults } from "@/components/poll-results";
 import { ReportPoll } from "@/components/report-poll";
+import { SavePoll } from "@/components/save-poll";
 import type { PollViewerState, PublicPoll } from "@/lib/data/types";
 import { formatApproximateDate, formatCloseStatus, isClosed } from "@/lib/utils/date";
 
 type PollCardProps = {
   poll: PublicPoll;
   viewer?: PollViewerState;
+  // Si la cuenta con sesión la tiene guardada (V2-022); sin dato se muestra como no guardada.
+  saved?: boolean;
   now?: Date;
 };
 
@@ -16,10 +19,12 @@ type PollCardProps = {
 // propio no recibe ni muestra datos agregados: cada opción enseña su porcentaje bloqueado
 // («?? %») para invitar a votar. Si el usuario ya votó, muestra los resultados. Toda la
 // tarjeta lleva al detalle.
-export function PollCard({ poll, viewer, now = new Date() }: PollCardProps) {
+export function PollCard({ poll, viewer, saved, now = new Date() }: PollCardProps) {
   // Votó (resultados propios) o la encuesta está cerrada (resultados públicos, D-020).
   const results = viewer?.kind === "voted" || viewer?.kind === "closed" ? viewer.results : null;
   const closed = isClosed(poll.closesAt, now);
+  const signedIn =
+    !viewer || (viewer.kind === "closed" ? viewer.signedIn : viewer.kind !== "anonymous");
   return (
     <article className="relative flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4 transition-colors focus-within:border-foreground hover:border-bar-muted">
       {poll.category && (
@@ -39,12 +44,10 @@ export function PollCard({ poll, viewer, now = new Date() }: PollCardProps) {
             {poll.question}
           </Link>
         </h2>
-        <ReportPoll
-          pollId={poll.id}
-          signedIn={
-            !viewer || (viewer.kind === "closed" ? viewer.signedIn : viewer.kind !== "anonymous")
-          }
-        />
+        <div className="flex items-center">
+          <SavePoll pollId={poll.id} signedIn={signedIn} initialSaved={saved} />
+          <ReportPoll pollId={poll.id} signedIn={signedIn} />
+        </div>
       </div>
       {results ? <PollResults results={results} /> : <LockedOptions options={poll.options} />}
       <p className="flex items-center justify-between gap-3 text-[13px] text-muted">

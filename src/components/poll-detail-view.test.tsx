@@ -115,4 +115,18 @@ describe("PollDetailView", () => {
     expect(screen.queryByRole("button", { name: /votar/i })).toBeNull();
     expect(screen.getByText(/ya no admite votos/i)).toBeDefined();
   });
+
+  it("V2-022: el detalle ofrece guardar y refleja si la encuesta ya estaba guardada", () => {
+    render(
+      <PollDetailView
+        detail={{ ...DETAIL, viewer: { kind: "not_voted" }, saved: true }}
+        castVote={castVote}
+        now={NOW}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Quitar de guardadas" })).toBeDefined();
+    cleanup();
+    render(<PollDetailView detail={DETAIL} castVote={castVote} now={NOW} />);
+    expect(screen.getByRole("link", { name: "Guardar para luego" })).toBeDefined();
+  });
 });

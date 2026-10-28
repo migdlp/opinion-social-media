@@ -130,6 +130,8 @@ export interface FollowPage {
 export interface FeedItem {
   poll: PublicPoll;
   viewer: PollViewerState;
+  // Sólo con sesión (V2-022): si la cuenta guardó la encuesta.
+  saved?: boolean;
 }
 
 export interface FeedPage {
@@ -140,4 +142,6 @@ export interface FeedPage {
 export interface PollDetail {
   poll: PublicPoll;
   viewer: PollViewerState;
+  // Sólo con sesión (V2-022); sin él, no se sabe y la interfaz no lo muestra como guardada.
+  saved?: boolean;
 }
