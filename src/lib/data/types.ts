@@ -22,6 +22,7 @@ export type AppErrorCode =
   | "DISPLAY_NAME_INVALID"
   | "PROFILE_REQUIRED"
   | "USER_NOT_FOUND"
+  | "PROFILE_PRIVATE"
   | "CANNOT_FOLLOW_SELF"
   | "FOLLOW_RATE_LIMITED"
   | "NETWORK_ERROR"
@@ -72,6 +73,18 @@ export interface PollResults {
 
 export type PollViewerState =
   { kind: "anonymous" } | { kind: "not_voted" } | { kind: "voted"; results: PollResults };
+
+// Voto visible en un perfil (V2-007). choice es null cuando la opción elegida no se puede revelar
+// (P-1): la encuesta está abierta y quien mira no la ha votado. Nunca lleva recuentos.
+export interface ProfileVote {
+  pollId: string;
+  question: string;
+  pollCreatedAt: string;
+  closesAt: string | null;
+  author: PollAuthor | null;
+  votedAt: string;
+  choice: { optionId: string; text: string } | null;
+}
 
 export interface FeedItem {
   poll: PublicPoll;
