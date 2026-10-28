@@ -56,7 +56,7 @@ describe("Feed (página /)", () => {
     const polls = queries.find((q) => q.target === "polls")!;
     expect(polls.calls).toContainEqual(["order", "created_at", { ascending: false }]);
     // Sin sesión no se consultan votos.
-    expect(queries.map((q) => q.target)).toEqual(["polls"]);
+    expect(queries.map((q) => q.target)).toEqual(["polls", "rpc:get_poll_authors"]);
   });
 
   it("un fallo de red muestra el estado de recuperación en lugar de romper la página", async () => {

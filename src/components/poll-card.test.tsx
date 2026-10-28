@@ -110,6 +110,23 @@ describe("PollCard", () => {
     expect(screen.queryByText("Vota para ver")).toBeNull();
   });
 
+  it("firma con @usuario y nombre visible, enlazado a su perfil", () => {
+    const poll = { ...POLL, author: { username: "ana_23", displayName: "Ana María" } };
+    render(<PollCard poll={poll} now={NOW} />);
+
+    const link = screen.getByRole("link", { name: "@ana_23" });
+    expect(link.getAttribute("href")).toBe("/u/ana_23");
+    expect(screen.getByText("Ana María")).toBeDefined();
+    expect(screen.queryByText("Anónimo")).toBeNull();
+  });
+
+  it("sin autor con perfil muestra «Anónimo» sin enlace", () => {
+    render(<PollCard poll={{ ...POLL, author: null }} now={NOW} />);
+
+    expect(screen.getByText("Anónimo")).toBeDefined();
+    expect(screen.queryByRole("link", { name: /^@/ })).toBeNull();
+  });
+
   it("sin cierre no muestra ninguna indicación de cierre", () => {
     render(<PollCard poll={POLL} now={NOW} />);
     expect(screen.queryByText(/Cierra|Cerrada/)).toBeNull();

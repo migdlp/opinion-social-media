@@ -138,3 +138,43 @@ describe("quien ya votó", () => {
     expect(targets.filter((t) => t === "rpc:get_poll_results")).toHaveLength(1);
   });
 });
+
+// V2-003, criterio 3: la respuesta del feed y del detalle firma con @usuario y nunca
+// contiene user_id (la fila trampa lo lleva y la base nunca lo devolvería a este cliente).
+describe("autor de la encuesta", () => {
+  const authors = [{ poll_id: ID, username: "ana_23", display_name: "Ana María" }];
+  const trapRow = { ...row, user_id: "USERID-SECRETO", author_id: "USERID-SECRETO" };
+
+  it.each([
+    ["el feed", () => Feed()],
+    ["el detalle", () => PollDetailLoader({ id: ID })],
+  ])("%s firma con @usuario enlazado y no incluye user_id", async (_name, render) => {
+    responses = {
+      polls: { data: _name === "el feed" ? [trapRow] : trapRow, error: null },
+      votes: { data: [], error: null },
+      "rpc:get_poll_authors": { data: authors, error: null },
+    };
+
+    const html = renderToStaticMarkup(await render());
+
+    expect(html).toContain("@ana_23");
+    expect(html).toContain("Ana María");
+    expect(html).toContain('href="/u/ana_23"');
+    expect(html).not.toContain("USERID-SECRETO");
+    expect(html).not.toMatch(/user_id|userId/);
+    expect(html).not.toContain("Anónimo");
+  });
+
+  it("sin perfil del autor se muestra «Anónimo» sin enlace", async () => {
+    responses = {
+      polls: { data: [row], error: null },
+      votes: { data: [], error: null },
+      "rpc:get_poll_authors": { data: [], error: null },
+    };
+
+    const html = renderToStaticMarkup(await Feed());
+
+    expect(html).toContain("Anónimo");
+    expect(html).not.toContain("/u/");
+  });
+});
