@@ -4,7 +4,7 @@
 
 > Este documento amplía el MVP con funciones que el [brief](brief-producto.md) dejaba fuera (§3.2, §5 y §8). El brief se conserva como fuente histórica; donde choque con este backlog, prevalecen las decisiones D-015 a D-021 de [decisiones.md](decisiones.md). El backlog del MVP ([backlog.md](backlog.md)) sigue vigente para sus tareas pendientes (MVP-005, MVP-049 a MVP-051).
 >
-> **Las tareas del feed (épica E10) están en discusión con el propietario** y no se pueden reservar hasta que se cierre su diseño.
+> **El feed (épica E10) está por definir.** Ver [feed-por-definir.md](feed-por-definir.md). Sólo se puede reservar su tarea de definición, V2-030.
 
 ## 1. Cómo usar este documento
 
@@ -13,6 +13,7 @@
 - **Prioridad:** `P0` es imprescindible para la fase 2; `P1` es una mejora que no bloquea.
 - Se aplican sin cambios el [protocolo de reserva, ramas y PR](../AGENTS.md), TDD obligatorio (`npm test`, `npm run test:db`, `npm run test:e2e`; ver [README](../README.md)) y la skill `impeccable` para la interfaz.
 - **Toda tabla y RPC nueva** nace sin permisos (migración `harden_default_privileges`): la migración debe hacer `GRANT` explícito, activar RLS y añadir su test SQL en `supabase/tests/`. Hay que ampliar `008_privileges.test.sql` con cada RPC nueva y regenerar `src/lib/supabase/database.types.ts`.
+- **Funciones SQL compartidas:** una migración que redefine una función (`create or replace`) sustituye su cuerpo entero. Si dos PR la redefinen en paralelo, la última fusionada borra en silencio los cambios de la otra, porque al ser archivos distintos git no da conflicto. Por eso las tareas que tocan la misma función están encadenadas como dependencias. Además, partir siempre del cuerpo vigente en `main` y, justo antes de fusionar, comprobar que ninguna PR fusionada entretanto ha tocado esa función. Las comprobaciones nuevas al crear o votar van en triggers `BEFORE INSERT` para no reescribir `create_poll` ni `vote_poll`.
 - Al terminar una tarea, actualizar [contratos-api.md](contratos-api.md) si cambia un contrato.
 
 ## 2. Reglas de producto fijadas (resumen de D-015 a D-021)
@@ -64,8 +65,8 @@
 | **E07 — Tipos de encuesta** | | | | | |
 | V2-011 | Plantilla Sí/No en el formulario | P1 | S | `frontend` | — |
 | V2-012 | Permitir hasta 6 opciones | P0 | M | `database`, `frontend` | — |
-| V2-013 | Fecha de cierre opcional | P0 | L | `database`, `frontend` | — |
-| V2-014 | Resultados públicos al cerrarse | P0 | L | `database`, `security`, `frontend` | V2-013 |
+| V2-013 | Fecha de cierre opcional | P0 | L | `database`, `frontend` | V2-012 |
+| V2-014 | Resultados públicos al cerrarse | P0 | L | `database`, `security`, `frontend` | V2-005, V2-013 |
 | **E08 — Diseño y experiencia** | | | | | |
 | V2-015 | Animar las barras al revelar resultados | P1 | S | `frontend`, `design` | — |
 | V2-016 | Mensaje «Coincides con el X %» tras votar | P1 | S | `frontend` | — |
@@ -74,24 +75,122 @@
 | V2-019 | Imagen OG dinámica por encuesta | P1 | M | `frontend` | V2-005 |
 | **E09 — Contenido y seguridad** | | | | | |
 | V2-020 | Denunciar una encuesta | P0 | M | `database`, `frontend`, `security` | — |
-| V2-021 | Categorías fijas al crear y en la tarjeta | P1 | M | `database`, `frontend` | — |
+| V2-021 | Categorías fijas al crear y en la tarjeta | P1 | M | `database`, `frontend` | V2-013 |
 | V2-022 | Guardar para luego | P1 | M | `database`, `frontend` | V2-006 |
 | **E10 — Feed (en discusión)** | | | | | |
-| V2-030… | Pendiente de definir con el propietario | — | — | `frontend`, `backend` | — |
+| V2-030 | Definir el feed con el propietario | P0 | M | `product`, `docs` | — |
+| V2-031… | Tareas del feed, por crear al terminar V2-030 | — | — | `frontend`, `backend` | V2-030 |
 | **E11 — Calidad y rendimiento** | | | | | |
-| V2-023 | RPC de resultados por lotes para el feed | P1 | M | `database`, `backend` | — |
+| V2-023 | RPC de resultados por lotes para el feed | P1 | M | `database`, `backend` | V2-014 |
 | V2-024 | Pruebas de fugas de privacidad y cierre | P0 | M | `testing`, `security` | V2-005, V2-007, V2-014 |
 | V2-025 | E2E del ciclo social | P0 | M | `testing` | V2-002, V2-006, V2-009 |
 
-Orden sugerido para un agente: V2-012 → V2-001 → V2-002 → V2-003 → V2-004 → V2-005 → V2-007 → V2-006 → V2-008 → V2-009 → V2-013 → V2-014 → V2-024 → V2-025 → V2-020, y después las P1. V2-011, V2-012, V2-013, V2-015 a V2-018 y V2-020 a V2-023 no dependen de los perfiles y pueden hacerse en paralelo.
+Qué bloquea a qué y por cuál empezar: ver la sección 4, «Mapa de dependencias».
 
-## 4. Detalle de tareas
+## 4. Mapa de dependencias
+
+**Cómo leerlo.** «Depende de» son las tareas que tienen que estar **Completadas** (fusionadas y verificadas) antes de empezar. «Bloquea a» son las que esperan a esta. Una tarea está disponible cuando todas sus dependencias están completadas y nadie la tiene reservada en `tareas-futuras.md` de `main`.
+
+| Tarea | Prioridad | Tamaño | Depende de | Bloquea a | Oleada |
+|---|---|---|---|---|---|
+| [V2-001](https://github.com/migdlp/opinion-social-media/issues/115) Crear tabla `profiles` y RPC de perfil | P0 | L | — | V2-002, V2-003, V2-004, V2-005 | 0 |
+| [V2-002](https://github.com/migdlp/opinion-social-media/issues/124) Onboarding: elegir `@usuario` tras el primer login | P0 | M | V2-001 | V2-008, V2-010, V2-025 | 1 |
+| [V2-003](https://github.com/migdlp/opinion-social-media/issues/125) Firmar encuestas con `@usuario` | P0 | M | V2-001 | V2-006 | 1 |
+| [V2-004](https://github.com/migdlp/opinion-social-media/issues/126) Crear tabla `follows` con solicitudes | P0 | L | V2-001 | V2-005, V2-008, V2-009 | 1 |
+| [V2-005](https://github.com/migdlp/opinion-social-media/issues/128) Visibilidad de cuentas privadas en RLS y RPC | P0 | L | V2-001, V2-004 | V2-006, V2-007, V2-014, V2-019, V2-024 | 2 |
+| [V2-006](https://github.com/migdlp/opinion-social-media/issues/135) Página de perfil `/u/[username]` | P0 | L | V2-003, V2-005, V2-007 | V2-009, V2-022, V2-025 | 4 |
+| [V2-007](https://github.com/migdlp/opinion-social-media/issues/132) RPC de votos visibles en un perfil | P0 | M | V2-005 | V2-006, V2-024 | 3 |
+| [V2-008](https://github.com/migdlp/opinion-social-media/issues/129) Ajustes de perfil y privacidad (`/settings`) | P0 | M | V2-002, V2-004 | — | 2 |
+| [V2-009](https://github.com/migdlp/opinion-social-media/issues/138) Seguidores, seguidos y solicitudes | P0 | M | V2-004, V2-006 | V2-025 | 5 |
+| [V2-010](https://github.com/migdlp/opinion-social-media/issues/130) Navegación con perfil: cabecera y barra inferior móvil | P1 | M | V2-002 | — | 2 |
+| [V2-011](https://github.com/migdlp/opinion-social-media/issues/116) Plantilla Sí/No en el formulario | P1 | S | — | — | 0 |
+| [V2-012](https://github.com/migdlp/opinion-social-media/issues/117) Permitir hasta 6 opciones | P0 | M | — | V2-013 | 0 |
+| [V2-013](https://github.com/migdlp/opinion-social-media/issues/127) Fecha de cierre opcional | P0 | L | V2-012 | V2-014, V2-021 | 1 |
+| [V2-014](https://github.com/migdlp/opinion-social-media/issues/133) Resultados públicos al cerrarse | P0 | L | V2-005, V2-013 | V2-023, V2-024 | 3 |
+| [V2-015](https://github.com/migdlp/opinion-social-media/issues/118) Animar las barras al revelar resultados | P1 | S | — | — | 0 |
+| [V2-016](https://github.com/migdlp/opinion-social-media/issues/119) Mensaje «Coincides con el X %» tras votar | P1 | S | — | — | 0 |
+| [V2-017](https://github.com/migdlp/opinion-social-media/issues/120) Modo oscuro | P1 | M | — | — | 0 |
+| [V2-018](https://github.com/migdlp/opinion-social-media/issues/121) Compartir con la hoja nativa | P1 | S | — | — | 0 |
+| [V2-019](https://github.com/migdlp/opinion-social-media/issues/134) Imagen OG dinámica por encuesta | P1 | M | V2-005 | — | 3 |
+| [V2-020](https://github.com/migdlp/opinion-social-media/issues/122) Denunciar una encuesta | P0 | M | — | — | 0 |
+| [V2-021](https://github.com/migdlp/opinion-social-media/issues/131) Categorías fijas al crear y en la tarjeta | P1 | M | V2-013 | — | 2 |
+| [V2-022](https://github.com/migdlp/opinion-social-media/issues/139) Guardar para luego | P1 | M | V2-006 | — | 5 |
+| [V2-023](https://github.com/migdlp/opinion-social-media/issues/136) RPC de resultados por lotes para el feed | P1 | M | V2-014 | — | 4 |
+| [V2-024](https://github.com/migdlp/opinion-social-media/issues/137) Pruebas de fugas de privacidad y cierre | P0 | M | V2-005, V2-007, V2-014 | — | 4 |
+| [V2-025](https://github.com/migdlp/opinion-social-media/issues/140) E2E del ciclo social | P0 | M | V2-002, V2-006, V2-009 | — | 6 |
+| [V2-030](https://github.com/migdlp/opinion-social-media/issues/123) Definir el feed con el propietario | P0 | M | — | — | 0 |
+
+### Oleadas
+
+Todas las tareas de una oleada pueden hacerse en paralelo cuando la anterior está terminada (en realidad basta con que lo estén sus propias dependencias).
+
+- **Oleada 0:** V2-001 (P0), V2-011 (P1), V2-012 (P0), V2-015 (P1), V2-016 (P1), V2-017 (P1), V2-018 (P1), V2-020 (P0), V2-030 (P0)
+- **Oleada 1:** V2-002 (P0), V2-003 (P0), V2-004 (P0), V2-013 (P0)
+- **Oleada 2:** V2-005 (P0), V2-008 (P0), V2-010 (P1), V2-021 (P1)
+- **Oleada 3:** V2-007 (P0), V2-014 (P0), V2-019 (P1)
+- **Oleada 4:** V2-006 (P0), V2-023 (P1), V2-024 (P0)
+- **Oleada 5:** V2-009 (P0), V2-022 (P1)
+- **Oleada 6:** V2-025 (P0)
+
+### Camino crítico
+
+La cadena más larga, unos 11 días de trabajo secuencial, es **V2-001 → V2-004 → V2-005 → V2-007 → V2-006 → V2-009 → V2-025**. Retrasar cualquiera de ellas retrasa el final de la fase. Si hay varios agentes, conviene que uno se dedique a esta cadena.
+
+### Con cuál empezar
+
+1. **Primero el camino crítico:** si V2-001 está libre, cogerla; después seguir la cadena (V2-004 → V2-005 → V2-007 → V2-006 → V2-009 → V2-025).
+2. **Segundo agente, cadena de encuestas:** V2-012 → V2-013 → V2-014 (cuando V2-005 esté completada) → V2-021 / V2-023.
+3. **Tercer agente, interfaz sin dependencias:** V2-011, V2-015, V2-016, V2-017, V2-018 y V2-020 no bloquean ni dependen de nada. Son buenas para huecos o para alguien que empieza.
+4. **Producto:** V2-030 (definir el feed) no requiere código y puede ir en paralelo con todo.
+5. Entre varias disponibles, P0 antes que P1, y la que más tareas bloquee antes que la que no bloquea ninguna.
+
+### Grafo
+
+```mermaid
+graph LR
+  V2_001[V2-001] --> V2_002[V2-002]
+  V2_001[V2-001] --> V2_003[V2-003]
+  V2_001[V2-001] --> V2_004[V2-004]
+  V2_001[V2-001] --> V2_005[V2-005]
+  V2_004[V2-004] --> V2_005[V2-005]
+  V2_003[V2-003] --> V2_006[V2-006]
+  V2_005[V2-005] --> V2_006[V2-006]
+  V2_007[V2-007] --> V2_006[V2-006]
+  V2_005[V2-005] --> V2_007[V2-007]
+  V2_002[V2-002] --> V2_008[V2-008]
+  V2_004[V2-004] --> V2_008[V2-008]
+  V2_004[V2-004] --> V2_009[V2-009]
+  V2_006[V2-006] --> V2_009[V2-009]
+  V2_002[V2-002] --> V2_010[V2-010]
+  V2_012[V2-012] --> V2_013[V2-013]
+  V2_005[V2-005] --> V2_014[V2-014]
+  V2_013[V2-013] --> V2_014[V2-014]
+  V2_005[V2-005] --> V2_019[V2-019]
+  V2_013[V2-013] --> V2_021[V2-021]
+  V2_006[V2-006] --> V2_022[V2-022]
+  V2_014[V2-014] --> V2_023[V2-023]
+  V2_005[V2-005] --> V2_024[V2-024]
+  V2_007[V2-007] --> V2_024[V2-024]
+  V2_014[V2-014] --> V2_024[V2-024]
+  V2_002[V2-002] --> V2_025[V2-025]
+  V2_006[V2-006] --> V2_025[V2-025]
+  V2_009[V2-009] --> V2_025[V2-025]
+  V2_011[V2-011]
+  V2_015[V2-015]
+  V2_016[V2-016]
+  V2_017[V2-017]
+  V2_018[V2-018]
+  V2_020[V2-020]
+  V2_030[V2-030]
+```
+
+## 5. Detalle de tareas
 
 ### E06 — Perfiles y relaciones
 
 #### V2-001 — Crear tabla `profiles` y RPC de perfil
 
-- **Prioridad:** P0 · **Tamaño:** L · **Dependencias:** —
+- **Prioridad:** P0 · **Tamaño:** L · **Dependencias:** — · **Bloquea a:** V2-002, V2-003, V2-004, V2-005
 - **Descripción:** Tabla de perfil 1:1 con `auth.users` y funciones para crear y editar el propio perfil. Es la base de toda la épica.
 - **Requisitos:**
   - Tabla `public.profiles`: `user_id uuid PK references auth.users on delete cascade`, `username text not null`, `display_name text null`, `is_private boolean not null default false`, `created_at timestamptz not null default now()`, `updated_at timestamptz not null default now()`.
@@ -110,11 +209,11 @@ Orden sugerido para un agente: V2-012 → V2-001 → V2-002 → V2-003 → V2-00
 
 #### V2-002 — Onboarding: elegir `@usuario` tras el primer login
 
-- **Prioridad:** P0 · **Tamaño:** M · **Dependencias:** V2-001
+- **Prioridad:** P0 · **Tamaño:** M · **Dependencias:** V2-001 · **Bloquea a:** V2-008, V2-010, V2-025
 - **Descripción:** Página `/onboarding` donde el usuario elige `@usuario` y, opcionalmente, nombre visible. Es obligatoria antes de crear, votar o seguir (S-1).
 - **Requisitos:**
   - El callback de OAuth (`src/app/auth/callback/route.ts`) redirige a `/onboarding?next=<ruta>` si el usuario no tiene perfil, conservando `next` con la validación de `src/lib/auth/redirect.ts`.
-  - Las server actions de crear y votar (y las de seguir de V2-004) devuelven un código `PROFILE_REQUIRED` si falta el perfil. La interfaz lo convierte en un enlace a `/onboarding?next=…`. Imponerlo también en las RPC `create_poll` y `vote_poll`.
+  - Las server actions de crear y votar (y las de seguir de V2-004) devuelven un código `PROFILE_REQUIRED` si falta el perfil. La interfaz lo convierte en un enlace a `/onboarding?next=…`. Imponerlo también en la base de datos con triggers `BEFORE INSERT` en `polls` y `votes` que lancen `PROFILE_REQUIRED` (así no se reescriben `create_poll` ni `vote_poll`, que tocan otras tareas).
   - El formulario valida en cliente con las mismas reglas que V2-001 (nuevo `src/lib/validation/profile.ts`) y muestra en vivo `@usuario` y sus errores. Comprueba la disponibilidad al enviar, no en cada tecla.
   - Mobile-first, accesible y con los mismos estados que el resto (carga, error de red, nombre ocupado).
 - **Criterios de aceptación:**
@@ -125,7 +224,7 @@ Orden sugerido para un agente: V2-012 → V2-001 → V2-002 → V2-003 → V2-00
 
 #### V2-003 — Firmar encuestas con `@usuario`
 
-- **Prioridad:** P0 · **Tamaño:** M · **Dependencias:** V2-001
+- **Prioridad:** P0 · **Tamaño:** M · **Dependencias:** V2-001 · **Bloquea a:** V2-006
 - **Descripción:** Sustituir «Anónimo» por `@usuario` enlazado a `/u/[username]` en la tarjeta y el detalle.
 - **Requisitos:**
   - Exponer el autor sin dar `polls.user_id` a los clientes. Opción recomendada: vista `public.polls_with_author` (`security_invoker = true`) o una columna calculada vía RPC que devuelva `author_username` y `author_display_name`. Documentar la elegida en `contratos-api.md` §4.
@@ -138,7 +237,7 @@ Orden sugerido para un agente: V2-012 → V2-001 → V2-002 → V2-003 → V2-00
 
 #### V2-004 — Crear tabla `follows` con solicitudes
 
-- **Prioridad:** P0 · **Tamaño:** L · **Dependencias:** V2-001
+- **Prioridad:** P0 · **Tamaño:** L · **Dependencias:** V2-001 · **Bloquea a:** V2-005, V2-008, V2-009
 - **Descripción:** Relación de seguimiento unidireccional con aprobación para cuentas privadas (D-017).
 - **Requisitos:**
   - Tabla `public.follows`: `follower_id uuid`, `followee_id uuid` (ambos referencian `auth.users` con `on delete cascade`), `status text check (status in ('pending','accepted'))`, `created_at`, `PRIMARY KEY (follower_id, followee_id)` y `CHECK (follower_id <> followee_id)`. Índices por `followee_id, status` y `follower_id, status`.
@@ -160,12 +259,12 @@ Orden sugerido para un agente: V2-012 → V2-001 → V2-002 → V2-003 → V2-00
 
 #### V2-005 — Visibilidad de cuentas privadas en RLS y RPC
 
-- **Prioridad:** P0 · **Tamaño:** L · **Dependencias:** V2-001, V2-004
+- **Prioridad:** P0 · **Tamaño:** L · **Dependencias:** V2-001, V2-004 · **Bloquea a:** V2-006, V2-007, V2-014, V2-019, V2-024
 - **Descripción:** Imponer en la base de datos que las encuestas de una cuenta privada sólo las vean su autor y sus seguidores aceptados (D-017). Es la tarea de seguridad más delicada de la fase.
 - **Requisitos:**
   - Función `public.can_view_author(p_author uuid) returns boolean` (`stable`, `security definer`, `search_path = ''`): verdadera si el autor no tiene perfil o lo tiene público, si `auth.uid() = p_author` o si existe un `follows` aceptado de `auth.uid()` hacia `p_author`. Sin `EXECUTE` para clientes si no lo necesitan.
   - Sustituir la política `polls_select_published` por `status = 'published' AND can_view_author(user_id)`. `poll_options` ya hereda la visibilidad por su subconsulta: verificarlo con un test.
-  - `vote_poll` y `get_poll_results` deben responder `POLL_UNAVAILABLE` si `can_view_author` es falsa (S-7). Así, una encuesta privada es indistinguible de una inexistente.
+  - Votar: trigger `BEFORE INSERT` en `votes` que lance `POLL_UNAVAILABLE` si `can_view_author` es falsa (S-7), sin reescribir `vote_poll`. Resultados: añadir la misma comprobación en `get_poll_results`. Así, una encuesta privada es indistinguible de una inexistente.
   - Los metadatos de `/polls/[id]` (`src/app/polls/[id]/metadata.ts`) y la futura imagen OG no deben revelar la pregunta de una encuesta privada a quien no pueda verla.
   - Medir el plan de consulta del feed con `explain analyze` en dev con datos de prueba (≥ 1.000 encuestas y 50 relaciones) y añadir índices si hace falta. Registrar el resultado en la PR.
 - **Criterios de aceptación:**
@@ -177,7 +276,7 @@ Orden sugerido para un agente: V2-012 → V2-001 → V2-002 → V2-003 → V2-00
 
 #### V2-006 — Página de perfil `/u/[username]`
 
-- **Prioridad:** P0 · **Tamaño:** L · **Dependencias:** V2-003, V2-005, V2-007
+- **Prioridad:** P0 · **Tamaño:** L · **Dependencias:** V2-003, V2-005, V2-007 · **Bloquea a:** V2-009, V2-022, V2-025
 - **Descripción:** Perfil con cabecera, botón de seguir y pestañas «Creadas» y «Votadas».
 - **Requisitos:**
   - RPC `get_profile(p_username)` → `username`, `display_name`, `is_private`, `followers_count`, `following_count`, `polls_count`, `viewer_relation` (`'self' | 'none' | 'pending' | 'following'`) y `can_view_content boolean`. `USER_NOT_FOUND` → 404.
@@ -197,7 +296,7 @@ Orden sugerido para un agente: V2-012 → V2-001 → V2-002 → V2-003 → V2-00
 
 #### V2-007 — RPC de votos visibles en un perfil
 
-- **Prioridad:** P0 · **Tamaño:** M · **Dependencias:** V2-005
+- **Prioridad:** P0 · **Tamaño:** M · **Dependencias:** V2-005 · **Bloquea a:** V2-006, V2-024
 - **Descripción:** Listar las encuestas votadas por un usuario y su opción, respetando su privacidad y P-1.
 - **Requisitos:**
   - RPC `get_profile_votes(p_username, p_cursor)` (`security definer`), páginas de 20 por `votes.created_at DESC, votes.id DESC`.
@@ -213,7 +312,7 @@ Orden sugerido para un agente: V2-012 → V2-001 → V2-002 → V2-003 → V2-00
 
 #### V2-008 — Ajustes de perfil y privacidad (`/settings`)
 
-- **Prioridad:** P0 · **Tamaño:** M · **Dependencias:** V2-002, V2-004
+- **Prioridad:** P0 · **Tamaño:** M · **Dependencias:** V2-002, V2-004 · **Bloquea a:** —
 - **Descripción:** Página para cambiar el nombre visible, el `@usuario` y la privacidad.
 - **Requisitos:**
   - Reutiliza la validación de V2-002 y llama a `upsert_my_profile` y `set_profile_privacy`.
@@ -227,7 +326,7 @@ Orden sugerido para un agente: V2-012 → V2-001 → V2-002 → V2-003 → V2-00
 
 #### V2-009 — Seguidores, seguidos y solicitudes
 
-- **Prioridad:** P0 · **Tamaño:** M · **Dependencias:** V2-004, V2-006
+- **Prioridad:** P0 · **Tamaño:** M · **Dependencias:** V2-004, V2-006 · **Bloquea a:** V2-025
 - **Descripción:** Listas de seguidores y seguidos, y bandeja de solicitudes.
 - **Requisitos:**
   - Rutas `/u/[username]/seguidores` y `/u/[username]/siguiendo`, visibles con las mismas reglas que el contenido del perfil. RPC `list_followers(p_username, p_cursor)` y `list_following(p_username, p_cursor)` con páginas de 30.
@@ -240,7 +339,7 @@ Orden sugerido para un agente: V2-012 → V2-001 → V2-002 → V2-003 → V2-00
 
 #### V2-010 — Navegación con perfil: cabecera y barra inferior móvil
 
-- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** V2-002
+- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** V2-002 · **Bloquea a:** —
 - **Descripción:** Acceso al perfil propio desde la cabecera y barra de navegación inferior en móvil.
 - **Requisitos:**
   - Escritorio: el `AuthButton` (`src/components/auth-button.tsx`) muestra el avatar con un menú (Mi perfil, Ajustes, Solicitudes, Cerrar sesión).
@@ -255,7 +354,7 @@ Orden sugerido para un agente: V2-012 → V2-001 → V2-002 → V2-003 → V2-00
 
 #### V2-011 — Plantilla Sí/No en el formulario
 
-- **Prioridad:** P1 · **Tamaño:** S · **Dependencias:** —
+- **Prioridad:** P1 · **Tamaño:** S · **Dependencias:** — · **Bloquea a:** —
 - **Descripción:** Botón «Sí / No» en `PollCreationForm` que rellena dos opciones.
 - **Requisitos:** sólo cliente (`src/components/poll-creation-form.tsx`). Rellena «Sí» y «No» y deja dos opciones. Si ya había texto en las opciones, pide confirmación antes de sustituirlo. Las opciones siguen siendo editables.
 - **Criterios de aceptación:**
@@ -264,7 +363,7 @@ Orden sugerido para un agente: V2-012 → V2-001 → V2-002 → V2-003 → V2-00
 
 #### V2-012 — Permitir hasta 6 opciones
 
-- **Prioridad:** P0 · **Tamaño:** M · **Dependencias:** —
+- **Prioridad:** P0 · **Tamaño:** M · **Dependencias:** — · **Bloquea a:** V2-013
 - **Descripción:** Subir el máximo de opciones de 4 a 6 en base de datos, validación e interfaz (D-019).
 - **Requisitos:**
   - Migración: cambiar `CHECK (position BETWEEN 1 AND 4)` por `BETWEEN 1 AND 6` en `poll_options`, y la validación de `create_poll` a 2–6.
@@ -278,12 +377,12 @@ Orden sugerido para un agente: V2-012 → V2-001 → V2-002 → V2-003 → V2-00
 
 #### V2-013 — Fecha de cierre opcional
 
-- **Prioridad:** P0 · **Tamaño:** L · **Dependencias:** —
+- **Prioridad:** P0 · **Tamaño:** L · **Dependencias:** V2-012 · **Bloquea a:** V2-014, V2-021
 - **Descripción:** El autor puede fijar al crear cuándo deja de aceptar votos.
 - **Requisitos:**
   - Migración: `polls.closes_at timestamptz null` con `CHECK (closes_at IS NULL OR closes_at > created_at)`. Conceder `select` de la columna a los clientes.
   - `create_poll` acepta `p_closes_at` (opcional); debe estar entre 1 hora y 30 días desde ahora (`INVALID_CLOSES_AT`). Mantener la firma anterior compatible o migrar la llamada en el mismo cambio.
-  - `vote_poll` rechaza con `POLL_CLOSED` si `now() >= closes_at`.
+  - Rechazar con `POLL_CLOSED` si `now() >= closes_at` mediante un trigger `BEFORE INSERT` en `votes`, sin reescribir `vote_poll`.
   - Formulario: selector «Sin cierre / 1 hora / 1 día / 3 días / 7 días / Personalizada» (fecha y hora local, enviada en UTC).
   - Tarjeta y detalle: «Cierra en 3 h» o «Cerrada hace 2 días» (ampliar `src/lib/utils/date.ts`). Una encuesta cerrada no muestra el selector de voto.
   - Sin edición: la fecha no se puede cambiar después (brief §3.3).
@@ -295,10 +394,10 @@ Orden sugerido para un agente: V2-012 → V2-001 → V2-002 → V2-003 → V2-00
 
 #### V2-014 — Resultados públicos al cerrarse
 
-- **Prioridad:** P0 · **Tamaño:** L · **Dependencias:** V2-013
+- **Prioridad:** P0 · **Tamaño:** L · **Dependencias:** V2-005, V2-013 · **Bloquea a:** V2-023, V2-024
 - **Descripción:** Excepción D-020 a la regla crítica: una encuesta cerrada muestra resultados a cualquiera que pueda verla, sin necesidad de voto ni de sesión.
 - **Requisitos:**
-  - `get_poll_results`: si `closes_at <= now()`, omite la comprobación de voto (y la de sesión) pero mantiene `status = 'published'` y `can_view_author`. `my_option_id` es `null` para quien no votó o no tiene sesión. Conceder `EXECUTE` a `anon` y ajustar `008_privileges.test.sql`.
+  - Partir del `get_poll_results` que deja V2-005. Si `closes_at <= now()`, omite la comprobación de voto (y la de sesión) pero mantiene `status = 'published'` y `can_view_author`. `my_option_id` es `null` para quien no votó o no tiene sesión. Conceder `EXECUTE` a `anon` y ajustar `008_privileges.test.sql`.
   - Si la encuesta está abierta, el comportamiento no cambia en nada: `AUTH_REQUIRED` / `NOT_VOTED`.
   - `PollViewerState` gana `{ kind: "closed"; results: PollResults }` (o equivalente documentado en `contratos-api.md` §5). El feed y el detalle muestran resultados en las cerradas.
   - Actualizar la regla crítica en `AGENTS.md`, `contratos-api.md` y `seguridad-rpc.md` citando D-020.
@@ -312,7 +411,7 @@ Orden sugerido para un agente: V2-012 → V2-001 → V2-002 → V2-003 → V2-00
 
 #### V2-015 — Animar las barras al revelar resultados
 
-- **Prioridad:** P1 · **Tamaño:** S · **Dependencias:** —
+- **Prioridad:** P1 · **Tamaño:** S · **Dependencias:** — · **Bloquea a:** —
 - **Descripción:** Tras votar, las barras de `PollResults` crecen desde 0 hasta su porcentaje.
 - **Requisitos:** sólo CSS (transición de `width` o `transform: scaleX`), unos 600 ms escalonados por opción. Sólo se anima justo después de votar, no al cargar resultados ya conocidos. Desactivada con `prefers-reduced-motion: reduce`. Las cifras son accesibles desde el principio (no se anima el texto para lectores de pantalla).
 - **Criterios de aceptación:**
@@ -322,7 +421,7 @@ Orden sugerido para un agente: V2-012 → V2-001 → V2-002 → V2-003 → V2-00
 
 #### V2-016 — Mensaje «Coincides con el X %» tras votar
 
-- **Prioridad:** P1 · **Tamaño:** S · **Dependencias:** —
+- **Prioridad:** P1 · **Tamaño:** S · **Dependencias:** — · **Bloquea a:** —
 - **Descripción:** Frase bajo los resultados con el porcentaje de quienes eligieron lo mismo.
 - **Requisitos:** se calcula en cliente con los resultados autorizados (`my_option_id` y su `percentage`); no hace falta una consulta nueva. Textos: «Eres el primero en votar» si `total = 1`; «Coincides con el X % (N personas)» en otro caso. Se anuncia con `aria-live="polite"`.
 - **Criterios de aceptación:**
@@ -332,7 +431,7 @@ Orden sugerido para un agente: V2-012 → V2-001 → V2-002 → V2-003 → V2-00
 
 #### V2-017 — Modo oscuro
 
-- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** —
+- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** — · **Bloquea a:** —
 - **Descripción:** Tema oscuro según la preferencia del sistema.
 - **Requisitos:** redefinir los tokens de `src/app/globals.css` bajo `@media (prefers-color-scheme: dark)`. Revisar todos los componentes, que no deben usar colores fuera de los tokens. Contraste AA (4,5:1 en texto, 3:1 en barras y bordes con significado). Sin selector manual en esta tarea. Actualizar `DESIGN.md`.
 - **Criterios de aceptación:**
@@ -342,7 +441,7 @@ Orden sugerido para un agente: V2-012 → V2-001 → V2-002 → V2-003 → V2-00
 
 #### V2-018 — Compartir con la hoja nativa
 
-- **Prioridad:** P1 · **Tamaño:** S · **Dependencias:** —
+- **Prioridad:** P1 · **Tamaño:** S · **Dependencias:** — · **Bloquea a:** —
 - **Descripción:** Botón «Compartir» que usa `navigator.share` cuando existe y, si no, copia el enlace como ahora.
 - **Requisitos:** ampliar `src/components/copy-link-button.tsx` o crear `share-button.tsx`. Comparte el título (la pregunta) y la URL, nunca resultados. Cancelar la hoja nativa no muestra un error.
 - **Criterios de aceptación:**
@@ -352,7 +451,7 @@ Orden sugerido para un agente: V2-012 → V2-001 → V2-002 → V2-003 → V2-00
 
 #### V2-019 — Imagen OG dinámica por encuesta
 
-- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** V2-005
+- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** V2-005 · **Bloquea a:** —
 - **Descripción:** Imagen de vista previa con la pregunta y las opciones para los enlaces compartidos.
 - **Requisitos:** `opengraph-image.tsx` en `src/app/polls/[id]/` con `next/og` (consultar `node_modules/next/dist/docs/`). Muestra la pregunta, las opciones y `@autor`, **sin cifras** aunque esté cerrada. Para una encuesta inexistente, oculta o privada, imagen genérica de la marca. Se lee con el cliente anónimo, de modo que sólo salen las públicas.
 - **Criterios de aceptación:**
@@ -364,7 +463,7 @@ Orden sugerido para un agente: V2-012 → V2-001 → V2-002 → V2-003 → V2-00
 
 #### V2-020 — Denunciar una encuesta
 
-- **Prioridad:** P0 · **Tamaño:** M · **Dependencias:** —
+- **Prioridad:** P0 · **Tamaño:** M · **Dependencias:** — · **Bloquea a:** —
 - **Descripción:** Cualquier usuario con sesión puede denunciar una encuesta. Las denuncias alimentan la moderación manual (S-8).
 - **Requisitos:**
   - Tabla `public.poll_reports`: `id uuid PK`, `poll_id uuid references polls on delete cascade`, `reporter_id uuid references auth.users on delete cascade`, `reason text check (reason in ('spam','odio','acoso','sexual','violencia','otro'))`, `details text null` (≤ 500), `created_at` y `UNIQUE (poll_id, reporter_id)`.
@@ -379,7 +478,7 @@ Orden sugerido para un agente: V2-012 → V2-001 → V2-002 → V2-003 → V2-00
 
 #### V2-021 — Categorías fijas al crear y en la tarjeta
 
-- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** —
+- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** V2-013 · **Bloquea a:** —
 - **Descripción:** Cada encuesta puede tener una categoría de una lista cerrada. El filtrado del feed por categoría se decide en E10.
 - **Requisitos:**
   - Tabla `public.categories` (`slug text PK`, `name text`, `position smallint`) con datos iniciales en la migración: `deportes`, `tecnologia`, `politica`, `entretenimiento`, `ciencia`, `estilo-de-vida`, `otros`. Lectura pública, sin escrituras.
@@ -392,7 +491,7 @@ Orden sugerido para un agente: V2-012 → V2-001 → V2-002 → V2-003 → V2-00
 
 #### V2-022 — Guardar para luego
 
-- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** V2-006
+- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** V2-006 · **Bloquea a:** —
 - **Descripción:** Marcar encuestas para volver a ellas. La lista es privada (S-9).
 - **Requisitos:**
   - Tabla `public.saved_polls` (`user_id`, `poll_id`, `created_at`, `PK (user_id, poll_id)`, ambos con `on delete cascade`). RLS: cada usuario lee, inserta y borra sólo sus filas; `insert` sólo si la encuesta es visible para él.
@@ -403,15 +502,28 @@ Orden sugerido para un agente: V2-012 → V2-001 → V2-002 → V2-003 → V2-00
   2. Dado otro usuario, cuando consulta `saved_polls`, entonces no ve las guardadas ajenas.
   3. Dado que una encuesta guardada pasa a no visible (oculta o cuenta privada), entonces deja de aparecer en Guardadas.
 
-### E10 — Feed (en discusión)
+### E10 — Feed (por definir)
 
-El propietario quiere definir el feed en conversación antes de planificarlo. Propuestas candidatas que se convertirán en tareas `V2-030` en adelante cuando se acuerden: votar desde la tarjeta, filtro «Sin votar», pestañas Siguiendo / Para ti / Recientes / Populares, filtro por categoría (depende de V2-021) y scroll infinito. Hasta entonces, **ninguna tarea de esta épica se puede reservar**.
+El diseño del feed está **por definir**. Todo el contexto, la propuesta inicial, las preguntas abiertas y el procedimiento para continuar la definición están en [feed-por-definir.md](feed-por-definir.md). Cualquier agente o persona puede retomarlo desde ahí.
+
+#### V2-030 — Definir el feed con el propietario
+
+- **Prioridad:** P0 · **Tamaño:** M · **Dependencias:** — · **Bloquea a:** —
+- **Descripción:** Tarea de producto y documentación, sin código. Cerrar con el propietario cómo será el feed y convertir el resultado en tareas implementables.
+- **Requisitos:**
+  - Seguir el procedimiento de [feed-por-definir.md](feed-por-definir.md) §5: plantear las preguntas abiertas al propietario, registrar cada respuesta como decisión (D-022 en adelante) y actualizar el documento.
+  - Crear en este backlog las tareas `V2-031` en adelante con el mismo formato (requisitos, criterios y dependencias, incluidas las de E06–E09 que correspondan), añadirlas a `tareas-futuras.md` y crear sus issues.
+  - No implementar nada del feed dentro de esta tarea.
+- **Criterios de aceptación:**
+  1. Todas las preguntas de `feed-por-definir.md` §4 tienen una respuesta registrada del propietario o están descartadas por él de forma explícita.
+  2. Existen tareas V2-031+ con criterios Dado/Cuando/Entonces y dependencias, y sus issues están enlazadas.
+  3. `feed-por-definir.md` pasa a estado «Definido» y enlaza las tareas.
 
 ### E11 — Calidad y rendimiento
 
 #### V2-023 — RPC de resultados por lotes para el feed
 
-- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** —
+- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** V2-014 · **Bloquea a:** —
 - **Descripción:** Hoy, con sesión, cada página del feed hace una llamada a `get_poll_results` por encuesta votada, hasta 20 (`src/lib/data/operations.ts`, `getFeedPage`). Sustituirlas por una sola.
 - **Requisitos:** RPC `get_feed_results(p_poll_ids uuid[])` (máximo 20 IDs) que aplique **por cada encuesta** exactamente la misma autorización que `get_poll_results` y devuelva sólo las autorizadas, sin error por las demás. Tests SQL de que una lista mezclada no filtra agregados de las no votadas.
 - **Criterios de aceptación:**
@@ -421,7 +533,7 @@ El propietario quiere definir el feed en conversación antes de planificarlo. Pr
 
 #### V2-024 — Pruebas de fugas de privacidad y cierre
 
-- **Prioridad:** P0 · **Tamaño:** M · **Dependencias:** V2-005, V2-007, V2-014
+- **Prioridad:** P0 · **Tamaño:** M · **Dependencias:** V2-005, V2-007, V2-014 · **Bloquea a:** —
 - **Descripción:** Ampliar la batería de ataques (MVP-044, `npm run test:security`) con las vías nuevas.
 - **Requisitos:** con cuentas diferenciadas (pública, privada, seguidor aceptado, seguidor pendiente, extraño y anon), intentar por REST y RPC directas: leer encuestas, opciones, votos, perfiles, follows, denuncias y guardadas ajenas; votar y pedir resultados en encuestas privadas, cerradas y abiertas; enumerar `username` → `user_id`. Comprobar también el HTML SSR de `/u/[username]`.
 - **Criterios de aceptación:**
@@ -430,13 +542,13 @@ El propietario quiere definir el feed en conversación antes de planificarlo. Pr
 
 #### V2-025 — E2E del ciclo social
 
-- **Prioridad:** P0 · **Tamaño:** M · **Dependencias:** V2-002, V2-006, V2-009
+- **Prioridad:** P0 · **Tamaño:** M · **Dependencias:** V2-002, V2-006, V2-009 · **Bloquea a:** —
 - **Descripción:** Recorrido Playwright en escritorio y móvil (infraestructura de MVP-045).
 - **Requisitos:** usuario nuevo → onboarding → crea una encuesta → otro usuario privado → el primero le envía una solicitud y no ve sus encuestas → el privado acepta → ahora las ve y vota → visita el perfil y ve la encuesta en «Votadas».
 - **Criterios de aceptación:**
   1. El recorrido pasa en escritorio y móvil en dos ejecuciones seguidas.
   2. Rompe (RED) si se elimina la comprobación de `can_view_author` en la política de `polls`.
 
-## 5. Registro
+## 6. Registro
 
-El estado de cada tarea se lleva en [tareas-futuras.md](tareas-futuras.md), sección «Fase 2», con el mismo protocolo de reserva del MVP. Los issues de GitHub de estas tareas se crearán cuando el propietario apruebe este backlog y quede cerrada la épica E10.
+El estado de cada tarea se lleva en [tareas-futuras.md](tareas-futuras.md), sección «Fase 2», con el mismo protocolo de reserva del MVP. Issues: épicas #109–#114 y tareas #115–#140 (tabla en [github-issues.md](github-issues.md#fase-2)). Cada issue repite sus dependencias y a quién bloquea.

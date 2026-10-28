@@ -97,35 +97,36 @@ La columna Orden es orientativa; las dependencias y las reservas de cada fila de
 
 ## Fase 2 (backlog-v2)
 
-Tareas de [backlog-v2.md](backlog-v2.md), con el mismo protocolo de reserva. La épica del feed (E10) está en discusión y aún no tiene filas. Los issues se crearán cuando el propietario apruebe el backlog.
+Tareas de [backlog-v2.md](backlog-v2.md), con el mismo protocolo de reserva. Antes de elegir una, mirar su oleada y sus dependencias en el [mapa de dependencias](backlog-v2.md#4-mapa-de-dependencias). El feed (E10) está [por definir](feed-por-definir.md); de esa épica sólo se puede reservar V2-030. Épicas: [E06](https://github.com/migdlp/opinion-social-media/issues/109), [E07](https://github.com/migdlp/opinion-social-media/issues/110), [E08](https://github.com/migdlp/opinion-social-media/issues/111), [E09](https://github.com/migdlp/opinion-social-media/issues/112), [E10](https://github.com/migdlp/opinion-social-media/issues/113), [E11](https://github.com/migdlp/opinion-social-media/issues/114).
 
-| ID | Tarea | Prioridad | Dependencias | Estado | Agente |
+| ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|
-| V2-001 | Crear tabla `profiles` y RPC de perfil | P0 | — | Pendiente | — |
-| V2-002 | Onboarding: elegir `@usuario` tras el primer login | P0 | V2-001 | Pendiente | — |
-| V2-003 | Firmar encuestas con `@usuario` | P0 | V2-001 | Pendiente | — |
-| V2-004 | Crear tabla `follows` con solicitudes | P0 | V2-001 | Pendiente | — |
-| V2-005 | Visibilidad de cuentas privadas en RLS y RPC | P0 | V2-001, V2-004 | Pendiente | — |
-| V2-006 | Página de perfil `/u/[username]` | P0 | V2-003, V2-005, V2-007 | Pendiente | — |
-| V2-007 | RPC de votos visibles en un perfil | P0 | V2-005 | Pendiente | — |
-| V2-008 | Ajustes de perfil y privacidad (`/settings`) | P0 | V2-002, V2-004 | Pendiente | — |
-| V2-009 | Seguidores, seguidos y solicitudes | P0 | V2-004, V2-006 | Pendiente | — |
-| V2-010 | Navegación con perfil: cabecera y barra inferior móvil | P1 | V2-002 | Pendiente | — |
-| V2-011 | Plantilla Sí/No en el formulario | P1 | — | Pendiente | — |
-| V2-012 | Permitir hasta 6 opciones | P0 | — | Pendiente | — |
-| V2-013 | Fecha de cierre opcional | P0 | — | Pendiente | — |
-| V2-014 | Resultados públicos al cerrarse | P0 | V2-013 | Pendiente | — |
-| V2-015 | Animar las barras al revelar resultados | P1 | — | Pendiente | — |
-| V2-016 | Mensaje «Coincides con el X %» tras votar | P1 | — | Pendiente | — |
-| V2-017 | Modo oscuro | P1 | — | Pendiente | — |
-| V2-018 | Compartir con la hoja nativa | P1 | — | Pendiente | — |
-| V2-019 | Imagen OG dinámica por encuesta | P1 | V2-005 | Pendiente | — |
-| V2-020 | Denunciar una encuesta | P0 | — | Pendiente | — |
-| V2-021 | Categorías fijas al crear y en la tarjeta | P1 | — | Pendiente | — |
-| V2-022 | Guardar para luego | P1 | V2-006 | Pendiente | — |
-| V2-023 | RPC de resultados por lotes para el feed | P1 | — | Pendiente | — |
-| V2-024 | Pruebas de fugas de privacidad y cierre | P0 | V2-005, V2-007, V2-014 | Pendiente | — |
-| V2-025 | E2E del ciclo social | P0 | V2-002, V2-006, V2-009 | Pendiente | — |
+| [V2-001](https://github.com/migdlp/opinion-social-media/issues/115) | Crear tabla `profiles` y RPC de perfil | P0 | — | Pendiente | — |
+| [V2-002](https://github.com/migdlp/opinion-social-media/issues/124) | Onboarding: elegir `@usuario` tras el primer login | P0 | V2-001 | Pendiente | — |
+| [V2-003](https://github.com/migdlp/opinion-social-media/issues/125) | Firmar encuestas con `@usuario` | P0 | V2-001 | Pendiente | — |
+| [V2-004](https://github.com/migdlp/opinion-social-media/issues/126) | Crear tabla `follows` con solicitudes | P0 | V2-001 | Pendiente | — |
+| [V2-005](https://github.com/migdlp/opinion-social-media/issues/128) | Visibilidad de cuentas privadas en RLS y RPC | P0 | V2-001, V2-004 | Pendiente | — |
+| [V2-006](https://github.com/migdlp/opinion-social-media/issues/135) | Página de perfil `/u/[username]` | P0 | V2-003, V2-005, V2-007 | Pendiente | — |
+| [V2-007](https://github.com/migdlp/opinion-social-media/issues/132) | RPC de votos visibles en un perfil | P0 | V2-005 | Pendiente | — |
+| [V2-008](https://github.com/migdlp/opinion-social-media/issues/129) | Ajustes de perfil y privacidad (`/settings`) | P0 | V2-002, V2-004 | Pendiente | — |
+| [V2-009](https://github.com/migdlp/opinion-social-media/issues/138) | Seguidores, seguidos y solicitudes | P0 | V2-004, V2-006 | Pendiente | — |
+| [V2-010](https://github.com/migdlp/opinion-social-media/issues/130) | Navegación con perfil: cabecera y barra inferior móvil | P1 | V2-002 | Pendiente | — |
+| [V2-011](https://github.com/migdlp/opinion-social-media/issues/116) | Plantilla Sí/No en el formulario | P1 | — | Pendiente | — |
+| [V2-012](https://github.com/migdlp/opinion-social-media/issues/117) | Permitir hasta 6 opciones | P0 | — | Pendiente | — |
+| [V2-013](https://github.com/migdlp/opinion-social-media/issues/127) | Fecha de cierre opcional | P0 | V2-012 | Pendiente | — |
+| [V2-014](https://github.com/migdlp/opinion-social-media/issues/133) | Resultados públicos al cerrarse | P0 | V2-005, V2-013 | Pendiente | — |
+| [V2-015](https://github.com/migdlp/opinion-social-media/issues/118) | Animar las barras al revelar resultados | P1 | — | Pendiente | — |
+| [V2-016](https://github.com/migdlp/opinion-social-media/issues/119) | Mensaje «Coincides con el X %» tras votar | P1 | — | Pendiente | — |
+| [V2-017](https://github.com/migdlp/opinion-social-media/issues/120) | Modo oscuro | P1 | — | Pendiente | — |
+| [V2-018](https://github.com/migdlp/opinion-social-media/issues/121) | Compartir con la hoja nativa | P1 | — | Pendiente | — |
+| [V2-019](https://github.com/migdlp/opinion-social-media/issues/134) | Imagen OG dinámica por encuesta | P1 | V2-005 | Pendiente | — |
+| [V2-020](https://github.com/migdlp/opinion-social-media/issues/122) | Denunciar una encuesta | P0 | — | Pendiente | — |
+| [V2-021](https://github.com/migdlp/opinion-social-media/issues/131) | Categorías fijas al crear y en la tarjeta | P1 | V2-013 | Pendiente | — |
+| [V2-022](https://github.com/migdlp/opinion-social-media/issues/139) | Guardar para luego | P1 | V2-006 | Pendiente | — |
+| [V2-023](https://github.com/migdlp/opinion-social-media/issues/136) | RPC de resultados por lotes para el feed | P1 | V2-014 | Pendiente | — |
+| [V2-024](https://github.com/migdlp/opinion-social-media/issues/137) | Pruebas de fugas de privacidad y cierre | P0 | V2-005, V2-007, V2-014 | Pendiente | — |
+| [V2-025](https://github.com/migdlp/opinion-social-media/issues/140) | E2E del ciclo social | P0 | V2-002, V2-006, V2-009 | Pendiente | — |
+| [V2-030](https://github.com/migdlp/opinion-social-media/issues/123) | Definir el feed con el propietario | P0 | — | Pendiente | — |
 
 ## Condición de cierre
 
