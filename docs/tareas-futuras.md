@@ -147,7 +147,7 @@ Tareas de [backlog adicional](backlog-adicional.md), añadidas por la [auditorí
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|
 | [DESIGN-002](https://github.com/migdlp/opinion-social-media/issues/188) | Migrar tokens y estilos base a After Sunset | P0 | DESIGN-001 | Completada: [PR #212](https://github.com/migdlp/opinion-social-media/pull/212), merge `800bf05`; [CI verde](https://github.com/migdlp/opinion-social-media/actions/runs/40717753754); TDD RED 16 → GREEN 61 focalizadas, 614 pruebas/build; 4 Playwright locales con capturas claro/oscuro 320/1280, tokens y CTA base aplicados; resto en DESIGN-003–006 | Codex /root (opinion_social_media) |
-| [DESIGN-003](https://github.com/migdlp/opinion-social-media/issues/189) | Adaptar feed, detalle, creación y acceso al nuevo estilo | P0 | DESIGN-002 | Pendiente | — |
+| [DESIGN-003](https://github.com/migdlp/opinion-social-media/issues/189) | Adaptar feed, detalle, creación y acceso al nuevo estilo | P0 | DESIGN-002 | En progreso | Codex /root (opinion_social_media) |
 | [DESIGN-004](https://github.com/migdlp/opinion-social-media/issues/190) | Adaptar perfiles, ajustes y solicitudes a After Sunset | P0 | DESIGN-002, V2-006, V2-008, V2-009 | Pendiente | — |
 | [DESIGN-005](https://github.com/migdlp/opinion-social-media/issues/191) | Adaptar las imágenes sociales a la nueva identidad | P0 | DESIGN-002, V2-019 | Pendiente | — |
 | [DESIGN-006](https://github.com/migdlp/opinion-social-media/issues/192) | Verificar la adaptación visual completa y su accesibilidad | P0 | DESIGN-003, DESIGN-004, DESIGN-005, V2-025, V2-036 | Pendiente | — |
