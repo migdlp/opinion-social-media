@@ -2,7 +2,7 @@ import { LockedOptions } from "@/components/locked-options";
 import Link from "next/link";
 import { PollResults } from "@/components/poll-results";
 import type { PollViewerState, PublicPoll } from "@/lib/data/types";
-import { formatApproximateDate } from "@/lib/utils/date";
+import { formatApproximateDate, formatCloseStatus, isClosed } from "@/lib/utils/date";
 
 type PollCardProps = {
   poll: PublicPoll;
@@ -16,6 +16,7 @@ type PollCardProps = {
 // tarjeta lleva al detalle.
 export function PollCard({ poll, viewer, now = new Date() }: PollCardProps) {
   const results = viewer?.kind === "voted" ? viewer.results : null;
+  const closed = isClosed(poll.closesAt, now);
   return (
     <article className="relative flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4 transition-colors focus-within:border-foreground hover:border-bar-muted">
       <h2 className="text-[17px] leading-snug font-semibold tracking-[-0.01em]">
@@ -29,8 +30,14 @@ export function PollCard({ poll, viewer, now = new Date() }: PollCardProps) {
           <span>Anónimo</span>
           {" · "}
           <time dateTime={poll.createdAt}>{formatApproximateDate(poll.createdAt, now)}</time>
+          {poll.closesAt && (
+            <>
+              {" · "}
+              <time dateTime={poll.closesAt}>{formatCloseStatus(poll.closesAt, now)}</time>
+            </>
+          )}
         </span>
-        {!results && <span className="font-medium text-foreground">Vota para ver</span>}
+        {!results && !closed && <span className="font-medium text-foreground">Vota para ver</span>}
       </p>
     </article>
   );

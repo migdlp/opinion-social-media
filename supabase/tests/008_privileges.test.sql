@@ -5,7 +5,7 @@ declare r record;
 begin
   -- Funciones de public: SECURITY DEFINER con search_path vacío, sin EXECUTE para PUBLIC ni anon.
   for r in select p.oid, p.proname, p.prosecdef, p.proconfig, p.proacl from pg_proc p
-           where p.pronamespace = 'public'::regnamespace loop
+           where p.pronamespace = 'public'::regnamespace and p.prorettype <> 'trigger'::regtype loop
     assert r.prosecdef, r.proname || ' no es SECURITY DEFINER';
     assert r.proconfig = array['search_path=""'], r.proname || ' sin search_path vacío';
     assert r.proacl is not null and not exists (select 1 from aclexplode(r.proacl) a where a.grantee = 0),
@@ -13,7 +13,7 @@ begin
     assert not has_function_privilege('anon', r.oid, 'execute'), r.proname || ' ejecutable por anon';
     assert has_function_privilege('authenticated', r.oid, 'execute'), r.proname || ' no ejecutable por authenticated';
   end loop;
-  assert (select count(*) from pg_proc where pronamespace = 'public'::regnamespace) = 9,
+  assert (select count(*) from pg_proc where pronamespace = 'public'::regnamespace and prorettype <> 'trigger'::regtype) = 9,
     'funciones en public distintas de las RPC previstas';
 
   -- Perfiles (V2-001): sólo se leen columnas públicas; user_id nunca.
@@ -26,6 +26,15 @@ begin
   -- Seguidores (V2-004): sólo authenticated lee follows, y nunca anon.
   assert not has_table_privilege('anon', 'public.follows', 'select'), 'anon lee follows';
   assert has_table_privilege('authenticated', 'public.follows', 'select'), 'authenticated no lee follows';
+
+  -- Funciones de trigger: SECURITY DEFINER con search_path vacío y sin EXECUTE para clientes.
+  for r in select p.oid, p.proname, p.prosecdef, p.proconfig from pg_proc p
+           where p.pronamespace = 'public'::regnamespace and p.prorettype = 'trigger'::regtype loop
+    assert r.prosecdef, r.proname || ' no es SECURITY DEFINER';
+    assert r.proconfig = array['search_path=""'], r.proname || ' sin search_path vacío';
+    assert not has_function_privilege('anon', r.oid, 'execute'), r.proname || ' ejecutable por anon';
+    assert not has_function_privilege('authenticated', r.oid, 'execute'), r.proname || ' ejecutable por authenticated';
+  end loop;
 
   -- Tablas: ningún cliente escribe; anon no lee votes; nadie lee polls.user_id ni polls.status.
   for r in select c.relname, role from pg_class c, unnest(array['anon', 'authenticated']) as role
