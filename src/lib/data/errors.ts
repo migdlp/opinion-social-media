@@ -13,6 +13,9 @@ export const ERROR_MESSAGES: Record<AppErrorCode, string> = {
   OPTION_INVALID: "Esa opción no es válida para esta encuesta.",
   ALREADY_VOTED: "Ya has votado en esta encuesta.",
   NOT_VOTED: "Vota para ver los resultados.",
+  ALREADY_REPORTED: "Ya has denunciado esta encuesta.",
+  REPORT_RATE_LIMITED: "Has enviado demasiadas denuncias. Inténtalo más tarde.",
+  REPORT_INVALID: "Elige un motivo; el detalle admite hasta 500 caracteres.",
   INVALID_CLOSES_AT: "El cierre debe estar entre 1 hora y 30 días desde ahora.",
   POLL_CLOSED: "Esta encuesta ya está cerrada y no admite votos.",
   USERNAME_INVALID:
@@ -21,6 +24,9 @@ export const ERROR_MESSAGES: Record<AppErrorCode, string> = {
   USERNAME_RESERVED: "Ese usuario está reservado. Prueba con otro.",
   DISPLAY_NAME_INVALID: "El nombre debe tener entre 1 y 50 caracteres.",
   PROFILE_REQUIRED: "Elige primero tu usuario.",
+  USER_NOT_FOUND: "No existe ese usuario.",
+  CANNOT_FOLLOW_SELF: "No puedes seguirte a ti mismo.",
+  FOLLOW_RATE_LIMITED: "Has seguido a demasiadas cuentas. Inténtalo más tarde.",
   NETWORK_ERROR: "No hay conexión. Comprueba tu red y vuelve a intentarlo.",
   UNKNOWN: "Algo ha fallado. Vuelve a intentarlo.",
 };
@@ -37,6 +43,9 @@ const RPC_CODES = new Set<string>([
   "OPTION_INVALID",
   "ALREADY_VOTED",
   "NOT_VOTED",
+  "ALREADY_REPORTED",
+  "REPORT_RATE_LIMITED",
+  "REPORT_INVALID",
   "INVALID_CLOSES_AT",
   "POLL_CLOSED",
   "USERNAME_INVALID",
@@ -44,6 +53,9 @@ const RPC_CODES = new Set<string>([
   "USERNAME_RESERVED",
   "DISPLAY_NAME_INVALID",
   "PROFILE_REQUIRED",
+  "USER_NOT_FOUND",
+  "CANNOT_FOLLOW_SELF",
+  "FOLLOW_RATE_LIMITED",
 ]);
 
 // 42501: sin permiso (anon). PGRST301/303: JWT inválido o caducado.

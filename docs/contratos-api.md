@@ -35,11 +35,17 @@ Modelo de datos: el del [brief §5](brief-producto.md#5-modelo-de-datos-obligato
 | `OPTION_INVALID` | `vote_poll` | La opción no existe o pertenece a otra encuesta | «Esa opción no es válida para esta encuesta.» |
 | `ALREADY_VOTED` | `vote_poll` | La cuenta ya tenía voto en la encuesta (incluida una carrera perdida) | No es un fallo: la interfaz pasa a «Ya has votado» y pide resultados |
 | `NOT_VOTED` | `get_poll_results` | La cuenta (incluido el autor) aún no ha votado | No se muestra: la interfaz enseña el selector de voto |
+| `ALREADY_REPORTED` | `report_poll` | La cuenta ya había denunciado esa encuesta | «Ya has denunciado esta encuesta.» |
+| `REPORT_RATE_LIMITED` | `report_poll` | 20 denuncias de la cuenta en los últimos 60 minutos | «Has enviado demasiadas denuncias. Inténtalo más tarde.» |
+| `REPORT_INVALID` | `report_poll` | Motivo ausente o fuera de la lista, o detalle de más de 500 caracteres | «Elige un motivo; el detalle admite hasta 500 caracteres.» |
 | `USERNAME_INVALID` | `upsert_my_profile` | `p_username` nulo o fuera de `^[a-z][a-z0-9_]{2,19}$` tras pasar a minúsculas (sin recortar espacios) | «El usuario debe tener de 3 a 20 caracteres (letras minúsculas, números o _) y empezar por una letra.» |
 | `USERNAME_TAKEN` | `upsert_my_profile` | Otro perfil ya usa ese `@usuario` (sin distinguir mayúsculas) | «Ese usuario ya está en uso. Prueba con otro.» |
 | `USERNAME_RESERVED` | `upsert_my_profile` | Nombre de la lista reservada (`admin`, `settings`, `u`, `api`…) | «Ese usuario está reservado. Prueba con otro.» |
 | `DISPLAY_NAME_INVALID` | `upsert_my_profile` | Nombre visible normalizado fuera de 1–50 (vacío incluido; `null` es válido) | «El nombre debe tener entre 1 y 50 caracteres.» |
 | `PROFILE_REQUIRED` | `set_profile_privacy` | La cuenta aún no tiene perfil | «Elige primero tu usuario.» |
+| `USER_NOT_FOUND` | `follow_user`, `unfollow_user`, `respond_follow_request`, `remove_follower` | El `@usuario` no existe; en `respond_follow_request`, tampoco hay solicitud pendiente de esa cuenta | «No existe ese usuario.» |
+| `CANNOT_FOLLOW_SELF` | `follow_user` | El `@usuario` es el propio | «No puedes seguirte a ti mismo.» |
+| `FOLLOW_RATE_LIMITED` | `follow_user` | 200 seguimientos nuevos de la cuenta en 60 minutos (el límite cuenta filas creadas; repetir uno existente no cuenta) | «Has seguido a demasiadas cuentas. Inténtalo más tarde.» |
 | `NETWORK_ERROR` | Adaptador (cliente) | `fetch` falla o no llega respuesta | «No hay conexión. Comprueba tu red y vuelve a intentarlo.» |
 | `UNKNOWN` | Adaptador (cliente) | Cualquier otro error | «Algo ha fallado. Vuelve a intentarlo.» |
 
@@ -48,8 +54,10 @@ Orden de comprobación dentro de cada RPC (determina qué código gana si hay va
 - `create_poll`: `AUTH_REQUIRED` → `VALIDATION_OPTION_COUNT` → `VALIDATION_QUESTION_LENGTH` → `VALIDATION_OPTION_LENGTH` → `VALIDATION_OPTION_DUPLICATE` → `INVALID_CLOSES_AT` → `RATE_LIMITED`.
 - `vote_poll`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `OPTION_INVALID` → `POLL_CLOSED` → `ALREADY_VOTED`.
 - `get_poll_results`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `NOT_VOTED`. Ningún agregado se calcula antes de superar las tres.
+- `report_poll`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `REPORT_INVALID` → `ALREADY_REPORTED` → `REPORT_RATE_LIMITED`.
 - `upsert_my_profile`: `AUTH_REQUIRED` → `USERNAME_INVALID` → `USERNAME_RESERVED` → `DISPLAY_NAME_INVALID` → `USERNAME_TAKEN`.
 - `set_profile_privacy`: `AUTH_REQUIRED` → `PROFILE_REQUIRED`.
+- `follow_user`: `AUTH_REQUIRED` → `PROFILE_REQUIRED` → `USER_NOT_FOUND` → `CANNOT_FOLLOW_SELF` → `FOLLOW_RATE_LIMITED`. `unfollow_user` y `remove_follower`: `AUTH_REQUIRED` → `USER_NOT_FOUND`. `respond_follow_request`: `AUTH_REQUIRED` → `USER_NOT_FOUND`.
 
 ## 3. RPC
 
@@ -107,6 +115,14 @@ public.get_poll_results(p_poll_id uuid)
 - **No contiene** `user_id`, identidades de votantes, fechas de voto ni otro dato por votante. Sólo agregados por opción, el total y la opción propia.
 - Sin caché compartida: se llama con la sesión del usuario y la página que la usa es dinámica (`no-store`).
 
+### 3.5. `report_poll` (V2-020)
+
+```sql
+public.report_poll(p_poll_id uuid, p_reason text, p_details text default null) returns void
+```
+
+- Motivos: `spam`, `odio`, `acoso`, `sexual`, `violencia`, `otro`. `p_details` (opcional, ≤ 500) se normaliza; vacío se guarda como `null`.
+- Guarda una fila en `poll_reports` (única por encuesta y denunciante; máx. 20 por hora y cuenta). Sólo se puede denunciar una encuesta publicada. La tabla no es legible ni escribible por clientes; no se oculta nada automáticamente (S-8): ver [moderacion.md](moderacion.md).
 ### 3.4. `upsert_my_profile` y `set_profile_privacy` (V2-001)
 
 ```sql
@@ -116,8 +132,21 @@ public.set_profile_privacy(p_private boolean) returns void
 ```
 
 - `upsert_my_profile` crea o edita el perfil de `auth.uid()`; `username` se guarda en minúsculas y `display_name` se normaliza como en §1. No cambia `is_private`. Nunca devuelve `user_id`.
-- `set_profile_privacy` cambia `is_private`. Al pasar a pública deberá aceptar las solicitudes pendientes (hueco para V2-004).
+- `set_profile_privacy` cambia `is_private`. Al pasar a pública acepta todas las solicitudes pendientes (S-6, V2-004).
 - Lectura directa: `profiles.select('username, display_name, is_private, created_at')` para `anon` y `authenticated`. `user_id` y `updated_at` no se conceden.
+
+### 3.6. Seguimiento (V2-004)
+
+```sql
+public.follow_user(p_username text) returns text                       -- 'accepted' | 'pending'
+public.unfollow_user(p_username text) returns void
+public.respond_follow_request(p_username text, p_accept boolean) returns void
+public.remove_follower(p_username text) returns void
+```
+
+- Todas por `@usuario` (sin distinguir mayúsculas), nunca por `user_id`. Exigen sesión; `follow_user` además exige perfil propio (`PROFILE_REQUIRED`, S-1).
+- `follow_user` es idempotente: cuenta pública → `accepted`; privada → `pending`. `unfollow_user` también cancela una solicitud pendiente. `respond_follow_request` lo ejecuta el **seguido** sobre la solicitud de `p_username`: aceptar la pasa a `accepted`, rechazar la borra. `remove_follower` borra la relación de un seguidor (o una solicitud) hacia la cuenta propia.
+- Lectura directa: `follows` solo para `authenticated`, solo las filas donde la cuenta es `follower_id` o `followee_id`. Los contadores públicos y las listas se sirven por RPC en V2-006/V2-009.
 
 ### 3.7. `get_poll_authors` (V2-003)
 
@@ -184,6 +213,9 @@ export type AppErrorCode =
   | 'OPTION_INVALID'
   | 'ALREADY_VOTED'
   | 'NOT_VOTED'
+  | 'ALREADY_REPORTED'
+  | 'REPORT_RATE_LIMITED'
+  | 'REPORT_INVALID'
   | 'INVALID_CLOSES_AT'
   | 'POLL_CLOSED'
   | 'USERNAME_INVALID'
@@ -191,6 +223,9 @@ export type AppErrorCode =
   | 'USERNAME_RESERVED'
   | 'DISPLAY_NAME_INVALID'
   | 'PROFILE_REQUIRED'
+  | 'USER_NOT_FOUND'
+  | 'CANNOT_FOLLOW_SELF'
+  | 'FOLLOW_RATE_LIMITED'
   | 'NETWORK_ERROR'
   | 'UNKNOWN'
 

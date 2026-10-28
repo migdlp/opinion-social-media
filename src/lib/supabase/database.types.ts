@@ -3,6 +3,28 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      follows: {
+        Row: {
+          created_at: string;
+          followee_id: string;
+          follower_id: string;
+          status: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          followee_id: string;
+          follower_id: string;
+          status: string;
+        };
+        Update: {
+          created_at?: string;
+          followee_id?: string;
+          follower_id?: string;
+          status?: string;
+        };
+        Relationships: [];
+      };
       poll_options: {
         Row: {
           id: string;
@@ -26,6 +48,42 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "poll_options_poll_id_fkey";
+            columns: ["poll_id"];
+            isOneToOne: false;
+            referencedRelation: "polls";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      poll_reports: {
+        Row: {
+          created_at: string;
+          details: string | null;
+          id: string;
+          poll_id: string;
+          reason: string;
+          reporter_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          details?: string | null;
+          id?: string;
+          poll_id: string;
+          reason: string;
+          reporter_id: string;
+        };
+        Update: {
+          created_at?: string;
+          details?: string | null;
+          id?: string;
+          poll_id?: string;
+          reason?: string;
+          reporter_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "poll_reports_poll_id_fkey";
             columns: ["poll_id"];
             isOneToOne: false;
             referencedRelation: "polls";
@@ -138,6 +196,7 @@ export type Database = {
         Args: { p_closes_at?: string; p_options: string[]; p_question: string };
         Returns: string;
       };
+      follow_user: { Args: { p_username: string }; Returns: string };
       get_poll_authors: {
         Args: { p_poll_ids: string[] };
         Returns: {
@@ -158,7 +217,17 @@ export type Database = {
           votes: number;
         }[];
       };
+      remove_follower: { Args: { p_username: string }; Returns: undefined };
+      report_poll: {
+        Args: { p_details?: string; p_poll_id: string; p_reason: string };
+        Returns: undefined;
+      };
+      respond_follow_request: {
+        Args: { p_accept: boolean; p_username: string };
+        Returns: undefined;
+      };
       set_profile_privacy: { Args: { p_private: boolean }; Returns: undefined };
+      unfollow_user: { Args: { p_username: string }; Returns: undefined };
       upsert_my_profile: {
         Args: { p_display_name: string; p_username: string };
         Returns: {

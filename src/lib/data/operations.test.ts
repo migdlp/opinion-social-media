@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { createPoll, getFeedPage, getPollDetail, getPollResults, votePoll } from "./operations";
+import {
+  createPoll,
+  getFeedPage,
+  getPollDetail,
+  getPollResults,
+  reportPoll,
+  votePoll,
+} from "./operations";
 import { fakeSupabase, networkThrow } from "./testing/fake-supabase";
 
 const uuid = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
@@ -280,5 +287,43 @@ describe("getFeedPage", () => {
       ok: false,
       error: "NETWORK_ERROR",
     });
+  });
+});
+
+describe("reportPoll (V2-020)", () => {
+  it("llama a report_poll con motivo y detalle y devuelve ok", async () => {
+    const { supabase, queries } = fakeSupabase({ "rpc:report_poll": { data: null, error: null } });
+    expect(await reportPoll(supabase, P1, "spam", "Es publicidad")).toEqual({
+      ok: true,
+      data: undefined,
+    });
+    expect(queries[0].calls[0]).toEqual([
+      "rpc",
+      "report_poll",
+      { p_poll_id: P1, p_reason: "spam", p_details: "Es publicidad" },
+    ]);
+  });
+
+  it("sin detalle envía p_details null", async () => {
+    const { supabase, queries } = fakeSupabase({ "rpc:report_poll": { data: null, error: null } });
+    await reportPoll(supabase, P1, "otro");
+    expect(queries[0].calls[0]).toEqual([
+      "rpc",
+      "report_poll",
+      { p_poll_id: P1, p_reason: "otro", p_details: null },
+    ]);
+  });
+
+  it.each(["ALREADY_REPORTED", "REPORT_RATE_LIMITED", "REPORT_INVALID", "POLL_UNAVAILABLE"])(
+    "propaga %s",
+    async (code) => {
+      const { supabase } = fakeSupabase({ "rpc:report_poll": rpcError(code) });
+      expect(await reportPoll(supabase, P1, "spam")).toEqual({ ok: false, error: code });
+    },
+  );
+
+  it("una caída de red es NETWORK_ERROR", async () => {
+    const { supabase } = fakeSupabase({ "rpc:report_poll": networkThrow });
+    expect(await reportPoll(supabase, P1, "spam")).toEqual({ ok: false, error: "NETWORK_ERROR" });
   });
 });

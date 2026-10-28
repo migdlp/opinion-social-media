@@ -57,4 +57,9 @@ describe("Ignored Build Step de Vercel (0 omite, 1 compila)", () => {
     const config = JSON.parse(readFileSync(configFile, "utf8"));
     expect(config.ignoreCommand).toBe("node scripts/vercel-ignore-build.mjs");
   });
+
+  it("sólo crea deployments Git desde release, sin previews de otras ramas", () => {
+    const config = JSON.parse(readFileSync(configFile, "utf8"));
+    expect(config.git?.deploymentEnabled).toEqual({ "**": false, release: true });
+  });
 });

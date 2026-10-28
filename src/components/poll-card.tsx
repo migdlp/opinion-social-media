@@ -2,6 +2,7 @@ import { LockedOptions } from "@/components/locked-options";
 import Link from "next/link";
 import { PollAuthor } from "@/components/poll-author";
 import { PollResults } from "@/components/poll-results";
+import { ReportPoll } from "@/components/report-poll";
 import type { PollViewerState, PublicPoll } from "@/lib/data/types";
 import { formatApproximateDate, formatCloseStatus, isClosed } from "@/lib/utils/date";
 
@@ -20,11 +21,17 @@ export function PollCard({ poll, viewer, now = new Date() }: PollCardProps) {
   const closed = isClosed(poll.closesAt, now);
   return (
     <article className="relative flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4 transition-colors focus-within:border-foreground hover:border-bar-muted">
-      <h2 className="text-[17px] leading-snug font-semibold tracking-[-0.01em]">
-        <Link href={`/polls/${poll.id}`} className="after:absolute after:inset-0 after:rounded-2xl">
-          {poll.question}
-        </Link>
-      </h2>
+      <div className="flex items-start justify-between gap-2">
+        <h2 className="text-[17px] leading-snug font-semibold tracking-[-0.01em]">
+          <Link
+            href={`/polls/${poll.id}`}
+            className="after:absolute after:inset-0 after:rounded-2xl"
+          >
+            {poll.question}
+          </Link>
+        </h2>
+        <ReportPoll pollId={poll.id} signedIn={viewer ? viewer.kind !== "anonymous" : true} />
+      </div>
       {results ? <PollResults results={results} /> : <LockedOptions options={poll.options} />}
       <p className="flex items-center justify-between gap-3 text-[13px] text-muted">
         <span>
