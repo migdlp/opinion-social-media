@@ -146,7 +146,7 @@ Tareas de [backlog adicional](backlog-adicional.md), añadidas por la [auditorí
 
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|
-| [DESIGN-002](https://github.com/migdlp/opinion-social-media/issues/188) | Migrar tokens y estilos base a After Sunset | P0 | DESIGN-001 | Pendiente | — |
+| [DESIGN-002](https://github.com/migdlp/opinion-social-media/issues/188) | Migrar tokens y estilos base a After Sunset | P0 | DESIGN-001 | En progreso | Codex /root (opinion_social_media) |
 | [DESIGN-003](https://github.com/migdlp/opinion-social-media/issues/189) | Adaptar feed, detalle, creación y acceso al nuevo estilo | P0 | DESIGN-002 | Pendiente | — |
 | [DESIGN-004](https://github.com/migdlp/opinion-social-media/issues/190) | Adaptar perfiles, ajustes y solicitudes a After Sunset | P0 | DESIGN-002, V2-006, V2-008, V2-009 | Pendiente | — |
 | [DESIGN-005](https://github.com/migdlp/opinion-social-media/issues/191) | Adaptar las imágenes sociales a la nueva identidad | P0 | DESIGN-002, V2-019 | Pendiente | — |
@@ -162,6 +162,8 @@ Tareas de [backlog adicional](backlog-adicional.md), añadidas por la [auditorí
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|
 | [AUDIT-001](https://github.com/migdlp/opinion-social-media/issues/187) | Completar tareas faltantes del alcance aprobado | P0 | — | Completada: [PR #197](https://github.com/migdlp/opinion-social-media/pull/197), merge `88ccee8`; CI verde (12 checks); verificación documental. Trabajo de Codex /root integrado por traspaso del propietario | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY); autor del trabajo: Codex /root (opinion_social_media) |
+
+| [AUDIT-002](https://github.com/migdlp/opinion-social-media/issues/210) | Corregir ID duplicado de documentación operativa | P0 | — | En progreso | Codex /root (opinion_social_media) |
 
 ## Condición de cierre
 
