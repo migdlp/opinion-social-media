@@ -9,7 +9,7 @@ import { createClient } from "@/lib/supabase/server";
 // Detalle de /polls/[id], cargado en el servidor por petición. Mal formada,
 // inexistente u oculta son indistinguibles (POLL_UNAVAILABLE) y responden 404;
 // cualquier otro fallo es un error recuperable.
-export async function PollDetailLoader({ id }: { id: string }) {
+export async function PollDetailLoader({ id, option }: { id: string; option?: string }) {
   const supabase = await createClient();
   const { data } = await supabase.auth.getUser();
   const detail = await getPollDetail(supabase, id, { signedIn: Boolean(data.user) });
@@ -27,5 +27,12 @@ export async function PollDetailLoader({ id }: { id: string }) {
     );
   }
 
-  return <PollDetailView detail={detail.data} castVote={castVote} loadOwnVote={loadOwnVote} />;
+  return (
+    <PollDetailView
+      detail={detail.data}
+      castVote={castVote}
+      loadOwnVote={loadOwnVote}
+      initialSelected={option}
+    />
+  );
 }
