@@ -26,6 +26,7 @@ export const ERROR_MESSAGES: Record<AppErrorCode, string> = {
   DISPLAY_NAME_INVALID: "El nombre debe tener entre 1 y 50 caracteres.",
   PROFILE_REQUIRED: "Elige primero tu usuario.",
   USER_NOT_FOUND: "No existe ese usuario.",
+  PROFILE_PRIVATE: "Esta cuenta es privada.",
   CANNOT_FOLLOW_SELF: "No puedes seguirte a ti mismo.",
   FOLLOW_RATE_LIMITED: "Has seguido a demasiadas cuentas. Inténtalo más tarde.",
   NETWORK_ERROR: "No hay conexión. Comprueba tu red y vuelve a intentarlo.",
@@ -56,6 +57,7 @@ const RPC_CODES = new Set<string>([
   "DISPLAY_NAME_INVALID",
   "PROFILE_REQUIRED",
   "USER_NOT_FOUND",
+  "PROFILE_PRIVATE",
   "CANNOT_FOLLOW_SELF",
   "FOLLOW_RATE_LIMITED",
 ]);

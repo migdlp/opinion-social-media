@@ -261,6 +261,22 @@ export type Database = {
           votes: number;
         }[];
       };
+      get_profile_votes: {
+        Args: { p_cursor?: string; p_username: string };
+        Returns: {
+          author_display_name: string;
+          author_username: string;
+          choice_hidden: boolean;
+          closes_at: string;
+          cursor: string;
+          option_id: string;
+          option_text: string;
+          poll_created_at: string;
+          poll_id: string;
+          question: string;
+          voted_at: string;
+        }[];
+      };
       remove_follower: { Args: { p_username: string }; Returns: undefined };
       report_poll: {
         Args: { p_details?: string; p_poll_id: string; p_reason: string };
