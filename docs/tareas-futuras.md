@@ -140,6 +140,23 @@ Tareas de [backlog-v2.md](backlog-v2.md), con el mismo protocolo de reserva. Ant
 |---|---|---|---|---|---|
 | [DESIGN-001](https://github.com/migdlp/opinion-social-media/issues/185) | Registrar y comunicar dirección creativa After Sunset | P0 | — | Completada: [PR #186](https://github.com/migdlp/opinion-social-media/pull/186), merge `d1ef642`; [CI verde](https://github.com/migdlp/opinion-social-media/actions/runs/40684033014); D-026 y siete .md coherentes, enlaces y contraste revisados; aviso publicado en #73; sin cambios de CSS ni despliegues | Codex /root (opinion_social_media) |
 
+## Implementación visual e integración adicional
+
+Tareas de [backlog adicional](backlog-adicional.md), añadidas por la [auditoría](auditoria-tareas.md). No implican ejecución ni nuevos responsables.
+
+| ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
+|---|---|---|---|---|---|
+| [DESIGN-002](https://github.com/migdlp/opinion-social-media/issues/188) | Migrar tokens y estilos base a After Sunset | P0 | DESIGN-001 | Pendiente | — |
+| [DESIGN-003](https://github.com/migdlp/opinion-social-media/issues/189) | Adaptar feed, detalle, creación y acceso al nuevo estilo | P0 | DESIGN-002 | Pendiente | — |
+| [DESIGN-004](https://github.com/migdlp/opinion-social-media/issues/190) | Adaptar perfiles, ajustes y solicitudes a After Sunset | P0 | DESIGN-002, V2-006, V2-008, V2-009 | Pendiente | — |
+| [DESIGN-005](https://github.com/migdlp/opinion-social-media/issues/191) | Adaptar las imágenes sociales a la nueva identidad | P0 | DESIGN-002, V2-019 | Pendiente | — |
+| [DESIGN-006](https://github.com/migdlp/opinion-social-media/issues/192) | Verificar la adaptación visual completa y su accesibilidad | P0 | DESIGN-003, DESIGN-004, DESIGN-005, V2-025, V2-036 | Pendiente | — |
+| [SEC-001](https://github.com/migdlp/opinion-social-media/issues/193) | Impedir que borrar seguimientos reinicie la cuota | P0 | V2-004 | Pendiente | — |
+| [OPS-001](https://github.com/migdlp/opinion-social-media/issues/194) | Integrar las migraciones de fase 2 en Supabase dev | P0 | V2-007, V2-014, V2-021, V2-031, SEC-001 | Pendiente | — |
+| [OPS-002](https://github.com/migdlp/opinion-social-media/issues/195) | Validar fase 2 integrada con Google real en desarrollo | P0 | OPS-001, MVP-005, V2-025, V2-036 | Pendiente | — |
+| [DOC-001](https://github.com/migdlp/opinion-social-media/issues/196) | Actualizar documentación operativa al candidato de fase 2 | P0 | OPS-002, DESIGN-006 | Pendiente | — |
+| [V2-052](https://github.com/migdlp/opinion-social-media/issues/169) | Conservar la elección al iniciar sesión (issue existente) | P1 | — | Pendiente | — |
+
 ## Auditoría de cobertura
 
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |

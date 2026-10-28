@@ -14,6 +14,7 @@ Repositorio del MVP. **El desarrollo se reanudó el 26-10-2026 (D-013)** y se av
 - [Épicas y tareas en GitHub Issues](docs/github-issues.md)
 - [Backlog importable JSON](docs/backlog.json) · [CSV](docs/backlog.csv)
 - [Plan de trabajo y estado de las tareas](docs/tareas-futuras.md)
+- [Auditoría de cobertura y tareas añadidas](docs/auditoria-tareas.md) · [Backlog adicional](docs/backlog-adicional.md)
 - [Prioridades, orden recomendado y siguiente tarea](docs/orden-ejecucion.md)
 - [Accesos, recursos creados y verificaciones](docs/estado-proyecto.md)
 - [Supabase: conexión de colaboradores y agentes](docs/supabase-acceso.md)
