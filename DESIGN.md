@@ -8,7 +8,7 @@ colors:
   muted: "#5e5e66"
   border: "#e4e4e7"
   track: "#ececef"
-  bar-muted: "#a9a9b0"
+  bar-muted: "#767680"
   field: "#8a8a93"
   danger: "#c4161c"
   background-dark: "#0a0a0b"
@@ -17,7 +17,7 @@ colors:
   muted-dark: "#a3a3ab"
   border-dark: "#2a2a2e"
   track-dark: "#232327"
-  bar-muted-dark: "#5d5d65"
+  bar-muted-dark: "#787882"
   field-dark: "#707079"
   danger-dark: "#ff7b7b"
 typography:
@@ -124,7 +124,7 @@ Paleta restringida a tinta y papel. No hay color de marca.
 - **Texto secundario** (`muted`, `#5e5e66`; oscuro `#a3a3ab`): meta, recuentos, etiquetas. 6,4:1 sobre blanco.
 - **Borde** (`border`, `#e4e4e7`; oscuro `#2a2a2e`): separadores y contornos decorativos.
 - **Pista** (`track`, `#ececef`; oscuro `#232327`): fondo de barras y del chip bloqueado.
-- **Barra secundaria** (`bar-muted`, `#a9a9b0`; oscuro `#5d5d65`): barras de las opciones que no son tu voto.
+- **Barra secundaria** (`bar-muted`, `#767680`; oscuro `#787882`; contraste ≥ 3:1 con la pista y la superficie): barras de las opciones que no son tu voto.
 - **Campo** (`field`, `#8a8a93`; oscuro `#707079`): borde de campos de texto, ≥3:1 frente a superficie y fondo.
 
 ### Named Rules
