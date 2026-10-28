@@ -21,3 +21,11 @@ export function onboardingPath(next: string | null | undefined): string {
   const safe = safeNextPath(next);
   return safe === "/" ? "/onboarding" : `/onboarding?next=${encodeURIComponent(safe)}`;
 }
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// Opción elegida antes del login (V2-052, `?elige=<option_id>`). Sólo un UUID: cualquier otra cosa
+// (ausente, repetida, texto libre) se ignora sin error. Quien la recibe aún comprueba que sea de la encuesta.
+export function choiceFromParam(value: string | string[] | undefined): string | undefined {
+  return typeof value === "string" && UUID.test(value) ? value : undefined;
+}

@@ -91,7 +91,7 @@ describe("PollVoting", () => {
     const link = screen.getByRole("link", { name: "Iniciar sesión" });
     // Vuelve a la encuesta con la opción elegida marcada, pero sin votarla (V2-033).
     expect(link.getAttribute("href")).toBe(
-      `/login?next=${encodeURIComponent(`/polls/${POLL.id}?option=b`)}`,
+      `/login?next=${encodeURIComponent(`/polls/${POLL.id}?elige=b`)}`,
     );
     expect(screen.queryByText("Tu voto")).toBeNull();
   });
@@ -128,6 +128,18 @@ describe("PollVoting", () => {
     expect(screen.getAllByRole("radio").every((r) => !(r as HTMLInputElement).checked)).toBe(true);
   });
 
+  it("V2-052: la elección sólo viaja en la URL de retorno; no se escribe en localStorage ni sessionStorage", async () => {
+    const local = vi.spyOn(Storage.prototype, "setItem");
+    view({ kind: "anonymous" });
+
+    await pick("Sin cebolla");
+    await vote();
+
+    expect(screen.getByRole("link", { name: "Iniciar sesión" })).toBeDefined();
+    expect(local).not.toHaveBeenCalled();
+    local.mockRestore();
+  });
+
   it("si la sesión caducó (AUTH_REQUIRED) ofrece iniciar sesión sin error técnico", async () => {
     castVote.mockResolvedValue({ ok: false, error: "AUTH_REQUIRED" });
     view({ kind: "not_voted" });
@@ -147,7 +159,7 @@ describe("PollVoting", () => {
 
     const link = await screen.findByRole("link", { name: "Elegir mi usuario" });
     expect(link.getAttribute("href")).toBe(
-      `/onboarding?next=${encodeURIComponent(`/polls/${POLL.id}?option=a`)}`,
+      `/onboarding?next=${encodeURIComponent(`/polls/${POLL.id}?elige=a`)}`,
     );
     expect(screen.queryByText("Tu voto")).toBeNull();
     expect(screen.queryByRole("alert")).toBeNull();

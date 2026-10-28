@@ -123,7 +123,7 @@ export function PollVoting({
   }
 
   // Vuelve a la encuesta con la opción elegida marcada, pero sin votarla.
-  const returnTo = `/polls/${poll.id}${selected ? `?option=${encodeURIComponent(selected)}` : ""}`;
+  const returnTo = `/polls/${poll.id}${selected ? `?elige=${encodeURIComponent(selected)}` : ""}`;
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-3">
