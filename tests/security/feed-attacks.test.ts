@@ -107,24 +107,6 @@ let hidden: string;
 const masa: string[] = [];
 const option: Record<string, string[]> = {};
 
-async function createPoll(author: Account, question: string, extra: object = {}) {
-  const r = await rpc(
-    "create_poll",
-    { p_question: question, p_options: ["Rojo", "Azul"], ...extra },
-    author.token,
-  );
-  if (r.status !== 200) throw new Error(`create_poll: ${r.text}`);
-  const id = r.json as string;
-  const { data, error } = await admin
-    .from("poll_options")
-    .select("id")
-    .eq("poll_id", id)
-    .order("position");
-  if (error) throw error;
-  option[id] = (data ?? []).map((o) => o.id);
-  return id;
-}
-
 // Datos de partida por inserción administrativa: create_poll limita a 5 encuestas por hora y autor.
 // closedHoursAgo: cerrada hace tantas horas (se crea antes para cumplir closes_at > created_at).
 async function seedPoll(
@@ -386,7 +368,7 @@ describe("resultados de las tarjetas del feed", () => {
 
 describe("voto simultáneo desde dos tarjetas o pestañas", () => {
   it("dos votos a la vez de la misma cuenta dejan un único voto y errores sin SQL", async () => {
-    const pollId = await createPoll(PUB, "¿Voto simultáneo del feed V2-035?");
+    const pollId = await seedPoll(PUB, "¿Voto simultáneo del feed V2-035?", { category: "otros" });
     const calls = await Promise.all([
       rpc("vote_poll", { p_poll_id: pollId, p_option_id: option[pollId][0] }, STR.token),
       rpc("vote_poll", { p_poll_id: pollId, p_option_id: option[pollId][1] }, STR.token),
