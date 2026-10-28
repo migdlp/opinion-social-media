@@ -17,6 +17,8 @@ export type AppErrorCode =
   | "INVALID_CLOSES_AT"
   | "POLL_CLOSED"
   | "INVALID_CATEGORY"
+  | "INVALID_CURSOR"
+  | "INVALID_FEED_MODE"
   | "USERNAME_INVALID"
   | "USERNAME_TAKEN"
   | "USERNAME_RESERVED"
@@ -144,4 +146,14 @@ export interface PollDetail {
   viewer: PollViewerState;
   // Sólo con sesión (V2-022); sin él, no se sabe y la interfaz no lo muestra como guardada.
   saved?: boolean;
+}
+
+// Modos del feed (D-022): Recientes (todo lo visible) y Siguiendo (sólo cuentas seguidas con
+// relación aceptada). Cronológicos ambos; el filtro de categoría es opcional («Todas»).
+export type FeedMode = "recientes" | "siguiendo";
+
+export interface FeedQuery {
+  mode: FeedMode;
+  category?: string | null;
+  cursor?: string | null;
 }

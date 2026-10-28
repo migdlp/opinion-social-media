@@ -261,6 +261,14 @@ export type Database = {
         Returns: string;
       };
       follow_user: { Args: { p_username: string }; Returns: string };
+      get_feed: {
+        Args: { p_category?: string; p_cursor?: string; p_mode?: string };
+        Returns: {
+          created_at: string;
+          cursor: string;
+          poll_id: string;
+        }[];
+      };
       get_feed_results: {
         Args: { p_poll_ids: string[] };
         Returns: {

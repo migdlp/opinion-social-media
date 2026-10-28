@@ -16,6 +16,7 @@ import {
 import type {
   Category,
   FeedPage,
+  FeedQuery,
   FollowPage,
   PollDetail,
   PollResults,
@@ -706,5 +707,36 @@ export function getSavedPolls(
         items: withVotes.data.items.map((item) => ({ ...item, saved: true })),
       },
     };
+  });
+}
+
+// Feed por modos y categoría (V2-031, D-022 a D-025). La RPC decide qué ids ve quien pregunta
+// (visibilidad, relación aceptada, categoría, retención de 24 h tras el cierre) y devuelve sólo ids y
+// cursor; las encuestas salen por la RLS y los resultados por la misma ruta autorizada que el resto
+// de listas. Errores controlados: INVALID_FEED_MODE, INVALID_CATEGORY, INVALID_CURSOR y, para
+// «siguiendo» sin sesión, AUTH_REQUIRED.
+export function getFeed(
+  supabase: SupabaseClient,
+  query: FeedQuery,
+  viewer: Viewer,
+): Promise<Result<FeedPage>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("get_feed", {
+      p_mode: query.mode,
+      p_category: query.category ?? null,
+      p_cursor: query.cursor ?? null,
+    });
+    if (error) return { ok: false, error: toAppError(error) };
+    const rows = (data ?? []) as { poll_id: string; cursor: string }[];
+    const page = rows.slice(0, FEED_PAGE_SIZE);
+    if (page.length === 0) return { ok: true, data: { items: [], nextCursor: null } };
+    const nextCursor = rows.length > FEED_PAGE_SIZE ? page[page.length - 1].cursor : null;
+
+    const polls = await getPublicPollsByIds(
+      supabase,
+      page.map((row) => row.poll_id),
+    );
+    if (!polls.ok) return polls;
+    return withOwnVotes(supabase, polls.data, nextCursor, viewer);
   });
 }
