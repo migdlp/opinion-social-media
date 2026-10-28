@@ -1,10 +1,10 @@
 # Backlog fase 2 — Perfiles, tipos de encuesta, diseño y contenido
 
-**Versión:** 2.0 · **Estado:** planificado, ninguna tarea iniciada · **Origen:** auditoría y respuestas del propietario del 28-10-2026 (decisiones D-015 a D-021).
+**Versión:** 2.1 · **Estado:** en ejecución; consultar estados y reservas en `tareas-futuras.md` · **Origen:** auditoría y respuestas del propietario del 28-10-2026 (decisiones D-015 a D-021).
 
 > Este documento amplía el MVP con funciones que el [brief](brief-producto.md) dejaba fuera (§3.2, §5 y §8). El brief se conserva como fuente histórica; donde choque con este backlog, prevalecen las decisiones D-015 a D-021 de [decisiones.md](decisiones.md). El backlog del MVP ([backlog.md](backlog.md)) sigue vigente para sus tareas pendientes (MVP-005, MVP-049 a MVP-051).
 >
-> **El feed (épica E10) está por definir.** Ver [feed-por-definir.md](feed-por-definir.md). Sólo se puede reservar su tarea de definición, V2-030.
+> **El feed (épica E10) tiene el diseño acordado; falta el plazo de permanencia de cerradas.** Ver [feed-por-definir.md](feed-por-definir.md). Sólo se puede reservar su tarea de definición, V2-030.
 
 ## 1. Cómo usar este documento
 
@@ -548,6 +548,73 @@ El diseño del feed está **por definir**. Todo el contexto, la propuesta inicia
 - **Criterios de aceptación:**
   1. El recorrido pasa en escritorio y móvil en dos ejecuciones seguidas.
   2. Rompe (RED) si se elimina la comprobación de `can_view_author` en la política de `polls`.
+
+
+### E10 — Implementación del feed acordado
+
+**Borrador listo para convertir en issues al cerrar V2-030.** Dependencias y criterios derivan de D-022 a D-025. Tamaños relativos: S ≈ 0,5 día, M ≈ 1 día, L ≈ 2 días. No son compromisos ni sprints. Todas P0 para entregar el feed pedido, sin bloquear el MVP original ya definido.
+
+#### V2-031 — Lectura de feed con seguimientos, categoría y retención
+
+- **Prioridad:** P0 · **Tamaño:** L · **Etiquetas:** backend, database, security · **Dependencias:** V2-030, V2-005, V2-014, V2-021 · **Bloquea a:** V2-032, V2-034, V2-035.
+- **Descripción:** Implementar una lectura RPC controlada y su adaptador/tipos para Recientes y Siguiendo, filtro de categoría y exclusión temporal de cerradas. Reutilizar permisos, catálogo de categorías y contratos de encuesta; migración versionada y pruebas SQL primero.
+- **Requisitos:** Recientes contiene todas las encuestas visibles; Siguiendo sólo autores seguidos con relación aceptada por el usuario autenticado (sin parámetro de identidad del visitante). Ambas cronológicas, 20 por página, cursor compuesto `created_at,id`; categoría validada o Todas. Incluir autor sin exponer `user_id`. Filtrar cerradas con el plazo de D-025 (pendiente de concretar), calculado con hora del servidor; nunca borrar filas. No enviar agregados de abiertas no votadas; mantener RPC segura de resultados y lectura del voto propio. Sin caché compartida de datos personales. Permisos mínimos, RLS y search_path seguros.
+- **Criterios:**
+  1. Dado anon, seguidor aceptado, pendiente y extraño, cuando consultan ambos modos, entonces sólo reciben las encuestas visibles y Siguiendo deniega anon sin revelar otras cuentas.
+  2. Dadas fechas iguales y más de 20 encuestas, cuando se recorren páginas, entonces el orden es estable y no hay duplicados; un cursor/filtro inválido produce error controlado.
+  3. Dada categoría concreta o Todas, cuando se consulta, entonces cada página y su cursor respetan ese filtro.
+  4. Dado el límite exacto de D-025, cuando la hora del servidor alcanza `closes_at + plazo`, entonces la encuesta deja el feed sin desaparecer de detalle/perfil; test con reloj SQL fijado. Una encuesta sin fecha de cierre no caduca por este filtro.
+  5. Dadas abiertas sin votar, votadas y cerradas, entonces sólo las autorizadas contienen resultados, sin lecturas directas de votos ajenos; tipos regenerados y pruebas SQL/adaptador en verde.
+
+#### V2-032 — Pestañas, entrada por defecto y filtro de categoría
+
+- **Prioridad:** P0 · **Tamaño:** M · **Etiquetas:** frontend, design · **Dependencias:** V2-030, V2-031 · **Bloquea a:** V2-034, V2-036.
+- **Descripción:** Integrar Recientes/Siguiendo y categorías en `/`, con selección en URL, teclado, estados de carga, error y vacío; conservar el diseño y la navegación móvil.
+- **Criterios:**
+  1. Dado visitante sin selección explícita, cuando entra, entonces ve Recientes; dado usuario con seguimiento aceptado ve Siguiendo, y sin ninguno ve Recientes.
+  2. Dado un usuario que sigue cuentas sin encuestas visibles, entonces Siguiendo permanece seleccionado y ofrece ir a Recientes; las solicitudes pendientes no cuentan como aceptadas.
+  3. Dada selección explícita permitida de pestaña/categoría, entonces persiste al recargar o copiar la URL, y cambiarla descarta cursor/filas anteriores sin mezclar respuestas tardías.
+  4. Dado teclado/lector de pantalla, entonces las pestañas y Todas/categorías tienen nombres y estado seleccionado accesibles y funcionan a 320px sin desbordamiento.
+
+#### V2-033 — Voto seguro desde la tarjeta del feed
+
+- **Prioridad:** P0 · **Tamaño:** M · **Etiquetas:** frontend, auth, testing · **Dependencias:** V2-030, V2-014 · **Bloquea a:** V2-035, V2-036.
+- **Descripción:** Reutilizar selección, acción de voto, lectura autorizada y resultados del detalle dentro de la tarjeta, manteniendo enlace compartible y autor. Sin nueva vía de autorización ni voto automático después de login.
+- **Criterios:**
+  1. Dada abierta no votada, entonces HTML, props y respuestas no contienen cifras; al seleccionar y confirmar se guarda un voto y aparecen resultados en esa tarjeta.
+  2. Dado visitante, cuando intenta votar, entonces se autentica y recupera feed/encuesta/opción sin emitir voto hasta confirmar.
+  3. Dado voto duplicado, doble clic o respuesta perdida, entonces se consulta el voto propio y se recuperan resultados sin cambiar ni duplicar votos.
+  4. Dadas votadas o cerradas visibles, entonces muestran resultados desde la carga y las cerradas no admiten voto. Las opciones tienen etiquetas, foco y feedback accesibles; acciones no quedan dentro de otro enlace.
+
+#### V2-034 — Scroll infinito con botón alternativo
+
+- **Prioridad:** P0 · **Tamaño:** M · **Etiquetas:** frontend, testing, design · **Dependencias:** V2-031, V2-032 · **Bloquea a:** V2-036.
+- **Descripción:** Cargar la página siguiente al acercarse al final con IntersectionObserver y botón «Cargar más» siempre disponible; reutilizar cursor y estados. Sin librería ni caché externa.
+- **Criterios:**
+  1. Dadas más de 20 encuestas, cuando el final entra en pantalla o se pulsa el botón, entonces se añade la siguiente página con una sola petición en vuelo y sin duplicados.
+  2. Dado IntersectionObserver no disponible, entonces el botón permite recorrer todas las páginas y muestra fin de lista cuando no hay cursor.
+  3. Dado fallo de red o filtros cambiados durante una petición, entonces se conservan filas válidas, se puede reintentar y se descartan respuestas de la selección antigua.
+  4. Dado lector de pantalla/teclado, entonces se anuncia la carga sin robar el foco, el botón es usable y la última tarjeta queda por encima de la barra móvil. Ningún error provoca un bucle de peticiones.
+
+#### V2-035 — Ataques a la privacidad del nuevo feed
+
+- **Prioridad:** P0 · **Tamaño:** M · **Etiquetas:** security, testing, backend · **Dependencias:** V2-031, V2-033, V2-024 · **Bloquea a:** V2-036.
+- **Descripción:** Extender la batería SQL/HTTP existente a modos, categorías, cursores y voto en tarjeta; cubrir HTML/Flight y respuestas de acciones además de RPC directas. Preparar pruebas junto con la implementación.
+- **Criterios:**
+  1. Dadas cuentas pública, privada, seguidor aceptado, pendiente, extraño y anon, cuando manipulan filtros/cursores/IDs o llaman directamente al backend, entonces no obtienen encuestas privadas, ocultas ni resultados de abiertas sin votar.
+  2. Dada mezcla de abiertas/cerradas/votadas, entonces los agregados sólo llegan a quien tiene permiso, también en HTML SSR/Flight y al cargar páginas adicionales.
+  3. Dadas peticiones simultáneas desde dos tarjetas/pestañas, entonces persiste un único voto y los errores no contienen SQL ni datos personales.
+  4. Se demuestra RED retirando una comprobación de visibilidad en una base local efímera, se revierte la mutación y pasan los jobs de seguridad y SQL. No se modifica dev ni prod para provocar fallos.
+
+#### V2-036 — E2E y cierre del feed
+
+- **Prioridad:** P0 · **Tamaño:** M · **Etiquetas:** testing, frontend, devops · **Dependencias:** V2-032, V2-033, V2-034, V2-035 · **Bloquea a:** —.
+- **Descripción:** Probar el recorrido completo en móvil/escritorio con Supabase local y actualizar README/contratos/checklist para que el feed se pueda publicar junto a una release autorizada. No crear deployments como prueba.
+- **Criterios:**
+  1. Dado visitante, usuario sin seguimientos y usuario con seguimientos aceptados, entonces se verifica la entrada correcta, cambio de pestañas, filtro y más de una página con scroll y botón.
+  2. Dado voto desde tarjeta y una recarga, entonces la elección persiste y se ven resultados; dado cierre/retención se verifica presencia y retirada temporal sin perder acceso directo autorizado.
+  3. Dadas peticiones lentas, doble clic, error de red, reduced-motion y teclado a 320px/escritorio, entonces se conservan foco/estado, no hay solapamiento y se puede continuar.
+  4. Playwright pasa dos ejecuciones seguidas en ambos proyectos, CI completa verde; documentación y checklist enlazan evidencias y contemplan la comprobación posterior en producción por el flujo release autorizado.
 
 ## 6. Registro
 

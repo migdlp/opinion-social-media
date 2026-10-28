@@ -32,6 +32,11 @@ D-015 a D-021 abren la fase 2 descrita en [backlog-v2.md](backlog-v2.md); donde 
 
 D-005 conserva el historial de pausa. D-013 la levanta para el resto de tareas y D-VERCEL-001 asigna Vercel a Codex; ninguna permite declarar finalizadas tareas sin evidencia ni tomar trabajo reservado a otros agentes. La [guía de operación](vercel-operacion.md) concreta la responsabilidad y los controles de Vercel. Las acciones con infraestructura compartida (OAuth, migraciones en Supabase, producción) siguen requiriendo los datos y confirmaciones que indique cada tarea.
 
+| D-022 | Feed con dos pestañas: Recientes y Siguiendo, ambas cronológicas. Visitantes en Recientes; usuarios en Siguiendo, con Recientes si aún no siguen a nadie. Se sustituye la propuesta no aprobada de «Para ti»; no hay ranking por popularidad ni pesos de recomendación | Respuestas explícitas del propietario a V2-030, 28-10-2026 |
+| D-023 | Se vota desde la tarjeta del feed. La paginación usa scroll infinito con botón alternativo accesible | Ídem |
+| D-024 | Las encuestas votadas siguen en el feed con sus resultados; filtro por categoría con «Todas» por defecto | Ídem |
+| D-025 | Las encuestas cerradas siguen temporalmente en el feed con resultados públicos para quien pueda verlas. El plazo exacto desde el cierre está pendiente de respuesta; no desaparecen por ello de su enlace o perfil | Respuesta del propietario: «sí, con sus resultados públicos, pero durarán cierto tiempo, no de forma ilimitada», 28-10-2026 |
+
 ## Reglas del producto recogidas del backlog
 
 Resultados sólo tras votar, voto único inmutable, feed público cronológico, Google Auth, validación 10–280/2–4/1–100, límite de cinco publicaciones por hora, moderación manual y separación de entornos. Ver [contexto](contexto-aplicacion.md) y [arquitectura](arquitectura.md).

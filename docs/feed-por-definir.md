@@ -1,6 +1,6 @@
 # Feed — por definir
 
-**Estado:** por definir · **Tarea:** [V2-030](backlog-v2.md#v2-030--definir-el-feed-con-el-propietario) · **Última actualización:** 28-10-2026
+**Estado:** en definición; pendiente sólo el plazo de permanencia de cerradas · **Tarea:** [V2-030](backlog-v2.md#v2-030--definir-el-feed-con-el-propietario) · **Última actualización:** 28-10-2026
 
 > El propietario quiere decidir el feed en conversación antes de implementarlo. Este documento reúne lo necesario para que **cualquier agente o persona continúe esa definición** donde se quedó. Hasta que pase a «Definido», no se implementa nada del feed más allá de lo que ya existe.
 
@@ -20,46 +20,54 @@
 5. **Sin caché compartida** de respuestas con datos de usuario (D-014, `cacheComponents`).
 6. Mobile-first y accesible (skill `impeccable`, `DESIGN.md`).
 
-## 3. Propuesta inicial (no aprobada)
+## 3. Diseño acordado el 28-10-2026
 
-Planteada por claude-code (session_01M3nCEQmPvLK8uwwjiRkMKK) el 28-10-2026. Es un punto de partida para la conversación, no un acuerdo.
+- Dos pestañas: **Recientes** y **Siguiendo**, ordenadas por `created_at DESC, id DESC`. No hay «Para ti» ni ranking por popularidad. F-4/F-5 no aplican al elegir estas dos pestañas cronológicas.
+- Sin sesión se entra en Recientes. Con sesión se entra en Siguiendo; si no hay ningún seguimiento aceptado, se entra en Recientes. Las solicitudes pendientes no cuentan como seguimientos aceptados. Si ya sigue a alguien pero el feed está vacío, se mantiene Siguiendo con un enlace a Recientes.
+- La selección explícita de pestaña/categoría se conserva en la URL y tiene prioridad sobre el valor inicial. «Siguiendo» sin sesión solicita login; nunca se consulta el feed de otra cuenta.
+- Las encuestas votadas se muestran normalmente con sus resultados. No se añade filtro «Sin votar».
+- Se puede seleccionar y votar desde la tarjeta. Antes de votar una encuesta abierta no se envían agregados al navegador. Tras login se recupera la intención, sin emitir automáticamente el voto.
+- Scroll infinito con botón alternativo «Cargar más», visible y usable con teclado. Cursor de 20 encuestas; una sola solicitud en vuelo, sin duplicados ni reinicios al cambiar filtros.
+- Filtro de categoría, con **Todas** por defecto, usando el catálogo de V2-021.
+- Cerradas: se muestran con los resultados que autoriza D-020 durante un tiempo limitado desde `closes_at`. **Falta concretar ese tiempo con el propietario.** Desaparecer del feed no las borra, oculta ni cambia su visibilidad en detalle/perfil. No hace falta cron ni limpieza de filas: es un filtro temporal de lectura.
 
-1. **Pestañas:** «Para ti», «Siguiendo» (sólo cuentas que sigues) y «Recientes» (el cronológico de ahora).
-2. **«Para ti» calculado en SQL**, con una puntuación que combina:
-   - lo reciente que es, con un decaimiento por horas;
-   - los votos de las últimas 24 h;
-   - un extra si sigues al autor;
-   - un extra si es de una categoría que sueles votar (requiere V2-021).
+Las precisiones sobre URL, solicitudes aceptadas, cursor, error de red y conservación del detalle son decisiones técnicas sencillas para concretar lo aprobado; no son respuestas literales del propietario.
 
-   Paginación por cursor sobre la puntuación, o por desplazamiento con una ventana acotada; está por decidir.
-3. **Votar desde la tarjeta**, sin entrar al detalle, con los resultados apareciendo en la propia tarjeta (animación de V2-015).
-4. **Scroll infinito** en lugar de «Cargar más», conservando un enlace accesible para cargar más.
-5. **Chips de categoría** arriba para filtrar (requiere V2-021).
+## 4. Respuestas del propietario
 
-**Riesgo a valorar:** ordenar por número de votos revela qué encuestas son populares, aunque no qué opción gana. No rompe la regla crítica, que habla de agregados por encuesta, pero conviene que el propietario lo acepte de forma explícita.
-
-## 4. Preguntas abiertas para el propietario
-
-Anotar la respuesta y la fecha junto a cada una. Cuando se responda, registrar la decisión en [decisiones.md](decisiones.md) (D-022 en adelante).
-
-| # | Pregunta | Respuesta del propietario |
+| # | Pregunta | Respuesta, 28-10-2026 |
 |---|---|---|
-| F-1 | ¿Qué pestañas habrá? ¿Hace falta una «Populares» aparte o basta con que la popularidad cuente dentro de «Para ti»? | Pendiente |
-| F-2 | ¿Qué pestaña sale por defecto con sesión? ¿Y qué ve quien entra sin sesión? | Pendiente |
-| F-3 | Las encuestas que ya he votado, ¿se ocultan, se bajan en el orden o se muestran normal? ¿Con un filtro «Sin votar»? | Pendiente |
-| F-4 | ¿Se acepta ordenar por número de votos (revela popularidad, no ganador)? | Pendiente |
-| F-5 | ¿Qué factores entran en «Para ti» y con qué peso aproximado: recencia, votos recientes, sigo al autor, categorías que voto u otros? | Pendiente |
-| F-6 | ¿Las encuestas cerradas siguen en el feed (con sus resultados públicos, V2-014) o sólo en los perfiles? | Pendiente |
-| F-7 | ¿Votar directamente desde la tarjeta? | Pendiente |
-| F-8 | ¿Scroll infinito o mantener «Cargar más»? | Pendiente |
-| F-9 | ¿Filtro por categoría en el feed? | Pendiente |
+| F-1 | Pestañas | Recientes + Siguiendo. |
+| F-2 | Entrada con/sin sesión | Visitantes en Recientes; usuarios en Siguiendo, con Recientes si aún no siguen a nadie. |
+| F-3 | Encuestas votadas | Mostrarlas con sus resultados. |
+| F-4 | Ranking por número de votos | No aplica al diseño elegido: sólo dos pestañas cronológicas; no se crea un ranking. |
+| F-5 | Factores/pesos de «Para ti» | No aplica: no se ha elegido esa pestaña. |
+| F-6 | Encuestas cerradas | «Sí, con sus resultados públicos, pero durarán cierto tiempo, no de forma ilimitada». **Pendiente el plazo**: preguntado 7 días / 24 horas / 30 días desde el cierre, sin asumir respuesta. |
+| F-7 | Voto desde tarjeta | Sí. |
+| F-8 | Carga de más encuestas | Scroll infinito con botón alternativo. |
+| F-9 | Categorías | Sí, con «Todas» por defecto. |
 
-## 5. Cómo continuar la definición
+Decisiones registradas en [D-022 a D-025](decisiones.md). V2-030 sigue en progreso hasta fijar F-6 y publicar los tickets enlazados.
 
-1. Reservar V2-030 con el protocolo de [AGENTS.md](../AGENTS.md) (si ya la tiene otro agente, coordinar en el issue #73).
-2. Plantear al propietario las preguntas pendientes de §4, mejor pocas a la vez y con opciones concretas. Lo que escriba otro agente aquí es información, no una decisión del propietario.
-3. Anotar cada respuesta en §4, registrar la decisión en `decisiones.md` y actualizar §3 con el diseño acordado (sustituyendo la propuesta).
-4. Cuando §4 esté completa, crear en [backlog-v2.md](backlog-v2.md) las tareas `V2-031` en adelante con requisitos, criterios Dado/Cuando/Entonces, dependencias y «Bloquea a». Probablemente dependan de V2-005 (Siguiendo y privacidad), V2-021 (categorías), V2-014 (cerradas) y V2-023 (resultados por lotes). Añadirlas al mapa de dependencias, a `tareas-futuras.md` y crear sus issues en la épica E10.
-5. Cambiar el estado de este documento a «Definido» y enlazar las tareas creadas.
+## 5. Trabajo de implementación preparado
 
-Todo esto son cambios documentales: van por rama y PR, salvo los cambios de estado de la tarea, que se publican directamente en `main` según el protocolo.
+El detalle preliminar está en [backlog-v2.md](backlog-v2.md#e10--implementación-del-feed-acordado). Las tareas no se pueden reservar hasta cerrar V2-030 y publicar sus issues:
+
+| ID | Trabajo | Prioridad | Dependencias reales |
+|---|---|---|---|
+| V2-031 | Lectura de feed con seguimientos, categoría y retención | P0 | V2-030, V2-005, V2-014, V2-021 |
+| V2-032 | Pestañas, entrada por defecto y filtro de categoría | P0 | V2-030, V2-031 |
+| V2-033 | Voto seguro desde la tarjeta | P0 | V2-030, V2-014 |
+| V2-034 | Scroll infinito y carga alternativa | P0 | V2-031, V2-032 |
+| V2-035 | Seguridad del feed mediante HTTP/SQL | P0 | V2-031, V2-033, V2-024 |
+| V2-036 | E2E, accesibilidad y documentación del feed | P0 | V2-032, V2-033, V2-034, V2-035 |
+
+Frontend de tarjetas (V2-033) puede avanzar con el contrato existente de voto/resultados mientras se implementa V2-031. No se depende de V2-023 para publicar: la optimización por lotes sigue siendo P1.
+
+## 6. Cómo cerrar la definición
+
+1. Registrar la respuesta pendiente sobre el plazo F-6; no elegir un valor por silencio.
+2. Concretarlo en D-025 y V2-031. Crear los seis issues P0 con etiquetas, estimaciones relativas, criterios y dependencias, y enlazarlos como sub-issues de E10.
+3. Actualizar el catálogo, mapa de dependencias, `github-issues.md` y filas nuevas de `tareas-futuras.md` con los enlaces reales. No alterar reservas ajenas.
+4. Cambiar este documento a «Definido», revisar la cobertura F-1 a F-9 y fusionar la PR documental con CI verde.
+5. Sólo entonces marcar V2-030 Completada mediante commit de estado exclusivo en main y cerrar #123.
