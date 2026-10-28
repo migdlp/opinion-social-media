@@ -92,4 +92,9 @@ describe("PollCard", () => {
       expect(screen.getAllByText("?? %")).toHaveLength(2);
     },
   );
+
+  it("ofrece el menú «⋯» para denunciar, a visitantes y a usuarios con sesión", () => {
+    render(<PollCard poll={POLL} viewer={{ kind: "anonymous" }} now={NOW} />);
+    expect(screen.getByRole("button", { name: "Más acciones" })).toBeDefined();
+  });
 });

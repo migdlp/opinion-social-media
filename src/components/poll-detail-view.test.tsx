@@ -46,4 +46,10 @@ describe("PollDetailView", () => {
 
     expect(container.textContent).not.toMatch(/\d\s*%|\bvotos?\b|total/i);
   });
+
+  it("ofrece el menú «⋯» para denunciar la encuesta", () => {
+    render(<PollDetailView detail={DETAIL} castVote={castVote} now={NOW} />);
+
+    expect(screen.getByRole("button", { name: "Más acciones" })).toBeDefined();
+  });
 });

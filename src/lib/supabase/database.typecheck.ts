@@ -7,7 +7,7 @@ type Assert<T extends true> = T;
 type Public = Database["public"];
 
 export type DatabaseContractChecks = [
-  Assert<Equal<keyof Public["Tables"], "polls" | "poll_options" | "votes">>,
+  Assert<Equal<keyof Public["Tables"], "polls" | "poll_options" | "votes" | "poll_reports">>,
   Assert<
     Equal<
       Public["Tables"]["polls"]["Row"],
@@ -52,6 +52,12 @@ export type DatabaseContractChecks = [
         total_votes: number;
         my_option_id: string;
       }[]
+    >
+  >,
+  Assert<
+    Equal<
+      Public["Functions"]["report_poll"]["Args"],
+      { p_poll_id: string; p_reason: string; p_details?: string }
     >
   >,
 ];

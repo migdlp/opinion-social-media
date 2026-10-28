@@ -98,6 +98,27 @@ export function createPoll(
   });
 }
 
+export type ReportReason = "spam" | "odio" | "acoso" | "sexual" | "violencia" | "otro";
+
+// Denuncia una encuesta (V2-020). La tabla de denuncias no es legible por clientes: sólo
+// se informa de si se guardó.
+export function reportPoll(
+  supabase: SupabaseClient,
+  pollId: string,
+  reason: ReportReason,
+  details?: string | null,
+): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("report_poll", {
+      p_poll_id: pollId,
+      p_reason: reason,
+      p_details: details ?? null,
+    });
+    if (error) return { ok: false, error: toAppError(error) };
+    return { ok: true, data: undefined };
+  });
+}
+
 async function viewerFor(
   supabase: SupabaseClient,
   pollId: string,

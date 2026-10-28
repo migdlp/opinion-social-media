@@ -33,6 +33,9 @@ Modelo de datos: el del [brief §5](brief-producto.md#5-modelo-de-datos-obligato
 | `OPTION_INVALID` | `vote_poll` | La opción no existe o pertenece a otra encuesta | «Esa opción no es válida para esta encuesta.» |
 | `ALREADY_VOTED` | `vote_poll` | La cuenta ya tenía voto en la encuesta (incluida una carrera perdida) | No es un fallo: la interfaz pasa a «Ya has votado» y pide resultados |
 | `NOT_VOTED` | `get_poll_results` | La cuenta (incluido el autor) aún no ha votado | No se muestra: la interfaz enseña el selector de voto |
+| `ALREADY_REPORTED` | `report_poll` | La cuenta ya había denunciado esa encuesta | «Ya has denunciado esta encuesta.» |
+| `REPORT_RATE_LIMITED` | `report_poll` | 20 denuncias de la cuenta en los últimos 60 minutos | «Has enviado demasiadas denuncias. Inténtalo más tarde.» |
+| `REPORT_INVALID` | `report_poll` | Motivo ausente o fuera de la lista, o detalle de más de 500 caracteres | «Elige un motivo; el detalle admite hasta 500 caracteres.» |
 | `NETWORK_ERROR` | Adaptador (cliente) | `fetch` falla o no llega respuesta | «No hay conexión. Comprueba tu red y vuelve a intentarlo.» |
 | `UNKNOWN` | Adaptador (cliente) | Cualquier otro error | «Algo ha fallado. Vuelve a intentarlo.» |
 
@@ -41,6 +44,7 @@ Orden de comprobación dentro de cada RPC (determina qué código gana si hay va
 - `create_poll`: `AUTH_REQUIRED` → `VALIDATION_OPTION_COUNT` → `VALIDATION_QUESTION_LENGTH` → `VALIDATION_OPTION_LENGTH` → `VALIDATION_OPTION_DUPLICATE` → `RATE_LIMITED`.
 - `vote_poll`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `OPTION_INVALID` → `ALREADY_VOTED`.
 - `get_poll_results`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `NOT_VOTED`. Ningún agregado se calcula antes de superar las tres.
+- `report_poll`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `REPORT_INVALID` → `ALREADY_REPORTED` → `REPORT_RATE_LIMITED`.
 
 ## 3. RPC
 
@@ -96,6 +100,15 @@ public.get_poll_results(p_poll_id uuid)
 - **No contiene** `user_id`, identidades de votantes, fechas de voto ni otro dato por votante. Sólo agregados por opción, el total y la opción propia.
 - Sin caché compartida: se llama con la sesión del usuario y la página que la usa es dinámica (`no-store`).
 
+### 3.5. `report_poll` (V2-020)
+
+```sql
+public.report_poll(p_poll_id uuid, p_reason text, p_details text default null) returns void
+```
+
+- Motivos: `spam`, `odio`, `acoso`, `sexual`, `violencia`, `otro`. `p_details` (opcional, ≤ 500) se normaliza; vacío se guarda como `null`.
+- Guarda una fila en `poll_reports` (única por encuesta y denunciante; máx. 20 por hora y cuenta). Sólo se puede denunciar una encuesta publicada. La tabla no es legible ni escribible por clientes; no se oculta nada automáticamente (S-8): ver [moderacion.md](moderacion.md).
+
 ## 4. Lecturas directas (RLS)
 
 No son RPC: el adaptador consulta tablas con el SDK. RLS (MVP-011, MVP-012) limita lo visible a encuestas `published`, sus opciones y los votos propios. El adaptador selecciona columnas explícitas: nunca `*`, nunca `user_id` de `polls`.
@@ -149,6 +162,9 @@ export type AppErrorCode =
   | 'OPTION_INVALID'
   | 'ALREADY_VOTED'
   | 'NOT_VOTED'
+  | 'ALREADY_REPORTED'
+  | 'REPORT_RATE_LIMITED'
+  | 'REPORT_INVALID'
   | 'NETWORK_ERROR'
   | 'UNKNOWN'
 

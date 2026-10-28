@@ -13,8 +13,8 @@ begin
     assert not has_function_privilege('anon', r.oid, 'execute'), r.proname || ' ejecutable por anon';
     assert has_function_privilege('authenticated', r.oid, 'execute'), r.proname || ' no ejecutable por authenticated';
   end loop;
-  assert (select count(*) from pg_proc where pronamespace = 'public'::regnamespace) = 3,
-    'funciones en public distintas de create_poll, vote_poll y get_poll_results';
+  assert (select count(*) from pg_proc where pronamespace = 'public'::regnamespace) = 4,
+    'funciones en public distintas de create_poll, vote_poll, get_poll_results y report_poll';
 
   -- Tablas: ningún cliente escribe; anon no lee votes; nadie lee polls.user_id ni polls.status.
   for r in select c.relname, role from pg_class c, unnest(array['anon', 'authenticated']) as role
@@ -23,6 +23,8 @@ begin
       r.role || ' puede escribir en ' || r.relname;
   end loop;
   assert not has_table_privilege('anon', 'public.votes', 'select'), 'anon puede leer votes';
+  assert not has_table_privilege('anon', 'public.poll_reports', 'select'), 'anon puede leer poll_reports';
+  assert not has_table_privilege('authenticated', 'public.poll_reports', 'select'), 'authenticated puede leer poll_reports';
   assert not has_column_privilege('anon', 'public.polls', 'user_id', 'select'), 'anon lee polls.user_id';
   assert not has_column_privilege('authenticated', 'public.polls', 'user_id', 'select'), 'authenticated lee polls.user_id';
   assert not has_column_privilege('anon', 'public.polls', 'status', 'select'), 'anon lee polls.status';

@@ -33,6 +33,42 @@ export type Database = {
           },
         ];
       };
+      poll_reports: {
+        Row: {
+          created_at: string;
+          details: string | null;
+          id: string;
+          poll_id: string;
+          reason: string;
+          reporter_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          details?: string | null;
+          id?: string;
+          poll_id: string;
+          reason: string;
+          reporter_id: string;
+        };
+        Update: {
+          created_at?: string;
+          details?: string | null;
+          id?: string;
+          poll_id?: string;
+          reason?: string;
+          reporter_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "poll_reports_poll_id_fkey";
+            columns: ["poll_id"];
+            isOneToOne: false;
+            referencedRelation: "polls";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       polls: {
         Row: {
           created_at: string;
@@ -115,6 +151,10 @@ export type Database = {
           total_votes: number;
           votes: number;
         }[];
+      };
+      report_poll: {
+        Args: { p_details?: string; p_poll_id: string; p_reason: string };
+        Returns: undefined;
       };
       vote_poll: {
         Args: { p_option_id: string; p_poll_id: string };

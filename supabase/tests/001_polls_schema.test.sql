@@ -14,7 +14,7 @@ begin
   assert cols = 'id:uuid,poll_id:uuid,text:text,position:smallint', 'columnas de poll_options: ' || cols;
 
   assert not exists (select 1 from information_schema.tables where table_schema = 'public'
-    and table_name not in ('polls', 'poll_options', 'votes')), 'hay tablas propias no previstas';
+    and table_name not in ('polls', 'poll_options', 'votes', 'poll_reports')), 'hay tablas propias no previstas';
   assert not exists (select 1 from information_schema.tables where table_name = 'profiles'), 'existe profiles';
 end $$;
 

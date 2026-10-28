@@ -11,6 +11,9 @@ export type AppErrorCode =
   | "OPTION_INVALID"
   | "ALREADY_VOTED"
   | "NOT_VOTED"
+  | "ALREADY_REPORTED"
+  | "REPORT_RATE_LIMITED"
+  | "REPORT_INVALID"
   | "NETWORK_ERROR"
   | "UNKNOWN";
 

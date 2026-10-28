@@ -38,6 +38,37 @@ update public.polls set status = 'published' where id = '<id>' returning id, sta
 
 Vuelve a mostrarse con sus opciones y votos intactos; quien había votado recupera sus resultados.
 
+## Denuncias (V2-020)
+
+Los usuarios con sesión denuncian encuestas desde el menú «⋯» (motivo y texto opcional). Cada cuenta puede denunciar una encuesta una vez y hasta 20 por hora. **Una denuncia no oculta nada**: la revisa una persona operadora. Los clientes no pueden leer `poll_reports`; se consulta con acceso administrativo (SQL editor o `service_role`).
+
+Encuestas con más denuncias, para decidir qué revisar primero:
+
+```sql
+select p.id, p.question, p.status, count(*) as denuncias,
+       count(*) filter (where r.reason = 'odio') as odio,
+       count(*) filter (where r.reason = 'acoso') as acoso,
+       count(*) filter (where r.reason = 'sexual') as sexual,
+       count(*) filter (where r.reason = 'violencia') as violencia,
+       count(*) filter (where r.reason = 'spam') as spam,
+       count(*) filter (where r.reason = 'otro') as otro,
+       max(r.created_at) as ultima
+from public.poll_reports r
+join public.polls p on p.id = r.poll_id
+group by p.id, p.question, p.status
+order by denuncias desc, ultima desc
+limit 50;
+```
+
+Detalle de una encuesta (sin identificar a las personas más de lo necesario):
+
+```sql
+select reason, details, created_at from public.poll_reports
+where poll_id = '<id>' order by created_at;
+```
+
+Si procede, **ocultar** con el paso 3 del procedimiento anterior y registrar la decisión. Las denuncias se conservan, también al ocultar o restaurar; se borran en cascada si se borra la encuesta o la cuenta denunciante.
+
 ## No hacer
 
 - No borrar filas de `polls`, `poll_options` ni `votes` para moderar: borrar una encuesta elimina en cascada sus opciones y votos y no se puede deshacer.
