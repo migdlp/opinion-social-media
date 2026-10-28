@@ -78,7 +78,7 @@ test("visitante: al confirmar va al login con la encuesta y la opción, y no se 
   await expect(login).toBeVisible();
   const href = (await login.getAttribute("href")) ?? "";
   const next = new URL(href, "http://localhost").searchParams.get("next") ?? "";
-  expect(next).toMatch(new RegExp(`^/polls/${pollId}\\?option=[0-9a-f-]{36}$`));
+  expect(next).toMatch(new RegExp(`^/polls/${pollId}\\?elige=[0-9a-f-]{36}$`));
   expect(await votesOf(pollId)).toHaveLength(0);
 
   // Al volver, la opción llega marcada pero sigue sin emitirse el voto hasta confirmar.

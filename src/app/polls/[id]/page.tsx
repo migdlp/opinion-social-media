@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { choiceFromParam } from "@/lib/auth/redirect";
 import { PollSkeleton } from "@/components/skeletons";
 import { pollMetadata } from "./metadata";
 import { PollDetailLoader } from "./poll-detail";
@@ -16,8 +17,8 @@ async function Detail({
   searchParams: PageProps<"/polls/[id]">["searchParams"];
 }) {
   const { id } = await params;
-  const { option } = await searchParams;
-  return <PollDetailLoader id={id} option={typeof option === "string" ? option : undefined} />;
+  const { elige } = await searchParams;
+  return <PollDetailLoader id={id} option={choiceFromParam(elige)} />;
 }
 
 export default function PollPage({ params, searchParams }: PageProps<"/polls/[id]">) {

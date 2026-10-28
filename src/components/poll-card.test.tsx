@@ -104,7 +104,7 @@ describe("PollCard", () => {
 
     expect(castVote).not.toHaveBeenCalled();
     expect(screen.getByRole("link", { name: "Iniciar sesión" }).getAttribute("href")).toBe(
-      `/login?next=${encodeURIComponent(`/polls/${POLL.id}?option=o1`)}`,
+      `/login?next=${encodeURIComponent(`/polls/${POLL.id}?elige=o1`)}`,
     );
   });
 

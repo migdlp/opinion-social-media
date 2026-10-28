@@ -8,7 +8,7 @@ Estado: **implementado y verificado en local/CI; sin desplegar**. Este documento
 |---|---|---|
 | V2-031 | RPC `get_feed` (Recientes/Siguiendo, categoría, cursor compuesto, retención de 24 h tras el cierre) y adaptador `getFeed`; contrato en [contratos-api §3.14](contratos-api.md) | [#204](https://github.com/migdlp/opinion-social-media/pull/204) |
 | V2-032 | `/` con pestañas Recientes/Siguiendo y filtro de categoría en la URL (`?tab=`, `?categoria=`), entrada por defecto según los seguimientos aceptados | [#206](https://github.com/migdlp/opinion-social-media/pull/206) |
-| V2-033 | Voto desde la tarjeta (mismo componente y acción que el detalle); el visitante vuelve del login a `/polls/<id>?option=<opción>` sin voto automático | [#205](https://github.com/migdlp/opinion-social-media/pull/205) |
+| V2-033 | Voto desde la tarjeta (mismo componente y acción que el detalle); el visitante vuelve del login a `/polls/<id>?elige=<opción>` (V2-052 renombró el parámetro y lo valida como UUID) sin voto automático | [#205](https://github.com/migdlp/opinion-social-media/pull/205) |
 | V2-034 | Scroll infinito con `IntersectionObserver` y botón «Cargar más» siempre disponible | [#208](https://github.com/migdlp/opinion-social-media/pull/208) |
 | V2-035 | Ataques HTTP al feed (modos, categorías, cursores, retención, voto simultáneo) y prueba por mutación | [#207](https://github.com/migdlp/opinion-social-media/pull/207) |
 | V2-036 | E2E del recorrido completo en escritorio y móvil y esta ficha | [#209](https://github.com/migdlp/opinion-social-media/pull/209) |
