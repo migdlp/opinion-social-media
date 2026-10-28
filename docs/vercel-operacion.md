@@ -150,10 +150,12 @@ Ensayar primero sobre **Supabase local aislado**, sin usuarios ni datos comparti
 
 ## Estado y siguiente tarea
 
+Actualizado el 28-10-2026; el estado vivo está en [tareas](tareas-futuras.md).
+
 - MVP-008 completada con PR #70; MVP-004 completada con PR #65, según las evidencias anteriores.
-- MVP-048: runbook preparado; comprobaciones documentales y PR/merge deben quedar registradas antes de cerrarla. No requiere provocar un desastre, pero la ejecución productiva debe satisfacer sus preflight.
-- MVP-049: tras integrar MVP-048, queda como dependencia directa MVP-047 (README, que requiere MVP-006/022/023). Google está habilitado, pero las páginas `/login` y `/create` aún son placeholders: no permiten acreditar login ni publicación/voto en producción. No aplicar SQL productivo ni cerrar despliegue por el scaffold.
-- MVP-050: bloqueada por MVP-044/045/046/049; después ejecutar checklist funcional y de seguridad con evidencias.
-- MVP-051: bloqueada por MVP-047/049/050; consolidar versión y checklist global sin declarar el MVP listo con criterios pendientes.
+- MVP-048 completada (PR #79): este runbook. Documenta el procedimiento; no acredita una copia de seguridad ensayada.
+- MVP-049: sus dependencias (MVP-008, MVP-022, MVP-047 y MVP-048) están completadas. `/login`, `/create`, el voto y los resultados ya son funcionales y están cubiertos por los E2E de MVP-045 (`npm run test:e2e`). Requiere orden explícita del propietario para la versión (AGENTS.md, despliegues por sprint) y cumplir el preflight: copia de prod ensayada, migraciones pendientes revisadas, URL de producción en Supabase Auth y Google, y rama de producción `release` en Vercel.
+- MVP-050: bloqueada por MVP-046 (en revisión) y MVP-049; después, checklist funcional y de seguridad con evidencias.
+- MVP-051: bloqueada por MVP-049/050; consolidar versión y checklist global sin declarar el MVP listo con criterios pendientes.
 
 El estado vivo y responsables están en [tareas](tareas-futuras.md); [estado del proyecto](estado-proyecto.md) conserva las observaciones fechadas, algunas históricas.
