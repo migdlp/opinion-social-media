@@ -262,4 +262,102 @@ describe("PollCreationForm", () => {
       expect(onSubmit).toHaveBeenCalledTimes(2);
     });
   });
+
+  describe("cierre (V2-013)", () => {
+    const HOUR = 3_600_000;
+    const choose = (label: string) =>
+      userEvent.selectOptions(screen.getByRole("combobox", { name: "Cierre" }), label);
+
+    it("por defecto no cierra: no envía closesAt", async () => {
+      const user = userEvent.setup();
+      const onSubmit = vi.fn(async () => OK);
+      render(<PollCreationForm {...props({ onSubmit })} />);
+      expect((screen.getByRole("combobox", { name: "Cierre" }) as HTMLSelectElement).value).toBe(
+        "none",
+      );
+      expect(screen.getByRole("option", { name: "Sin cierre" })).toBeDefined();
+
+      await fill(user, "¿Qué tomas por la mañana?", ["Café", "Té"]);
+      await user.click(screen.getByRole("button", { name: "Publicar" }));
+
+      expect(onSubmit.mock.calls[0]).toEqual([
+        { question: "¿Qué tomas por la mañana?", options: ["Café", "Té"] },
+      ]);
+    });
+
+    it("ofrece los plazos fijos y una fecha personalizada", () => {
+      render(<PollCreationForm {...props()} />);
+      expect(screen.getAllByRole("option").map((option) => option.textContent)).toEqual([
+        "Sin cierre",
+        "1 hora",
+        "1 día",
+        "3 días",
+        "7 días",
+        "Personalizada",
+      ]);
+    });
+
+    it.each([
+      ["1 hora", HOUR, 1.1 * HOUR],
+      ["3 días", 72 * HOUR, 72.1 * HOUR],
+    ])("con «%s» envía una fecha UTC dentro del plazo", async (label, min, max) => {
+      const user = userEvent.setup();
+      const onSubmit = vi.fn<(input: unknown) => Promise<Publish>>(async () => OK);
+      render(<PollCreationForm {...props({ onSubmit })} />);
+      await fill(user, "¿Qué tomas por la mañana?", ["Café", "Té"]);
+      await choose(label);
+      const before = Date.now();
+      await user.click(screen.getByRole("button", { name: "Publicar" }));
+
+      const { closesAt } = onSubmit.mock.calls[0][0] as { closesAt: string };
+      expect(closesAt).toMatch(/Z$/);
+      const delta = new Date(closesAt).getTime() - before;
+      expect(delta).toBeGreaterThanOrEqual(min);
+      expect(delta).toBeLessThanOrEqual(max);
+    });
+
+    it("la fecha personalizada exige entre 1 hora y 30 días y avisa si no", async () => {
+      const user = userEvent.setup();
+      const onSubmit = vi.fn(async () => OK);
+      render(<PollCreationForm {...props({ onSubmit })} />);
+      await fill(user, "¿Qué tomas por la mañana?", ["Café", "Té"]);
+      await choose("Personalizada");
+
+      const local = (offsetMs: number) => {
+        const d = new Date(Date.now() + offsetMs);
+        const pad = (n: number) => String(n).padStart(2, "0");
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      };
+      const input = screen.getByLabelText("Fecha y hora de cierre");
+
+      fireEvent.change(input, { target: { value: local(30 * 60_000) } });
+      await user.click(screen.getByRole("button", { name: "Publicar" }));
+      expect(onSubmit).not.toHaveBeenCalled();
+      expect(
+        screen.getByText("El cierre debe estar entre 1 hora y 30 días desde ahora."),
+      ).toBeDefined();
+
+      fireEvent.change(input, { target: { value: local(2 * HOUR) } });
+      await user.click(screen.getByRole("button", { name: "Publicar" }));
+      expect(onSubmit).toHaveBeenCalledOnce();
+      const { closesAt } = (onSubmit.mock.calls[0] as unknown as [{ closesAt: string }])[0];
+      expect(Math.abs(new Date(closesAt).getTime() - (Date.now() + 2 * HOUR))).toBeLessThan(
+        2 * 60_000,
+      );
+    });
+
+    it("elegir «Personalizada» sin fecha no deja publicar", async () => {
+      const user = userEvent.setup();
+      const onSubmit = vi.fn(async () => OK);
+      render(<PollCreationForm {...props({ onSubmit })} />);
+      await fill(user, "¿Qué tomas por la mañana?", ["Café", "Té"]);
+      await choose("Personalizada");
+      await user.click(screen.getByRole("button", { name: "Publicar" }));
+
+      expect(onSubmit).not.toHaveBeenCalled();
+      expect(
+        screen.getByText("El cierre debe estar entre 1 hora y 30 días desde ahora."),
+      ).toBeDefined();
+    });
+  });
 });

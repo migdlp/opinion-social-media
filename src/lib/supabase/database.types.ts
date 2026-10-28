@@ -35,6 +35,7 @@ export type Database = {
       };
       polls: {
         Row: {
+          closes_at: string | null;
           created_at: string;
           id: string;
           question: string;
@@ -43,6 +44,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          closes_at?: string | null;
           created_at?: string;
           id?: string;
           question: string;
@@ -50,6 +52,7 @@ export type Database = {
           user_id: string;
         };
         Update: {
+          closes_at?: string | null;
           created_at?: string;
           id?: string;
           question?: string;
@@ -131,7 +134,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      create_poll: { Args: { p_options: string[]; p_question: string }; Returns: string };
+      create_poll: {
+        Args: { p_closes_at?: string; p_options: string[]; p_question: string };
+        Returns: string;
+      };
       get_poll_results: {
         Args: { p_poll_id: string };
         Returns: {

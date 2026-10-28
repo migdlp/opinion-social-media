@@ -46,4 +46,22 @@ describe("PollDetailView", () => {
 
     expect(container.textContent).not.toMatch(/\d\s*%|\bvotos?\b|total/i);
   });
+
+  it("muestra el cierre y, abierta, sigue ofreciendo votar", () => {
+    const detail = { ...DETAIL, poll: { ...DETAIL.poll, closesAt: "2026-10-28T20:00:00Z" } };
+    render(<PollDetailView detail={detail} castVote={castVote} now={NOW} />);
+
+    expect(screen.getByText("Cierra en 1 día")).toBeDefined();
+    expect(screen.getAllByRole("radio")).toHaveLength(2);
+  });
+
+  it("una encuesta cerrada no ofrece el selector de voto", () => {
+    const detail = { ...DETAIL, poll: { ...DETAIL.poll, closesAt: "2026-10-27T18:00:00Z" } };
+    render(<PollDetailView detail={detail} castVote={castVote} now={NOW} />);
+
+    expect(screen.getByText("Cerrada hace 2 h")).toBeDefined();
+    expect(screen.queryAllByRole("radio")).toHaveLength(0);
+    expect(screen.queryByRole("button", { name: /votar/i })).toBeNull();
+    expect(screen.getByText(/ya no admite votos/i)).toBeDefined();
+  });
 });

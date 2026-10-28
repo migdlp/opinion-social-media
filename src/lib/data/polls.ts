@@ -7,7 +7,7 @@ import type { PollOption, PublicPoll, Result } from "./types";
 
 export const FEED_PAGE_SIZE = 20;
 
-const PUBLIC_POLL_COLUMNS = "id, question, created_at, poll_options(id, text, position)";
+const PUBLIC_POLL_COLUMNS = "id, question, created_at, closes_at, poll_options(id, text, position)";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 // Formato en que PostgREST serializa timestamptz; sin comas, comillas ni paréntesis.
 const TIMESTAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,6})?([+-]\d{2}:\d{2}|Z)$/;
@@ -18,6 +18,7 @@ type PollRow = {
   id: string;
   question: string;
   created_at: string;
+  closes_at: string | null;
   poll_options: PollOption[];
 };
 
@@ -44,6 +45,7 @@ function toPublicPoll(row: PollRow): PublicPoll {
     id: row.id,
     question: row.question,
     createdAt: row.created_at,
+    closesAt: row.closes_at,
     options: [...row.poll_options].sort((a, b) => a.position - b.position),
   };
 }
