@@ -3,6 +3,66 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      categories: {
+        Row: {
+          name: string;
+          position: number;
+          slug: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          name: string;
+          position: number;
+          slug: string;
+        };
+        Update: {
+          name?: string;
+          position?: number;
+          slug?: string;
+        };
+        Relationships: [];
+      };
+      follow_quota_events: {
+        Row: {
+          created_at: string;
+          id: number;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          id?: never;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: never;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      follows: {
+        Row: {
+          created_at: string;
+          followee_id: string;
+          follower_id: string;
+          status: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          followee_id: string;
+          follower_id: string;
+          status: string;
+        };
+        Update: {
+          created_at?: string;
+          followee_id?: string;
+          follower_id?: string;
+          status?: string;
+        };
+        Relationships: [];
+      };
       poll_options: {
         Row: {
           id: string;
@@ -33,8 +93,46 @@ export type Database = {
           },
         ];
       };
+      poll_reports: {
+        Row: {
+          created_at: string;
+          details: string | null;
+          id: string;
+          poll_id: string;
+          reason: string;
+          reporter_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          details?: string | null;
+          id?: string;
+          poll_id: string;
+          reason: string;
+          reporter_id: string;
+        };
+        Update: {
+          created_at?: string;
+          details?: string | null;
+          id?: string;
+          poll_id?: string;
+          reason?: string;
+          reporter_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "poll_reports_poll_id_fkey";
+            columns: ["poll_id"];
+            isOneToOne: false;
+            referencedRelation: "polls";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       polls: {
         Row: {
+          category_slug: string | null;
+          closes_at: string | null;
           created_at: string;
           id: string;
           question: string;
@@ -43,6 +141,8 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          category_slug?: string | null;
+          closes_at?: string | null;
           created_at?: string;
           id?: string;
           question: string;
@@ -50,13 +150,78 @@ export type Database = {
           user_id: string;
         };
         Update: {
+          category_slug?: string | null;
+          closes_at?: string | null;
           created_at?: string;
           id?: string;
           question?: string;
           status?: string;
           user_id?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: "polls_category_slug_fkey";
+            columns: ["category_slug"];
+            isOneToOne: false;
+            referencedRelation: "categories";
+            referencedColumns: ["slug"];
+          },
+        ];
+      };
+      profiles: {
+        Row: {
+          created_at: string;
+          display_name: string | null;
+          is_private: boolean;
+          updated_at: string;
+          user_id: string;
+          username: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          display_name?: string | null;
+          is_private?: boolean;
+          updated_at?: string;
+          user_id: string;
+          username: string;
+        };
+        Update: {
+          created_at?: string;
+          display_name?: string | null;
+          is_private?: boolean;
+          updated_at?: string;
+          user_id?: string;
+          username?: string;
+        };
         Relationships: [];
+      };
+      saved_polls: {
+        Row: {
+          created_at: string;
+          poll_id: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          poll_id: string;
+          user_id?: string;
+        };
+        Update: {
+          created_at?: string;
+          poll_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "saved_polls_poll_id_fkey";
+            columns: ["poll_id"];
+            isOneToOne: false;
+            referencedRelation: "polls";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       votes: {
         Row: {
@@ -103,7 +268,55 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      create_poll: { Args: { p_options: string[]; p_question: string }; Returns: string };
+      can_view_author: { Args: { p_author: string }; Returns: boolean };
+      count_follow_requests: { Args: Record<PropertyKey, never>; Returns: number };
+      create_poll: {
+        Args: {
+          p_category?: string;
+          p_closes_at?: string;
+          p_options: string[];
+          p_question: string;
+        };
+        Returns: string;
+      };
+      follow_user: { Args: { p_username: string }; Returns: string };
+      get_feed: {
+        Args: { p_category?: string; p_cursor?: string; p_mode?: string };
+        Returns: {
+          created_at: string;
+          cursor: string;
+          poll_id: string;
+        }[];
+      };
+      get_feed_results: {
+        Args: { p_poll_ids: string[] };
+        Returns: {
+          my_option_id: string;
+          option_id: string;
+          percentage: number;
+          poll_id: string;
+          position: number;
+          text: string;
+          total_votes: number;
+          votes: number;
+        }[];
+      };
+      get_my_profile: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          display_name: string;
+          is_private: boolean;
+          username: string;
+        }[];
+      };
+      get_poll_authors: {
+        Args: { p_poll_ids: string[] };
+        Returns: {
+          display_name: string;
+          poll_id: string;
+          username: string;
+        }[];
+      };
       get_poll_results: {
         Args: { p_poll_id: string };
         Returns: {
@@ -114,6 +327,87 @@ export type Database = {
           text: string;
           total_votes: number;
           votes: number;
+        }[];
+      };
+      get_profile: {
+        Args: { p_username: string };
+        Returns: {
+          can_view_content: boolean;
+          display_name: string;
+          followers_count: number;
+          following_count: number;
+          is_private: boolean;
+          polls_count: number;
+          username: string;
+          viewer_relation: string;
+        }[];
+      };
+      get_profile_polls: {
+        Args: { p_cursor?: string; p_username: string };
+        Returns: {
+          created_at: string;
+          cursor: string;
+          poll_id: string;
+        }[];
+      };
+      get_profile_votes: {
+        Args: { p_cursor?: string; p_username: string };
+        Returns: {
+          author_display_name: string;
+          author_username: string;
+          choice_hidden: boolean;
+          closes_at: string;
+          cursor: string;
+          option_id: string;
+          option_text: string;
+          poll_created_at: string;
+          poll_id: string;
+          question: string;
+          voted_at: string;
+        }[];
+      };
+      list_follow_requests: {
+        Args: { p_cursor?: string };
+        Returns: {
+          cursor: string;
+          display_name: string;
+          username: string;
+        }[];
+      };
+      list_followers: {
+        Args: { p_cursor?: string; p_username: string };
+        Returns: {
+          cursor: string;
+          display_name: string;
+          username: string;
+        }[];
+      };
+      list_following: {
+        Args: { p_cursor?: string; p_username: string };
+        Returns: {
+          cursor: string;
+          display_name: string;
+          username: string;
+        }[];
+      };
+      remove_follower: { Args: { p_username: string }; Returns: undefined };
+      report_poll: {
+        Args: { p_details?: string; p_poll_id: string; p_reason: string };
+        Returns: undefined;
+      };
+      respond_follow_request: {
+        Args: { p_accept: boolean; p_username: string };
+        Returns: undefined;
+      };
+      set_profile_privacy: { Args: { p_private: boolean }; Returns: undefined };
+      unfollow_user: { Args: { p_username: string }; Returns: undefined };
+      upsert_my_profile: {
+        Args: { p_display_name: string; p_username: string };
+        Returns: {
+          created_at: string;
+          display_name: string;
+          is_private: boolean;
+          username: string;
         }[];
       };
       vote_poll: {

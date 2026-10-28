@@ -15,7 +15,7 @@ export function EmptyState({ title, description, action }: EmptyStateProps) {
       {action && (
         <Link
           href={action.href}
-          className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-85"
+          className="action-primary rounded-full px-4 py-2 text-sm font-semibold"
         >
           {action.label}
         </Link>

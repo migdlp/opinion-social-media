@@ -1,16 +1,30 @@
 import { Suspense } from "react";
-import { LoadingState } from "@/components/loading-state";
+import { choiceFromParam } from "@/lib/auth/redirect";
+import { PollSkeleton } from "@/components/skeletons";
+import { pollMetadata } from "./metadata";
 import { PollDetailLoader } from "./poll-detail";
 
-async function Detail({ params }: { params: PageProps<"/polls/[id]">["params"] }) {
+export async function generateMetadata({ params }: PageProps<"/polls/[id]">) {
   const { id } = await params;
-  return <PollDetailLoader id={id} />;
+  return pollMetadata(id);
 }
 
-export default function PollPage({ params }: PageProps<"/polls/[id]">) {
+async function Detail({
+  params,
+  searchParams,
+}: {
+  params: PageProps<"/polls/[id]">["params"];
+  searchParams: PageProps<"/polls/[id]">["searchParams"];
+}) {
+  const { id } = await params;
+  const { elige } = await searchParams;
+  return <PollDetailLoader id={id} option={choiceFromParam(elige)} />;
+}
+
+export default function PollPage({ params, searchParams }: PageProps<"/polls/[id]">) {
   return (
-    <Suspense fallback={<LoadingState label="Cargando encuesta…" />}>
-      <Detail params={params} />
+    <Suspense fallback={<PollSkeleton />}>
+      <Detail params={params} searchParams={searchParams} />
     </Suspense>
   );
 }

@@ -15,16 +15,23 @@ Leer [AGENTS.md](../AGENTS.md), el [contexto de la aplicación](contexto-aplicac
 | [Contratos de datos y RPC](contratos-api.md) | Argumentos, respuestas, tipos y códigos de error (MVP-013) |
 | [Brief consolidado](brief-producto.md) | Contexto adicional del propietario y requisitos obligatorios |
 | [Backlog vigente v1.1](backlog.md) | 53 tareas revisadas, dependencias y aceptación |
+| [Backlog fase 2](backlog-v2.md) | Perfiles, seguidores, tipos de encuesta, diseño y contenido (D-015 a D-021); mapa de dependencias |
+| [Feed por definir](feed-por-definir.md) | Estado, restricciones, propuesta y preguntas abiertas del feed (V2-030) |
 | [Fuente histórica v1](fuentes/backlog-v1.md) | Documento original conservado sin modificaciones |
 | [Cobertura del brief](cobertura-brief.md) | Equivalencia T01–T27, casos límite y cambios de requisitos |
 | [GitHub Issues](github-issues.md) | Identificadores reales, épicas, tareas y enlaces |
 | [JSON](backlog.json) / [CSV](backlog.csv) | Exportación de cinco épicas y 53 tareas; CSV contiene las tareas |
+| [Auditoría de cobertura](auditoria-tareas.md) | Huecos reales, tareas existentes y propuestas separadas |
+| [Backlog adicional](backlog-adicional.md) | Nueve tareas nuevas; [JSON](tareas-adicionales.json) / [CSV](tareas-adicionales.csv) |
 | [Tareas futuras](tareas-futuras.md) | Registro de estado, fases y trabajo pendiente |
 | [Prioridades y orden](orden-ejecucion.md) | Siguiente tarea, secuencia válida y reserva por agente |
 | [Google OAuth](google-oauth.md) | Pasos para crear el cliente OAuth y activarlo en Supabase (MVP-005) |
 | [Moderación manual](moderacion.md) | Cómo ocultar y restaurar encuestas desde Supabase (MVP-021) |
 | [Pruebas de base de datos](pruebas-bd.md) | Suites SQL, concurrencia y reproducibilidad; criterios de MVP-041–043 |
 | [Seguridad de datos y RPC](seguridad-rpc.md) | Revisión de funciones, permisos y rutas alternativas (MVP-020) |
+| [Integración en Supabase dev](ops-001-integracion-dev.md) | Migraciones de fase 2 aplicadas en dev, evidencia anterior y posterior (OPS-001) |
+| [Guía de validación con Google real](ops-002-guia-validacion.md) | Pasos manuales para validar la fase 2 en dev con dos cuentas (OPS-002) |
+| [Medición del feed con volumen](ops-002-rendimiento-feed.md) | 1200 encuestas y 50 relaciones en dev, `EXPLAIN ANALYZE` y limpieza (OPS-002) |
 | [Entornos y variables](entornos.md) | Proyectos dev/prod, variables públicas, secretos y protecciones |
 | [Estado del proyecto](estado-proyecto.md) | Evidencias de acceso e infraestructura creada |
 | [Acceso a Supabase](supabase-acceso.md) | Proyectos, URLs y conexión de colaboradores, agentes, app, CLI y SQL |

@@ -15,6 +15,7 @@ sql() { psql -X -q -tA -v ON_ERROR_STOP=1 -d "$DB" -c "$1"; }
 
 sql "truncate public.votes, public.poll_options, public.polls cascade; delete from auth.users;
      insert into auth.users (id) values ('$A'), ('$B');
+     insert into public.profiles (user_id, username) values ('$A', 'cuenta_a'), ('$B', 'cuenta_b');
      insert into public.polls (id, user_id, question) values ('$P', '$B', '¿Encuesta para votar?');
      insert into public.poll_options (id, poll_id, text, position) values ('$O', '$P', 'A', 1), (gen_random_uuid(), '$P', 'B', 2);
      insert into public.polls (user_id, question) select '$A', '¿Encuesta previa ' || g || '?' from generate_series(1, 4) g;"
@@ -43,5 +44,18 @@ ok=$(grep -c '^OK$' <<<"$out" || true); dup=$(grep -c 'ALREADY_VOTED' <<<"$out" 
 votes=$(sql "select count(*) from public.votes where user_id = '$A'")
 echo "vote_poll x$N: OK=$ok ALREADY_VOTED=$dup → votos de A=$votes"
 if [ "$votes" -ne 1 ] || [ "$ok" -ne 1 ] || [ "$dup" -ne $((N - 1)) ]; then echo "FALLO: voto duplicado"; exit 1; fi
+
+# SEC-001: con 199 consumos de cuota en la última hora, N follow_user simultáneos a cuentas
+# distintas sólo admiten uno; el contador no pasa de 200.
+sql "delete from public.follows; delete from public.follow_quota_events;
+     insert into auth.users (id) select ('50000000-0000-0000-0000-' || lpad(g::text, 12, '0'))::uuid from generate_series(1, $N) g;
+     insert into public.profiles (user_id, username) select ('50000000-0000-0000-0000-' || lpad(g::text, 12, '0'))::uuid, 'objetivo_' || g from generate_series(1, $N) g;
+     insert into public.follow_quota_events (user_id) select '$A' from generate_series(1, 199);"
+out=$(for i in $(seq 1 "$N"); do call "$A" "select public.follow_user('objetivo_$i')" & done; wait)
+ok=$(grep -c '^OK$' <<<"$out" || true); limited=$(grep -c 'FOLLOW_RATE_LIMITED' <<<"$out" || true)
+used=$(sql "select count(*) from public.follow_quota_events where user_id = '$A'")
+follows=$(sql "select count(*) from public.follows where follower_id = '$A'")
+echo "follow_user x$N con 199 consumos: OK=$ok FOLLOW_RATE_LIMITED=$limited → consumos=$used, follows=$follows"
+if [ "$used" -ne 200 ] || [ "$follows" -ne 1 ] || [ "$ok" -ne 1 ] || [ "$limited" -ne $((N - 1)) ]; then echo "FALLO: se superó la cuota de seguimientos"; exit 1; fi
 
 echo "ok concurrencia"

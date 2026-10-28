@@ -22,7 +22,26 @@ vi.mock("next/navigation", () => ({
   },
 }));
 
-const { Feed } = await import("./feed");
+const { Feed: RealFeed } = await import("./feed");
+// V2-032: el feed pide los ids por RPC (get_feed) y las encuestas por RLS. Estos tests describen
+// las filas de `polls`; de ellas se deducen los ids que devolvería la RPC.
+const Feed = () => {
+  const polls = responses.polls;
+  if (!responses["rpc:get_feed"] && polls && !Array.isArray(polls) && typeof polls !== "function") {
+    const rows = (Array.isArray(polls.data) ? polls.data : []) as {
+      id: string;
+      created_at: string;
+    }[];
+    responses = {
+      ...responses,
+      "rpc:get_feed": {
+        data: rows.map((r) => ({ poll_id: r.id, created_at: r.created_at, cursor: "c" })),
+        error: null,
+      },
+    };
+  }
+  return RealFeed();
+};
 const { PollDetailLoader } = await import("./polls/[id]/poll-detail");
 
 const ID = "11111111-2222-4333-8444-555555555555";
@@ -49,7 +68,9 @@ function expectNoAggregates(html: string) {
   expect(queries.map((q) => q.target)).not.toContain("rpc:get_poll_results");
   const polls = queries.find((q) => q.target === "polls")!;
   const select = polls.calls.find((c) => c[0] === "select")![1] as string;
-  expect(select).toBe("id, question, created_at, poll_options(id, text, position)");
+  expect(select).toBe(
+    "id, question, created_at, closes_at, category:categories(slug, name), poll_options(id, text, position)",
+  );
 }
 
 beforeEach(() => {
@@ -78,20 +99,180 @@ describe.each([
   });
 });
 
-// Control: el escenario "con voto" sí pide el RPC de resultados. Hoy el detalle aún no los
-// pinta (llega con MVP-037), así que se comprueba la consulta, no el HTML; los tests de
-// arriba fallarían si el HTML o las consultas de quien no ha votado incluyeran agregados.
-describe("control: quien ya votó sí dispara la consulta de resultados", () => {
-  it("el detalle de un votante llama a get_poll_results", async () => {
+// Quien ya votó sí recibe los resultados, directamente en el HTML y sin formulario
+// (MVP-037 y MVP-038: también al volver desde otro dispositivo o sesión).
+describe("quien ya votó", () => {
+  const resultRows = [
+    {
+      option_id: "a",
+      text: "Con cebolla",
+      position: 1,
+      votes: 3,
+      percentage: 75,
+      total_votes: 4,
+      my_option_id: "a",
+    },
+    {
+      option_id: "b",
+      text: "Sin cebolla",
+      position: 2,
+      votes: 1,
+      percentage: 25,
+      total_votes: 4,
+      my_option_id: "a",
+    },
+  ];
+
+  it("ve los resultados en el detalle, con su voto señalado y sin poder votar otra vez", async () => {
     user = { id: "u1" };
     responses = {
       polls: { data: row, error: null },
       votes: { data: { option_id: "a" }, error: null },
-      "rpc:get_poll_results": { data: [], error: null },
+      "rpc:get_poll_results": { data: resultRows, error: null },
     };
 
-    await PollDetailLoader({ id: ID });
+    const html = renderToStaticMarkup(await PollDetailLoader({ id: ID }));
 
+    expect(html).toMatch(/75,0\s*%/);
+    expect(html).toContain("Tu voto");
+    expect(html).not.toContain('type="radio"');
+    expect(html).not.toContain("Votar");
     expect(queries.map((q) => q.target)).toContain("rpc:get_poll_results");
+  });
+
+  it("ve los resultados en la tarjeta del feed solo de las encuestas en las que votó", async () => {
+    user = { id: "u1" };
+    const other = { ...row, id: "99999999-2222-4333-8444-555555555555", question: "¿Otra?" };
+    responses = {
+      polls: { data: [row, other], error: null },
+      votes: { data: [{ poll_id: ID, option_id: "a" }], error: null },
+      "rpc:get_feed_results": {
+        data: resultRows.map((r) => ({ ...r, poll_id: ID })),
+        error: null,
+      },
+    };
+
+    const html = renderToStaticMarkup(await Feed());
+
+    // Resultados sólo en la tarjeta votada (V2-033: la votada puede repetir la cifra en el aviso de
+    // coincidencia); la otra tarjeta no lleva ninguna cifra.
+    expect(html.match(/Tu voto/g)).toHaveLength(1);
+    const cards = html.split("<article").slice(1);
+    const [voted, notVoted] = [
+      cards.find((c) => c.includes("¿Tortilla")),
+      cards.find((c) => c.includes("¿Otra?")),
+    ];
+    expect(voted).toMatch(/75,0\s*%/);
+    expect(notVoted).toBeDefined();
+    expect(notVoted).not.toMatch(/\d\s*%/);
+    // Una sola consulta de votos propios para el lote y resultados sólo de la votada.
+    const targets = queries.map((q) => q.target);
+    expect(targets.filter((t) => t === "votes")).toHaveLength(1);
+    expect(targets.filter((t) => t === "rpc:get_feed_results")).toHaveLength(1);
+    expect(targets).not.toContain("rpc:get_poll_results");
+  });
+});
+
+// V2-003, criterio 3: la respuesta del feed y del detalle firma con @usuario y nunca
+// contiene user_id (la fila trampa lo lleva y la base nunca lo devolvería a este cliente).
+describe("autor de la encuesta", () => {
+  const authors = [{ poll_id: ID, username: "ana_23", display_name: "Ana María" }];
+  const trapRow = { ...row, user_id: "USERID-SECRETO", author_id: "USERID-SECRETO" };
+
+  it.each([
+    ["el feed", () => Feed()],
+    ["el detalle", () => PollDetailLoader({ id: ID })],
+  ])("%s firma con @usuario enlazado y no incluye user_id", async (_name, render) => {
+    responses = {
+      polls: { data: _name === "el feed" ? [trapRow] : trapRow, error: null },
+      votes: { data: [], error: null },
+      "rpc:get_poll_authors": { data: authors, error: null },
+    };
+
+    const html = renderToStaticMarkup(await render());
+
+    expect(html).toContain("@ana_23");
+    expect(html).toContain("Ana María");
+    expect(html).toContain('href="/u/ana_23"');
+    expect(html).not.toContain("USERID-SECRETO");
+    expect(html).not.toMatch(/user_id|userId/);
+    expect(html).not.toContain("Anónimo");
+  });
+
+  it("sin perfil del autor se muestra «Anónimo» sin enlace", async () => {
+    responses = {
+      polls: { data: [row], error: null },
+      votes: { data: [], error: null },
+      "rpc:get_poll_authors": { data: [], error: null },
+    };
+
+    const html = renderToStaticMarkup(await Feed());
+
+    expect(html).toContain("Anónimo");
+    expect(html).not.toContain("/u/");
+  });
+});
+
+// V2-014, criterio 4 y D-020: justo antes de cerrar no hay agregados en el HTML; cerrada, sus
+// resultados son públicos incluso para un visitante sin sesión.
+describe("cierre de la encuesta", () => {
+  const closedRows = [
+    {
+      option_id: "a",
+      text: "Con cebolla",
+      position: 1,
+      votes: 3,
+      percentage: 75,
+      total_votes: 4,
+      my_option_id: null,
+    },
+    {
+      option_id: "b",
+      text: "Sin cebolla",
+      position: 2,
+      votes: 1,
+      percentage: 25,
+      total_votes: 4,
+      my_option_id: null,
+    },
+  ];
+  const closingIn = (ms: number) => ({
+    ...row,
+    closes_at: new Date(Date.now() + ms).toISOString(),
+  });
+
+  it("un segundo antes de cerrar ni el feed ni el detalle incluyen agregados ni piden resultados", async () => {
+    const poll = closingIn(60_000);
+    responses = {
+      polls: { data: [poll], error: null },
+      "rpc:get_poll_results": { data: closedRows, error: null },
+    };
+    expectNoAggregates(renderToStaticMarkup(await Feed()));
+    responses = {
+      polls: { data: poll, error: null },
+      "rpc:get_poll_results": { data: closedRows, error: null },
+    };
+    expectNoAggregates(renderToStaticMarkup(await PollDetailLoader({ id: ID })));
+  });
+
+  it("una vez cerrada, un visitante ve los resultados en el feed y en el detalle, sin «Tu voto»", async () => {
+    const poll = closingIn(-60_000);
+    for (const [name, render, data] of [
+      ["feed", () => Feed(), [poll]],
+      ["detalle", () => PollDetailLoader({ id: ID }), poll],
+    ] as const) {
+      responses = {
+        polls: { data, error: null },
+        "rpc:get_poll_results": { data: closedRows, error: null },
+        "rpc:get_feed_results": {
+          data: closedRows.map((r) => ({ ...r, poll_id: ID })),
+          error: null,
+        },
+      };
+      const html = renderToStaticMarkup(await render());
+      expect(html, name).toMatch(/75,0\s*%/);
+      expect(html, name).not.toContain("Tu voto");
+      expect(html, name).not.toContain('type="radio"');
+    }
   });
 });

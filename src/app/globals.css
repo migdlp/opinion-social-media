@@ -1,30 +1,42 @@
 @import "tailwindcss";
 
-/* «Mercado de opiniones» en blanco y negro (DESIGN.md). Tinta casi negra sobre blanco,
-   invertido en modo oscuro; el único color es el rojo de error. */
+/* After Sunset (D-026): noche y papel, acento melocotón y apoyo lavanda.
+   Los roles semánticos mantienen contraste en los dos temas, no se invierten a ciegas. */
 :root {
-  --background: #f4f4f5;
+  --background: #f9f9ff;
   --surface: #ffffff;
-  --foreground: #0a0a0b;
-  --muted: #5e5e66;
-  --border: #e4e4e7;
-  --track: #ececef;
-  --bar-muted: #a9a9b0;
-  --field: #8a8a93;
+  --foreground: #161e2e;
+  --muted: #354861;
+  --border: #b4c8f5;
+  --track: #f9f9ff;
+  --bar-muted: #354861;
+  --bar-own: #161e2e;
+  --field: #354861;
   --danger: #c4161c;
+  --accent: #ffb16b;
+  --accent-foreground: #161e2e;
+  --accent-hover: #ffc28c;
+  --accent-soft: #b4c8f5;
+  --focus: #161e2e;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0b;
-    --surface: #151517;
-    --foreground: #f4f4f5;
-    --muted: #a3a3ab;
-    --border: #2a2a2e;
-    --track: #232327;
-    --bar-muted: #5d5d65;
-    --field: #707079;
-    --danger: #ff7b7b;
+    --background: #161e2e;
+    --surface: #354861;
+    --foreground: #f9f9ff;
+    --muted: #b4c8f5;
+    --border: #b4c8f5;
+    --track: #161e2e;
+    --bar-muted: #b4c8f5;
+    --bar-own: #ffb16b;
+    --field: #b4c8f5;
+    --danger: #ff9d9d;
+    --accent: #ffb16b;
+    --accent-foreground: #161e2e;
+    --accent-hover: #ffc28c;
+    --accent-soft: #b4c8f5;
+    --focus: #ffb16b;
   }
 }
 
@@ -38,6 +50,10 @@
   --color-bar-muted: var(--bar-muted);
   --color-field: var(--field);
   --color-danger: var(--danger);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+  --color-bar-own: var(--bar-own);
   --font-sans: var(--font-geist-sans), system-ui, sans-serif;
   /* Ancho de lectura de formularios y detalle; el feed y la cabecera usan el ancho. */
   --container-content: 40rem;
@@ -47,7 +63,7 @@
 html {
   color-scheme: light dark;
   scrollbar-color: var(--bar-muted) transparent;
-  accent-color: var(--foreground);
+  accent-color: var(--accent);
   caret-color: var(--foreground);
 }
 
@@ -60,13 +76,39 @@ body {
 }
 
 ::selection {
-  background: var(--foreground);
-  color: var(--background);
+  background: var(--accent);
+  color: var(--accent-foreground);
 }
 
 :focus-visible {
-  outline: 2px solid var(--foreground);
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
+}
+
+::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+
+/* Base compartida de color para CTA. Cada componente conserva su tamaño y etiqueta. */
+@utility action-primary {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+  transition-property: background-color, color;
+  transition-duration: 150ms;
+
+  @media (hover: hover) {
+    &:hover:not(:disabled):not([aria-disabled="true"]) {
+      background-color: var(--accent-hover);
+    }
+  }
+
+  &:disabled,
+  &[aria-disabled="true"] {
+    background-color: var(--track);
+    color: var(--muted);
+    cursor: wait;
+  }
 }
 
 /* Revelación de resultados: las barras crecen desde cero y las cifras aparecen. */
@@ -85,7 +127,7 @@ body {
 }
 
 .reveal-bar {
-  animation: reveal-bar 800ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: reveal-bar 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .reveal-figure {
@@ -93,6 +135,10 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .action-primary {
+    transition: none;
+  }
+
   .reveal-bar,
   .reveal-figure {
     animation: none;

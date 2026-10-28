@@ -2,6 +2,9 @@
 
 begin;
 insert into auth.users (id) values ('00000000-0000-0000-0000-00000000000a'), ('00000000-0000-0000-0000-00000000000b');
+-- V2-002: crear y votar exigen perfil.
+insert into public.profiles (user_id, username)
+  select id, 'u' || replace(right(id::text, 4), '-', '') from auth.users;
 
 -- Sin sesión: anon no puede ejecutarla; authenticated sin sub recibe AUTH_REQUIRED.
 select pg_temp.logout();
@@ -16,7 +19,7 @@ select pg_temp.login('00000000-0000-0000-0000-00000000000a');
 -- Validación (y orden de los códigos).
 select pg_temp.expect_error($$select public.create_poll('¿Pregunta válida?', null)$$, 'VALIDATION_OPTION_COUNT');
 select pg_temp.expect_error($$select public.create_poll('¿Pregunta válida?', array['A'])$$, 'VALIDATION_OPTION_COUNT');
-select pg_temp.expect_error($$select public.create_poll('¿Pregunta válida?', array['A','B','C','D','E'])$$, 'VALIDATION_OPTION_COUNT');
+select pg_temp.expect_error($$select public.create_poll('¿Pregunta válida?', array['A','B','C','D','E','F','G'])$$, 'VALIDATION_OPTION_COUNT');
 select pg_temp.expect_error($$select public.create_poll('¿Pregunta válida?', array[['A','B'],['C','D']])$$, 'VALIDATION_OPTION_COUNT');
 select pg_temp.expect_error($$select public.create_poll('Corta', array['A','B'])$$, 'VALIDATION_QUESTION_LENGTH');
 select pg_temp.expect_error($$select public.create_poll(null, array['A','B'])$$, 'VALIDATION_QUESTION_LENGTH');
@@ -53,6 +56,20 @@ begin
     = 'Café#1,Té#2,Si#3,Sí#4', 'opciones incorrectas';
 end $$;
 reset role;
+
+-- Seis opciones (máximo, D-019): se guardan todas y en orden. Se borran para no
+-- alterar las cuentas de la cuota ni de filas de abajo.
+do $$
+declare v_id uuid;
+begin
+  v_id := public.create_poll('¿Cuál eliges de las seis?', array['A','B','C','D','E','F']);
+  perform set_config('role', 'postgres', true);
+  assert (select string_agg(text || '#' || position, ',' order by position) from public.poll_options where poll_id = v_id)
+    = 'A#1,B#2,C#3,D#4,E#5,F#6', 'seis opciones incorrectas';
+  delete from public.polls where id = v_id;
+end $$;
+reset role;
+select pg_temp.login('00000000-0000-0000-0000-00000000000a');
 
 -- Atomicidad: ningún intento fallido dejó filas.
 do $$

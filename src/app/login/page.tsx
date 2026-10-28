@@ -1,9 +1,11 @@
-import { PagePlaceholder } from "@/components/page-placeholder";
+import { Suspense } from "react";
+import { LoadingState } from "@/components/loading-state";
+import { LoginContent } from "./login-content";
 
-export default function LoginPage() {
+export default function LoginPage({ searchParams }: PageProps<"/login">) {
   return (
-    <PagePlaceholder title="Iniciar sesión">
-      <p>Acceso con Google (MVP-027).</p>
-    </PagePlaceholder>
+    <Suspense fallback={<LoadingState label="Cargando…" />}>
+      <LoginContent searchParams={searchParams} />
+    </Suspense>
   );
 }

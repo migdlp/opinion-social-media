@@ -93,3 +93,13 @@ Este orden es una ordenación válida del grafo de dependencias y orienta la eje
 - **Completada:** criterios verificados y evidencias enlazadas; conservar el agente que la completó.
 
 Un agente que libere una tarea debe devolverla a Pendiente y retirar su reserva explícitamente. Un traspaso conserva trazabilidad. El procedimiento obligatorio está en [AGENTS.md](../AGENTS.md).
+
+## Feed aprobado (V2-031–036)
+
+Prioridad P0 para el nuevo feed; no cambia las condiciones del MVP original. Tras cerrar V2-030 y cumplir las dependencias, se pueden tomar V2-031 (lecturas/permisos/categoría/24h) y V2-033 (voto en tarjeta) en paralelo. Después V2-032 (pestañas y categorías), V2-034 (scroll y botón), V2-035 (seguridad, también depende de V2-024) y V2-036 (E2E y documentación). Consultar el [mapa](backlog-v2.md#4-mapa-de-dependencias) y las reservas de main: no iniciar tareas ajenas ni saltar dependencias. V2-023 conserva P1; optimizar por lotes no bloquea este feed.
+
+## Huecos completados por AUDIT-001
+
+Consultar [backlog-adicional.md](backlog-adicional.md) y main antes de reservar. Las primeras disponibles son **DESIGN-002** (tokens After Sunset) y **SEC-001** (cuota persistente de follows), ambas P0. Luego se pueden preparar DESIGN-003/005 y, al existir las rutas sociales, DESIGN-004. DESIGN-006 verifica todo con feed y ciclo social integrados. OPS-001 aplica el esquema candidato sólo en dev; OPS-002 valida Google real y el conjunto en dev; DOC-009 consolida guías al resultado probado.
+
+V2-052 #169 ya existía, conserva P1 y se coordina con V2-033 para compartir el retorno de selección. Las propuestas V2-040–051 de #184 no son requisitos aprobados por esta auditoría. Producción y recuperación siguen en MVP-049–051; no se crean despliegues como parte de completar el backlog.

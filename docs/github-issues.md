@@ -81,4 +81,72 @@ Cada épica contiene un checklist enlazado a sus tareas. Las dependencias de cad
 
 [Todos los issues](https://github.com/migdlp/opinion-social-media/issues) · [P0](https://github.com/migdlp/opinion-social-media/issues?q=is%3Aissue%20label%3AP0) · [P1](https://github.com/migdlp/opinion-social-media/issues?q=is%3Aissue%20label%3AP1)
 
-La implementación sigue pausada. Crear estos tickets no ejecuta las tareas ni acredita el cierre de sus criterios. JSON y CSV contienen los identificadores y URLs reales para importar o cruzar los registros.
+La implementación está reanudada (D-013). Crear estos tickets no ejecuta las tareas ni acredita el cierre de sus criterios; el estado vigente está en tareas-futuras.md. JSON y CSV contienen los identificadores y URLs reales para importar o cruzar los registros.
+
+## Fase 2
+
+38 issues creadas el 28-10-2026: seis épicas y 32 tareas. Cada tarea es un sub-issue de su épica e incluye prioridad, tamaño, oleada, criterios, «Dependencias bloqueantes» y «Bloquea a» enlazados. Los requisitos completos están en [backlog-v2.md](backlog-v2.md).
+
+| Épica | Issue |
+|---|---|
+| E06 Perfiles y relaciones | [#109](https://github.com/migdlp/opinion-social-media/issues/109) |
+| E07 Tipos de encuesta | [#110](https://github.com/migdlp/opinion-social-media/issues/110) |
+| E08 Diseño y experiencia | [#111](https://github.com/migdlp/opinion-social-media/issues/111) |
+| E09 Contenido y seguridad | [#112](https://github.com/migdlp/opinion-social-media/issues/112) |
+| E10 Feed | [#113](https://github.com/migdlp/opinion-social-media/issues/113) |
+| E11 Calidad y rendimiento | [#114](https://github.com/migdlp/opinion-social-media/issues/114) |
+
+| ID | Issue | Prioridad | Épica |
+|---|---|---|---|
+| V2-001 | [#115: Crear tabla profiles y RPC de perfil](https://github.com/migdlp/opinion-social-media/issues/115) | P0 | [E06](https://github.com/migdlp/opinion-social-media/issues/109) |
+| V2-002 | [#124: Onboarding: elegir @usuario tras el primer login](https://github.com/migdlp/opinion-social-media/issues/124) | P0 | [E06](https://github.com/migdlp/opinion-social-media/issues/109) |
+| V2-003 | [#125: Firmar encuestas con @usuario](https://github.com/migdlp/opinion-social-media/issues/125) | P0 | [E06](https://github.com/migdlp/opinion-social-media/issues/109) |
+| V2-004 | [#126: Crear tabla follows con solicitudes](https://github.com/migdlp/opinion-social-media/issues/126) | P0 | [E06](https://github.com/migdlp/opinion-social-media/issues/109) |
+| V2-005 | [#128: Visibilidad de cuentas privadas en RLS y RPC](https://github.com/migdlp/opinion-social-media/issues/128) | P0 | [E06](https://github.com/migdlp/opinion-social-media/issues/109) |
+| V2-006 | [#135: Página de perfil /u/[username]](https://github.com/migdlp/opinion-social-media/issues/135) | P0 | [E06](https://github.com/migdlp/opinion-social-media/issues/109) |
+| V2-007 | [#132: RPC de votos visibles en un perfil](https://github.com/migdlp/opinion-social-media/issues/132) | P0 | [E06](https://github.com/migdlp/opinion-social-media/issues/109) |
+| V2-008 | [#129: Ajustes de perfil y privacidad (/settings)](https://github.com/migdlp/opinion-social-media/issues/129) | P0 | [E06](https://github.com/migdlp/opinion-social-media/issues/109) |
+| V2-009 | [#138: Seguidores, seguidos y solicitudes](https://github.com/migdlp/opinion-social-media/issues/138) | P0 | [E06](https://github.com/migdlp/opinion-social-media/issues/109) |
+| V2-010 | [#130: Navegación con perfil: cabecera y barra inferior móvil](https://github.com/migdlp/opinion-social-media/issues/130) | P1 | [E06](https://github.com/migdlp/opinion-social-media/issues/109) |
+| V2-011 | [#116: Plantilla Sí/No en el formulario](https://github.com/migdlp/opinion-social-media/issues/116) | P1 | [E07](https://github.com/migdlp/opinion-social-media/issues/110) |
+| V2-012 | [#117: Permitir hasta 6 opciones](https://github.com/migdlp/opinion-social-media/issues/117) | P0 | [E07](https://github.com/migdlp/opinion-social-media/issues/110) |
+| V2-013 | [#127: Fecha de cierre opcional](https://github.com/migdlp/opinion-social-media/issues/127) | P0 | [E07](https://github.com/migdlp/opinion-social-media/issues/110) |
+| V2-014 | [#133: Resultados públicos al cerrarse](https://github.com/migdlp/opinion-social-media/issues/133) | P0 | [E07](https://github.com/migdlp/opinion-social-media/issues/110) |
+| V2-015 | [#118: Animar las barras al revelar resultados](https://github.com/migdlp/opinion-social-media/issues/118) | P1 | [E08](https://github.com/migdlp/opinion-social-media/issues/111) |
+| V2-016 | [#119: Mensaje «Coincides con el X %» tras votar](https://github.com/migdlp/opinion-social-media/issues/119) | P1 | [E08](https://github.com/migdlp/opinion-social-media/issues/111) |
+| V2-017 | [#120: Modo oscuro](https://github.com/migdlp/opinion-social-media/issues/120) | P1 | [E08](https://github.com/migdlp/opinion-social-media/issues/111) |
+| V2-018 | [#121: Compartir con la hoja nativa](https://github.com/migdlp/opinion-social-media/issues/121) | P1 | [E08](https://github.com/migdlp/opinion-social-media/issues/111) |
+| V2-019 | [#134: Imagen OG dinámica por encuesta](https://github.com/migdlp/opinion-social-media/issues/134) | P1 | [E08](https://github.com/migdlp/opinion-social-media/issues/111) |
+| V2-020 | [#122: Denunciar una encuesta](https://github.com/migdlp/opinion-social-media/issues/122) | P0 | [E09](https://github.com/migdlp/opinion-social-media/issues/112) |
+| V2-021 | [#131: Categorías fijas al crear y en la tarjeta](https://github.com/migdlp/opinion-social-media/issues/131) | P1 | [E09](https://github.com/migdlp/opinion-social-media/issues/112) |
+| V2-022 | [#139: Guardar para luego](https://github.com/migdlp/opinion-social-media/issues/139) | P1 | [E09](https://github.com/migdlp/opinion-social-media/issues/112) |
+| V2-023 | [#136: RPC de resultados por lotes para el feed](https://github.com/migdlp/opinion-social-media/issues/136) | P1 | [E11](https://github.com/migdlp/opinion-social-media/issues/114) |
+| V2-024 | [#137: Pruebas de fugas de privacidad y cierre](https://github.com/migdlp/opinion-social-media/issues/137) | P0 | [E11](https://github.com/migdlp/opinion-social-media/issues/114) |
+| V2-025 | [#140: E2E del ciclo social](https://github.com/migdlp/opinion-social-media/issues/140) | P0 | [E11](https://github.com/migdlp/opinion-social-media/issues/114) |
+| V2-030 | [#123: Definir el feed con el propietario](https://github.com/migdlp/opinion-social-media/issues/123) | P0 | [E10](https://github.com/migdlp/opinion-social-media/issues/113) |
+| V2-031 | [#178: Lectura de feed con seguimientos, categoría y retención](https://github.com/migdlp/opinion-social-media/issues/178) | P0 | [E10](https://github.com/migdlp/opinion-social-media/issues/113) |
+| V2-032 | [#179: Pestañas, entrada por defecto y filtro de categoría](https://github.com/migdlp/opinion-social-media/issues/179) | P0 | [E10](https://github.com/migdlp/opinion-social-media/issues/113) |
+| V2-033 | [#180: Voto seguro desde la tarjeta del feed](https://github.com/migdlp/opinion-social-media/issues/180) | P0 | [E10](https://github.com/migdlp/opinion-social-media/issues/113) |
+| V2-034 | [#181: Scroll infinito con botón alternativo](https://github.com/migdlp/opinion-social-media/issues/181) | P0 | [E10](https://github.com/migdlp/opinion-social-media/issues/113) |
+| V2-035 | [#182: Ataques a la privacidad del nuevo feed](https://github.com/migdlp/opinion-social-media/issues/182) | P0 | [E10](https://github.com/migdlp/opinion-social-media/issues/113) |
+| V2-036 | [#183: E2E y cierre del feed](https://github.com/migdlp/opinion-social-media/issues/183) | P0 | [E10](https://github.com/migdlp/opinion-social-media/issues/113) |
+
+Las seis tareas del feed tienen dependencias nativas de GitHub y pertenecen como sub-issues a E10. El orden está en el mapa de backlog-v2; V2-031 y V2-033 pueden desarrollarse en paralelo al cumplirse sus dependencias.
+
+## Auditoría de tareas faltantes (AUDIT-001)
+
+Nueve tickets nuevos del alcance ya aprobado, con sub-issues E08/E11 y dependencias nativas; [detalle y matriz](auditoria-tareas.md). Auditoría #187; el estilo se había documentado en DESIGN-001 #185.
+
+| ID / issue | Tarea | Prioridad | Tamaño | Dependencias |
+|---|---|---|---|---|
+| [DESIGN-002](https://github.com/migdlp/opinion-social-media/issues/188) | Migrar tokens y estilos base a After Sunset | P0 | M | DESIGN-001 |
+| [DESIGN-003](https://github.com/migdlp/opinion-social-media/issues/189) | Adaptar feed, detalle, creación y acceso al nuevo estilo | P0 | L | DESIGN-002 |
+| [DESIGN-004](https://github.com/migdlp/opinion-social-media/issues/190) | Adaptar perfiles, ajustes y solicitudes a After Sunset | P0 | M | DESIGN-002, V2-006, V2-008, V2-009 |
+| [DESIGN-005](https://github.com/migdlp/opinion-social-media/issues/191) | Adaptar las imágenes sociales a la nueva identidad | P0 | S | DESIGN-002, V2-019 |
+| [DESIGN-006](https://github.com/migdlp/opinion-social-media/issues/192) | Verificar la adaptación visual completa y su accesibilidad | P0 | L | DESIGN-003, DESIGN-004, DESIGN-005, V2-025, V2-036 |
+| [SEC-001](https://github.com/migdlp/opinion-social-media/issues/193) | Impedir que borrar seguimientos reinicie la cuota | P0 | M | V2-004 |
+| [OPS-001](https://github.com/migdlp/opinion-social-media/issues/194) | Integrar las migraciones de fase 2 en Supabase dev | P0 | L | V2-007, V2-014, V2-021, V2-031, SEC-001 |
+| [OPS-002](https://github.com/migdlp/opinion-social-media/issues/195) | Validar fase 2 integrada con Google real en desarrollo | P0 | L | OPS-001, MVP-005, V2-025, V2-036 |
+| [DOC-009](https://github.com/migdlp/opinion-social-media/issues/196) | Actualizar documentación operativa al candidato de fase 2 | P0 | M | OPS-002, DESIGN-006 |
+
+Se incorpora además V2-052 [#169](https://github.com/migdlp/opinion-social-media/issues/169), P1/S, como ticket existente; no se crea otro ni se incorpora el resto de la propuesta #184.

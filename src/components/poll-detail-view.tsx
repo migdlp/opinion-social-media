@@ -1,28 +1,69 @@
 import { CopyLinkButton } from "@/components/copy-link-button";
-import { LockedOptions } from "@/components/locked-options";
-import type { PollDetail } from "@/lib/data/types";
-import { formatApproximateDate } from "@/lib/utils/date";
+import { PollAuthor } from "@/components/poll-author";
+import { PollVoting } from "@/components/poll-voting";
+import { ReportPoll } from "@/components/report-poll";
+import { SavePoll } from "@/components/save-poll";
+import type { PollDetail, PollResults, Result } from "@/lib/data/types";
+import { formatApproximateDate, formatCloseStatus, isClosed } from "@/lib/utils/date";
 
 type PollDetailViewProps = {
   detail: PollDetail;
+  castVote: (pollId: string, optionId: string) => Promise<Result<PollResults>>;
+  loadOwnVote?: (pollId: string) => Promise<Result<PollResults | null>>;
+  // Opción que se marca de antemano al volver del login (V2-033); nunca emite el voto.
+  initialSelected?: string | null;
   now?: Date;
 };
 
-// Detalle público de una encuesta antes de votar: pregunta como título, opciones con
-// su porcentaje bloqueado, autor genérico y fecha. Votar llega con MVP-036 y los
-// resultados para quien ya votó con MVP-037.
-export function PollDetailView({ detail, now = new Date() }: PollDetailViewProps) {
+// Detalle de una encuesta: pregunta como título, formulario de voto (o resultados si ya
+// se votó), autor genérico y fecha.
+export function PollDetailView({
+  detail,
+  castVote,
+  loadOwnVote,
+  initialSelected,
+  now = new Date(),
+}: PollDetailViewProps) {
   const { poll } = detail;
+  const signedIn =
+    detail.viewer.kind === "closed" ? detail.viewer.signedIn : detail.viewer.kind !== "anonymous";
   return (
     <article className="mx-auto flex w-full max-w-content flex-col gap-4 rounded-2xl border border-border bg-surface p-5">
-      <h1 className="text-2xl leading-tight font-semibold tracking-[-0.02em]">{poll.question}</h1>
-      <LockedOptions options={poll.options} />
+      {poll.category && (
+        <p
+          data-category
+          className="self-start rounded-full border border-border px-2.5 py-0.5 text-[12px] font-medium text-muted"
+        >
+          {poll.category.name}
+        </p>
+      )}
+      <div className="flex items-start justify-between gap-2">
+        <h1 className="text-2xl leading-tight font-semibold tracking-[-0.02em]">{poll.question}</h1>
+        <div className="flex items-center">
+          <SavePoll pollId={poll.id} signedIn={signedIn} initialSaved={detail.saved} />
+          <ReportPoll pollId={poll.id} signedIn={signedIn} />
+        </div>
+      </div>
+      <PollVoting
+        poll={poll}
+        viewer={detail.viewer}
+        castVote={castVote}
+        loadOwnVote={loadOwnVote}
+        closed={isClosed(poll.closesAt, now)}
+        initialSelected={initialSelected}
+      />
       <p className="text-[13px] text-muted">
-        <span>Anónimo</span>
+        <PollAuthor author={poll.author} />
         {" · "}
         <time dateTime={poll.createdAt}>{formatApproximateDate(poll.createdAt, now)}</time>
+        {poll.closesAt && (
+          <>
+            {" · "}
+            <time dateTime={poll.closesAt}>{formatCloseStatus(poll.closesAt, now)}</time>
+          </>
+        )}
       </p>
-      <CopyLinkButton path={`/polls/${poll.id}`} />
+      <CopyLinkButton path={`/polls/${poll.id}`} title={poll.question} />
     </article>
   );
 }

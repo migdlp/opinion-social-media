@@ -6,7 +6,7 @@ declare cols text;
 begin
   select string_agg(column_name || ':' || data_type, ',' order by ordinal_position) into cols
   from information_schema.columns where table_schema = 'public' and table_name = 'polls';
-  assert cols = 'id:uuid,user_id:uuid,question:text,status:text,created_at:timestamp with time zone',
+  assert cols = 'id:uuid,user_id:uuid,question:text,status:text,created_at:timestamp with time zone,closes_at:timestamp with time zone,category_slug:text',
     'columnas de polls: ' || cols;
 
   select string_agg(column_name || ':' || data_type, ',' order by ordinal_position) into cols
@@ -14,8 +14,7 @@ begin
   assert cols = 'id:uuid,poll_id:uuid,text:text,position:smallint', 'columnas de poll_options: ' || cols;
 
   assert not exists (select 1 from information_schema.tables where table_schema = 'public'
-    and table_name not in ('polls', 'poll_options', 'votes')), 'hay tablas propias no previstas';
-  assert not exists (select 1 from information_schema.tables where table_name = 'profiles'), 'existe profiles';
+    and table_name not in ('polls', 'poll_options', 'votes', 'poll_reports', 'profiles', 'follows', 'categories', 'saved_polls', 'follow_quota_events')), 'hay tablas propias no previstas';
 end $$;
 
 -- FK: polls.user_id -> auth.users, poll_options.poll_id -> polls.
@@ -55,7 +54,7 @@ begin
   assert (select status from public.polls where id = p) = 'published', 'status por defecto';
   assert (select created_at from public.polls where id = p) is not null, 'created_at por defecto';
 
-  insert into public.poll_options (poll_id, text, position) values (p, 'Sí', 1), (p, 'No', 4);
+  insert into public.poll_options (poll_id, text, position) values (p, 'Sí', 1), (p, 'No', 6);
 
   begin
     insert into public.poll_options (poll_id, text, position) values (p, 'Repetida', 1);
@@ -64,8 +63,8 @@ begin
   end;
 
   begin
-    insert into public.poll_options (poll_id, text, position) values (p, 'Cinco', 5);
-    raise exception 'admitió posición 5';
+    insert into public.poll_options (poll_id, text, position) values (p, 'Siete', 7);
+    raise exception 'admitió posición 7';
   exception when check_violation then null;
   end;
 

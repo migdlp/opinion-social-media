@@ -11,6 +11,12 @@ La implementación se pausó (D-005) y se **reanudó el 26 de octubre de 2026** 
 - No guardar secretos, tokens ni claves administrativas en Git.
 - Informar del avance en español y registrar cualquier bloqueo real.
 
+## Dirección creativa obligatoria para todas las IAs
+
+El propietario ha elegido provisionalmente el estilo **After Sunset de la lámina PEEK** (D-026, 28-10-2026). Antes de cualquier tarea visual, leer [PRODUCT.md](PRODUCT.md), [DESIGN.md](DESIGN.md) y [la referencia descrita](docs/direccion-creativa.md). Esa dirección sustituye el monocromo anterior: azul noche, blanco frío, CTA melocotón y lavanda; curiosidad, mirada y revelación, con ambos temas accesibles.
+
+Aplicarla dentro del alcance de la tarea reservada y coordinar tokens compartidos por #73. La imagen no autoriza nuevas funciones ni revoca perfiles/privacidad o el feed acordado. PEEK es la referencia creativa; no hay cambio de nombre confirmado. Esta actualización documental no acredita que el CSS haya sido migrado ni permite desplegar. Las instrucciones visuales históricas contradictorias ceden ante D-026; las reglas funcionales y de seguridad siguen vigentes.
+
 ## Contexto obligatorio de conexión a Supabase
 
 La organización de Supabase de este proyecto es **Los tres cerditos**, ID `drifadkhohwebqljdlvw`, región **Irlanda (`eu-west-1`)**. Estos proyectos ya existen: no crear otra organización ni otros proyectos para sustituirlos si falta acceso.
@@ -34,7 +40,7 @@ La última verificación confirmó acceso SQL y Auth en ambos proyectos, `public
 
 ## Contratos a preservar cuando se reanude
 
-El backlog vigente está en `docs/backlog.md`; el original está archivado en `docs/fuentes/backlog-v1.md`. Leer también `docs/brief-producto.md` y su matriz de cobertura. No implementar borradores ni alterar los nombres de campos obligatorios del brief. La regla crítica es que ningún usuario, incluido el autor, pueda obtener agregados de una encuesta antes de votar. La autorización debe imponerse en Supabase, no sólo en la interfaz. Los entornos de preview/desarrollo no usarán la base de producción.
+El backlog vigente está en `docs/backlog.md`; el original está archivado en `docs/fuentes/backlog-v1.md`. Leer también `docs/brief-producto.md` y su matriz de cobertura. No implementar borradores ni alterar los nombres de campos obligatorios del brief. La regla crítica es que ningún usuario, incluido el autor, pueda obtener agregados de una encuesta **abierta** antes de votar; la única excepción son las encuestas cerradas (D-020). La fase 2 está en `docs/backlog-v2.md` y sus decisiones D-015 a D-021 prevalecen sobre el brief donde lo contradigan. La autorización debe imponerse en Supabase, no sólo en la interfaz. Los entornos de preview/desarrollo no usarán la base de producción.
 
 ## Skill del proyecto
 
@@ -71,7 +77,20 @@ Las prioridades P0/P1 y el orden sugerido están documentados en `docs/orden-eje
 2. Publicar los commits en esa rama y abrir una pull request hacia `main`, enlazando el issue e indicando el alcance, los criterios de aceptación y las comprobaciones realizadas, incluidos fallos o comprobaciones pendientes.
 3. Fusionar la PR en `main` sólo cuando se hayan verificado los criterios de aceptación, pasado las comprobaciones aplicables y resuelto los conflictos y las observaciones pendientes. Respetar las revisiones y protecciones que tenga configuradas el repositorio; no eludirlas.
 4. Tras el merge, actualizar la copia local y sincronizar el registro de tareas y el issue con enlaces a la PR, al merge y a las pruebas. Marcar la tarea **Completada** y cerrar el issue sólo cuando su resultado esté integrado y verificado; abrir una PR no equivale a terminarla.
-5. Los commits exclusivos de reserva y actualización de estado, responsable o traspaso de tareas se publican directamente en `main`, como exige el protocolo anterior. No mezclar código ni otros cambios documentales en esos commits. Para el resto de cambios, incluida la documentación, usar rama y PR; cualquier otra publicación directa en `main` requiere una excepción explícita del propietario para el cambio concreto. Esta regla no amplía el alcance vigente.
+5. **Cerrar el issue es obligatorio.** Quien termina una tarea y fusiona su PR en `main` cierra su issue (motivo «completed») en la misma sesión, justo después de publicar en `main` la fila **Completada**, con el cuerpo actualizado al mismo estado y los enlaces. Una tarea **Completada** en `docs/tareas-futuras.md` con el issue abierto es un registro incoherente: corregirlo antes de reservar otra tarea.
+6. Los commits exclusivos de reserva y actualización de estado, responsable o traspaso de tareas se publican directamente en `main`, como exige el protocolo anterior. No mezclar código ni otros cambios documentales en esos commits. Para el resto de cambios, incluida la documentación, usar rama y PR; cualquier otra publicación directa en `main` requiere una excepción explícita del propietario para el cambio concreto. Esta regla no amplía el alcance vigente.
+
+## Despliegues de producción por sprint
+
+Producción se despliega desde la rama `release`, no desde `main`. **Vercel sólo despliega `release`** (D-VERCEL-002): `vercel.json` desactiva los deployments Git de cualquier otra rama (`git.deploymentEnabled`), así que ni `main` ni las PR generan previews. La compilación, las pruebas y las pipelines de GitHub Actions siguen ejecutándose en ramas y PR.
+
+**Créditos del plan gratuito de Vercel.** Ninguna acción que cree un deployment en Vercel o consuma su cuota gratuita (builds, previews, redeploys, `vercel` o `vercel --prod` por CLI, `deploy_to_vercel` o `create_deployment` por conector, promociones) se hace salvo por el paso de `main` a `release` descrito abajo. No reactivar previews ni desplegar ramas de trabajo para probar: verificar en local y en CI.
+
+1. Ningún agente hace merge en `release`, ni despliega a producción ni dispara `vercel --prod`, sin una orden explícita del propietario para esa versión.
+2. Una versión sólo se publica en `release` cuando el sprint está cerrado: CI verde del SHA candidato (incluidos los E2E), tareas **Completada** con enlaces a PR y pruebas, y flujos críticos verificados en local o CI.
+3. El merge de `main` a `release` lo propone un agente en una PR y lo aprueba el propietario. Lleva como cuerpo la lista de tareas incluidas y el SHA.
+4. Los arreglos urgentes en producción salen de `release` por rama propia, con PR hacia `release`, y después se integran en `main`.
+5. La configuración de Vercel (rama de producción, `git.deploymentEnabled` e `ignoreCommand`) la gestiona Codex /root según [la guía de operación](docs/vercel-operacion.md); cualquier otro agente que necesite cambiarla lo pide por el issue #73.
 
 ## TDD obligatorio
 

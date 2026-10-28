@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { safeNextPath } from "./redirect";
+import { choiceFromParam, loginPath, onboardingPath, safeNextPath } from "./redirect";
 
 describe("safeNextPath", () => {
   it.each([
@@ -31,5 +31,40 @@ describe("safeNextPath", () => {
 
   it("evita el bucle del propio callback", () => {
     expect(safeNextPath("/auth/callback?code=1")).toBe("/");
+  });
+});
+
+describe("loginPath", () => {
+  it("lleva a /login con la ruta local codificada", () => {
+    expect(loginPath("/polls/abc?x=1")).toBe("/login?next=%2Fpolls%2Fabc%3Fx%3D1");
+  });
+
+  it("sustituye un destino externo por /", () => {
+    expect(loginPath("https://ajeno.example/")).toBe("/login?next=%2F");
+  });
+});
+
+describe("onboardingPath", () => {
+  it("lleva a /onboarding conservando un destino local", () => {
+    expect(onboardingPath("/polls/abc")).toBe("/onboarding?next=%2Fpolls%2Fabc");
+  });
+
+  it("sin destino o con uno externo no añade next", () => {
+    expect(onboardingPath("/")).toBe("/onboarding");
+    expect(onboardingPath("//ajeno.example")).toBe("/onboarding");
+    expect(onboardingPath(undefined)).toBe("/onboarding");
+  });
+});
+
+describe("choiceFromParam (V2-052)", () => {
+  const ID = "0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d";
+  it("acepta sólo un UUID", () => {
+    expect(choiceFromParam(ID)).toBe(ID);
+    expect(choiceFromParam(ID.toUpperCase())).toBe(ID.toUpperCase());
+  });
+  it("ignora lo demás sin error", () => {
+    for (const bad of [undefined, "", "b", "zzz", `${ID}x`, ` ${ID}`, ["a", "b"], "<script>"]) {
+      expect(choiceFromParam(bad as string | string[] | undefined)).toBeUndefined();
+    }
   });
 });

@@ -13,7 +13,7 @@ Antes de trabajar, actualizar `main` y consultar [tareas y responsables](tareas-
 | Equipo | «Miguel's projects», `team_Iu3JavtCo0Kv8xW8ebnGukLb` |
 | Repositorio | [migdlp/opinion-social-media](https://github.com/migdlp/opinion-social-media) |
 | Dominio asignado | [opinion-social-media.vercel.app](https://opinion-social-media.vercel.app) |
-| Producción | Rama `main`; framework Next.js |
+| Producción | Rama requerida: `release`; la rama configurada no es visible en la respuesta del conector actual. Framework Next.js. Reglas de despliegue en [AGENTS.md](../AGENTS.md#despliegues-de-producción-por-sprint) |
 
 No compartir la cuenta, sesión o token del propietario. Cada colaborador que necesite panel debe usar su propia cuenta con permisos adecuados; no se ha verificado aquí el plan contratado ni se han enviado invitaciones. El propietario gestiona miembros desde [Settings → Members](https://vercel.com/miguels-projects-b8307fdb/~/settings/members).
 
@@ -22,8 +22,8 @@ No compartir la cuenta, sesión o token del propietario. Cada colaborador que ne
 | Acción | Vía y condición |
 |---|---|
 | Publicar ramas y PR | Permisos del repositorio GitHub |
-| Disparar previews | Publicar una rama mediante la integración Git; pueden existir controles de autorización |
-| Disparar producción | Un cambio publicado en `main` puede activar el despliegue, incluidos commits de estado |
+| Disparar previews | Desactivado: `git.deploymentEnabled` sólo crea deployments Git desde `release` (D-VERCEL-002). No desplegar ramas de trabajo por CLI ni conector |
+| Disparar producción | Sólo un push a `release`, con orden del propietario (AGENTS.md). La rama de producción configurada en Vercel debe verificarse aparte |
 | Cambiar variables, dominio o versión desde el panel | Acceso autorizado a Vercel |
 
 Asignar Vercel a Codex es una regla de coordinación, no un bloqueo técnico de despliegues de otros autores. Coordinar los merges y comprobar siempre el SHA publicado; no asumir que controlar el panel evita que GitHub active un build. Ver [integración Git](https://vercel.com/docs/git).
@@ -44,6 +44,8 @@ El lector público `getSupabaseEnv()` exige una clave con prefijo `sb_publishabl
 
 ## Preview y diagnóstico del build
 
+Desde D-VERCEL-002 (28-10-2026) **no hay previews**: el plan gratuito agotó el límite de 100 deployments diarios (`api-deployments-free-per-day`), consumidos por commits de estado en `main` y pushes de ramas de PR. `vercel.json` incluye `"git": {"deploymentEnabled": {"**": false, "release": true}}`: Vercel no crea deployment alguno para otra rama, ni siquiera uno cancelado. La verificación de ramas y PR se hace en local y en CI (incluidos los E2E con Supabase local). Los pasos siguientes son históricos y sólo aplican si el propietario reactiva previews.
+
 1. Publicar la rama de la tarea y abrir su PR; observar el deployment vinculado al SHA esperado.
 2. En Deployments, comprobar destino **Preview**, framework **Next.js**, variables dev y logs de instalación/build.
 3. Abrir la URL y verificar la aplicación por HTTPS, rutas y conexión a dev. Si Deployment Protection pide acceso, usar una sesión autorizada; registrar la limitación si no puede comprobarse.
@@ -51,9 +53,17 @@ El lector público `getSupabaseEnv()` exige una clave con prefijo `sb_publishabl
 
 Diagnóstico observado: las PR #59 y #65 fallaban con `STATIC_BUILD_NO_OUT_DIR`, buscando `public` pese a terminar `next build`. El framework estaba sin seleccionar. Se corrigió a `nextjs` y se dejaron `rootDirectory`, `outputDirectory`, `buildCommand` e `installCommand` sin sobrescrituras, usando los valores predeterminados de Next.js.
 
-Para el arranque documental, el Ignored Build Step es `test ! -f package.json`: omite únicamente checkouts sin manifest. Se comprobaron antes de configurarlo tres casos: sin manifest (exit 0, omitir), manifest presente (exit 1, compilar) y manifest inválido (exit 1, dejar que el build informe del error). No omite builds de una app por cambiar sólo documentación.
+El Ignored Build Step versionado es `node scripts/vercel-ignore-build.mjs`. Con `git.deploymentEnabled` sólo llegan a él los commits de `release`; se mantiene como segunda barrera:
 
-`vercel.json` versiona `framework: nextjs` y ese mismo `ignoreCommand`, conservando los valores predeterminados de instalación, build y salida. Sus propiedades y la semántica de los códigos de salida se contrastaron con la [referencia oficial de configuración](https://vercel.com/docs/project-configuration/vercel-json).
+- Sin `package.json`: exit 0, omitir.
+- Rama `main`: exit 0, omitir, incluso en Preview. Los commits de estado no necesitan un deployment.
+- Target Production desde una rama distinta de `release`, o sin referencia de rama: exit 0, omitir.
+- Production desde `release`, o Preview desde otra rama: exit 1, continuar el build.
+- Un manifest inválido no se interpreta: continuar permite que el build muestre el error real.
+
+Los doce casos de integración se prueban ejecutando el script con Node en checkouts temporales desde Vitest. El script decide si compilar; **no cambia la rama de producción del proyecto, no autoriza una versión y no protege despliegues que omitan el build**. Antes de una publicación sigue siendo obligatorio configurar/verificar `release` en el panel y cumplir la autorización de AGENTS.md.
+
+`vercel.json` versiona `framework: nextjs` y el comando anterior, conservando los valores predeterminados de instalación, build y salida. Sus propiedades y la semántica de los códigos de salida se contrastaron con la [referencia oficial de configuración](https://vercel.com/docs/project-configuration/vercel-json).
 
 MVP-008 se cerró mediante [PR #70](https://github.com/migdlp/opinion-social-media/pull/70), merge `e877f02`: [CI 40577319870](https://github.com/migdlp/opinion-social-media/actions/runs/40577319870) verde (aplicación, build, SQL y secretos), preview Git automática del SHA `2aadfbf` READY y rutas `/`, `/login`, `/create` con HTTP 200 mediante acceso autorizado. Se confirmó la separación dev/prod. Las previews históricas siguientes conservan su alcance original.
 
@@ -112,7 +122,7 @@ Sustituir el marcador por la URL exacta del deployment probado, autorizar sólo 
 ### Publicación y redeploy
 
 1. Verificar dependencias de MVP-049: MVP-008, MVP-022, MVP-047 y MVP-048 completas. No confundir sus PR con el cumplimiento de OAuth, pruebas y recuperación previas.
-2. Coordinar el merge: la integración Git puede desplegar **cada commit en `main`, incluidos los de estado**. No hay aquí garantía de que Vercel espere o bloquee automáticamente por CI; comprobar los checks antes del merge y seguir el deployment disparado por su SHA exacto.
+2. Verificar el guard y la rama de producción `release`. Coordinar la PR de versión con el propietario: `git.deploymentEnabled` sólo crea deployments desde `release` y el Ignored Build Step lo refuerza; ni `main` ni las ramas de trabajo generan Preview. Cada push a `release` crea un deployment de producción: fusionar la PR de versión en un único merge. Vercel no garantiza por este script que espere a CI; comprobar los checks antes del merge autorizado a `release` y seguir el deployment por su SHA exacto.
 3. Verificar en Deployments destino **Production**, SHA, variables prod, logs y dominio. READY sólo confirma build/deployment; no autoriza declarar el MVP listo.
 4. Si hace falta redeploy, elegir el deployment del SHA correcto en el panel y **Redeploy**; confirmar target, configuración y variables que se incorporarán antes de ejecutarlo. Un cambio de `NEXT_PUBLIC_*` requiere un build nuevo; no promover una preview compilada contra dev como si fuera prod.
 5. Comprobar HTTPS, feed/detalle públicos, Google login/retorno, sesión y logout, publicación y voto con dos cuentas autorizadas, voto inmutable y ausencia de resultados antes de votar incluso para el autor. Revisar bundle, peticiones, RLS, contadores y separación de bases; no registrar tokens ni datos personales en evidencias públicas.
@@ -150,10 +160,22 @@ Ensayar primero sobre **Supabase local aislado**, sin usuarios ni datos comparti
 
 ## Estado y siguiente tarea
 
+Actualizado el 28-10-2026; el estado vivo está en [tareas](tareas-futuras.md).
+
 - MVP-008 completada con PR #70; MVP-004 completada con PR #65, según las evidencias anteriores.
-- MVP-048: runbook preparado; comprobaciones documentales y PR/merge deben quedar registradas antes de cerrarla. No requiere provocar un desastre, pero la ejecución productiva debe satisfacer sus preflight.
-- MVP-049: tras integrar MVP-048, queda como dependencia directa MVP-047 (README, que requiere MVP-006/022/023). Google está habilitado, pero las páginas `/login` y `/create` aún son placeholders: no permiten acreditar login ni publicación/voto en producción. No aplicar SQL productivo ni cerrar despliegue por el scaffold.
-- MVP-050: bloqueada por MVP-044/045/046/049; después ejecutar checklist funcional y de seguridad con evidencias.
-- MVP-051: bloqueada por MVP-047/049/050; consolidar versión y checklist global sin declarar el MVP listo con criterios pendientes.
+- MVP-048 completada (PR #79): este runbook. Documenta el procedimiento; no acredita una copia de seguridad ensayada.
+- MVP-049: sus dependencias (MVP-008, MVP-022, MVP-047 y MVP-048) están completadas. `/login`, `/create`, el voto y los resultados ya son funcionales y están cubiertos por los E2E de MVP-045 (`npm run test:e2e`). Requiere orden explícita del propietario para la versión (AGENTS.md, despliegues por sprint) y cumplir el preflight: copia de prod ensayada, migraciones pendientes revisadas, URL de producción en Supabase Auth y Google, y rama de producción `release` en Vercel.
+- MVP-050: bloqueada por MVP-046 (en revisión) y MVP-049; después, checklist funcional y de seguridad con evidencias.
+- MVP-051: bloqueada por MVP-049/050; consolidar versión y checklist global sin declarar el MVP listo con criterios pendientes.
 
 El estado vivo y responsables están en [tareas](tareas-futuras.md); [estado del proyecto](estado-proyecto.md) conserva las observaciones fechadas, algunas históricas.
+
+## Preflight revisado el 28-10-2026 por Codex
+
+- Las dependencias de MVP-049 ya están completadas; el bloqueo antiguo por esas dependencias se sustituye por los requisitos reales de publicación.
+- Supabase dev: tres tablas propias con RLS y ocho migraciones. Supabase prod: `public` sin tablas y ledger de migraciones vacío. Quedan ocho migraciones del MVP pendientes en producción; no se han aplicado durante esta revisión.
+- Auth público responde HTTP 200 en dev y prod; Google y Email están activos en ambos. MVP-005 mantiene su responsable; no se cambian proveedores en esta tarea.
+- Vercel conserva siete registros de variables con targets separados. Se consultaron metadatos sin pedir descifrado. Esta lectura no verifica el contenido de las claves ni los callbacks OAuth.
+- Los deployments recientes de `main` aparecen con `target: null` (Preview) y READY. No afirmar por el documento histórico que hoy sean Production. `get_project` y `list_projects` no exponen aquí `link.productionBranch`; falta verificar la rama desde el panel o una API que la exponga.
+- No hay una conexión de navegador ni credenciales de CLI Vercel disponibles en este entorno. El conector permite leer proyectos y otras configuraciones, pero su operación `update_project` no expone el cambio de rama Git de producción. No se ha intentado sustituir esa autorización con claves Supabase.
+- Pendientes antes de publicar: orden del propietario para el SHA/versión, rama `release` verificada, copia y ensayo de recuperación, revisión/aplicación de migraciones pendientes y configuración/flujo OAuth productivo verificados. No se hizo merge a `release`, despliegue productivo, migración productiva ni restauración.

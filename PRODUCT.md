@@ -18,7 +18,7 @@ Opinión es una red social sencilla de encuestas públicas. El ciclo es **explor
 
 ## Positioning
 
-Los resultados sólo se descubren después de votar, y esa regla la impone el backend (RLS y RPC en Supabase), no sólo la interfaz. Nadie, ni siquiera quien creó la encuesta, ve recuentos, porcentajes ni totales antes de votar. Votar es la llave para descubrir qué opinan los demás.
+Los resultados sólo se descubren después de votar, y esa regla la impone el backend (RLS y RPC en Supabase), no sólo la interfaz. En encuestas abiertas nadie, ni siquiera quien las creó, ve recuentos, porcentajes ni totales antes de votar. Las cerradas mantienen la excepción de D-020 para quien pueda verlas. Votar es la llave para descubrir qué opinan los demás.
 
 ## Operating Context
 
@@ -29,22 +29,23 @@ Los resultados sólo se descubren después de votar, y esa regla la impone el ba
 
 ## Capabilities and Constraints
 
-- Pregunta de 10–280 caracteres; 2–4 opciones de 1–100 caracteres; espacios normalizados; sin opciones duplicadas (ignorando mayúsculas, respetando tildes).
+- Pregunta de 10–280 caracteres; 2–6 opciones de 1–100 caracteres; espacios normalizados; sin opciones duplicadas (ignorando mayúsculas, respetando tildes).
 - Un voto único e inmutable por cuenta y encuesta. Se puede votar en las encuestas propias.
 - Resultados: todas las opciones (también con 0 votos), recuento, porcentaje con un decimal, total y opción propia señalada.
 - Máximo cinco publicaciones por cuenta y hora.
 - Moderación manual: una encuesta oculta desaparece de todas partes y su página responde como no disponible.
-- Sin perfiles, usernames, seguidores, comentarios, likes, mensajes, notificaciones, imágenes, edición, borradores ni encuestas privadas.
+- Perfiles con @usuario, seguidores y privacidad de cuenta según D-016–D-018 y backlog-v2. Comentarios, likes, mensajes y notificaciones siguen fuera del alcance; la referencia creativa no los incorpora.
 - Stack fijado: Next.js App Router, React, TypeScript, Tailwind CSS, Supabase y Vercel (`docs/arquitectura.md`, D-014).
 - Fuente del detalle: `docs/brief-producto.md`, `docs/contexto-aplicacion.md`, `docs/contratos-api.md`.
 
 ## Brand Commitments
 
 - Nombre: **Opinión**, confirmado para el MVP.
-- Autor genérico: **«Anónimo»**. No se muestran email, nombre de Google ni identidad de votantes.
+- Encuestas firmadas con **@usuario** según D-016; «Anónimo» sólo como fallback sin perfil. No publicar email ni nombre/foto de Google automáticamente; votos de perfil según D-018 y autorización del backend.
 - Idioma: español de España.
 - Personalidad: **curiosa y lúdica**. Descubrir los resultados es una pequeña sorpresa; tono cercano y con algo de chispa.
-- El brief pide un diseño sencillo y moderno, sin identidad visual compleja. No hay logotipo ni activos de marca.
+- Dirección visual provisional: **After Sunset**, basada en la lámina PEEK enviada por el propietario el 28-10-2026 (D-026). Azul noche, blanco frío, melocotón y lavanda; curiosidad, mirada y revelación. Sustituye la dirección monocroma anterior.
+- Leer [DESIGN.md](DESIGN.md) y [la guía creativa](docs/direccion-creativa.md). «PEEK» no confirma un cambio de nombre; no hay todavía logo vectorial ni activos finales de esa referencia. La base CSS y los CTA compartidos se adaptan en DESIGN-002; los recorridos principales se adaptan en DESIGN-003 y las imágenes sociales se adaptan en DESIGN-005 y perfiles/revisión final siguen en DESIGN-004 y DESIGN-006.
 
 ## Evidence on Hand
 
@@ -55,7 +56,7 @@ No hay usuarios reales, testimonios, métricas ni imágenes. Los únicos datos s
 1. Votar primero, descubrir después: la interfaz nunca insinúa resultados antes del voto.
 2. Lo importante son las preguntas y las respuestas de la gente; la interfaz las enmarca sin competir con ellas.
 3. Del enlace al voto en segundos: cada pantalla sirve al ciclo explorar → votar → descubrir.
-4. Anonimato por defecto: nada en la interfaz identifica a quien publica o vota.
+4. Privacidad explícita: mostrar sólo la identidad y las elecciones permitidas por el perfil y el backend; no importar claims de privacidad de la lámina como requisitos nuevos.
 5. Sencillez antes que funciones: lo que queda fuera del MVP no aparece ni insinuado.
 
 ## Accessibility & Inclusion

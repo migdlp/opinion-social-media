@@ -13,6 +13,23 @@ const BUSINESS: AppErrorCode[] = [
   "OPTION_INVALID",
   "ALREADY_VOTED",
   "NOT_VOTED",
+  "ALREADY_REPORTED",
+  "REPORT_RATE_LIMITED",
+  "REPORT_INVALID",
+  "INVALID_CLOSES_AT",
+  "PROFILE_PRIVATE",
+  "POLL_CLOSED",
+  "INVALID_CATEGORY",
+  "INVALID_CURSOR",
+  "INVALID_FEED_MODE",
+  "USERNAME_INVALID",
+  "USERNAME_TAKEN",
+  "USERNAME_RESERVED",
+  "DISPLAY_NAME_INVALID",
+  "PROFILE_REQUIRED",
+  "USER_NOT_FOUND",
+  "CANNOT_FOLLOW_SELF",
+  "FOLLOW_RATE_LIMITED",
 ];
 
 describe("toAppError", () => {
@@ -64,5 +81,11 @@ describe("ERROR_MESSAGES", () => {
     for (const message of Object.values(ERROR_MESSAGES)) {
       expect(message).not.toMatch(/sql|postgres|rpc|P0001|42501|stack|supabase|null|undefined/i);
     }
+  });
+});
+
+describe("VALIDATION_OPTION_COUNT", () => {
+  it("anuncia el rango vigente de 2 a 6 opciones", () => {
+    expect(ERROR_MESSAGES.VALIDATION_OPTION_COUNT).toBe("Añade entre 2 y 6 opciones.");
   });
 });
