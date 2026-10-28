@@ -16,7 +16,10 @@ async function chooseAsVisitor(page: Page, pollId: string, option: string) {
   await page.getByRole("radio", { name: option }).check();
   await page.getByRole("button", { name: "Votar" }).click();
   const href =
-    (await page.getByRole("link", { name: "Iniciar sesión" }).getAttribute("href")) ?? "";
+    (await page
+      .locator("#contenido")
+      .getByRole("link", { name: "Iniciar sesión" })
+      .getAttribute("href")) ?? "";
   const next = new URL(href, "http://localhost").searchParams.get("next") ?? "";
   expect(next).toMatch(new RegExp(`^/polls/${pollId}\\?elige=[0-9a-f-]{36}$`));
   expect(await votesOf(pollId)).toHaveLength(0);
