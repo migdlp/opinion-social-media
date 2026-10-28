@@ -191,6 +191,21 @@ public.get_profile_votes(p_username text, p_cursor text default null)
 - **P-1:** `option_id` y `option_text` sólo vienen informados si el visitante es el propio usuario, si ya votó esa encuesta o si está cerrada; si no, `choice_hidden = true` y ambos `null`. Nunca recuentos ni porcentajes (esos se piden con `get_poll_results`, §3.3).
 - Adaptador: `getProfileVotes(supabase, username, cursor)` → `{ votes: ProfileVote[], nextCursor }`.
 
+### 3.10. `get_profile` y `get_profile_polls` (V2-006)
+
+```sql
+public.get_profile(p_username text)
+  returns table (username text, display_name text, is_private boolean, followers_count integer,
+                 following_count integer, polls_count integer, viewer_relation text, can_view_content boolean)
+public.get_profile_polls(p_username text, p_cursor text default null)
+  returns table (poll_id uuid, created_at timestamptz, cursor text)
+```
+
+- Ejecutables por `anon` y `authenticated`. Errores: `USER_NOT_FOUND` y, en `get_profile_polls`, `PROFILE_PRIVATE`.
+- `get_profile` devuelve la cabecera y los contadores (seguidores y seguidos **aceptados**, encuestas publicadas), que son públicos también en cuentas privadas (S-4). `viewer_relation`: `self`, `following`, `pending` o `none` (sin sesión, `none`). `can_view_content` = `can_view_author` del perfil.
+- `get_profile_polls` sólo devuelve ids y cursor (hasta 21 filas, mismo formato de cursor que `get_profile_votes`); el adaptador `getProfilePolls` pide después las encuestas por RLS (`polls ... in (ids)`) y les añade el estado de voto como el feed.
+- Adaptadores: `getProfileView`, `getProfilePolls`, `followUser`, `unfollowUser`.
+
 ## 4. Lecturas directas (RLS)
 
 `categories` (V2-021) es de lectura pública (`slug, name, position`) y sin escrituras de clientes; el formulario de creación la lee con `getCategories`. Feed y detalle incluyen `category:categories(slug, name)`.

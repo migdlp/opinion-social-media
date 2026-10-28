@@ -8,11 +8,13 @@ type FeedListProps = {
   page: Result<FeedPage>;
   loadMore: (cursor: string) => Promise<Result<FeedPage>>;
   now?: Date;
+  // Estado vacío propio (p. ej. el perfil de alguien sin encuestas); por defecto, el del feed.
+  empty?: { title: string; description: string; action?: { href: string; label: string } };
 };
 
 // Lista del feed público: tarjetas en el orden que da el adaptador (más reciente
 // primero), un estado vacío útil o un error recuperable sin romper la página.
-export function FeedList({ page, loadMore, now }: FeedListProps) {
+export function FeedList({ page, loadMore, now, empty }: FeedListProps) {
   if (!page.ok) {
     return (
       <div role="alert">
@@ -28,9 +30,9 @@ export function FeedList({ page, loadMore, now }: FeedListProps) {
   if (page.data.items.length === 0) {
     return (
       <EmptyState
-        title="Todavía no hay encuestas"
-        description="Sé la primera persona en preguntar algo."
-        action={{ href: "/create", label: "Crear la primera encuesta" }}
+        title={empty?.title ?? "Todavía no hay encuestas"}
+        description={empty?.description ?? "Sé la primera persona en preguntar algo."}
+        action={empty ? empty.action : { href: "/create", label: "Crear la primera encuesta" }}
       />
     );
   }
