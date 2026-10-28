@@ -658,7 +658,7 @@ La [auditoría](auditoria-tareas.md) añade nueve tareas P0 de implementación v
 | [SEC-001](https://github.com/migdlp/opinion-social-media/issues/193) | Impedir que borrar seguimientos reinicie la cuota | P0 | M | V2-004 |
 | [OPS-001](https://github.com/migdlp/opinion-social-media/issues/194) | Integrar las migraciones de fase 2 en Supabase dev | P0 | L | V2-007, V2-014, V2-021, V2-031, SEC-001 |
 | [OPS-002](https://github.com/migdlp/opinion-social-media/issues/195) | Validar fase 2 integrada con Google real en desarrollo | P0 | L | OPS-001, MVP-005, V2-025, V2-036 |
-| [DOC-001](https://github.com/migdlp/opinion-social-media/issues/196) | Actualizar documentación operativa al candidato de fase 2 | P0 | M | OPS-002, DESIGN-006 |
+| [DOC-009](https://github.com/migdlp/opinion-social-media/issues/196) | Actualizar documentación operativa al candidato de fase 2 | P0 | M | OPS-002, DESIGN-006 |
 
 ### V2-052 — Conservar la elección al iniciar sesión
 
