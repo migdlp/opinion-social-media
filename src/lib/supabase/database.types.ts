@@ -3,6 +3,28 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      follows: {
+        Row: {
+          created_at: string;
+          followee_id: string;
+          follower_id: string;
+          status: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          followee_id: string;
+          follower_id: string;
+          status: string;
+        };
+        Update: {
+          created_at?: string;
+          followee_id?: string;
+          follower_id?: string;
+          status?: string;
+        };
+        Relationships: [];
+      };
       poll_options: {
         Row: {
           id: string;
@@ -132,6 +154,7 @@ export type Database = {
     };
     Functions: {
       create_poll: { Args: { p_options: string[]; p_question: string }; Returns: string };
+      follow_user: { Args: { p_username: string }; Returns: string };
       get_poll_results: {
         Args: { p_poll_id: string };
         Returns: {
@@ -144,7 +167,13 @@ export type Database = {
           votes: number;
         }[];
       };
+      remove_follower: { Args: { p_username: string }; Returns: undefined };
+      respond_follow_request: {
+        Args: { p_accept: boolean; p_username: string };
+        Returns: undefined;
+      };
       set_profile_privacy: { Args: { p_private: boolean }; Returns: undefined };
+      unfollow_user: { Args: { p_username: string }; Returns: undefined };
       upsert_my_profile: {
         Args: { p_display_name: string; p_username: string };
         Returns: {
