@@ -1,8 +1,18 @@
 "use server";
 
-import { followUser, getProfilePolls, getProfileVotes, unfollowUser } from "@/lib/data/operations";
+import {
+  followUser,
+  getProfilePolls,
+  getProfileVotes,
+  listFollowers,
+  listFollowing,
+  listFollowRequests,
+  removeFollower,
+  respondFollowRequest,
+  unfollowUser,
+} from "@/lib/data/operations";
 import { toAppError } from "@/lib/data/errors";
-import type { FeedPage, ProfileVote, Result } from "@/lib/data/types";
+import type { FeedPage, FollowPage, ProfileVote, Result } from "@/lib/data/types";
 import { createClient } from "@/lib/supabase/server";
 
 // Acciones de servidor del perfil (V2-006). Seguir y dejar de seguir exigen sesión (sin ella no
@@ -52,6 +62,63 @@ export async function loadMoreProfileVotes(
   try {
     const supabase = await createClient();
     return await getProfileVotes(supabase, username, cursor);
+  } catch (error) {
+    return { ok: false, error: toAppError(error) };
+  }
+}
+
+// Páginas siguientes de las listas de V2-009. Las decide la base de datos (cuenta privada, etc.).
+export async function loadMoreFollowers(
+  username: string,
+  cursor: string,
+): Promise<Result<FollowPage>> {
+  try {
+    return await listFollowers(await createClient(), username, cursor);
+  } catch (error) {
+    return { ok: false, error: toAppError(error) };
+  }
+}
+
+export async function loadMoreFollowing(
+  username: string,
+  cursor: string,
+): Promise<Result<FollowPage>> {
+  try {
+    return await listFollowing(await createClient(), username, cursor);
+  } catch (error) {
+    return { ok: false, error: toAppError(error) };
+  }
+}
+
+export async function loadMoreRequests(cursor: string): Promise<Result<FollowPage>> {
+  try {
+    return await listFollowRequests(await createClient(), cursor);
+  } catch (error) {
+    return { ok: false, error: toAppError(error) };
+  }
+}
+
+// Acciones del dueño de la cuenta: sin sesión no se llega a la base de datos.
+export async function respondRequestAction(
+  username: string,
+  accept: boolean,
+): Promise<Result<void>> {
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getUser();
+    if (!data.user) return { ok: false, error: "AUTH_REQUIRED" };
+    return await respondFollowRequest(supabase, username, accept);
+  } catch (error) {
+    return { ok: false, error: toAppError(error) };
+  }
+}
+
+export async function removeFollowerAction(username: string): Promise<Result<void>> {
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getUser();
+    if (!data.user) return { ok: false, error: "AUTH_REQUIRED" };
+    return await removeFollower(supabase, username);
   } catch (error) {
     return { ok: false, error: toAppError(error) };
   }

@@ -223,6 +223,7 @@ export type Database = {
     };
     Functions: {
       can_view_author: { Args: { p_author: string }; Returns: boolean };
+      count_follow_requests: { Args: Record<PropertyKey, never>; Returns: number };
       create_poll: {
         Args: {
           p_category?: string;
@@ -309,6 +310,30 @@ export type Database = {
           poll_id: string;
           question: string;
           voted_at: string;
+        }[];
+      };
+      list_follow_requests: {
+        Args: { p_cursor?: string };
+        Returns: {
+          cursor: string;
+          display_name: string;
+          username: string;
+        }[];
+      };
+      list_followers: {
+        Args: { p_cursor?: string; p_username: string };
+        Returns: {
+          cursor: string;
+          display_name: string;
+          username: string;
+        }[];
+      };
+      list_following: {
+        Args: { p_cursor?: string; p_username: string };
+        Returns: {
+          cursor: string;
+          display_name: string;
+          username: string;
         }[];
       };
       remove_follower: { Args: { p_username: string }; Returns: undefined };

@@ -219,6 +219,23 @@ public.get_feed_results(p_poll_ids uuid[])
 - `EXECUTE` también para `anon` (las cerradas son públicas). Hay que mantenerla sincronizada con `get_poll_results` si cambia la autorización.
 - Adaptador: `getFeedPage` hace, como máximo, una consulta de encuestas, una de votos propios y una de resultados por página (más la de autores).
 
+### 3.12. Listas de seguidores y solicitudes (V2-009)
+
+```sql
+public.list_followers(p_username text, p_cursor text default null)  -- anon + authenticated
+public.list_following(p_username text, p_cursor text default null)  -- anon + authenticated
+public.list_follow_requests(p_cursor text default null)             -- sólo authenticated
+public.count_follow_requests() returns integer                      -- sólo authenticated
+  -- las tres primeras: returns table (username text, display_name text, cursor text)
+```
+
+- `list_followers` / `list_following` siguen las reglas del contenido del perfil (`can_view_author`): errores `USER_NOT_FOUND` y `PROFILE_PRIVATE` (cuenta privada y quien mira no es ella ni seguidor aceptado, ni siquiera con solicitud pendiente). Sólo aparecen relaciones **aceptadas**; las pendientes no cuentan como seguidor ni como seguido.
+- Hasta **31 filas** (30 + 1 para saber si hay más), orden `follows.created_at DESC, lower(username) DESC`. `cursor` opaco (`<created_at UTC>|<usuario en minúsculas>`): lleva el `@usuario`, nunca `user_id`; un cursor ilegible se ignora.
+- `list_follow_requests` y `count_follow_requests` devuelven las solicitudes pendientes **recibidas por quien llama**; sin sesión, `AUTH_REQUIRED` (y `anon` no tiene `EXECUTE`).
+- Aceptar/rechazar usa `respond_follow_request` y eliminar a un seguidor `remove_follower` (§3.6). Rechazar o eliminar borra la fila; aceptar no cambia `created_at`.
+- Adaptadores: `listFollowers`, `listFollowing`, `listFollowRequests` → `{ users: FollowEntry[], nextCursor }`; `countFollowRequests`; `respondFollowRequest`, `removeFollower`.
+- Rutas: `/u/[username]/seguidores`, `/u/[username]/siguiendo` (aviso de cuenta privada sin pedir la lista; «Eliminar» sólo en los seguidores propios) y `/solicitudes` (sólo propio; sin sesión lleva al login). El indicador de pendientes está en la cabecera del perfil propio.
+
 ## 4. Lecturas directas (RLS)
 
 `categories` (V2-021) es de lectura pública (`slug, name, position`) y sin escrituras de clientes; el formulario de creación la lee con `getCategories`. Feed y detalle incluyen `category:categories(slug, name)`.

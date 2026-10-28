@@ -186,6 +186,24 @@ describe("/u/[username]", () => {
     expect(await render()).toContain("Editar perfil");
   });
 
+  it("el perfil propio muestra el número de solicitudes pendientes; el ajeno no lo pide", async () => {
+    user = { id: "u1" };
+    responses = {
+      "rpc:get_profile": { data: [header({ viewer_relation: "self" })], error: null },
+      "rpc:get_profile_polls": { data: [], error: null },
+      "rpc:count_follow_requests": { data: 2, error: null },
+    };
+    expect(await render()).toContain("Solicitudes de seguimiento: 2 pendientes");
+
+    user = null;
+    responses = {
+      "rpc:get_profile": { data: [header()], error: null },
+      "rpc:get_profile_polls": { data: [], error: null },
+    };
+    await render();
+    expect(queries.map((q) => q.target)).not.toContain("rpc:count_follow_requests");
+  });
+
   it("con muchas encuestas sin ninguna, la pestaña Creadas explica el vacío", async () => {
     responses = {
       "rpc:get_profile": { data: [header({ polls_count: 0 })], error: null },

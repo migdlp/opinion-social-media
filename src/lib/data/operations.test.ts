@@ -9,6 +9,12 @@ import {
   getProfileView,
   getProfileVotes,
   unfollowUser,
+  countFollowRequests,
+  listFollowRequests,
+  listFollowers,
+  listFollowing,
+  removeFollower,
+  respondFollowRequest,
   getPollDetail,
   getPollResults,
   reportPoll,
@@ -800,5 +806,98 @@ describe("feed: sin autorización no hay cifras (V2-023)", () => {
       ok: false,
       error: "NETWORK_ERROR",
     });
+  });
+});
+
+describe("listas de seguidores y solicitudes (V2-009)", () => {
+  const row = (n: number) => ({
+    username: `usuario_${n}`,
+    display_name: n % 2 ? `Nombre ${n}` : null,
+    cursor: `2026-10-27T10:00:00.000000Z|usuario_${n}`,
+  });
+
+  it("listFollowers mapea las filas y no pide nada más", async () => {
+    const { supabase, queries } = fakeSupabase({
+      "rpc:list_followers": { data: [row(1), row(2)], error: null },
+    });
+    expect(await listFollowers(supabase, "perfil_b", null)).toEqual({
+      ok: true,
+      data: {
+        users: [
+          { username: "usuario_1", displayName: "Nombre 1" },
+          { username: "usuario_2", displayName: null },
+        ],
+        nextCursor: null,
+      },
+    });
+    expect(queries[0].calls[0]).toEqual([
+      "rpc",
+      "list_followers",
+      { p_username: "perfil_b", p_cursor: null },
+    ]);
+  });
+
+  it("con 31 filas entrega 30 y el cursor de la última entregada", async () => {
+    const rows = Array.from({ length: 31 }, (_, i) => row(i + 1));
+    const { supabase } = fakeSupabase({ "rpc:list_following": { data: rows, error: null } });
+    const r = await listFollowing(supabase, "perfil_b", "abc");
+    expect(r.ok && r.data.users).toHaveLength(30);
+    expect(r.ok && r.data.nextCursor).toBe(rows[29].cursor);
+  });
+
+  it("propaga PROFILE_PRIVATE y USER_NOT_FOUND", async () => {
+    const priv = fakeSupabase({ "rpc:list_followers": rpcError("PROFILE_PRIVATE") });
+    expect(await listFollowers(priv.supabase, "perfil_c", null)).toEqual({
+      ok: false,
+      error: "PROFILE_PRIVATE",
+    });
+    const none = fakeSupabase({ "rpc:list_following": rpcError("USER_NOT_FOUND") });
+    expect(await listFollowing(none.supabase, "nadie", null)).toEqual({
+      ok: false,
+      error: "USER_NOT_FOUND",
+    });
+  });
+
+  it("listFollowRequests y countFollowRequests usan la sesión, sin argumentos de usuario", async () => {
+    const l = fakeSupabase({ "rpc:list_follow_requests": { data: [row(3)], error: null } });
+    const r = await listFollowRequests(l.supabase, "cur");
+    expect(r.ok && r.data.users.map((u) => u.username)).toEqual(["usuario_3"]);
+    expect(l.queries[0].calls[0]).toEqual(["rpc", "list_follow_requests", { p_cursor: "cur" }]);
+
+    const c = fakeSupabase({ "rpc:count_follow_requests": { data: 4, error: null } });
+    expect(await countFollowRequests(c.supabase)).toEqual({ ok: true, data: 4 });
+
+    const noSession = fakeSupabase({ "rpc:count_follow_requests": rpcError("AUTH_REQUIRED") });
+    expect(await countFollowRequests(noSession.supabase)).toEqual({
+      ok: false,
+      error: "AUTH_REQUIRED",
+    });
+  });
+
+  it("respondFollowRequest y removeFollower llaman a su RPC y devuelven ok", async () => {
+    const a = fakeSupabase({ "rpc:respond_follow_request": { data: null, error: null } });
+    expect(await respondFollowRequest(a.supabase, "pendiente_e", true)).toEqual({
+      ok: true,
+      data: undefined,
+    });
+    expect(a.queries[0].calls[0]).toEqual([
+      "rpc",
+      "respond_follow_request",
+      { p_username: "pendiente_e", p_accept: true },
+    ]);
+
+    const gone = fakeSupabase({ "rpc:respond_follow_request": rpcError("USER_NOT_FOUND") });
+    expect(await respondFollowRequest(gone.supabase, "x", false)).toEqual({
+      ok: false,
+      error: "USER_NOT_FOUND",
+    });
+
+    const rm = fakeSupabase({ "rpc:remove_follower": { data: null, error: null } });
+    expect(await removeFollower(rm.supabase, "seguidor_d")).toEqual({ ok: true, data: undefined });
+    expect(rm.queries[0].calls[0]).toEqual([
+      "rpc",
+      "remove_follower",
+      { p_username: "seguidor_d" },
+    ]);
   });
 });

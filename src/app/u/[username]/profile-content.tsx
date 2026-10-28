@@ -11,7 +11,12 @@ import { FeedList } from "@/components/feed-list";
 import { ProfileHeader } from "@/components/profile-header";
 import { ProfileVotes } from "@/components/profile-votes";
 import { ERROR_MESSAGES } from "@/lib/data/errors";
-import { getProfilePolls, getProfileView, getProfileVotes } from "@/lib/data/operations";
+import {
+  countFollowRequests,
+  getProfilePolls,
+  getProfileView,
+  getProfileVotes,
+} from "@/lib/data/operations";
 import { createClient } from "@/lib/supabase/server";
 
 type Params = Promise<{ username: string }>;
@@ -56,11 +61,14 @@ export async function ProfileContent({
     );
   }
   const view = profile.data;
+  // El indicador de solicitudes sólo existe en el perfil propio; si falla, se omite sin romper.
+  const requests = view.viewerRelation === "self" ? await countFollowRequests(supabase) : null;
 
   return (
     <div className="mx-auto flex w-full max-w-content flex-col gap-4">
       <ProfileHeader
         profile={view}
+        pendingRequests={requests?.ok ? requests.data : 0}
         signedIn={signedIn}
         onFollow={followAction}
         onUnfollow={unfollowAction}

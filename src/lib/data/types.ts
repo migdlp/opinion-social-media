@@ -116,6 +116,17 @@ export interface ProfileVote {
   choice: { optionId: string; text: string } | null;
 }
 
+// Persona en una lista de seguidores, seguidos o solicitudes (V2-009). Nunca incluye user_id.
+export interface FollowEntry {
+  username: string;
+  displayName: string | null;
+}
+
+export interface FollowPage {
+  users: FollowEntry[];
+  nextCursor: string | null;
+}
+
 export interface FeedItem {
   poll: PublicPoll;
   viewer: PollViewerState;
