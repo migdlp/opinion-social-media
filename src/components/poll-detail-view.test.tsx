@@ -46,6 +46,30 @@ describe("PollDetailView", () => {
     expect(screen.queryByText("Anónimo")).toBeNull();
   });
 
+  it("una cerrada de un visitante muestra los resultados y que ya no admite votos", () => {
+    const detail: PollDetail = {
+      poll: { ...DETAIL.poll, closesAt: "2026-10-27T18:00:00Z" },
+      viewer: {
+        kind: "closed",
+        signedIn: false,
+        results: {
+          pollId: DETAIL.poll.id,
+          totalVotes: 2,
+          myOptionId: null,
+          options: [
+            { id: "a", text: "Con cebolla", position: 1, votes: 1, percentage: 50 },
+            { id: "b", text: "Sin cebolla", position: 2, votes: 1, percentage: 50 },
+          ],
+        },
+      },
+    };
+    render(<PollDetailView detail={detail} castVote={castVote} now={NOW} />);
+
+    expect(screen.getAllByText("50,0 %")).toHaveLength(2);
+    expect(screen.getByText("Cerrada hace 2 h")).toBeDefined();
+    expect(screen.queryAllByRole("radio")).toHaveLength(0);
+  });
+
   it("muestra la etiqueta de la categoría", () => {
     const detail = {
       ...DETAIL,

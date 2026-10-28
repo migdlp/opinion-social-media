@@ -74,12 +74,18 @@ export interface OptionResult extends PollOption {
 export interface PollResults {
   pollId: string;
   totalVotes: number;
-  myOptionId: string;
+  // Nulo en una encuesta cerrada para quien no votó o no tiene sesión (V2-014).
+  myOptionId: string | null;
   options: OptionResult[];
 }
 
 export type PollViewerState =
-  { kind: "anonymous" } | { kind: "not_voted" } | { kind: "voted"; results: PollResults };
+  | { kind: "anonymous" }
+  | { kind: "not_voted" }
+  | { kind: "voted"; results: PollResults }
+  // Encuesta cerrada (D-020): resultados públicos para quien no votó. signedIn distingue al
+  // visitante de quien tiene sesión (informa a la interfaz, p. ej. para denunciar).
+  | { kind: "closed"; results: PollResults; signedIn: boolean };
 
 export interface FeedItem {
   poll: PublicPoll;
