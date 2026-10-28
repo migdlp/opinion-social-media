@@ -154,7 +154,7 @@ Tareas de [backlog adicional](backlog-adicional.md), añadidas por la [auditorí
 | [SEC-001](https://github.com/migdlp/opinion-social-media/issues/193) | Impedir que borrar seguimientos reinicie la cuota | P0 | V2-004 | Pendiente | — |
 | [OPS-001](https://github.com/migdlp/opinion-social-media/issues/194) | Integrar las migraciones de fase 2 en Supabase dev | P0 | V2-007, V2-014, V2-021, V2-031, SEC-001 | Pendiente | — |
 | [OPS-002](https://github.com/migdlp/opinion-social-media/issues/195) | Validar fase 2 integrada con Google real en desarrollo | P0 | OPS-001, MVP-005, V2-025, V2-036 | Pendiente | — |
-| [DOC-001](https://github.com/migdlp/opinion-social-media/issues/196) | Actualizar documentación operativa al candidato de fase 2 | P0 | OPS-002, DESIGN-006 | Pendiente | — |
+| [DOC-009](https://github.com/migdlp/opinion-social-media/issues/196) | Actualizar documentación operativa al candidato de fase 2 | P0 | OPS-002, DESIGN-006 | Pendiente | — |
 | [V2-052](https://github.com/migdlp/opinion-social-media/issues/169) | Conservar la elección al iniciar sesión (issue existente) | P1 | — | Pendiente | — |
 
 ## Auditoría de cobertura
@@ -162,7 +162,6 @@ Tareas de [backlog adicional](backlog-adicional.md), añadidas por la [auditorí
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|
 | [AUDIT-001](https://github.com/migdlp/opinion-social-media/issues/187) | Completar tareas faltantes del alcance aprobado | P0 | — | Completada: [PR #197](https://github.com/migdlp/opinion-social-media/pull/197), merge `88ccee8`; CI verde (12 checks); verificación documental. Trabajo de Codex /root integrado por traspaso del propietario | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY); autor del trabajo: Codex /root (opinion_social_media) |
-
 | [AUDIT-002](https://github.com/migdlp/opinion-social-media/issues/210) | Corregir ID duplicado de documentación operativa | P0 | — | En progreso | Codex /root (opinion_social_media) |
 
 ## Condición de cierre

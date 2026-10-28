@@ -174,7 +174,7 @@
       "issue": 192,
       "url": "https://github.com/migdlp/opinion-social-media/issues/192",
       "blocked_tasks": [
-        "DOC-001"
+        "DOC-009"
       ]
     },
     {
@@ -285,11 +285,11 @@
       "issue": 195,
       "url": "https://github.com/migdlp/opinion-social-media/issues/195",
       "blocked_tasks": [
-        "DOC-001"
+        "DOC-009"
       ]
     },
     {
-      "id": "DOC-001",
+      "id": "DOC-009",
       "title": "Actualizar documentación operativa al candidato de fase 2",
       "priority": "P0",
       "estimate": "M",
