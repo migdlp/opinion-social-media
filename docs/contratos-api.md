@@ -33,6 +33,11 @@ Modelo de datos: el del [brief §5](brief-producto.md#5-modelo-de-datos-obligato
 | `OPTION_INVALID` | `vote_poll` | La opción no existe o pertenece a otra encuesta | «Esa opción no es válida para esta encuesta.» |
 | `ALREADY_VOTED` | `vote_poll` | La cuenta ya tenía voto en la encuesta (incluida una carrera perdida) | No es un fallo: la interfaz pasa a «Ya has votado» y pide resultados |
 | `NOT_VOTED` | `get_poll_results` | La cuenta (incluido el autor) aún no ha votado | No se muestra: la interfaz enseña el selector de voto |
+| `USERNAME_INVALID` | `upsert_my_profile` | `p_username` nulo o fuera de `^[a-z][a-z0-9_]{2,19}$` tras pasar a minúsculas (sin recortar espacios) | «El usuario debe tener de 3 a 20 caracteres (letras minúsculas, números o _) y empezar por una letra.» |
+| `USERNAME_TAKEN` | `upsert_my_profile` | Otro perfil ya usa ese `@usuario` (sin distinguir mayúsculas) | «Ese usuario ya está en uso. Prueba con otro.» |
+| `USERNAME_RESERVED` | `upsert_my_profile` | Nombre de la lista reservada (`admin`, `settings`, `u`, `api`…) | «Ese usuario está reservado. Prueba con otro.» |
+| `DISPLAY_NAME_INVALID` | `upsert_my_profile` | Nombre visible normalizado fuera de 1–50 (vacío incluido; `null` es válido) | «El nombre debe tener entre 1 y 50 caracteres.» |
+| `PROFILE_REQUIRED` | `set_profile_privacy` | La cuenta aún no tiene perfil | «Elige primero tu usuario.» |
 | `NETWORK_ERROR` | Adaptador (cliente) | `fetch` falla o no llega respuesta | «No hay conexión. Comprueba tu red y vuelve a intentarlo.» |
 | `UNKNOWN` | Adaptador (cliente) | Cualquier otro error | «Algo ha fallado. Vuelve a intentarlo.» |
 
@@ -41,10 +46,12 @@ Orden de comprobación dentro de cada RPC (determina qué código gana si hay va
 - `create_poll`: `AUTH_REQUIRED` → `VALIDATION_OPTION_COUNT` → `VALIDATION_QUESTION_LENGTH` → `VALIDATION_OPTION_LENGTH` → `VALIDATION_OPTION_DUPLICATE` → `RATE_LIMITED`.
 - `vote_poll`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `OPTION_INVALID` → `ALREADY_VOTED`.
 - `get_poll_results`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `NOT_VOTED`. Ningún agregado se calcula antes de superar las tres.
+- `upsert_my_profile`: `AUTH_REQUIRED` → `USERNAME_INVALID` → `USERNAME_RESERVED` → `DISPLAY_NAME_INVALID` → `USERNAME_TAKEN`.
+- `set_profile_privacy`: `AUTH_REQUIRED` → `PROFILE_REQUIRED`.
 
 ## 3. RPC
 
-Las tres funciones: `EXECUTE` sólo para `authenticated`, revocado a `PUBLIC` y `anon`. Si son `SECURITY DEFINER`, llevan `SET search_path = ''` y referencias cualificadas (`public.polls`). Detalle de endurecimiento en MVP-020.
+Las funciones: `EXECUTE` sólo para `authenticated`, revocado a `PUBLIC` y `anon`. Si son `SECURITY DEFINER`, llevan `SET search_path = ''` y referencias cualificadas (`public.polls`). Detalle de endurecimiento en MVP-020.
 
 ### 3.1. `create_poll`
 
@@ -95,6 +102,18 @@ public.get_poll_results(p_poll_id uuid)
 - La suma de porcentajes puede no ser exactamente 100,0 por el redondeo; se acepta.
 - **No contiene** `user_id`, identidades de votantes, fechas de voto ni otro dato por votante. Sólo agregados por opción, el total y la opción propia.
 - Sin caché compartida: se llama con la sesión del usuario y la página que la usa es dinámica (`no-store`).
+
+### 3.4. `upsert_my_profile` y `set_profile_privacy` (V2-001)
+
+```sql
+public.upsert_my_profile(p_username text, p_display_name text)
+  returns table (username text, display_name text, is_private boolean, created_at timestamptz)
+public.set_profile_privacy(p_private boolean) returns void
+```
+
+- `upsert_my_profile` crea o edita el perfil de `auth.uid()`; `username` se guarda en minúsculas y `display_name` se normaliza como en §1. No cambia `is_private`. Nunca devuelve `user_id`.
+- `set_profile_privacy` cambia `is_private`. Al pasar a pública deberá aceptar las solicitudes pendientes (hueco para V2-004).
+- Lectura directa: `profiles.select('username, display_name, is_private, created_at')` para `anon` y `authenticated`. `user_id` y `updated_at` no se conceden.
 
 ## 4. Lecturas directas (RLS)
 
@@ -149,6 +168,11 @@ export type AppErrorCode =
   | 'OPTION_INVALID'
   | 'ALREADY_VOTED'
   | 'NOT_VOTED'
+  | 'USERNAME_INVALID'
+  | 'USERNAME_TAKEN'
+  | 'USERNAME_RESERVED'
+  | 'DISPLAY_NAME_INVALID'
+  | 'PROFILE_REQUIRED'
   | 'NETWORK_ERROR'
   | 'UNKNOWN'
 

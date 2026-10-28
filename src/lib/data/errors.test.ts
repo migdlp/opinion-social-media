@@ -13,6 +13,11 @@ const BUSINESS: AppErrorCode[] = [
   "OPTION_INVALID",
   "ALREADY_VOTED",
   "NOT_VOTED",
+  "USERNAME_INVALID",
+  "USERNAME_TAKEN",
+  "USERNAME_RESERVED",
+  "DISPLAY_NAME_INVALID",
+  "PROFILE_REQUIRED",
 ];
 
 describe("toAppError", () => {
