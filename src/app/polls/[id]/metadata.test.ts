@@ -51,7 +51,7 @@ describe("pollMetadata (/polls/[id])", () => {
     expect(metadata.twitter).toMatchObject({ card: "summary", title: row.question });
     expect(JSON.stringify(metadata)).not.toMatch(/\d\s*%|\bvotos\b|total/i);
     // Sólo se consulta la encuesta pública: nada de votos ni del RPC de resultados.
-    expect(queries.map((q) => q.target)).toEqual(["polls"]);
+    expect(queries.map((q) => q.target)).toEqual(["polls", "rpc:get_poll_authors"]);
   });
 
   it("una encuesta inexistente u oculta no revela nada y no se indexa", async () => {

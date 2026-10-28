@@ -3,7 +3,7 @@
 // pide polls.user_id ni nada de votos ajenos.
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { toAppError } from "./errors";
-import type { PollOption, PublicPoll, Result } from "./types";
+import type { PollAuthor, PollOption, PublicPoll, Result } from "./types";
 
 export const FEED_PAGE_SIZE = 20;
 
@@ -40,12 +40,31 @@ export function decodeFeedCursor(value: string | null | undefined): FeedCursor |
   }
 }
 
-function toPublicPoll(row: PollRow): PublicPoll {
+type AuthorRow = { poll_id: string; username: string; display_name: string | null };
+
+// Autores de un lote de encuestas con una sola RPC (los clientes no leen polls.user_id).
+// Las encuestas cuyo autor no tiene perfil no aparecen: se muestran como «Anónimo».
+async function getAuthors(
+  supabase: SupabaseClient,
+  pollIds: string[],
+): Promise<Result<Map<string, PollAuthor>>> {
+  const authors = new Map<string, PollAuthor>();
+  if (pollIds.length === 0) return { ok: true, data: authors };
+  const { data, error } = await supabase.rpc("get_poll_authors", { p_poll_ids: pollIds });
+  if (error) return { ok: false, error: toAppError(error) };
+  for (const row of (data ?? []) as AuthorRow[]) {
+    authors.set(row.poll_id, { username: row.username, displayName: row.display_name });
+  }
+  return { ok: true, data: authors };
+}
+
+function toPublicPoll(row: PollRow, author: PollAuthor | null): PublicPoll {
   return {
     id: row.id,
     question: row.question,
     createdAt: row.created_at,
     closesAt: row.closes_at,
+    author,
     options: [...row.poll_options].sort((a, b) => a.position - b.position),
   };
 }
@@ -81,7 +100,19 @@ export async function getFeedPolls(
       ? encodeFeedCursor({ createdAt: last.created_at, id: last.id })
       : null;
 
-  return { ok: true, data: { polls: page.map(toPublicPoll), nextCursor } };
+  const authors = await getAuthors(
+    supabase,
+    page.map((row) => row.id),
+  );
+  if (!authors.ok) return authors;
+
+  return {
+    ok: true,
+    data: {
+      polls: page.map((row) => toPublicPoll(row, authors.data.get(row.id) ?? null)),
+      nextCursor,
+    },
+  };
 }
 
 export async function getPublicPoll(
@@ -101,7 +132,11 @@ export async function getPublicPoll(
   // Inexistente y oculta son indistinguibles: RLS no devuelve la fila.
   if (!data) return { ok: false, error: "POLL_UNAVAILABLE" };
 
-  return { ok: true, data: toPublicPoll(data as PollRow) };
+  const row = data as PollRow;
+  const authors = await getAuthors(supabase, [row.id]);
+  if (!authors.ok) return authors;
+
+  return { ok: true, data: toPublicPoll(row, authors.data.get(row.id) ?? null) };
 }
 
 // Sólo con sesión: anon no tiene acceso a votes (MVP-012) y recibe AUTH_REQUIRED.

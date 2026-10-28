@@ -172,7 +172,7 @@ describe("getPollDetail", () => {
       ok: true,
       data: { poll: { id: P1 }, viewer: { kind: "anonymous" } },
     });
-    expect(queries.map((q) => q.target)).toEqual(["polls"]);
+    expect(queries.map((q) => q.target)).toEqual(["polls", "rpc:get_poll_authors"]);
   });
 
   it("con sesión y sin voto: not_voted, sin pedir resultados", async () => {
@@ -182,7 +182,7 @@ describe("getPollDetail", () => {
     });
     const r = await getPollDetail(supabase, P1, { signedIn: true });
     expect(r).toMatchObject({ ok: true, data: { viewer: { kind: "not_voted" } } });
-    expect(queries.map((q) => q.target)).toEqual(["polls", "votes"]);
+    expect(queries.map((q) => q.target)).toEqual(["polls", "rpc:get_poll_authors", "votes"]);
   });
 
   it("con sesión y voto: voted con resultados", async () => {
@@ -199,6 +199,7 @@ describe("getPollDetail", () => {
           id: P1,
           question: "¿Pregunta de prueba?",
           createdAt: pollRow(P1).created_at,
+          author: null,
           options: pollRow(P1).poll_options,
         },
         viewer: { kind: "voted", results },
@@ -239,7 +240,7 @@ describe("getFeedPage", () => {
         items: [{ viewer: { kind: "anonymous" } }, { viewer: { kind: "anonymous" } }],
       },
     });
-    expect(queries.map((q) => q.target)).toEqual(["polls"]);
+    expect(queries.map((q) => q.target)).toEqual(["polls", "rpc:get_poll_authors"]);
   });
 
   it("con sesión: una consulta de votos propios para todo el lote y resultados sólo de las votadas", async () => {

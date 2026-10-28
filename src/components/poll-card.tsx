@@ -1,5 +1,6 @@
 import { LockedOptions } from "@/components/locked-options";
 import Link from "next/link";
+import { PollAuthor } from "@/components/poll-author";
 import { PollResults } from "@/components/poll-results";
 import type { PollViewerState, PublicPoll } from "@/lib/data/types";
 import { formatApproximateDate, formatCloseStatus, isClosed } from "@/lib/utils/date";
@@ -27,7 +28,7 @@ export function PollCard({ poll, viewer, now = new Date() }: PollCardProps) {
       {results ? <PollResults results={results} /> : <LockedOptions options={poll.options} />}
       <p className="flex items-center justify-between gap-3 text-[13px] text-muted">
         <span>
-          <span>Anónimo</span>
+          <PollAuthor author={poll.author} />
           {" · "}
           <time dateTime={poll.createdAt}>{formatApproximateDate(poll.createdAt, now)}</time>
           {poll.closesAt && (

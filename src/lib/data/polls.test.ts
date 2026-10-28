@@ -87,6 +87,7 @@ describe("getFeedPolls (MVP-018)", () => {
       id: rows[0].id,
       question: rows[0].question,
       createdAt: rows[0].created_at,
+      author: null,
       closesAt: null,
       options: rows[0].poll_options,
     });
@@ -145,6 +146,7 @@ describe("getPublicPoll (MVP-019)", () => {
         id: row.id,
         question: row.question,
         createdAt: row.created_at,
+        author: null,
         closesAt: null,
         options: row.poll_options,
       },
@@ -222,5 +224,67 @@ describe("closes_at (V2-013)", () => {
       "2026-10-28T10:00:00+00:00",
       null,
     ]);
+  });
+});
+
+describe("autores (V2-003)", () => {
+  const authorRow = (n: number, username: string, display: string | null = null) => ({
+    poll_id: uuid(n),
+    username,
+    display_name: display,
+  });
+
+  it("pide los autores del lote con una sola RPC y los asocia a cada encuesta", async () => {
+    const { supabase, queries } = fakeClient({
+      polls: { data: [pollRow(1), pollRow(2), pollRow(3)], error: null },
+      "rpc:get_poll_authors": {
+        data: [authorRow(1, "ana_23", "Ana María"), authorRow(3, "beto")],
+        error: null,
+      },
+    });
+    const res = await getFeedPolls(supabase);
+
+    expect(res.ok && res.data.polls.map((p) => p.author)).toEqual([
+      { username: "ana_23", displayName: "Ana María" },
+      null,
+      { username: "beto", displayName: null },
+    ]);
+    const rpcs = queries.filter((q) => q.target === "rpc:get_poll_authors");
+    expect(rpcs).toHaveLength(1);
+    expect(rpcs[0].calls[0]).toEqual([
+      "rpc",
+      "get_poll_authors",
+      { p_poll_ids: [uuid(1), uuid(2), uuid(3)] },
+    ]);
+  });
+
+  it("sin encuestas no llama a la RPC de autores", async () => {
+    const { supabase, queries } = fakeClient({ polls: { data: [], error: null } });
+    await getFeedPolls(supabase);
+    expect(queries.map((q) => q.target)).not.toContain("rpc:get_poll_authors");
+  });
+
+  it("el detalle incluye el autor, o null si no tiene perfil", async () => {
+    const withAuthor = fakeClient({
+      polls: { data: pollRow(1), error: null },
+      "rpc:get_poll_authors": { data: [authorRow(1, "ana_23")], error: null },
+    });
+    const res = await getPublicPoll(withAuthor.supabase, uuid(1));
+    expect(res.ok && res.data.author).toEqual({ username: "ana_23", displayName: null });
+
+    const anonymous = fakeClient({
+      polls: { data: pollRow(2), error: null },
+      "rpc:get_poll_authors": { data: [], error: null },
+    });
+    const res2 = await getPublicPoll(anonymous.supabase, uuid(2));
+    expect(res2.ok && res2.data.author).toBeNull();
+  });
+
+  it("si falla la consulta de autores devuelve el error controlado", async () => {
+    const { supabase } = fakeClient({
+      polls: { data: [pollRow(1)], error: null },
+      "rpc:get_poll_authors": { data: null, error: { code: "42501", message: "denied" } },
+    });
+    expect(await getFeedPolls(supabase)).toEqual({ ok: false, error: "AUTH_REQUIRED" });
   });
 });

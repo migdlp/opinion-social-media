@@ -138,6 +138,14 @@ export type Database = {
         Args: { p_closes_at?: string; p_options: string[]; p_question: string };
         Returns: string;
       };
+      get_poll_authors: {
+        Args: { p_poll_ids: string[] };
+        Returns: {
+          display_name: string;
+          poll_id: string;
+          username: string;
+        }[];
+      };
       get_poll_results: {
         Args: { p_poll_id: string };
         Returns: {

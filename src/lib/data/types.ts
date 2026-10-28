@@ -29,12 +29,19 @@ export interface PollOption {
   position: number;
 }
 
+// Autor con perfil (V2-003). Sin perfil, PublicPoll.author es null y se muestra «Anónimo».
+export interface PollAuthor {
+  username: string;
+  displayName: string | null;
+}
+
 export interface PublicPoll {
   id: string;
   question: string;
   createdAt: string;
   // Cierre opcional (V2-013): desde esta fecha no se admiten votos.
   closesAt?: string | null;
+  author?: PollAuthor | null;
   options: PollOption[];
 }
 
