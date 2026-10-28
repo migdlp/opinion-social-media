@@ -1,0 +1,569 @@
+// V2-024: ataques por HTTP real (PostgREST/RPC) a las vías de la fase 2: cuentas privadas,
+// seguidores, votos visibles en un perfil, encuestas cerradas y denuncias. Complementa a
+// rls-attacks.test.ts (MVP-044). Ejecutar con scripts/check-security-local.sh. Sólo contra la
+// pila Supabase LOCAL: usa la clave secreta local para preparar y comprobar datos.
+//
+// Cuentas: PUB (pública, autora), PRIV (privada, autora), FOL (seguidora aceptada de PRIV),
+// PEN (solicitud pendiente a PRIV), STR (extraña) y anon. Encuestas: una abierta y otra cerrada
+// de PUB y de PRIV; STR vota las públicas y FOL las privadas antes de que cierren.
+import { createClient } from "@supabase/supabase-js";
+import { beforeAll, describe, expect, it } from "vitest";
+
+const URL_ = process.env.SUPABASE_URL ?? "";
+const PUBLISHABLE = process.env.SUPABASE_PUBLISHABLE_KEY ?? "";
+const SECRET = process.env.SUPABASE_SECRET_KEY ?? "";
+
+if (!/^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(URL_)) {
+  throw new Error(
+    `Sólo contra Supabase local (http://127.0.0.1:<puerto>); recibido: ${URL_ || "(vacío)"}`,
+  );
+}
+
+const opts = { auth: { persistSession: false, autoRefreshToken: false } };
+const admin = createClient(URL_, SECRET, opts);
+const PASSWORD = "local-test-password-v2-024";
+const GHOST = "00000000-0000-4000-8000-000000000024";
+
+type Account = { id: string; token: string; username: string };
+
+async function account(role: string, isPrivate: boolean): Promise<Account> {
+  const email = `${role}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@v2024.test`;
+  const created = await admin.auth.admin.createUser({
+    email,
+    password: PASSWORD,
+    email_confirm: true,
+  });
+  if (created.error) throw created.error;
+  const id = created.data.user.id;
+  const username = `${role}${id.replaceAll("-", "").slice(0, 8)}`;
+  const profile = await admin
+    .from("profiles")
+    .insert({ user_id: id, username, is_private: isPrivate });
+  if (profile.error) throw profile.error;
+  const client = createClient(URL_, PUBLISHABLE, opts);
+  const { data, error } = await client.auth.signInWithPassword({ email, password: PASSWORD });
+  if (error) throw error;
+  return { id, token: data.session!.access_token, username };
+}
+
+type Reply = { status: number; text: string; json: unknown; range: string | null };
+
+// Petición cruda: permite cabeceras y verbos que el SDK oculta.
+async function http(path: string, init: RequestInit & { token?: string } = {}): Promise<Reply> {
+  const headers = new Headers(init.headers);
+  headers.set("apikey", PUBLISHABLE);
+  if (init.token) headers.set("Authorization", `Bearer ${init.token}`);
+  if (init.body && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+  const res = await fetch(`${URL_}${path}`, { ...init, headers });
+  const text = await res.text();
+  let json: unknown = null;
+  try {
+    json = JSON.parse(text);
+  } catch {
+    // no es JSON: se compara el texto
+  }
+  return { status: res.status, text, json, range: res.headers.get("content-range") };
+}
+
+const rpc = (name: string, args: object, token?: string) =>
+  http(`/rest/v1/rpc/${name}`, { method: "POST", token, body: JSON.stringify(args) });
+const rows = (r: Reply) => (Array.isArray(r.json) ? (r.json as Record<string, unknown>[]) : []);
+const message = (r: Reply) => (r.json as { message?: string } | null)?.message ?? r.text;
+
+let PUB: Account;
+let PRIV: Account;
+let FOL: Account;
+let PEN: Account;
+let STR: Account;
+let pubOpen: string;
+let pubClosed: string;
+let privOpen: string;
+let privClosed: string;
+const option: Record<string, string[]> = {};
+
+async function createPoll(author: Account, question: string, closes?: string) {
+  const r = await rpc(
+    "create_poll",
+    {
+      p_question: question,
+      p_options: ["Rojo", "Azul"],
+      ...(closes ? { p_closes_at: closes } : {}),
+    },
+    author.token,
+  );
+  if (r.status !== 200) throw new Error(`create_poll: ${r.text}`);
+  const id = r.json as string;
+  const { data, error } = await admin
+    .from("poll_options")
+    .select("id")
+    .eq("poll_id", id)
+    .order("position");
+  if (error) throw error;
+  option[id] = (data ?? []).map((o) => o.id);
+  return id;
+}
+
+async function vote(who: Account, poll: string, index: number) {
+  const r = await rpc(
+    "vote_poll",
+    { p_poll_id: poll, p_option_id: option[poll][index] },
+    who.token,
+  );
+  if (r.status >= 400) throw new Error(`vote_poll: ${r.text}`);
+}
+
+async function close(poll: string) {
+  const past = new Date(Date.now() - 3_600_000).toISOString();
+  const earlier = new Date(Date.now() - 7_200_000).toISOString();
+  const r = await admin
+    .from("polls")
+    .update({ created_at: earlier, closes_at: past })
+    .eq("id", poll);
+  if (r.error) throw r.error;
+}
+
+beforeAll(async () => {
+  [PUB, PRIV, FOL, PEN, STR] = await Promise.all([
+    account("pub", false),
+    account("priv", true),
+    account("fol", false),
+    account("pen", false),
+    account("str", false),
+  ]);
+  const f = await admin.from("follows").insert([
+    { follower_id: FOL.id, followee_id: PRIV.id, status: "accepted" },
+    { follower_id: PEN.id, followee_id: PRIV.id, status: "pending" },
+  ]);
+  if (f.error) throw f.error;
+
+  const soon = new Date(Date.now() + 2 * 3_600_000).toISOString();
+  pubOpen = await createPoll(PUB, "¿Pública y abierta V2-024?");
+  pubClosed = await createPoll(PUB, "¿Pública y cerrada V2-024?", soon);
+  privOpen = await createPoll(PRIV, "¿Privada y abierta V2-024?");
+  privClosed = await createPoll(PRIV, "¿Privada y cerrada V2-024?", soon);
+  await vote(STR, pubOpen, 0);
+  await vote(STR, pubClosed, 0);
+  await vote(FOL, privOpen, 0);
+  await vote(FOL, privClosed, 1);
+  await close(pubClosed);
+  await close(privClosed);
+}, 90_000);
+
+const viewers = () => [
+  ["anon", undefined],
+  ["extraño", STR.token],
+  ["solicitud pendiente", PEN.token],
+];
+const insiders = () => [
+  ["la propia cuenta", PRIV.token],
+  ["seguidor aceptado", FOL.token],
+];
+
+describe("encuestas de una cuenta privada: lectura directa", () => {
+  const ids = () => `in.(${privOpen},${privClosed})`;
+  it.each(viewers())("%s no ve encuestas ni opciones privadas por REST", async (_, token) => {
+    for (const path of [
+      `/rest/v1/polls?select=id,question&id=${ids()}`,
+      `/rest/v1/poll_options?select=id,text&poll_id=${ids()}`,
+      `/rest/v1/polls?select=id&question=like.*Privada*`,
+      `/rest/v1/polls?select=id,poll_options(id,text)&id=${ids()}`,
+    ]) {
+      const r = await http(path, { token });
+      expect(r.text, path).toBe("[]");
+    }
+  });
+
+  it.each(insiders())("%s sí las ve", async (_, token) => {
+    const r = await http(`/rest/v1/polls?select=id&id=${ids()}`, { token });
+    expect(
+      rows(r)
+        .map((x) => x.id)
+        .sort(),
+    ).toEqual([privOpen, privClosed].sort());
+  });
+
+  it.each([...viewers(), ...insiders()])("%s ve las encuestas públicas", async (_, token) => {
+    const r = await http(`/rest/v1/polls?select=id&id=in.(${pubOpen},${pubClosed})`, { token });
+    expect(rows(r)).toHaveLength(2);
+  });
+});
+
+describe("encuestas de una cuenta privada: RPC indistinguibles de una inexistente", () => {
+  it.each(viewers().filter(([name]) => name !== "anon"))(
+    "%s: votar, pedir resultados y denunciar responden igual que ante un id inexistente",
+    async (_, token) => {
+      for (const poll of [privOpen, privClosed]) {
+        const attempts: [string, (id: string) => Promise<Reply>][] = [
+          [
+            "vote_poll",
+            (id) => rpc("vote_poll", { p_poll_id: id, p_option_id: option[poll][0] }, token),
+          ],
+          ["get_poll_results", (id) => rpc("get_poll_results", { p_poll_id: id }, token)],
+          ["report_poll", (id) => rpc("report_poll", { p_poll_id: id, p_reason: "spam" }, token)],
+        ];
+        for (const [name, call] of attempts) {
+          const real = await call(poll);
+          const ghost = await call(GHOST);
+          expect(message(real), `${name} ${poll}`).toBe("POLL_UNAVAILABLE");
+          expect(real.text, name).toBe(ghost.text);
+          expect(real.text, name).not.toMatch(/total_votes|percentage|votes/);
+        }
+      }
+    },
+  );
+
+  it("anon no obtiene resultados de ninguna encuesta privada", async () => {
+    for (const poll of [privOpen, privClosed]) {
+      const r = await rpc("get_poll_results", { p_poll_id: poll });
+      expect(r.status).toBeGreaterThanOrEqual(400);
+      expect(r.text).not.toMatch(/total_votes|percentage/);
+    }
+  });
+
+  it("el voto no se puede emitir saltándose vote_poll ni por REST", async () => {
+    const r = await http("/rest/v1/votes", {
+      method: "POST",
+      token: STR.token,
+      body: JSON.stringify({ poll_id: privOpen, option_id: option[privOpen][0], user_id: STR.id }),
+    });
+    expect(r.status).toBeGreaterThanOrEqual(400);
+    const { count } = await admin
+      .from("votes")
+      .select("id", { count: "exact", head: true })
+      .eq("poll_id", privOpen);
+    expect(count).toBe(1); // sólo el de FOL
+  });
+
+  it("un seguidor aceptado que votó sí obtiene sus resultados", async () => {
+    const r = await rpc("get_poll_results", { p_poll_id: privOpen }, FOL.token);
+    expect(r.status).toBe(200);
+    expect(rows(r)[0]).toMatchObject({ total_votes: 1 });
+  });
+});
+
+describe("encuestas abiertas y cerradas", () => {
+  it("una abierta no da agregados a quien no ha votado, aunque sea pública", async () => {
+    const anon = await rpc("get_poll_results", { p_poll_id: pubOpen });
+    expect(message(anon)).toBe("AUTH_REQUIRED");
+    const pen = await rpc("get_poll_results", { p_poll_id: pubOpen }, PEN.token);
+    expect(message(pen)).toBe("NOT_VOTED");
+    for (const r of [anon, pen]) expect(r.text).not.toMatch(/total_votes|percentage/);
+  });
+
+  it("una cerrada pública entrega los resultados a todos (D-020)", async () => {
+    for (const [, token] of [...viewers(), ...insiders()]) {
+      const r = await rpc("get_poll_results", { p_poll_id: pubClosed }, token);
+      expect(r.status).toBe(200);
+      expect(rows(r)[0]).toMatchObject({ total_votes: 1 });
+    }
+  });
+
+  it("una cerrada privada sólo da resultados a quien puede ver a su autor", async () => {
+    for (const [, token] of insiders()) {
+      const r = await rpc("get_poll_results", { p_poll_id: privClosed }, token);
+      expect(r.status).toBe(200);
+    }
+    for (const [name, token] of viewers().filter(([n]) => n !== "anon")) {
+      const r = await rpc("get_poll_results", { p_poll_id: privClosed }, token);
+      expect(message(r), name).toBe("POLL_UNAVAILABLE");
+    }
+  });
+
+  it("no se vota una encuesta cerrada ni por RPC ni insertando el voto", async () => {
+    const viaRpc = await rpc(
+      "vote_poll",
+      { p_poll_id: pubClosed, p_option_id: option[pubClosed][1] },
+      PEN.token,
+    );
+    expect(message(viaRpc)).toBe("POLL_CLOSED");
+    const viaRest = await http("/rest/v1/votes", {
+      method: "POST",
+      token: PEN.token,
+      body: JSON.stringify({
+        poll_id: pubClosed,
+        option_id: option[pubClosed][1],
+        user_id: PEN.id,
+      }),
+    });
+    expect(viaRest.status).toBeGreaterThanOrEqual(400);
+    const { count } = await admin
+      .from("votes")
+      .select("id", { count: "exact", head: true })
+      .eq("poll_id", pubClosed);
+    expect(count).toBe(1);
+  });
+
+  it("get_feed_results con una lista mezclada sólo devuelve lo autorizado, sin error", async () => {
+    const all = [pubOpen, pubClosed, privOpen, privClosed];
+    const polls = async (token?: string) => {
+      const r = await rpc("get_feed_results", { p_poll_ids: all }, token);
+      expect(r.status).toBe(200);
+      return [...new Set(rows(r).map((x) => x.poll_id as string))].sort();
+    };
+    expect(await polls()).toEqual([pubClosed]);
+    expect(await polls(PEN.token)).toEqual([pubClosed]);
+    expect(await polls(STR.token)).toEqual([pubOpen, pubClosed].sort());
+    expect(await polls(FOL.token)).toEqual([pubClosed, privOpen, privClosed].sort());
+  });
+});
+
+describe("perfiles y enumeración de usuarios", () => {
+  it.each([...viewers(), ...insiders()])(
+    "%s no lee user_id de profiles ni filtra por él",
+    async (_, token) => {
+      for (const path of [
+        "/rest/v1/profiles?select=user_id",
+        "/rest/v1/profiles?select=*",
+        `/rest/v1/profiles?select=username&user_id=eq.${PRIV.id}`,
+        `/rest/v1/profiles?select=username&order=user_id`,
+        "/rest/v1/polls?select=id,profiles(username)",
+      ]) {
+        const r = await http(path, { token });
+        expect(r.status, path).toBeGreaterThanOrEqual(400);
+        expect(r.text, path).not.toContain(PRIV.id);
+      }
+    },
+  );
+
+  it("las columnas públicas de profiles no contienen identificadores", async () => {
+    const r = await http(`/rest/v1/profiles?select=username,display_name,is_private,created_at`);
+    expect(r.status).toBe(200);
+    for (const id of [PUB.id, PRIV.id, FOL.id, PEN.id, STR.id]) expect(r.text).not.toContain(id);
+    expect(rows(r).length).toBeGreaterThanOrEqual(5);
+  });
+
+  it("profiles no se escribe directamente", async () => {
+    for (const token of [undefined, PUB.token, STR.token]) {
+      for (const init of [
+        { method: "PATCH", body: JSON.stringify({ is_private: false }) },
+        { method: "DELETE" },
+      ]) {
+        const r = await http(`/rest/v1/profiles?username=eq.${PRIV.username}`, { ...init, token });
+        expect(r.status).toBeGreaterThanOrEqual(400);
+      }
+    }
+    const { data } = await admin
+      .from("profiles")
+      .select("is_private")
+      .eq("user_id", PRIV.id)
+      .single();
+    expect(data).toEqual({ is_private: true });
+  });
+
+  it("get_profile de una cuenta privada da la cabecera pero no el contenido ni user_id", async () => {
+    for (const [, token] of viewers()) {
+      const r = await rpc("get_profile", { p_username: PRIV.username }, token);
+      expect(r.status).toBe(200);
+      expect(rows(r)[0]).toMatchObject({
+        username: PRIV.username,
+        is_private: true,
+        can_view_content: false,
+      });
+      expect(Object.keys(rows(r)[0])).not.toContain("user_id");
+      for (const id of [PUB.id, PRIV.id, FOL.id, PEN.id, STR.id]) expect(r.text).not.toContain(id);
+    }
+    for (const [, token] of insiders()) {
+      const r = await rpc("get_profile", { p_username: PRIV.username }, token);
+      expect(rows(r)[0]).toMatchObject({ can_view_content: true });
+    }
+  });
+
+  it("get_profile no distingue mayúsculas pero sí rechaza usuarios inexistentes", async () => {
+    const upper = await rpc("get_profile", { p_username: PUB.username.toUpperCase() });
+    expect(rows(upper)[0]).toMatchObject({ username: PUB.username });
+    const none = await rpc("get_profile", { p_username: "no_existe_v2024" });
+    expect(message(none)).toBe("USER_NOT_FOUND");
+  });
+
+  it("la relación con el visitante sólo la ve el propio visitante", async () => {
+    const asPen = await rpc("get_profile", { p_username: PRIV.username }, PEN.token);
+    expect(rows(asPen)[0]).toMatchObject({ viewer_relation: "pending" });
+    const asFol = await rpc("get_profile", { p_username: PRIV.username }, FOL.token);
+    expect(rows(asFol)[0]).toMatchObject({ viewer_relation: "following" });
+    const asAnon = await rpc("get_profile", { p_username: PRIV.username });
+    expect(rows(asAnon)[0]).toMatchObject({ viewer_relation: "none" });
+  });
+});
+
+describe("contenido del perfil: encuestas y votos", () => {
+  it.each(viewers())(
+    "%s: get_profile_polls y get_profile_votes de una cuenta privada",
+    async (_, token) => {
+      for (const name of ["get_profile_polls", "get_profile_votes"]) {
+        const r = await rpc(name, { p_username: PRIV.username }, token);
+        expect(message(r), name).toBe("PROFILE_PRIVATE");
+        expect(r.text).not.toContain(privOpen);
+        expect(r.text).not.toContain(privClosed);
+      }
+    },
+  );
+
+  it.each(insiders())("%s lee las encuestas del perfil privado", async (_, token) => {
+    const r = await rpc("get_profile_polls", { p_username: PRIV.username }, token);
+    expect(
+      rows(r)
+        .map((x) => x.poll_id)
+        .sort(),
+    ).toEqual([privOpen, privClosed].sort());
+    expect(Object.keys(rows(r)[0])).not.toContain("user_id");
+  });
+
+  it("los votos de una cuenta pública en encuestas privadas no se ven sin acceso a su autora", async () => {
+    for (const [, token] of viewers()) {
+      const r = await rpc("get_profile_votes", { p_username: FOL.username }, token);
+      expect(r.status).toBe(200);
+      expect(rows(r)).toEqual([]);
+      expect(r.text).not.toContain(privOpen);
+    }
+  });
+
+  it("P-1: la opción elegida en una abierta sólo se revela a quien la votó; en cerradas es pública", async () => {
+    for (const [, token] of [...viewers().filter(([n]) => n !== "extraño"), ...insiders()]) {
+      const r = await rpc("get_profile_votes", { p_username: STR.username }, token);
+      const byPoll = new Map(rows(r).map((x) => [x.poll_id as string, x]));
+      expect(byPoll.get(pubOpen), "abierta").toMatchObject({
+        choice_hidden: true,
+        option_id: null,
+        option_text: null,
+      });
+      expect(byPoll.get(pubClosed), "cerrada").toMatchObject({
+        choice_hidden: false,
+        option_text: "Rojo",
+      });
+      expect(r.text).not.toMatch(/total_votes|percentage|votes"\s*:/);
+    }
+    const own = await rpc("get_profile_votes", { p_username: STR.username }, STR.token);
+    const mine = rows(own).find((x) => x.poll_id === pubOpen);
+    expect(mine).toMatchObject({ choice_hidden: false, option_text: "Rojo" });
+  });
+
+  it("quien ve la cuenta privada ve la elección ajena sólo si votó esa encuesta o está cerrada", async () => {
+    const r = await rpc("get_profile_votes", { p_username: FOL.username }, PRIV.token);
+    const byPoll = new Map(rows(r).map((x) => [x.poll_id as string, x]));
+    expect(byPoll.get(privOpen)).toMatchObject({ choice_hidden: true, option_id: null });
+    expect(byPoll.get(privClosed)).toMatchObject({ choice_hidden: false, option_text: "Azul" });
+  });
+
+  it("get_poll_authors no revela la autoría de encuestas privadas a quien no las ve", async () => {
+    const all = [pubOpen, privOpen, privClosed];
+    for (const [, token] of viewers()) {
+      const r = await rpc("get_poll_authors", { p_poll_ids: all }, token);
+      expect(rows(r).map((x) => x.poll_id)).toEqual([pubOpen]);
+      expect(r.text).not.toContain(PRIV.username);
+    }
+    const fol = await rpc("get_poll_authors", { p_poll_ids: all }, FOL.token);
+    expect(rows(fol)).toHaveLength(3);
+  });
+});
+
+describe("seguimientos", () => {
+  it("follows: anon denegado y cada cuenta sólo ve sus propias relaciones", async () => {
+    const anon = await http("/rest/v1/follows?select=*");
+    expect(anon.status).toBeGreaterThanOrEqual(400);
+    const str = await http("/rest/v1/follows?select=*", { token: STR.token });
+    expect(str.text).toBe("[]");
+    const fol = await http("/rest/v1/follows?select=follower_id,followee_id,status", {
+      token: FOL.token,
+    });
+    expect(rows(fol)).toEqual([{ follower_id: FOL.id, followee_id: PRIV.id, status: "accepted" }]);
+    const priv = await http("/rest/v1/follows?select=follower_id,status", { token: PRIV.token });
+    expect(
+      rows(priv)
+        .map((x) => x.follower_id)
+        .sort(),
+    ).toEqual([FOL.id, PEN.id].sort());
+  });
+
+  it("nadie escribe en follows directamente: ni aceptarse, ni crear, ni borrar", async () => {
+    const attempts = (token: string) => [
+      http(`/rest/v1/follows?follower_id=eq.${PEN.id}`, {
+        method: "PATCH",
+        token,
+        body: JSON.stringify({ status: "accepted" }),
+      }),
+      http(`/rest/v1/follows`, {
+        method: "POST",
+        token,
+        body: JSON.stringify({ follower_id: STR.id, followee_id: PRIV.id, status: "accepted" }),
+      }),
+      http(`/rest/v1/follows?follower_id=eq.${FOL.id}`, { method: "DELETE", token }),
+    ];
+    for (const token of [PEN.token, STR.token, PRIV.token]) {
+      for (const r of await Promise.all(attempts(token))) {
+        expect(r.status, r.text).toBeGreaterThanOrEqual(400);
+      }
+    }
+  });
+
+  it("una solicitud pendiente no se acepta sola ni por otra cuenta", async () => {
+    // Volver a pedir seguir no la convierte en aceptada.
+    const again = await rpc("follow_user", { p_username: PRIV.username }, PEN.token);
+    expect(again.status).toBeLessThan(400);
+    // Otra cuenta no puede responder a solicitudes ajenas.
+    const stranger = await rpc(
+      "respond_follow_request",
+      { p_username: PEN.username, p_accept: true },
+      STR.token,
+    );
+    expect(message(stranger)).toBe("USER_NOT_FOUND");
+    // Ni expulsar a seguidores de otra cuenta.
+    const kick = await rpc("remove_follower", { p_username: FOL.username }, STR.token);
+    expect(kick.status).toBeLessThan(400);
+    const { data } = await admin
+      .from("follows")
+      .select("follower_id, status")
+      .eq("followee_id", PRIV.id)
+      .order("status");
+    expect(data).toEqual([
+      { follower_id: FOL.id, status: "accepted" },
+      { follower_id: PEN.id, status: "pending" },
+    ]);
+  });
+
+  it("anon no ejecuta las RPC que exigen sesión", async () => {
+    for (const [name, args] of [
+      ["follow_user", { p_username: PUB.username }],
+      ["unfollow_user", { p_username: PUB.username }],
+      ["respond_follow_request", { p_username: PEN.username, p_accept: true }],
+      ["remove_follower", { p_username: FOL.username }],
+      ["upsert_my_profile", { p_username: "intruso", p_display_name: null }],
+      ["set_profile_privacy", { p_private: false }],
+      ["get_my_profile", {}],
+      ["report_poll", { p_poll_id: pubOpen, p_reason: "spam" }],
+    ] as [string, object][]) {
+      const r = await rpc(name, args);
+      expect(r.status, name).toBeGreaterThanOrEqual(400);
+    }
+  });
+});
+
+describe("denuncias", () => {
+  it("poll_reports no es legible ni escribible por ningún cliente, tampoco por quien denuncia", async () => {
+    const report = await rpc("report_poll", { p_poll_id: pubOpen, p_reason: "spam" }, STR.token);
+    expect(report.status).toBeLessThan(400);
+    for (const token of [undefined, STR.token, PUB.token]) {
+      for (const path of [
+        "/rest/v1/poll_reports?select=*",
+        "/rest/v1/poll_reports?select=reporter_id",
+        `/rest/v1/polls?select=id,poll_reports(reason)&id=eq.${pubOpen}`,
+      ]) {
+        const r = await http(path, { token });
+        expect(r.status, path).toBeGreaterThanOrEqual(400);
+        expect(r.text, path).not.toContain(STR.id);
+      }
+    }
+    const write = await http("/rest/v1/poll_reports", {
+      method: "POST",
+      token: STR.token,
+      body: JSON.stringify({ poll_id: pubOpen, reporter_id: PEN.id, reason: "spam" }),
+    });
+    expect(write.status).toBeGreaterThanOrEqual(400);
+    const { data } = await admin.from("poll_reports").select("reporter_id").eq("poll_id", pubOpen);
+    expect(data).toEqual([{ reporter_id: STR.id }]);
+  });
+
+  it("denunciar dos veces la misma encuesta es ALREADY_REPORTED, no un segundo registro", async () => {
+    const again = await rpc("report_poll", { p_poll_id: pubOpen, p_reason: "odio" }, STR.token);
+    expect(message(again)).toBe("ALREADY_REPORTED");
+  });
+});
