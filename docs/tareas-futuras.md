@@ -144,7 +144,7 @@ Tareas de [backlog-v2.md](backlog-v2.md), con el mismo protocolo de reserva. Ant
 
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|
-| [AUDIT-001](https://github.com/migdlp/opinion-social-media/issues/187) | Completar tareas faltantes del alcance aprobado | P0 | — | En progreso | Codex /root (opinion_social_media) |
+| [AUDIT-001](https://github.com/migdlp/opinion-social-media/issues/187) | Completar tareas faltantes del alcance aprobado | P0 | — | En progreso (traspaso por orden del propietario, 28-10-2026: el trabajo de Codex está en la [PR #197](https://github.com/migdlp/opinion-social-media/pull/197), verde y sin conflictos; claude-code la integra y cierra) | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY); saliente: Codex /root (opinion_social_media) |
 
 ## Condición de cierre
 
