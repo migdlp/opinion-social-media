@@ -75,6 +75,18 @@ export function PollCreationForm({ onSubmit, onPublished, onRecover }: PollCreat
     setErrors(null);
   };
 
+  const applyYesNo = () => {
+    if (sending.current) return;
+    if (
+      options.some((option) => normalizeText(option).length > 0) &&
+      !window.confirm("¿Quieres sustituir las opciones que has escrito por «Sí» y «No»?")
+    ) {
+      return;
+    }
+    setOptions(["Sí", "No"]);
+    setErrors(null);
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (sending.current) return;
@@ -156,6 +168,14 @@ export function PollCreationForm({ onSubmit, onPublished, onRecover }: PollCreat
 
       <fieldset className="flex flex-col gap-3.5">
         <legend className="mb-1 text-[15px] font-semibold">Opciones</legend>
+        <button
+          type="button"
+          onClick={applyYesNo}
+          disabled={pending}
+          className="min-h-11 self-start rounded-full border border-border bg-surface px-4 py-2 text-sm font-medium transition-colors hover:border-foreground disabled:opacity-50"
+        >
+          Sí / No
+        </button>
         {options.map((option, index) => {
           const error = errors?.options[index];
           const inputId = `${id}-option-${index}`;
