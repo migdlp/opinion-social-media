@@ -540,6 +540,32 @@ describe("seguimientos", () => {
     ]);
   });
 
+  it("SEC-001: el control de cuota de seguimientos no se lee, escribe ni borra por REST", async () => {
+    const seeded = await admin.from("follow_quota_events").insert({ user_id: FOL.id });
+    expect(seeded.error).toBeNull();
+    for (const token of [undefined, STR.token, FOL.token]) {
+      const read = await http("/rest/v1/follow_quota_events?select=*", { token });
+      expect(read.status, "lectura").toBeGreaterThanOrEqual(400);
+      const write = await http("/rest/v1/follow_quota_events", {
+        method: "POST",
+        token,
+        body: JSON.stringify({ user_id: STR.id }),
+      });
+      expect(write.status, "escritura").toBeGreaterThanOrEqual(400);
+      const wipe = await http(`/rest/v1/follow_quota_events?user_id=eq.${FOL.id}`, {
+        method: "DELETE",
+        token,
+      });
+      expect(wipe.status, "borrado").toBeGreaterThanOrEqual(400);
+    }
+    // Ningún intento ha borrado el consumo sembrado de FOL.
+    const { count } = await admin
+      .from("follow_quota_events")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", FOL.id);
+    expect(count).toBe(1);
+  });
+
   it("anon no ejecuta las RPC que exigen sesión", async () => {
     for (const [name, args] of [
       ["follow_user", { p_username: PUB.username }],

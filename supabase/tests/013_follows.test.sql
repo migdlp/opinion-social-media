@@ -168,7 +168,9 @@ begin
 end $$;
 
 -- Cuota: 200 seguimientos nuevos por hora; el 201 es FOLLOW_RATE_LIMITED y repetir uno existente no cuenta.
+-- Se parte de cero: borrar follows ya no libera cuota (SEC-001), así que se limpian también los consumos.
 delete from public.follows;
+delete from public.follow_quota_events;
 insert into auth.users (id) select ('10000000-0000-0000-0000-' || lpad(n::text, 12, '0'))::uuid from generate_series(1, 201) n;
 insert into public.profiles (user_id, username)
   select ('10000000-0000-0000-0000-' || lpad(n::text, 12, '0'))::uuid, 'usuario_' || n from generate_series(1, 201) n;
