@@ -64,7 +64,7 @@ Desarrollo, previews y CI usan el proyecto `opinion-social-media-dev`; producci�
 | `npm run test:db` | Aplica `supabase/migrations` a un PostgreSQL local vacío y ejecuta `supabase/tests` (necesita `psql` y `PGHOST`/`PGPORT`/`PGUSER`; no toca Supabase) |
 | `npm run test:db:concurrency` | Tras `test:db`: 10 peticiones simultáneas de la misma cuenta a `create_poll` (cuota) y `vote_poll` (voto único) |
 | `npm run test:security` | 14 ataques HTTP a RLS, Auth y GraphQL contra una pila Supabase **local** (necesita Docker; la CI lo ejecuta sola) |
-| `npm run test:e2e` | E2E con Playwright (escritorio y móvil) sobre la app compilada y una pila Supabase **local**: visitante, creación, voto y recarga. Sin Google: crea usuarios de prueba con la clave local (necesita Docker y el Chromium de Playwright: `npx playwright install chromium`; la CI lo ejecuta sola) |
+| `npm run test:e2e` | E2E con Playwright (escritorio y móvil) sobre la app compilada y una pila Supabase **local**: visitante, creación, voto y recarga; cortes de red tras escribir, envíos duplicados, pestañas simultáneas y recorrido accesible de rutas (MVP-045/046). Sin Google: crea usuarios de prueba con la clave local (necesita Docker y el Chromium de Playwright: `npx playwright install chromium`; la CI lo ejecuta sola) |
 | `npm run check:env` | Comprueba que `.env.local` apunta al Supabase de desarrollo |
 | `npm run check:secrets` | Busca secretos o `.env` en Git |
 
