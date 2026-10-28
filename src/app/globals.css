@@ -9,7 +9,7 @@
   --muted: #5e5e66;
   --border: #e4e4e7;
   --track: #ececef;
-  --bar-muted: #a9a9b0;
+  --bar-muted: #767680;
   --field: #8a8a93;
   --danger: #c4161c;
 }
@@ -22,7 +22,7 @@
     --muted: #a3a3ab;
     --border: #2a2a2e;
     --track: #232327;
-    --bar-muted: #5d5d65;
+    --bar-muted: #787882;
     --field: #707079;
     --danger: #ff7b7b;
   }

@@ -115,7 +115,7 @@ export function ReportPoll({ pollId, signedIn }: { pollId: string; signedIn: boo
         <div
           role="menu"
           onKeyDown={(event) => event.key === "Escape" && closeMenu()}
-          className="absolute right-0 z-20 mt-1 min-w-44 overflow-hidden rounded-xl border border-border bg-surface shadow-lg"
+          className="absolute right-0 z-20 mt-1 min-w-44 overflow-hidden rounded-xl border border-border bg-surface"
         >
           {signedIn ? (
             <button
