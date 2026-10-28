@@ -26,7 +26,7 @@ Estado: **implementado y verificado en local/CI; sin desplegar**. Este documento
 - Pruebas unitarias y de componentes: `npm run check` (formato, lint, tipos, Vitest y build).
 - SQL: `supabase/tests/024_feed_read.test.sql` (modos, categorías, cursor estable con fechas iguales, límite exacto de 24 h con el reloj fijado) y `008_privileges`.
 - Ataques HTTP: `tests/security/feed-attacks.test.ts` junto con `social-attacks.test.ts` y `rls-attacks.test.ts` (job «Ataques a RLS por HTTP»). Prueba por mutación documentada en la [PR #207](https://github.com/migdlp/opinion-social-media/pull/207#issuecomment-6471201954): `get_feed` sin `can_view_author`, con solicitudes pendientes y sin retención deja en rojo SQL y HTTP.
-- E2E: `e2e/feed.spec.ts` (recorrido completo), `e2e/voto-tarjeta.spec.ts` (voto desde la tarjeta) y `e2e/ciclo-social.spec.ts`, en escritorio y móvil (Playwright, Supabase local). Evidencia de CI en la [PR #209](https://github.com/migdlp/opinion-social-media/pull/209).
+- E2E: `e2e/feed.spec.ts` (recorrido completo), `e2e/voto-tarjeta.spec.ts` (voto desde la tarjeta) y `e2e/ciclo-social.spec.ts`, en escritorio y móvil (Playwright, Supabase local). Dos ejecuciones independientes de CI (eventos `push` y `pull_request` del mismo SHA `2e801b6`, en runners distintos) pasaron los dos proyectos: [push](https://github.com/migdlp/opinion-social-media/actions/runs/40705953033) y [pull_request](https://github.com/migdlp/opinion-social-media/actions/runs/40705964712). Se lanzaron a la vez, no una tras otra. Un primer intento (`167d807`) falló por selectores demasiado amplios y por esperar a `networkidle`, no por el comportamiento de la aplicación; corregido en `2e801b6`.
 
 ## No verificado
 
