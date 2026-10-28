@@ -6,6 +6,7 @@ import {
   getPollDetail,
   getPollResults,
   reportPoll,
+  setProfilePrivacy,
   upsertMyProfile,
   votePoll,
 } from "./operations";
@@ -380,4 +381,27 @@ describe("perfil propio (V2-002)", () => {
       expect(await upsertMyProfile(supabase, "ana", null)).toEqual({ ok: false, error: code });
     },
   );
+});
+
+describe("setProfilePrivacy (V2-008)", () => {
+  it.each([true, false])("llama a set_profile_privacy con %s", async (value) => {
+    const { supabase, queries } = fakeSupabase({
+      "rpc:set_profile_privacy": { data: null, error: null },
+    });
+    expect(await setProfilePrivacy(supabase, value)).toEqual({ ok: true, data: null });
+    expect(queries[0].calls[0]).toEqual(["rpc", "set_profile_privacy", { p_private: value }]);
+  });
+
+  it.each(["AUTH_REQUIRED", "PROFILE_REQUIRED"])("propaga %s", async (code) => {
+    const { supabase } = fakeSupabase({ "rpc:set_profile_privacy": rpcError(code) });
+    expect(await setProfilePrivacy(supabase, true)).toEqual({ ok: false, error: code });
+  });
+
+  it("un fallo de red no lanza", async () => {
+    const net = fakeSupabase({ "rpc:set_profile_privacy": networkThrow });
+    expect(await setProfilePrivacy(net.supabase, true)).toEqual({
+      ok: false,
+      error: "NETWORK_ERROR",
+    });
+  });
 });
