@@ -1,6 +1,6 @@
 # Estado real del proyecto
 
-Última actualización: 28 de octubre de 2026 (revisión de `main` en `bb4e674`).
+Última actualización: 28 de octubre de 2026 (revisión de `main` en `631379f`).
 
 El estado vigente de cada tarea y su responsable está en [tareas-futuras.md](tareas-futuras.md) en `main`; este documento resume y distingue lo verificado de lo pendiente. Si hay discrepancia, prevalece el registro de tareas.
 
@@ -10,15 +10,14 @@ El estado vigente de cada tarea y su responsable está en [tareas-futuras.md](ta
 
 ## Resumen de tareas (28-10-2026)
 
-- **Completadas: 48 de 53** (46 P0 y las 2 P1), cada una con PR fusionada y enlaces en el registro.
+- **Completadas: 49 de 53** (47 P0 y las 2 P1), cada una con PR fusionada y enlaces en el registro.
 - **Pendientes:**
 
 | Tarea | Estado | Responsable |
 |---|---|---|
 | MVP-005 Google OAuth | En progreso: Google activo y login real probado por el propietario; falta **desactivar el proveedor Email** en Auth → Providers (criterio 3) | claude-code (migdlp local) |
-| MVP-046 | En progreso | claude-code (session_01M3nCETGQVVZnUPhnAbfRHV) |
 | MVP-049 | Bloqueada y reservada. Sus dependencias (MVP-008, 022, 047 y 048) ya figuran como completadas: conviene que su responsable revise el bloqueo | Codex /root |
-| MVP-050, MVP-051 | Bloqueadas y reservadas en cadena tras MVP-046 y MVP-049 | Codex /root |
+| MVP-050, MVP-051 | Bloqueadas y reservadas en cadena tras MVP-049 | Codex /root |
 
 ## Qué funciona hoy (verificado)
 
@@ -30,7 +29,7 @@ Contra el Supabase de desarrollo, con la aplicación de `main`:
 - **Login con Google** y sesión SSR (MVP-005/006/026/027): login real probado por el propietario el 28-10-2026.
 - **Crear encuesta** (MVP-031/032), **votar** y **ver resultados sólo tras votar** (MVP-036/037/038).
 - **Base de datos y seguridad** (MVP-009 a MVP-023, MVP-041 a MVP-044): RLS, RPC con `SECURITY DEFINER`, cuota de creación y pruebas de ataque por HTTP en CI.
-- **Calidad** (MVP-040, 045, 047, 052): revisión responsive y de accesibilidad, E2E con Playwright y Supabase local, README técnico y skeletons de carga.
+- **Calidad** (MVP-040, 045, 046, 047, 052): revisión responsive y de accesibilidad, E2E con Playwright y Supabase local (incluidos concurrencia y cortes de red), README técnico y skeletons de carga.
 
 ## Entornos
 
@@ -52,8 +51,7 @@ Responsable: **Codex /root (opinion_social_media)**. Sólo el propietario de la 
 ## Siguientes pasos
 
 1. Desactivar el proveedor Email en Supabase dev y cerrar MVP-005.
-2. Terminar MVP-046.
-3. Revisar el bloqueo de MVP-049 y preparar producción (Supabase prod y Vercel), y después MVP-050 y MVP-051.
+2. Revisar el bloqueo de MVP-049 y preparar producción (Supabase prod y Vercel), y después MVP-050 y MVP-051.
 
 ## Historial de verificaciones
 
