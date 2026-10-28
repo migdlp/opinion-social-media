@@ -26,7 +26,7 @@ describe("FeedMore", () => {
   it("sin otra página no ofrece cargar más", () => {
     render(<FeedMore cursor={null} seenIds={["p1"]} loadMore={vi.fn()} now={NOW} />);
 
-    expect(screen.queryByRole("button")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Cargar más" })).toBeNull();
   });
 
   it("añade la página siguiente sin repetir tarjetas ya vistas y se oculta al final", async () => {
@@ -40,7 +40,7 @@ describe("FeedMore", () => {
     await screen.findByRole("heading", { name: "¿Nueva?" });
     expect(loadMore).toHaveBeenCalledWith("c1");
     expect(screen.queryByRole("heading", { name: "¿Ya vista?" })).toBeNull();
-    expect(screen.queryByRole("button")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Cargar más" })).toBeNull();
     expect(screen.getByText("No hay más encuestas")).toBeDefined();
   });
 

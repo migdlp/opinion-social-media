@@ -93,6 +93,11 @@ describe("PollCard", () => {
     },
   );
 
+  it("ofrece el menú «⋯» para denunciar, a visitantes y a usuarios con sesión", () => {
+    render(<PollCard poll={POLL} viewer={{ kind: "anonymous" }} now={NOW} />);
+    expect(screen.getByRole("button", { name: "Más acciones" })).toBeDefined();
+  });
+
   it("con cierre muestra el tiempo restante y, cerrada, cuánto hace que cerró", () => {
     const open = { ...POLL, closesAt: "2026-10-27T23:10:00Z" };
     const { unmount } = render(<PollCard poll={open} now={NOW} />);
