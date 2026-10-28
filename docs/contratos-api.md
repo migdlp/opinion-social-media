@@ -177,6 +177,17 @@ public.can_view_author(p_author uuid) returns boolean   -- stable, security defi
 - Efectos: pasar a privada oculta de inmediato las encuestas a quien no sea seguidor aceptado (también para quien ya había votado, que pierde los resultados); volver a pública las devuelve. El feed (`getFeedPolls`) y el detalle no cambian: sólo ven lo que RLS permite.
 - Rendimiento medido en local (5.000 encuestas, 2.000 perfiles con un 40 % privados y 50 seguimientos): el feed de 21 filas tarda 1,8 ms con sesión y 0,4 ms sin ella, usando `polls_feed_idx`; no hacen falta índices nuevos.
 
+### 3.11. `get_feed_results` (V2-023)
+
+```sql
+public.get_feed_results(p_poll_ids uuid[])
+  returns table (poll_id uuid, option_id uuid, "position" smallint, text text, votes integer,
+                 percentage numeric(4,1), total_votes integer, my_option_id uuid)
+```
+
+- Máximo 20 ids por llamada (los demás se ignoran). Por **cada** encuesta aplica la misma autorización que `get_poll_results` (publicada, visible para quien llama, y cerrada o votada por quien llama) y devuelve sólo las autorizadas, **sin error** por las demás: una lista mezclada no filtra agregados de las no votadas. Las filas de una encuesta salen ordenadas por `position`.
+- `EXECUTE` también para `anon` (las cerradas son públicas). Hay que mantenerla sincronizada con `get_poll_results` si cambia la autorización.
+- Adaptador: `getFeedPage` hace, como máximo, una consulta de encuestas, una de votos propios y una de resultados por página (más la de autores).
 ### 3.9. `get_profile_votes` (V2-007)
 
 ```sql
@@ -217,7 +228,7 @@ if (cursor) q = q.or(`created_at.lt."${cursor.c}",and(created_at.eq."${cursor.c}
 
 La fecha va entre comillas dobles porque contiene `:` y `.`, caracteres reservados en los filtros `or()` de PostgREST. Antes de usarlo, el adaptador valida que `c` es una fecha ISO e `i` un UUID; si no, trata el cursor como ilegible.
 
-- Con sesión, después de la página: `votes.select('poll_id, option_id').in('poll_id', ids)` (RLS devuelve sólo los propios). Para cada encuesta votada se llama a `get_poll_results` (hasta 20 llamadas en paralelo; aceptable para el MVP sin RPC adicional).
+- Con sesión, después de la página: `votes.select('poll_id, option_id').in('poll_id', ids)` (RLS devuelve sólo los propios). Los resultados de las votadas y de las cerradas llegan con **una sola** llamada por página a `get_feed_results` (§3.11; V2-023).
 - Sin sesión no se consulta `votes` ni resultados.
 
 ### 4.2. Detalle (MVP-019)

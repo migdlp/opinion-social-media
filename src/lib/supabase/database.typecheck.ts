@@ -114,6 +114,7 @@ export type DatabaseContractChecks = [
   Assert<Equal<Public["Functions"]["get_poll_authors"]["Args"], { p_poll_ids: string[] }>>,
   Assert<Equal<Public["Functions"]["can_view_author"]["Args"], { p_author: string }>>,
   Assert<Equal<Public["Functions"]["can_view_author"]["Returns"], boolean>>,
+  Assert<Equal<Public["Functions"]["get_feed_results"]["Args"], { p_poll_ids: string[] }>>,
   Assert<
     Equal<
       Public["Functions"]["get_profile_votes"]["Args"],

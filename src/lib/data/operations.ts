@@ -293,19 +293,65 @@ export function getPollDetail(
   });
 }
 
-// Visitante: tarjetas anónimas, salvo las cerradas, que muestran sus resultados públicos.
-async function anonymousPage(
+type FeedResultRow = ResultRow & { poll_id: string };
+
+// Resultados de un lote (≤ 20 encuestas) con UNA llamada (V2-023). La base de datos aplica a cada
+// encuesta la misma autorización que get_poll_results y omite las no autorizadas sin error.
+async function getFeedResults(
+  supabase: SupabaseClient,
+  pollIds: string[],
+): Promise<Result<Map<string, PollResults>>> {
+  const byPoll = new Map<string, PollResults>();
+  if (pollIds.length === 0) return { ok: true, data: byPoll };
+  const { data, error } = await supabase.rpc("get_feed_results", { p_poll_ids: pollIds });
+  if (error) return { ok: false, error: toAppError(error) };
+  for (const row of (data ?? []) as FeedResultRow[]) {
+    let results = byPoll.get(row.poll_id);
+    if (!results) {
+      results = {
+        pollId: row.poll_id,
+        totalVotes: row.total_votes,
+        myOptionId: row.my_option_id,
+        options: [],
+      };
+      byPoll.set(row.poll_id, results);
+    }
+    results.options.push({
+      id: row.option_id,
+      text: row.text,
+      position: row.position,
+      votes: row.votes,
+      percentage: Number(row.percentage),
+    });
+  }
+  return { ok: true, data: byPoll };
+}
+
+// Estado de cada encuesta de una página para quien mira. Los resultados (de las votadas y de las
+// cerradas, D-020) llegan con una única consulta por lote; el resto sigue sin cifras.
+async function withViewerStates(
   supabase: SupabaseClient,
   polls: PublicPoll[],
   nextCursor: string | null,
+  own: Map<string, string>,
+  signedIn: boolean,
 ): Promise<Result<FeedPage>> {
-  const closed = await Promise.all(polls.map((poll) => closedViewer(supabase, poll, false)));
-  const items = [];
-  for (let i = 0; i < polls.length; i++) {
-    const state = closed[i];
-    if (!state.ok) return state;
-    items.push({ poll: polls[i], viewer: state.data ?? { kind: "anonymous" as const } });
-  }
+  const now = new Date();
+  const wanted = polls.filter((p) => isClosed(p.closesAt, now) || own.has(p.id)).map((p) => p.id);
+  const results = await getFeedResults(supabase, wanted);
+  if (!results.ok) return results;
+
+  const items = polls.map((poll) => {
+    const found = results.data.get(poll.id);
+    const viewer: PollViewerState = found
+      ? found.myOptionId
+        ? { kind: "voted", results: found }
+        : { kind: "closed", results: found, signedIn }
+      : signedIn
+        ? { kind: "not_voted" }
+        : { kind: "anonymous" };
+    return { poll, viewer };
+  });
   return { ok: true, data: { items, nextCursor } };
 }
 
@@ -320,7 +366,7 @@ export function getFeedPage(
     const { polls, nextCursor } = page.data;
 
     if (!viewer.signedIn || polls.length === 0) {
-      return anonymousPage(supabase, polls, nextCursor);
+      return withViewerStates(supabase, polls, nextCursor, new Map(), false);
     }
 
     // Una consulta de votos propios para todo el lote (RLS sólo devuelve los del usuario).
@@ -333,29 +379,13 @@ export function getFeedPage(
       );
     if (error) {
       if (toAppError(error) === "AUTH_REQUIRED") {
-        return anonymousPage(supabase, polls, nextCursor);
+        return withViewerStates(supabase, polls, nextCursor, new Map(), false);
       }
       return { ok: false, error: toAppError(error) };
     }
     const own = new Map(
       (data as { poll_id: string; option_id: string }[]).map((v) => [v.poll_id, v.option_id]),
     );
-
-    const states = await Promise.all(
-      polls.map(async (p): Promise<Result<PollViewerState>> => {
-        const closed = await closedViewer(supabase, p, true);
-        if (!closed.ok) return closed;
-        return closed.data
-          ? { ok: true, data: closed.data }
-          : viewerFor(supabase, p.id, own.get(p.id) ?? null);
-      }),
-    );
-    const items = [];
-    for (let i = 0; i < polls.length; i++) {
-      const state = states[i];
-      if (!state.ok) return state;
-      items.push({ poll: polls[i], viewer: state.data });
-    }
-    return { ok: true, data: { items, nextCursor } };
+    return withViewerStates(supabase, polls, nextCursor, own, true);
   });
 }

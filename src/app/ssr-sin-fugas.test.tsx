@@ -127,7 +127,10 @@ describe("quien ya votó", () => {
     responses = {
       polls: { data: [row, other], error: null },
       votes: { data: [{ poll_id: ID, option_id: "a" }], error: null },
-      "rpc:get_poll_results": { data: resultRows, error: null },
+      "rpc:get_feed_results": {
+        data: resultRows.map((r) => ({ ...r, poll_id: ID })),
+        error: null,
+      },
     };
 
     const html = renderToStaticMarkup(await Feed());
@@ -137,7 +140,8 @@ describe("quien ya votó", () => {
     // Una sola consulta de votos propios para el lote y resultados sólo de la votada.
     const targets = queries.map((q) => q.target);
     expect(targets.filter((t) => t === "votes")).toHaveLength(1);
-    expect(targets.filter((t) => t === "rpc:get_poll_results")).toHaveLength(1);
+    expect(targets.filter((t) => t === "rpc:get_feed_results")).toHaveLength(1);
+    expect(targets).not.toContain("rpc:get_poll_results");
   });
 });
 
@@ -232,6 +236,10 @@ describe("cierre de la encuesta", () => {
       responses = {
         polls: { data, error: null },
         "rpc:get_poll_results": { data: closedRows, error: null },
+        "rpc:get_feed_results": {
+          data: closedRows.map((r) => ({ ...r, poll_id: ID })),
+          error: null,
+        },
       };
       const html = renderToStaticMarkup(await render());
       expect(html, name).toMatch(/75,0\s*%/);
