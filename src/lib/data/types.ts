@@ -16,6 +16,7 @@ export type AppErrorCode =
   | "REPORT_INVALID"
   | "INVALID_CLOSES_AT"
   | "POLL_CLOSED"
+  | "INVALID_CATEGORY"
   | "USERNAME_INVALID"
   | "USERNAME_TAKEN"
   | "USERNAME_RESERVED"
@@ -48,6 +49,12 @@ export interface PollAuthor {
   displayName: string | null;
 }
 
+// Categoría fija de una encuesta (V2-021).
+export interface Category {
+  slug: string;
+  name: string;
+}
+
 export interface PublicPoll {
   id: string;
   question: string;
@@ -55,6 +62,7 @@ export interface PublicPoll {
   // Cierre opcional (V2-013): desde esta fecha no se admiten votos.
   closesAt?: string | null;
   author?: PollAuthor | null;
+  category?: Category | null;
   options: PollOption[];
 }
 
