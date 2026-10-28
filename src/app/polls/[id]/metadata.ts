@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getPollDetail } from "@/lib/data/operations";
+import { getPollSummary } from "@/lib/data/operations";
 import { createAnonymousClient } from "@/lib/supabase/anonymous";
 
 const UNAVAILABLE: Metadata = { title: "No disponible", robots: { index: false } };
@@ -9,10 +9,10 @@ const UNAVAILABLE: Metadata = { title: "No disponible", robots: { index: false }
 // tarjetas sociales. Oculta, inexistente o mal formada no revelan nada.
 export async function pollMetadata(id: string): Promise<Metadata> {
   const supabase = createAnonymousClient();
-  const detail = await getPollDetail(supabase, id, { signedIn: false });
-  if (!detail.ok) return detail.error === "POLL_UNAVAILABLE" ? UNAVAILABLE : {};
+  const poll = await getPollSummary(supabase, id);
+  if (!poll.ok) return poll.error === "POLL_UNAVAILABLE" ? UNAVAILABLE : {};
 
-  const { question, options } = detail.data.poll;
+  const { question, options } = poll.data;
   const description = `${options.map((o) => o.text).join(" · ")}. Vota para ver los resultados.`;
   return {
     title: question,

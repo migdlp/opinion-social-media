@@ -495,3 +495,129 @@ describe("getProfileVotes (V2-007)", () => {
     expect(await getProfileVotes(supabase, "perfil_b")).toEqual({ ok: false, error: code });
   });
 });
+
+describe("encuestas cerradas (V2-014)", () => {
+  const closedRow = (id: string, closesAt: string | null) => ({
+    ...pollRow(id),
+    closes_at: closesAt,
+  });
+  const PAST = "2020-01-01T00:00:00+00:00";
+  const FUTURE = "2999-01-01T00:00:00+00:00";
+  const closedRows = resultRows.map((r) => ({ ...r, my_option_id: null }));
+
+  it("visitante: una cerrada pide los resultados y el estado es «closed»", async () => {
+    const { supabase, queries } = fakeSupabase({
+      polls: { data: closedRow(P1, PAST), error: null },
+      "rpc:get_poll_results": { data: closedRows, error: null },
+    });
+    const r = await getPollDetail(supabase, P1, { signedIn: false });
+    expect(r).toMatchObject({
+      ok: true,
+      data: {
+        viewer: { kind: "closed", signedIn: false, results: { totalVotes: 3, myOptionId: null } },
+      },
+    });
+    expect(queries.map((q) => q.target)).toEqual([
+      "polls",
+      "rpc:get_poll_authors",
+      "rpc:get_poll_results",
+    ]);
+  });
+
+  it("con sesión y sin voto: «closed» con signedIn", async () => {
+    const { supabase } = fakeSupabase({
+      polls: { data: closedRow(P1, PAST), error: null },
+      votes: { data: null, error: null },
+      "rpc:get_poll_results": { data: closedRows, error: null },
+    });
+    const r = await getPollDetail(supabase, P1, { signedIn: true });
+    expect(r).toMatchObject({ ok: true, data: { viewer: { kind: "closed", signedIn: true } } });
+  });
+
+  it("con voto propio sigue siendo «voted», con su opción", async () => {
+    const { supabase } = fakeSupabase({
+      polls: { data: closedRow(P1, PAST), error: null },
+      votes: { data: { option_id: B }, error: null },
+      "rpc:get_poll_results": { data: resultRows, error: null },
+    });
+    const r = await getPollDetail(supabase, P1, { signedIn: true });
+    expect(r).toMatchObject({
+      ok: true,
+      data: { viewer: { kind: "voted", results: { myOptionId: B } } },
+    });
+  });
+
+  it("una abierta (cierre futuro o sin cierre) no pide resultados a quien no votó", async () => {
+    for (const closesAt of [FUTURE, null]) {
+      const { supabase, queries } = fakeSupabase({
+        polls: { data: closedRow(P1, closesAt), error: null },
+      });
+      const r = await getPollDetail(supabase, P1, { signedIn: false });
+      expect(r).toMatchObject({ ok: true, data: { viewer: { kind: "anonymous" } } });
+      expect(queries.map((q) => q.target)).not.toContain("rpc:get_poll_results");
+    }
+  });
+
+  it("si la base de datos aún la considera abierta (desfase de reloj) vuelve al estado normal", async () => {
+    const { supabase } = fakeSupabase({
+      polls: { data: closedRow(P1, PAST), error: null },
+      "rpc:get_poll_results": rpcError("AUTH_REQUIRED"),
+    });
+    const r = await getPollDetail(supabase, P1, { signedIn: false });
+    expect(r).toMatchObject({ ok: true, data: { viewer: { kind: "anonymous" } } });
+
+    const signed = fakeSupabase({
+      polls: { data: closedRow(P1, PAST), error: null },
+      votes: { data: null, error: null },
+      "rpc:get_poll_results": rpcError("NOT_VOTED"),
+    });
+    expect(await getPollDetail(signed.supabase, P1, { signedIn: true })).toMatchObject({
+      ok: true,
+      data: { viewer: { kind: "not_voted" } },
+    });
+  });
+
+  it("un fallo de red al pedir resultados de una cerrada se devuelve como error", async () => {
+    const { supabase } = fakeSupabase({
+      polls: { data: closedRow(P1, PAST), error: null },
+      "rpc:get_poll_results": networkThrow,
+    });
+    expect(await getPollDetail(supabase, P1, { signedIn: false })).toEqual({
+      ok: false,
+      error: "NETWORK_ERROR",
+    });
+  });
+
+  it("feed: sólo las cerradas piden resultados, también para visitantes", async () => {
+    const { supabase, queries } = fakeSupabase({
+      polls: { data: [closedRow(P1, PAST), closedRow(P2, FUTURE)], error: null },
+      "rpc:get_poll_results": { data: closedRows, error: null },
+    });
+    const r = await getFeedPage(supabase, null, { signedIn: false });
+    expect(r.ok && r.data.items.map((i) => i.viewer.kind)).toEqual(["closed", "anonymous"]);
+    expect(queries.map((q) => q.target).filter((t) => t === "rpc:get_poll_results")).toHaveLength(
+      1,
+    );
+  });
+
+  it("feed con sesión: cerrada sin voto «closed», cerrada votada «voted», abierta «not_voted»", async () => {
+    const P3 = uuid(3);
+    const { supabase } = fakeSupabase({
+      polls: {
+        data: [closedRow(P1, PAST), closedRow(P2, PAST), closedRow(P3, FUTURE)],
+        error: null,
+      },
+      votes: { data: [{ poll_id: P2, option_id: B }], error: null },
+      "rpc:get_poll_results": [
+        { data: closedRows, error: null },
+        { data: resultRows, error: null },
+      ],
+    });
+    const r = await getFeedPage(supabase, null, { signedIn: true });
+    expect(r.ok && r.data.items.map((i) => i.viewer.kind)).toEqual([
+      "closed",
+      "voted",
+      "not_voted",
+    ]);
+  });
+});

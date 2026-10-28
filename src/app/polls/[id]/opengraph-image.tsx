@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
-import { getPollDetail } from "@/lib/data/operations";
+import { getPollSummary } from "@/lib/data/operations";
 import { createAnonymousClient } from "@/lib/supabase/anonymous";
 
 export const alt = "Opinión — encuestas para descubrir lo que pensamos";
@@ -13,8 +13,10 @@ const previewText = (text: string) => text.replace(/\S{21,}/gu, (word) => `${wor
 
 export default async function PollImage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const detail = await getPollDetail(createAnonymousClient(), id, { signedIn: false });
-  const poll = detail.ok ? detail.data.poll : null;
+  // Sólo datos públicos de la encuesta: nunca resultados, aunque esté cerrada (V2-014 los
+  // publica en la página, no en la imagen social).
+  const result = await getPollSummary(createAnonymousClient(), id);
+  const poll = result.ok ? result.data : null;
   const font = await readFile(
     join(process.cwd(), "node_modules/geist/dist/fonts/geist-sans/Geist-Regular.ttf"),
   );

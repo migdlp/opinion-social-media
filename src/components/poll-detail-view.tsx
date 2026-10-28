@@ -33,7 +33,14 @@ export function PollDetailView({
       )}
       <div className="flex items-start justify-between gap-2">
         <h1 className="text-2xl leading-tight font-semibold tracking-[-0.02em]">{poll.question}</h1>
-        <ReportPoll pollId={poll.id} signedIn={detail.viewer.kind !== "anonymous"} />
+        <ReportPoll
+          pollId={poll.id}
+          signedIn={
+            detail.viewer.kind === "closed"
+              ? detail.viewer.signedIn
+              : detail.viewer.kind !== "anonymous"
+          }
+        />
       </div>
       <PollVoting
         poll={poll}
