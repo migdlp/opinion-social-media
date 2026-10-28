@@ -8,7 +8,10 @@ type Public = Database["public"];
 
 export type DatabaseContractChecks = [
   Assert<
-    Equal<keyof Public["Tables"], "polls" | "poll_options" | "votes" | "profiles" | "follows">
+    Equal<
+      keyof Public["Tables"],
+      "polls" | "poll_options" | "votes" | "poll_reports" | "profiles" | "follows"
+    >
   >,
   Assert<
     Equal<
@@ -98,6 +101,12 @@ export type DatabaseContractChecks = [
     Equal<
       Public["Functions"]["respond_follow_request"]["Args"],
       { p_username: string; p_accept: boolean }
+    >
+  >,
+  Assert<
+    Equal<
+      Public["Functions"]["report_poll"]["Args"],
+      { p_poll_id: string; p_reason: string; p_details?: string }
     >
   >,
 ];
