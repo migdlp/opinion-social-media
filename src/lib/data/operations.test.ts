@@ -4,6 +4,7 @@ import {
   getCategories,
   getFeedPage,
   getMyProfile,
+  getProfileVotes,
   getPollDetail,
   getPollResults,
   reportPoll,
@@ -453,6 +454,73 @@ describe("perfil propio (V2-002)", () => {
       expect(await upsertMyProfile(supabase, "ana", null)).toEqual({ ok: false, error: code });
     },
   );
+});
+
+describe("getProfileVotes (V2-007)", () => {
+  const row = (n: number, hidden = false) => ({
+    poll_id: uuid(n),
+    question: `¿Pregunta ${n}?`,
+    poll_created_at: "2026-10-27T10:00:00+00:00",
+    closes_at: null,
+    author_username: n % 2 ? "ana_23" : null,
+    author_display_name: n % 2 ? "Ana" : null,
+    voted_at: `2026-10-28T10:00:0${n}+00:00`,
+    option_id: hidden ? null : uuid(100 + n),
+    option_text: hidden ? null : "Sí",
+    choice_hidden: hidden,
+    cursor: `2026-10-28T10:00:0${n}.000000Z|${uuid(500 + n)}`,
+  });
+
+  it("llama a la RPC con el usuario y el cursor y mapea las filas", async () => {
+    const { supabase, queries } = fakeSupabase({
+      "rpc:get_profile_votes": { data: [row(1), row(2, true)], error: null },
+    });
+    const r = await getProfileVotes(supabase, "perfil_b", "abc");
+    expect(queries[0].calls[0]).toEqual([
+      "rpc",
+      "get_profile_votes",
+      { p_username: "perfil_b", p_cursor: "abc" },
+    ]);
+    expect(r).toEqual({
+      ok: true,
+      data: {
+        votes: [
+          {
+            pollId: uuid(1),
+            question: "¿Pregunta 1?",
+            pollCreatedAt: "2026-10-27T10:00:00+00:00",
+            closesAt: null,
+            author: { username: "ana_23", displayName: "Ana" },
+            votedAt: "2026-10-28T10:00:01+00:00",
+            choice: { optionId: uuid(101), text: "Sí" },
+          },
+          {
+            pollId: uuid(2),
+            question: "¿Pregunta 2?",
+            pollCreatedAt: "2026-10-27T10:00:00+00:00",
+            closesAt: null,
+            author: null,
+            votedAt: "2026-10-28T10:00:02+00:00",
+            choice: null,
+          },
+        ],
+        nextCursor: null,
+      },
+    });
+  });
+
+  it("21 filas: devuelve 20 y el cursor de la última entregada", async () => {
+    const rows = Array.from({ length: 21 }, (_, i) => row(i + 1));
+    const { supabase } = fakeSupabase({ "rpc:get_profile_votes": { data: rows, error: null } });
+    const r = await getProfileVotes(supabase, "perfil_b");
+    expect(r.ok && r.data.votes).toHaveLength(20);
+    expect(r.ok && r.data.nextCursor).toBe(rows[19].cursor);
+  });
+
+  it.each(["PROFILE_PRIVATE", "USER_NOT_FOUND"])("propaga %s", async (code) => {
+    const { supabase } = fakeSupabase({ "rpc:get_profile_votes": rpcError(code) });
+    expect(await getProfileVotes(supabase, "perfil_b")).toEqual({ ok: false, error: code });
+  });
 });
 
 describe("encuestas cerradas (V2-014)", () => {

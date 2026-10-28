@@ -45,6 +45,7 @@ Modelo de datos: el del [brief §5](brief-producto.md#5-modelo-de-datos-obligato
 | `DISPLAY_NAME_INVALID` | `upsert_my_profile` | Nombre visible normalizado fuera de 1–50 (vacío incluido; `null` es válido) | «El nombre debe tener entre 1 y 50 caracteres.» |
 | `PROFILE_REQUIRED` | `set_profile_privacy`; `create_poll` y `vote_poll` (trigger) | La cuenta aún no tiene perfil | «Elige primero tu usuario.» |
 | `USER_NOT_FOUND` | `follow_user`, `unfollow_user`, `respond_follow_request`, `remove_follower` | El `@usuario` no existe; en `respond_follow_request`, tampoco hay solicitud pendiente de esa cuenta | «No existe ese usuario.» |
+| `PROFILE_PRIVATE` | `get_profile_votes` | El perfil es privado y quien mira no es el dueño ni un seguidor aceptado | «Esta cuenta es privada.» |
 | `CANNOT_FOLLOW_SELF` | `follow_user` | El `@usuario` es el propio | «No puedes seguirte a ti mismo.» |
 | `FOLLOW_RATE_LIMITED` | `follow_user` | 200 seguimientos nuevos de la cuenta en 60 minutos (el límite cuenta filas creadas; repetir uno existente no cuenta) | «Has seguido a demasiadas cuentas. Inténtalo más tarde.» |
 | `NETWORK_ERROR` | Adaptador (cliente) | `fetch` falla o no llega respuesta | «No hay conexión. Comprueba tu red y vuelve a intentarlo.» |
@@ -187,6 +188,20 @@ public.get_feed_results(p_poll_ids uuid[])
 - Máximo 20 ids por llamada (los demás se ignoran). Por **cada** encuesta aplica la misma autorización que `get_poll_results` (publicada, visible para quien llama, y cerrada o votada por quien llama) y devuelve sólo las autorizadas, **sin error** por las demás: una lista mezclada no filtra agregados de las no votadas. Las filas de una encuesta salen ordenadas por `position`.
 - `EXECUTE` también para `anon` (las cerradas son públicas). Hay que mantenerla sincronizada con `get_poll_results` si cambia la autorización.
 - Adaptador: `getFeedPage` hace, como máximo, una consulta de encuestas, una de votos propios y una de resultados por página (más la de autores).
+### 3.9. `get_profile_votes` (V2-007)
+
+```sql
+public.get_profile_votes(p_username text, p_cursor text default null)
+  returns table (poll_id uuid, question text, poll_created_at timestamptz, closes_at timestamptz,
+                 author_username text, author_display_name text, voted_at timestamptz,
+                 option_id uuid, option_text text, choice_hidden boolean, cursor text)
+```
+
+- Ejecutable por `anon` y `authenticated`. Errores: `USER_NOT_FOUND`, `PROFILE_PRIVATE` (perfil privado y quien mira no es el dueño ni seguidor aceptado).
+- Orden `votes.created_at DESC, votes.id DESC`; hasta **21 filas** (20 + 1 para saber si hay más). `cursor` de cada fila es opaco (`<created_at UTC>|<id del voto>`); se pasa el de la última fila entregada para la página siguiente. Un cursor ilegible se ignora.
+- Sólo encuestas publicadas que el visitante puede ver (`can_view_author` del autor): una encuesta de una cuenta privada no aparece aunque el votante sea público.
+- **P-1:** `option_id` y `option_text` sólo vienen informados si el visitante es el propio usuario, si ya votó esa encuesta o si está cerrada; si no, `choice_hidden = true` y ambos `null`. Nunca recuentos ni porcentajes (esos se piden con `get_poll_results`, §3.3).
+- Adaptador: `getProfileVotes(supabase, username, cursor)` → `{ votes: ProfileVote[], nextCursor }`.
 
 ## 4. Lecturas directas (RLS)
 
@@ -255,6 +270,7 @@ export type AppErrorCode =
   | 'DISPLAY_NAME_INVALID'
   | 'PROFILE_REQUIRED'
   | 'USER_NOT_FOUND'
+  | 'PROFILE_PRIVATE'
   | 'CANNOT_FOLLOW_SELF'
   | 'FOLLOW_RATE_LIMITED'
   | 'NETWORK_ERROR'

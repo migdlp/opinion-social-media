@@ -12,6 +12,7 @@ import type {
   PollResults,
   PollViewerState,
   Profile,
+  ProfileVote,
   PublicPoll,
   Result,
 } from "./types";
@@ -170,6 +171,60 @@ export function upsertMyProfile(
     if (error) return { ok: false, error: toAppError(error) };
     const row = ((data ?? []) as ProfileRow[])[0];
     return row ? { ok: true, data: toProfile(row) } : { ok: false, error: "UNKNOWN" };
+  });
+}
+
+type ProfileVoteRow = {
+  poll_id: string;
+  question: string;
+  poll_created_at: string;
+  closes_at: string | null;
+  author_username: string | null;
+  author_display_name: string | null;
+  voted_at: string;
+  option_id: string | null;
+  option_text: string | null;
+  choice_hidden: boolean;
+  cursor: string;
+};
+
+export const PROFILE_VOTES_PAGE_SIZE = 20;
+
+// Votos visibles en el perfil de @username (V2-007). Errores: USER_NOT_FOUND, PROFILE_PRIVATE.
+// La RPC devuelve hasta 21 filas (20 + 1 para saber si hay más).
+export function getProfileVotes(
+  supabase: SupabaseClient,
+  username: string,
+  cursor?: string | null,
+): Promise<Result<{ votes: ProfileVote[]; nextCursor: string | null }>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("get_profile_votes", {
+      p_username: username,
+      p_cursor: cursor ?? null,
+    });
+    if (error) return { ok: false, error: toAppError(error) };
+    const rows = (data ?? []) as ProfileVoteRow[];
+    const page = rows.slice(0, PROFILE_VOTES_PAGE_SIZE);
+    return {
+      ok: true,
+      data: {
+        votes: page.map((row) => ({
+          pollId: row.poll_id,
+          question: row.question,
+          pollCreatedAt: row.poll_created_at,
+          closesAt: row.closes_at,
+          author: row.author_username
+            ? { username: row.author_username, displayName: row.author_display_name }
+            : null,
+          votedAt: row.voted_at,
+          choice:
+            !row.choice_hidden && row.option_id && row.option_text
+              ? { optionId: row.option_id, text: row.option_text }
+              : null,
+        })),
+        nextCursor: rows.length > PROFILE_VOTES_PAGE_SIZE ? page[page.length - 1].cursor : null,
+      },
+    };
   });
 }
 
