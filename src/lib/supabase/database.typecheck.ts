@@ -18,6 +18,7 @@ export type DatabaseContractChecks = [
       | "follows"
       | "categories"
       | "saved_polls"
+      | "follow_quota_events"
     >
   >,
   Assert<

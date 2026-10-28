@@ -27,6 +27,9 @@ begin
   -- Seguidores (V2-004): sólo authenticated lee follows, y nunca anon.
   assert not has_table_privilege('anon', 'public.follows', 'select'), 'anon lee follows';
   assert has_table_privilege('authenticated', 'public.follows', 'select'), 'authenticated no lee follows';
+  -- SEC-001: el control de cuota de seguimientos no es visible para ningún cliente.
+  assert not has_table_privilege('anon', 'public.follow_quota_events', 'select'), 'anon lee follow_quota_events';
+  assert not has_table_privilege('authenticated', 'public.follow_quota_events', 'select'), 'authenticated lee follow_quota_events';
 
   assert not has_table_privilege('anon', 'public.saved_polls', 'select'), 'anon lee saved_polls';
   assert has_table_privilege('authenticated', 'public.saved_polls', 'select, insert, delete'), 'authenticated sin acceso a saved_polls';

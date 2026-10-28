@@ -22,6 +22,25 @@ export type Database = {
         };
         Relationships: [];
       };
+      follow_quota_events: {
+        Row: {
+          created_at: string;
+          id: number;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          id?: never;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: never;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       follows: {
         Row: {
           created_at: string;
