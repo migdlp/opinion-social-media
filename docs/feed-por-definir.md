@@ -1,8 +1,8 @@
-# Feed — por definir
+# Feed — definición aprobada
 
-**Estado:** en definición; pendiente sólo el plazo de permanencia de cerradas · **Tarea:** [V2-030](backlog-v2.md#v2-030--definir-el-feed-con-el-propietario) · **Última actualización:** 28-10-2026
+**Estado:** Definido · **Tarea:** [V2-030](backlog-v2.md#v2-030--definir-el-feed-con-el-propietario) · **Última actualización:** 28-10-2026
 
-> El propietario quiere decidir el feed en conversación antes de implementarlo. Este documento reúne lo necesario para que **cualquier agente o persona continúe esa definición** donde se quedó. Hasta que pase a «Definido», no se implementa nada del feed más allá de lo que ya existe.
+> Definición aprobada en conversación con el propietario el 28-10-2026 (D-022 a D-025). La implementación se realiza en V2-031–036, con sus dependencias, reservas y pruebas. Este documento no declara terminadas esas tareas.
 
 ## 1. Cómo funciona hoy
 
@@ -29,7 +29,7 @@
 - Se puede seleccionar y votar desde la tarjeta. Antes de votar una encuesta abierta no se envían agregados al navegador. Tras login se recupera la intención, sin emitir automáticamente el voto.
 - Scroll infinito con botón alternativo «Cargar más», visible y usable con teclado. Cursor de 20 encuestas; una sola solicitud en vuelo, sin duplicados ni reinicios al cambiar filtros.
 - Filtro de categoría, con **Todas** por defecto, usando el catálogo de V2-021.
-- Cerradas: se muestran con los resultados que autoriza D-020 durante un tiempo limitado desde `closes_at`. **Falta concretar ese tiempo con el propietario.** Desaparecer del feed no las borra, oculta ni cambia su visibilidad en detalle/perfil. No hace falta cron ni limpieza de filas: es un filtro temporal de lectura.
+- Cerradas: se muestran con los resultados que autoriza D-020 durante un tiempo limitado desde `closes_at`. El plazo es de **24 horas desde `closes_at`**; al alcanzarse ese instante se excluyen del feed. Desaparecer del feed no las borra, oculta ni cambia su visibilidad en detalle/perfil. No hace falta cron ni limpieza de filas: es un filtro temporal de lectura.
 
 Las precisiones sobre URL, solicitudes aceptadas, cursor, error de red y conservación del detalle son decisiones técnicas sencillas para concretar lo aprobado; no son respuestas literales del propietario.
 
@@ -42,32 +42,34 @@ Las precisiones sobre URL, solicitudes aceptadas, cursor, error de red y conserv
 | F-3 | Encuestas votadas | Mostrarlas con sus resultados. |
 | F-4 | Ranking por número de votos | No aplica al diseño elegido: sólo dos pestañas cronológicas; no se crea un ranking. |
 | F-5 | Factores/pesos de «Para ti» | No aplica: no se ha elegido esa pestaña. |
-| F-6 | Encuestas cerradas | «Sí, con sus resultados públicos, pero durarán cierto tiempo, no de forma ilimitada». **Pendiente el plazo**: preguntado 7 días / 24 horas / 30 días desde el cierre, sin asumir respuesta. |
+| F-6 | Encuestas cerradas | «Sí, con sus resultados públicos, pero durarán cierto tiempo, no de forma ilimitada». Respuesta final: **24 horas desde el cierre**. |
 | F-7 | Voto desde tarjeta | Sí. |
 | F-8 | Carga de más encuestas | Scroll infinito con botón alternativo. |
 | F-9 | Categorías | Sí, con «Todas» por defecto. |
 
-Decisiones registradas en [D-022 a D-025](decisiones.md). V2-030 sigue en progreso hasta fijar F-6 y publicar los tickets enlazados.
+Decisiones registradas en [D-022 a D-025](decisiones.md). F-1 a F-9 quedan resueltas; V2-030 se completa tras integrar la documentación y publicar los tickets enlazados.
 
 ## 5. Trabajo de implementación preparado
 
-El detalle preliminar está en [backlog-v2.md](backlog-v2.md#e10--implementación-del-feed-acordado). Las tareas no se pueden reservar hasta cerrar V2-030 y publicar sus issues:
+El detalle implementable está en [backlog-v2.md](backlog-v2.md#e10--implementación-del-feed-acordado). Las tareas se reservan tras cerrar V2-030, según sus dependencias y las reservas de main:
 
 | ID | Trabajo | Prioridad | Dependencias reales |
 |---|---|---|---|
-| V2-031 | Lectura de feed con seguimientos, categoría y retención | P0 | V2-030, V2-005, V2-014, V2-021 |
-| V2-032 | Pestañas, entrada por defecto y filtro de categoría | P0 | V2-030, V2-031 |
-| V2-033 | Voto seguro desde la tarjeta | P0 | V2-030, V2-014 |
-| V2-034 | Scroll infinito y carga alternativa | P0 | V2-031, V2-032 |
-| V2-035 | Seguridad del feed mediante HTTP/SQL | P0 | V2-031, V2-033, V2-024 |
-| V2-036 | E2E, accesibilidad y documentación del feed | P0 | V2-032, V2-033, V2-034, V2-035 |
+| [V2-031](https://github.com/migdlp/opinion-social-media/issues/178) | Lectura de feed con seguimientos, categoría y retención | P0 | V2-030, V2-005, V2-014, V2-021 |
+| [V2-032](https://github.com/migdlp/opinion-social-media/issues/179) | Pestañas, entrada por defecto y filtro de categoría | P0 | V2-030, V2-031 |
+| [V2-033](https://github.com/migdlp/opinion-social-media/issues/180) | Voto seguro desde la tarjeta | P0 | V2-030, V2-014 |
+| [V2-034](https://github.com/migdlp/opinion-social-media/issues/181) | Scroll infinito y carga alternativa | P0 | V2-031, V2-032 |
+| [V2-035](https://github.com/migdlp/opinion-social-media/issues/182) | Seguridad del feed mediante HTTP/SQL | P0 | V2-031, V2-033, V2-024 |
+| [V2-036](https://github.com/migdlp/opinion-social-media/issues/183) | E2E, accesibilidad y documentación del feed | P0 | V2-032, V2-033, V2-034, V2-035 |
 
 Frontend de tarjetas (V2-033) puede avanzar con el contrato existente de voto/resultados mientras se implementa V2-031. No se depende de V2-023 para publicar: la optimización por lotes sigue siendo P1.
 
-## 6. Cómo cerrar la definición
+## 6. Verificación de cobertura
 
-1. Registrar la respuesta pendiente sobre el plazo F-6; no elegir un valor por silencio.
-2. Concretarlo en D-025 y V2-031. Crear los seis issues P0 con etiquetas, estimaciones relativas, criterios y dependencias, y enlazarlos como sub-issues de E10.
-3. Actualizar el catálogo, mapa de dependencias, `github-issues.md` y filas nuevas de `tareas-futuras.md` con los enlaces reales. No alterar reservas ajenas.
-4. Cambiar este documento a «Definido», revisar la cobertura F-1 a F-9 y fusionar la PR documental con CI verde.
-5. Sólo entonces marcar V2-030 Completada mediante commit de estado exclusivo en main y cerrar #123.
+- F-1/F-2/F-9: V2-031/032 y sus E2E.
+- F-3/F-6: V2-031/033; 24 horas verificadas en el límite exacto con reloj de servidor.
+- F-4/F-5: no se crea ranking ni recomendaciones; ambas pestañas son cronológicas.
+- F-7: V2-033, recuperación de autenticación y voto único.
+- F-8: V2-034, scroll y botón accesible.
+- Privacidad y regresión completa: V2-035/036.
+- Este documento define el resultado, no acredita que la implementación ni producción estén terminadas.

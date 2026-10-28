@@ -35,7 +35,7 @@ D-005 conserva el historial de pausa. D-013 la levanta para el resto de tareas y
 | D-022 | Feed con dos pestañas: Recientes y Siguiendo, ambas cronológicas. Visitantes en Recientes; usuarios en Siguiendo, con Recientes si aún no siguen a nadie. Se sustituye la propuesta no aprobada de «Para ti»; no hay ranking por popularidad ni pesos de recomendación | Respuestas explícitas del propietario a V2-030, 28-10-2026 |
 | D-023 | Se vota desde la tarjeta del feed. La paginación usa scroll infinito con botón alternativo accesible | Ídem |
 | D-024 | Las encuestas votadas siguen en el feed con sus resultados; filtro por categoría con «Todas» por defecto | Ídem |
-| D-025 | Las encuestas cerradas siguen temporalmente en el feed con resultados públicos para quien pueda verlas. El plazo exacto desde el cierre está pendiente de respuesta; no desaparecen por ello de su enlace o perfil | Respuesta del propietario: «sí, con sus resultados públicos, pero durarán cierto tiempo, no de forma ilimitada», 28-10-2026 |
+| D-025 | Las encuestas cerradas siguen temporalmente en el feed con resultados públicos para quien pueda verlas. Permanecen **24 horas desde el cierre**, después desaparecen del feed sin borrar ni ocultar su enlace o perfil | Respuesta del propietario: «sí, con sus resultados públicos, pero durarán cierto tiempo, no de forma ilimitada», 28-10-2026 |
 
 ## Reglas del producto recogidas del backlog
 

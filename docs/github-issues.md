@@ -85,7 +85,7 @@ La implementación sigue pausada. Crear estos tickets no ejecuta las tareas ni a
 
 ## Fase 2
 
-32 issues creadas el 28-10-2026: seis épicas y 26 tareas. Cada tarea es un sub-issue de su épica e incluye prioridad, tamaño, oleada, criterios, «Dependencias bloqueantes» y «Bloquea a» enlazados. Los requisitos completos están en [backlog-v2.md](backlog-v2.md).
+38 issues creadas el 28-10-2026: seis épicas y 32 tareas. Cada tarea es un sub-issue de su épica e incluye prioridad, tamaño, oleada, criterios, «Dependencias bloqueantes» y «Bloquea a» enlazados. Los requisitos completos están en [backlog-v2.md](backlog-v2.md).
 
 | Épica | Issue |
 |---|---|
@@ -93,7 +93,7 @@ La implementación sigue pausada. Crear estos tickets no ejecuta las tareas ni a
 | E07 Tipos de encuesta | [#110](https://github.com/migdlp/opinion-social-media/issues/110) |
 | E08 Diseño y experiencia | [#111](https://github.com/migdlp/opinion-social-media/issues/111) |
 | E09 Contenido y seguridad | [#112](https://github.com/migdlp/opinion-social-media/issues/112) |
-| E10 Feed (por definir) | [#113](https://github.com/migdlp/opinion-social-media/issues/113) |
+| E10 Feed | [#113](https://github.com/migdlp/opinion-social-media/issues/113) |
 | E11 Calidad y rendimiento | [#114](https://github.com/migdlp/opinion-social-media/issues/114) |
 
 | ID | Issue | Prioridad | Épica |
@@ -124,3 +124,11 @@ La implementación sigue pausada. Crear estos tickets no ejecuta las tareas ni a
 | V2-024 | [#137: Pruebas de fugas de privacidad y cierre](https://github.com/migdlp/opinion-social-media/issues/137) | P0 | [E11](https://github.com/migdlp/opinion-social-media/issues/114) |
 | V2-025 | [#140: E2E del ciclo social](https://github.com/migdlp/opinion-social-media/issues/140) | P0 | [E11](https://github.com/migdlp/opinion-social-media/issues/114) |
 | V2-030 | [#123: Definir el feed con el propietario](https://github.com/migdlp/opinion-social-media/issues/123) | P0 | [E10](https://github.com/migdlp/opinion-social-media/issues/113) |
+| V2-031 | [#178: Lectura de feed con seguimientos, categoría y retención](https://github.com/migdlp/opinion-social-media/issues/178) | P0 | [E10](https://github.com/migdlp/opinion-social-media/issues/113) |
+| V2-032 | [#179: Pestañas, entrada por defecto y filtro de categoría](https://github.com/migdlp/opinion-social-media/issues/179) | P0 | [E10](https://github.com/migdlp/opinion-social-media/issues/113) |
+| V2-033 | [#180: Voto seguro desde la tarjeta del feed](https://github.com/migdlp/opinion-social-media/issues/180) | P0 | [E10](https://github.com/migdlp/opinion-social-media/issues/113) |
+| V2-034 | [#181: Scroll infinito con botón alternativo](https://github.com/migdlp/opinion-social-media/issues/181) | P0 | [E10](https://github.com/migdlp/opinion-social-media/issues/113) |
+| V2-035 | [#182: Ataques a la privacidad del nuevo feed](https://github.com/migdlp/opinion-social-media/issues/182) | P0 | [E10](https://github.com/migdlp/opinion-social-media/issues/113) |
+| V2-036 | [#183: E2E y cierre del feed](https://github.com/migdlp/opinion-social-media/issues/183) | P0 | [E10](https://github.com/migdlp/opinion-social-media/issues/113) |
+
+Las seis tareas del feed tienen dependencias nativas de GitHub y pertenecen como sub-issues a E10. El orden está en el mapa de backlog-v2; V2-031 y V2-033 pueden desarrollarse en paralelo al cumplirse sus dependencias.

@@ -97,7 +97,7 @@ La columna Orden es orientativa; las dependencias y las reservas de cada fila de
 
 ## Fase 2 (backlog-v2)
 
-Tareas de [backlog-v2.md](backlog-v2.md), con el mismo protocolo de reserva. Antes de elegir una, mirar su oleada y sus dependencias en el [mapa de dependencias](backlog-v2.md#4-mapa-de-dependencias). El feed (E10) está [por definir](feed-por-definir.md); de esa épica sólo se puede reservar V2-030. Épicas: [E06](https://github.com/migdlp/opinion-social-media/issues/109), [E07](https://github.com/migdlp/opinion-social-media/issues/110), [E08](https://github.com/migdlp/opinion-social-media/issues/111), [E09](https://github.com/migdlp/opinion-social-media/issues/112), [E10](https://github.com/migdlp/opinion-social-media/issues/113), [E11](https://github.com/migdlp/opinion-social-media/issues/114).
+Tareas de [backlog-v2.md](backlog-v2.md), con el mismo protocolo de reserva. Antes de elegir una, mirar su oleada y sus dependencias en el [mapa de dependencias](backlog-v2.md#4-mapa-de-dependencias). El feed (E10) está [definido](feed-por-definir.md); V2-031–036 se reservan al completar V2-030 y sus otras dependencias. Épicas: [E06](https://github.com/migdlp/opinion-social-media/issues/109), [E07](https://github.com/migdlp/opinion-social-media/issues/110), [E08](https://github.com/migdlp/opinion-social-media/issues/111), [E09](https://github.com/migdlp/opinion-social-media/issues/112), [E10](https://github.com/migdlp/opinion-social-media/issues/113), [E11](https://github.com/migdlp/opinion-social-media/issues/114).
 
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|
@@ -127,6 +127,12 @@ Tareas de [backlog-v2.md](backlog-v2.md), con el mismo protocolo de reserva. Ant
 | [V2-024](https://github.com/migdlp/opinion-social-media/issues/137) | Pruebas de fugas de privacidad y cierre | P0 | V2-005, V2-007, V2-014 | Pendiente | — |
 | [V2-025](https://github.com/migdlp/opinion-social-media/issues/140) | E2E del ciclo social | P0 | V2-002, V2-006, V2-009 | Pendiente | — |
 | [V2-030](https://github.com/migdlp/opinion-social-media/issues/123) | Definir el feed con el propietario | P0 | — | En progreso: preguntas de producto enviadas; pendiente de respuestas del propietario | Codex /root (opinion_social_media) |
+| [V2-031](https://github.com/migdlp/opinion-social-media/issues/178) | Lectura de feed con seguimientos, categoría y retención | P0 | V2-030, V2-005, V2-014, V2-021 | Pendiente | — |
+| [V2-032](https://github.com/migdlp/opinion-social-media/issues/179) | Pestañas, entrada por defecto y filtro de categoría | P0 | V2-030, V2-031 | Pendiente | — |
+| [V2-033](https://github.com/migdlp/opinion-social-media/issues/180) | Voto seguro desde la tarjeta del feed | P0 | V2-030, V2-014 | Pendiente | — |
+| [V2-034](https://github.com/migdlp/opinion-social-media/issues/181) | Scroll infinito con botón alternativo | P0 | V2-031, V2-032 | Pendiente | — |
+| [V2-035](https://github.com/migdlp/opinion-social-media/issues/182) | Ataques a la privacidad del nuevo feed | P0 | V2-031, V2-033, V2-024 | Pendiente | — |
+| [V2-036](https://github.com/migdlp/opinion-social-media/issues/183) | E2E y cierre del feed | P0 | V2-032, V2-033, V2-034, V2-035 | Pendiente | — |
 
 ## Condición de cierre
 

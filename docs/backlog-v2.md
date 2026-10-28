@@ -1,10 +1,10 @@
 # Backlog fase 2 — Perfiles, tipos de encuesta, diseño y contenido
 
-**Versión:** 2.1 · **Estado:** en ejecución; consultar estados y reservas en `tareas-futuras.md` · **Origen:** auditoría y respuestas del propietario del 28-10-2026 (decisiones D-015 a D-021).
+**Versión:** 2.1 · **Estado:** en ejecución; consultar estados y reservas en `tareas-futuras.md` · **Origen:** auditoría y respuestas del propietario del 28-10-2026 (decisiones D-015 a D-025).
 
-> Este documento amplía el MVP con funciones que el [brief](brief-producto.md) dejaba fuera (§3.2, §5 y §8). El brief se conserva como fuente histórica; donde choque con este backlog, prevalecen las decisiones D-015 a D-021 de [decisiones.md](decisiones.md). El backlog del MVP ([backlog.md](backlog.md)) sigue vigente para sus tareas pendientes (MVP-005, MVP-049 a MVP-051).
+> Este documento amplía el MVP con funciones que el [brief](brief-producto.md) dejaba fuera (§3.2, §5 y §8). El brief se conserva como fuente histórica; donde choque con este backlog, prevalecen las decisiones D-015 a D-025 de [decisiones.md](decisiones.md). El backlog del MVP ([backlog.md](backlog.md)) sigue vigente para sus tareas pendientes (MVP-005, MVP-049 a MVP-051).
 >
-> **El feed (épica E10) tiene el diseño acordado; falta el plazo de permanencia de cerradas.** Ver [feed-por-definir.md](feed-por-definir.md). Sólo se puede reservar su tarea de definición, V2-030.
+> **El feed (épica E10) está definido en D-022 a D-025.** Ver [feed-por-definir.md](feed-por-definir.md). Las tareas V2-031–036 se reservan según sus dependencias al completar V2-030.
 
 ## 1. Cómo usar este documento
 
@@ -79,7 +79,12 @@
 | V2-022 | Guardar para luego | P1 | M | `database`, `frontend` | V2-006 |
 | **E10 — Feed (en discusión)** | | | | | |
 | V2-030 | Definir el feed con el propietario | P0 | M | `product`, `docs` | — |
-| V2-031… | Tareas del feed, por crear al terminar V2-030 | — | — | `frontend`, `backend` | V2-030 |
+| V2-031 | Lectura de feed con seguimientos, categoría y retención | P0 | L | `backend`, `database`, `security` | V2-030, V2-005, V2-014, V2-021 |
+| V2-032 | Pestañas, entrada por defecto y filtro de categoría | P0 | M | `frontend`, `design` | V2-030, V2-031 |
+| V2-033 | Voto seguro desde la tarjeta del feed | P0 | M | `frontend`, `auth`, `testing` | V2-030, V2-014 |
+| V2-034 | Scroll infinito con botón alternativo | P0 | M | `frontend`, `testing`, `design` | V2-031, V2-032 |
+| V2-035 | Ataques a la privacidad del nuevo feed | P0 | M | `security`, `testing`, `backend` | V2-031, V2-033, V2-024 |
+| V2-036 | E2E y cierre del feed | P0 | M | `testing`, `frontend`, `devops` | V2-032, V2-033, V2-034, V2-035 |
 | **E11 — Calidad y rendimiento** | | | | | |
 | V2-023 | RPC de resultados por lotes para el feed | P1 | M | `database`, `backend` | V2-014 |
 | V2-024 | Pruebas de fugas de privacidad y cierre | P0 | M | `testing`, `security` | V2-005, V2-007, V2-014 |
@@ -97,7 +102,7 @@ Qué bloquea a qué y por cuál empezar: ver la sección 4, «Mapa de dependenci
 | [V2-002](https://github.com/migdlp/opinion-social-media/issues/124) Onboarding: elegir `@usuario` tras el primer login | P0 | M | V2-001 | V2-008, V2-010, V2-025 | 1 |
 | [V2-003](https://github.com/migdlp/opinion-social-media/issues/125) Firmar encuestas con `@usuario` | P0 | M | V2-001 | V2-006 | 1 |
 | [V2-004](https://github.com/migdlp/opinion-social-media/issues/126) Crear tabla `follows` con solicitudes | P0 | L | V2-001 | V2-005, V2-008, V2-009 | 1 |
-| [V2-005](https://github.com/migdlp/opinion-social-media/issues/128) Visibilidad de cuentas privadas en RLS y RPC | P0 | L | V2-001, V2-004 | V2-006, V2-007, V2-014, V2-019, V2-024 | 2 |
+| [V2-005](https://github.com/migdlp/opinion-social-media/issues/128) Visibilidad de cuentas privadas en RLS y RPC | P0 | L | V2-001, V2-004 | V2-006, V2-007, V2-014, V2-019, V2-024, V2-031 | 2 |
 | [V2-006](https://github.com/migdlp/opinion-social-media/issues/135) Página de perfil `/u/[username]` | P0 | L | V2-003, V2-005, V2-007 | V2-009, V2-022, V2-025 | 4 |
 | [V2-007](https://github.com/migdlp/opinion-social-media/issues/132) RPC de votos visibles en un perfil | P0 | M | V2-005 | V2-006, V2-024 | 3 |
 | [V2-008](https://github.com/migdlp/opinion-social-media/issues/129) Ajustes de perfil y privacidad (`/settings`) | P0 | M | V2-002, V2-004 | — | 2 |
@@ -106,19 +111,25 @@ Qué bloquea a qué y por cuál empezar: ver la sección 4, «Mapa de dependenci
 | [V2-011](https://github.com/migdlp/opinion-social-media/issues/116) Plantilla Sí/No en el formulario | P1 | S | — | — | 0 |
 | [V2-012](https://github.com/migdlp/opinion-social-media/issues/117) Permitir hasta 6 opciones | P0 | M | — | V2-013 | 0 |
 | [V2-013](https://github.com/migdlp/opinion-social-media/issues/127) Fecha de cierre opcional | P0 | L | V2-012 | V2-014, V2-021 | 1 |
-| [V2-014](https://github.com/migdlp/opinion-social-media/issues/133) Resultados públicos al cerrarse | P0 | L | V2-005, V2-013 | V2-023, V2-024 | 3 |
+| [V2-014](https://github.com/migdlp/opinion-social-media/issues/133) Resultados públicos al cerrarse | P0 | L | V2-005, V2-013 | V2-023, V2-024, V2-031, V2-033 | 3 |
 | [V2-015](https://github.com/migdlp/opinion-social-media/issues/118) Animar las barras al revelar resultados | P1 | S | — | — | 0 |
 | [V2-016](https://github.com/migdlp/opinion-social-media/issues/119) Mensaje «Coincides con el X %» tras votar | P1 | S | — | — | 0 |
 | [V2-017](https://github.com/migdlp/opinion-social-media/issues/120) Modo oscuro | P1 | M | — | — | 0 |
 | [V2-018](https://github.com/migdlp/opinion-social-media/issues/121) Compartir con la hoja nativa | P1 | S | — | — | 0 |
 | [V2-019](https://github.com/migdlp/opinion-social-media/issues/134) Imagen OG dinámica por encuesta | P1 | M | V2-005 | — | 3 |
 | [V2-020](https://github.com/migdlp/opinion-social-media/issues/122) Denunciar una encuesta | P0 | M | — | — | 0 |
-| [V2-021](https://github.com/migdlp/opinion-social-media/issues/131) Categorías fijas al crear y en la tarjeta | P1 | M | V2-013 | — | 2 |
+| [V2-021](https://github.com/migdlp/opinion-social-media/issues/131) Categorías fijas al crear y en la tarjeta | P1 | M | V2-013 | V2-031 | 2 |
 | [V2-022](https://github.com/migdlp/opinion-social-media/issues/139) Guardar para luego | P1 | M | V2-006 | — | 5 |
 | [V2-023](https://github.com/migdlp/opinion-social-media/issues/136) RPC de resultados por lotes para el feed | P1 | M | V2-014 | — | 4 |
-| [V2-024](https://github.com/migdlp/opinion-social-media/issues/137) Pruebas de fugas de privacidad y cierre | P0 | M | V2-005, V2-007, V2-014 | — | 4 |
+| [V2-024](https://github.com/migdlp/opinion-social-media/issues/137) Pruebas de fugas de privacidad y cierre | P0 | M | V2-005, V2-007, V2-014 | V2-035 | 4 |
 | [V2-025](https://github.com/migdlp/opinion-social-media/issues/140) E2E del ciclo social | P0 | M | V2-002, V2-006, V2-009 | — | 6 |
-| [V2-030](https://github.com/migdlp/opinion-social-media/issues/123) Definir el feed con el propietario | P0 | M | — | — | 0 |
+| [V2-030](https://github.com/migdlp/opinion-social-media/issues/123) Definir el feed con el propietario | P0 | M | — | V2-031, V2-032, V2-033 | 0 |
+| [V2-031](https://github.com/migdlp/opinion-social-media/issues/178) Lectura de feed con seguimientos, categoría y retención | P0 | L | V2-030, V2-005, V2-014, V2-021 | V2-032, V2-034, V2-035 | 4 |
+| [V2-032](https://github.com/migdlp/opinion-social-media/issues/179) Pestañas, entrada por defecto y filtro de categoría | P0 | M | V2-030, V2-031 | V2-034, V2-036 | 5 |
+| [V2-033](https://github.com/migdlp/opinion-social-media/issues/180) Voto seguro desde la tarjeta del feed | P0 | M | V2-030, V2-014 | V2-035, V2-036 | 4 |
+| [V2-034](https://github.com/migdlp/opinion-social-media/issues/181) Scroll infinito con botón alternativo | P0 | M | V2-031, V2-032 | V2-036 | 6 |
+| [V2-035](https://github.com/migdlp/opinion-social-media/issues/182) Ataques a la privacidad del nuevo feed | P0 | M | V2-031, V2-033, V2-024 | V2-036 | 5 |
+| [V2-036](https://github.com/migdlp/opinion-social-media/issues/183) E2E y cierre del feed | P0 | M | V2-032, V2-033, V2-034, V2-035 | — | 7 |
 
 ### Oleadas
 
@@ -128,13 +139,14 @@ Todas las tareas de una oleada pueden hacerse en paralelo cuando la anterior est
 - **Oleada 1:** V2-002 (P0), V2-003 (P0), V2-004 (P0), V2-013 (P0)
 - **Oleada 2:** V2-005 (P0), V2-008 (P0), V2-010 (P1), V2-021 (P1)
 - **Oleada 3:** V2-007 (P0), V2-014 (P0), V2-019 (P1)
-- **Oleada 4:** V2-006 (P0), V2-023 (P1), V2-024 (P0)
-- **Oleada 5:** V2-009 (P0), V2-022 (P1)
-- **Oleada 6:** V2-025 (P0)
+- **Oleada 4:** V2-006 (P0), V2-023 (P1), V2-024 (P0), V2-031 (P0), V2-033 (P0)
+- **Oleada 5:** V2-009 (P0), V2-022 (P1), V2-032 (P0), V2-035 (P0)
+- **Oleada 6:** V2-025 (P0), V2-034 (P0)
+- **Oleada 7:** V2-036 (P0)
 
 ### Camino crítico
 
-La cadena más larga, unos 11 días de trabajo secuencial, es **V2-001 → V2-004 → V2-005 → V2-007 → V2-006 → V2-009 → V2-025**. Retrasar cualquiera de ellas retrasa el final de la fase. Si hay varios agentes, conviene que uno se dedique a esta cadena.
+La cadena social original es **V2-001 → V2-004 → V2-005 → V2-007 → V2-006 → V2-009 → V2-025**. El feed añade la cadena V2-014 → V2-031 → V2-032 → V2-034 → V2-036 y la validación V2-024 → V2-035 → V2-036. Son dependencias, no fechas de entrega. Si hay varios agentes, conviene que uno se dedique a esta cadena.
 
 ### Con cuál empezar
 
@@ -552,13 +564,15 @@ El diseño del feed está **por definir**. Todo el contexto, la propuesta inicia
 
 ### E10 — Implementación del feed acordado
 
-**Borrador listo para convertir en issues al cerrar V2-030.** Dependencias y criterios derivan de D-022 a D-025. Tamaños relativos: S ≈ 0,5 día, M ≈ 1 día, L ≈ 2 días. No son compromisos ni sprints. Todas P0 para entregar el feed pedido, sin bloquear el MVP original ya definido.
+**Diseño aprobado por el propietario el 28-10-2026.** Dependencias y criterios derivan de D-022 a D-025. Tamaños relativos: S ≈ 0,5 día, M ≈ 1 día, L ≈ 2 días. No son compromisos ni sprints. Todas P0 para entregar el feed pedido, sin bloquear el MVP original ya definido.
 
 #### V2-031 — Lectura de feed con seguimientos, categoría y retención
 
+**Issue:** [#178](https://github.com/migdlp/opinion-social-media/issues/178)
+
 - **Prioridad:** P0 · **Tamaño:** L · **Etiquetas:** backend, database, security · **Dependencias:** V2-030, V2-005, V2-014, V2-021 · **Bloquea a:** V2-032, V2-034, V2-035.
 - **Descripción:** Implementar una lectura RPC controlada y su adaptador/tipos para Recientes y Siguiendo, filtro de categoría y exclusión temporal de cerradas. Reutilizar permisos, catálogo de categorías y contratos de encuesta; migración versionada y pruebas SQL primero.
-- **Requisitos:** Recientes contiene todas las encuestas visibles; Siguiendo sólo autores seguidos con relación aceptada por el usuario autenticado (sin parámetro de identidad del visitante). Ambas cronológicas, 20 por página, cursor compuesto `created_at,id`; categoría validada o Todas. Incluir autor sin exponer `user_id`. Filtrar cerradas con el plazo de D-025 (pendiente de concretar), calculado con hora del servidor; nunca borrar filas. No enviar agregados de abiertas no votadas; mantener RPC segura de resultados y lectura del voto propio. Sin caché compartida de datos personales. Permisos mínimos, RLS y search_path seguros.
+- **Requisitos:** Recientes contiene todas las encuestas visibles; Siguiendo sólo autores seguidos con relación aceptada por el usuario autenticado (sin parámetro de identidad del visitante). Ambas cronológicas, 20 por página, cursor compuesto `created_at,id`; categoría validada o Todas. Incluir autor sin exponer `user_id`. Filtrar cerradas hasta `closes_at + interval '24 hours'` (límite exclusivo, D-025), calculado con hora del servidor; nunca borrar filas. No enviar agregados de abiertas no votadas; mantener RPC segura de resultados y lectura del voto propio. Sin caché compartida de datos personales. Permisos mínimos, RLS y search_path seguros.
 - **Criterios:**
   1. Dado anon, seguidor aceptado, pendiente y extraño, cuando consultan ambos modos, entonces sólo reciben las encuestas visibles y Siguiendo deniega anon sin revelar otras cuentas.
   2. Dadas fechas iguales y más de 20 encuestas, cuando se recorren páginas, entonces el orden es estable y no hay duplicados; un cursor/filtro inválido produce error controlado.
@@ -567,6 +581,8 @@ El diseño del feed está **por definir**. Todo el contexto, la propuesta inicia
   5. Dadas abiertas sin votar, votadas y cerradas, entonces sólo las autorizadas contienen resultados, sin lecturas directas de votos ajenos; tipos regenerados y pruebas SQL/adaptador en verde.
 
 #### V2-032 — Pestañas, entrada por defecto y filtro de categoría
+
+**Issue:** [#179](https://github.com/migdlp/opinion-social-media/issues/179)
 
 - **Prioridad:** P0 · **Tamaño:** M · **Etiquetas:** frontend, design · **Dependencias:** V2-030, V2-031 · **Bloquea a:** V2-034, V2-036.
 - **Descripción:** Integrar Recientes/Siguiendo y categorías en `/`, con selección en URL, teclado, estados de carga, error y vacío; conservar el diseño y la navegación móvil.
@@ -578,6 +594,8 @@ El diseño del feed está **por definir**. Todo el contexto, la propuesta inicia
 
 #### V2-033 — Voto seguro desde la tarjeta del feed
 
+**Issue:** [#180](https://github.com/migdlp/opinion-social-media/issues/180)
+
 - **Prioridad:** P0 · **Tamaño:** M · **Etiquetas:** frontend, auth, testing · **Dependencias:** V2-030, V2-014 · **Bloquea a:** V2-035, V2-036.
 - **Descripción:** Reutilizar selección, acción de voto, lectura autorizada y resultados del detalle dentro de la tarjeta, manteniendo enlace compartible y autor. Sin nueva vía de autorización ni voto automático después de login.
 - **Criterios:**
@@ -587,6 +605,8 @@ El diseño del feed está **por definir**. Todo el contexto, la propuesta inicia
   4. Dadas votadas o cerradas visibles, entonces muestran resultados desde la carga y las cerradas no admiten voto. Las opciones tienen etiquetas, foco y feedback accesibles; acciones no quedan dentro de otro enlace.
 
 #### V2-034 — Scroll infinito con botón alternativo
+
+**Issue:** [#181](https://github.com/migdlp/opinion-social-media/issues/181)
 
 - **Prioridad:** P0 · **Tamaño:** M · **Etiquetas:** frontend, testing, design · **Dependencias:** V2-031, V2-032 · **Bloquea a:** V2-036.
 - **Descripción:** Cargar la página siguiente al acercarse al final con IntersectionObserver y botón «Cargar más» siempre disponible; reutilizar cursor y estados. Sin librería ni caché externa.
@@ -598,6 +618,8 @@ El diseño del feed está **por definir**. Todo el contexto, la propuesta inicia
 
 #### V2-035 — Ataques a la privacidad del nuevo feed
 
+**Issue:** [#182](https://github.com/migdlp/opinion-social-media/issues/182)
+
 - **Prioridad:** P0 · **Tamaño:** M · **Etiquetas:** security, testing, backend · **Dependencias:** V2-031, V2-033, V2-024 · **Bloquea a:** V2-036.
 - **Descripción:** Extender la batería SQL/HTTP existente a modos, categorías, cursores y voto en tarjeta; cubrir HTML/Flight y respuestas de acciones además de RPC directas. Preparar pruebas junto con la implementación.
 - **Criterios:**
@@ -607,6 +629,8 @@ El diseño del feed está **por definir**. Todo el contexto, la propuesta inicia
   4. Se demuestra RED retirando una comprobación de visibilidad en una base local efímera, se revierte la mutación y pasan los jobs de seguridad y SQL. No se modifica dev ni prod para provocar fallos.
 
 #### V2-036 — E2E y cierre del feed
+
+**Issue:** [#183](https://github.com/migdlp/opinion-social-media/issues/183)
 
 - **Prioridad:** P0 · **Tamaño:** M · **Etiquetas:** testing, frontend, devops · **Dependencias:** V2-032, V2-033, V2-034, V2-035 · **Bloquea a:** —.
 - **Descripción:** Probar el recorrido completo en móvil/escritorio con Supabase local y actualizar README/contratos/checklist para que el feed se pueda publicar junto a una release autorizada. No crear deployments como prueba.
@@ -618,4 +642,4 @@ El diseño del feed está **por definir**. Todo el contexto, la propuesta inicia
 
 ## 6. Registro
 
-El estado de cada tarea se lleva en [tareas-futuras.md](tareas-futuras.md), sección «Fase 2», con el mismo protocolo de reserva del MVP. Issues: épicas #109–#114 y tareas #115–#140 (tabla en [github-issues.md](github-issues.md#fase-2)). Cada issue repite sus dependencias y a quién bloquea.
+El estado de cada tarea se lleva en [tareas-futuras.md](tareas-futuras.md), sección «Fase 2», con el mismo protocolo de reserva del MVP. Issues: épicas #109–#114, tareas iniciales #115–#140 y feed #178–#183 (tabla en [github-issues.md](github-issues.md#fase-2)). Cada issue repite sus dependencias y a quién bloquea.
