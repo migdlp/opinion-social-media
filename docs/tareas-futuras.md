@@ -108,7 +108,7 @@ Tareas de [backlog-v2.md](backlog-v2.md), con el mismo protocolo de reserva. Ant
 | [V2-005](https://github.com/migdlp/opinion-social-media/issues/128) | Visibilidad de cuentas privadas en RLS y RPC | P0 | V2-001, V2-004 | En progreso | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
 | [V2-006](https://github.com/migdlp/opinion-social-media/issues/135) | Página de perfil `/u/[username]` | P0 | V2-003, V2-005, V2-007 | Pendiente | — |
 | [V2-007](https://github.com/migdlp/opinion-social-media/issues/132) | RPC de votos visibles en un perfil | P0 | V2-005 | Pendiente | — |
-| [V2-008](https://github.com/migdlp/opinion-social-media/issues/129) | Ajustes de perfil y privacidad (`/settings`) | P0 | V2-002, V2-004 | Pendiente | — |
+| [V2-008](https://github.com/migdlp/opinion-social-media/issues/129) | Ajustes de perfil y privacidad (`/settings`) | P0 | V2-002, V2-004 | En progreso | claude-code (session_01M3nCEPMNmMFSsQ51LoWr8t) |
 | [V2-009](https://github.com/migdlp/opinion-social-media/issues/138) | Seguidores, seguidos y solicitudes | P0 | V2-004, V2-006 | Pendiente | — |
 | [V2-010](https://github.com/migdlp/opinion-social-media/issues/130) | Navegación con perfil: cabecera y barra inferior móvil | P1 | V2-002 | Pendiente | — |
 | [V2-011](https://github.com/migdlp/opinion-social-media/issues/116) | Plantilla Sí/No en el formulario | P1 | — | Completada: [PR #153](https://github.com/migdlp/opinion-social-media/pull/153), merge `bd84ba6`; CI verde; TDD RED (5 tests) → GREEN | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
