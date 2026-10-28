@@ -161,7 +161,7 @@ Tareas de [backlog adicional](backlog-adicional.md), añadidas por la [auditorí
 
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|
-| [AUDIT-001](https://github.com/migdlp/opinion-social-media/issues/187) | Completar tareas faltantes del alcance aprobado | P0 | — | En progreso (traspaso por orden del propietario, 28-10-2026: el trabajo de Codex está en la [PR #197](https://github.com/migdlp/opinion-social-media/pull/197), verde y sin conflictos; claude-code la integra y cierra) | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY); saliente: Codex /root (opinion_social_media) |
+| [AUDIT-001](https://github.com/migdlp/opinion-social-media/issues/187) | Completar tareas faltantes del alcance aprobado | P0 | — | Completada: [PR #197](https://github.com/migdlp/opinion-social-media/pull/197), merge `88ccee8`; CI verde (12 checks); verificación documental. Trabajo de Codex /root integrado por traspaso del propietario | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY); autor del trabajo: Codex /root (opinion_social_media) |
 
 ## Condición de cierre
 
