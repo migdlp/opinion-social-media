@@ -112,7 +112,7 @@ Tareas de [backlog-v2.md](backlog-v2.md), con el mismo protocolo de reserva. Ant
 | [V2-009](https://github.com/migdlp/opinion-social-media/issues/138) | Seguidores, seguidos y solicitudes | P0 | V2-004, V2-006 | Pendiente | — |
 | [V2-010](https://github.com/migdlp/opinion-social-media/issues/130) | Navegación con perfil: cabecera y barra inferior móvil | P1 | V2-002 | Pendiente | — |
 | [V2-011](https://github.com/migdlp/opinion-social-media/issues/116) | Plantilla Sí/No en el formulario | P1 | — | Pendiente | — |
-| [V2-012](https://github.com/migdlp/opinion-social-media/issues/117) | Permitir hasta 6 opciones | P0 | — | Pendiente | — |
+| [V2-012](https://github.com/migdlp/opinion-social-media/issues/117) | Permitir hasta 6 opciones | P0 | — | En progreso | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
 | [V2-013](https://github.com/migdlp/opinion-social-media/issues/127) | Fecha de cierre opcional | P0 | V2-012 | Pendiente | — |
 | [V2-014](https://github.com/migdlp/opinion-social-media/issues/133) | Resultados públicos al cerrarse | P0 | V2-005, V2-013 | Pendiente | — |
 | [V2-015](https://github.com/migdlp/opinion-social-media/issues/118) | Animar las barras al revelar resultados | P1 | — | Pendiente | — |
