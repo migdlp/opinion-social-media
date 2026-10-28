@@ -55,7 +55,7 @@ begin
   assert (select status from public.polls where id = p) = 'published', 'status por defecto';
   assert (select created_at from public.polls where id = p) is not null, 'created_at por defecto';
 
-  insert into public.poll_options (poll_id, text, position) values (p, 'Sí', 1), (p, 'No', 4);
+  insert into public.poll_options (poll_id, text, position) values (p, 'Sí', 1), (p, 'No', 6);
 
   begin
     insert into public.poll_options (poll_id, text, position) values (p, 'Repetida', 1);
@@ -64,8 +64,8 @@ begin
   end;
 
   begin
-    insert into public.poll_options (poll_id, text, position) values (p, 'Cinco', 5);
-    raise exception 'admitió posición 5';
+    insert into public.poll_options (poll_id, text, position) values (p, 'Siete', 7);
+    raise exception 'admitió posición 7';
   exception when check_violation then null;
   end;
 

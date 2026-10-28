@@ -25,7 +25,7 @@ Modelo de datos: el del [brief §5](brief-producto.md#5-modelo-de-datos-obligato
 |---|---|---|---|
 | `AUTH_REQUIRED` | `create_poll`, `vote_poll`, `get_poll_results`; también `42501` (sin permiso EXECUTE para `anon`) | No hay sesión válida | «Inicia sesión para continuar.» |
 | `VALIDATION_QUESTION_LENGTH` | `create_poll` | Pregunta normalizada fuera de 10–280 | «La pregunta debe tener entre 10 y 280 caracteres.» |
-| `VALIDATION_OPTION_COUNT` | `create_poll` | `p_options` nulo o con menos de 2 / más de 4 elementos | «Añade entre 2 y 4 opciones.» |
+| `VALIDATION_OPTION_COUNT` | `create_poll` | `p_options` nulo o con menos de 2 / más de 6 elementos | «Añade entre 2 y 6 opciones.» |
 | `VALIDATION_OPTION_LENGTH` | `create_poll` | Alguna opción normalizada fuera de 1–100 (incluye vacías) | «Cada opción debe tener entre 1 y 100 caracteres.» |
 | `VALIDATION_OPTION_DUPLICATE` | `create_poll` | Dos opciones iguales según §1 | «Hay opciones repetidas.» |
 | `RATE_LIMITED` | `create_poll` | Ya hay 5 encuestas de la cuenta en los últimos 60 minutos | «Has alcanzado el límite de 5 encuestas por hora. Inténtalo más tarde.» |
@@ -157,7 +157,7 @@ export type Result<T> = { ok: true; data: T } | { ok: false; error: AppErrorCode
 export interface PollOption {
   id: string        // uuid
   text: string
-  position: number  // 1..4
+  position: number  // 1..6
 }
 
 export interface PublicPoll {

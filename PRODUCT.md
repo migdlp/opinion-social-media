@@ -29,7 +29,7 @@ Los resultados sólo se descubren después de votar, y esa regla la impone el ba
 
 ## Capabilities and Constraints
 
-- Pregunta de 10–280 caracteres; 2–4 opciones de 1–100 caracteres; espacios normalizados; sin opciones duplicadas (ignorando mayúsculas, respetando tildes).
+- Pregunta de 10–280 caracteres; 2–6 opciones de 1–100 caracteres; espacios normalizados; sin opciones duplicadas (ignorando mayúsculas, respetando tildes).
 - Un voto único e inmutable por cuenta y encuesta. Se puede votar en las encuestas propias.
 - Resultados: todas las opciones (también con 0 votos), recuento, porcentaje con un decimal, total y opción propia señalada.
 - Máximo cinco publicaciones por cuenta y hora.
