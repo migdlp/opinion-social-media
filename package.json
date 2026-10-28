@@ -16,7 +16,8 @@
     "test:db": "bash scripts/db-test-local.sh",
     "test:db:concurrency": "bash scripts/db-concurrency-local.sh",
     "check:secrets": "bash scripts/check-secrets.sh",
-    "test:security": "bash scripts/check-security-local.sh"
+    "test:security": "bash scripts/check-security-local.sh",
+    "test:e2e": "bash scripts/e2e-local.sh"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",
@@ -27,6 +28,7 @@
     "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "@playwright/test": "1.63.0",
     "@tailwindcss/turbopack": "^4",
     "@testing-library/dom": "10.4.2",
     "@testing-library/react": "16.3.3",
