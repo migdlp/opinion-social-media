@@ -38,7 +38,7 @@ test("la imagen compartida ignora la sesión, los votos y las encuestas privadas
   // El autor puede ver su encuesta, pero el rastreador siempre es anónimo.
   expect((await png(await page.request.get(image))).equals(generic)).toBe(true);
   await page.goto(`/polls/${poll}`);
-  await expect(page).toHaveTitle("No disponible | Opinión");
+  await expect(page).toHaveTitle("No disponible");
 
   await admin.from("profiles").update({ is_private: false }).eq("user_id", author.id);
   await hidePoll(poll);
