@@ -102,4 +102,72 @@ describe("PollResults con miles de votos", () => {
       expect(screen.getByText("3 votos en total")).toBeDefined();
     });
   });
+
+  describe("coincidencia (V2-016)", () => {
+    const withMine = (over: Partial<PollResultsData>): PollResultsData => ({ ...RESULTS, ...over });
+
+    it("no se muestra si no se pide (tarjetas, resultados ya conocidos)", () => {
+      render(<PollResults results={RESULTS} />);
+      expect(screen.queryByText(/Coincides|primero en votar/)).toBeNull();
+    });
+
+    it("con la opción propia al 42,5 % dice «Coincides con el 42,5 %» y las personas", () => {
+      render(
+        <PollResults
+          showMatch
+          results={withMine({
+            totalVotes: 200,
+            myOptionId: "o1",
+            options: [
+              { id: "o1", text: "Café", position: 1, votes: 85, percentage: 42.5 },
+              { id: "o2", text: "Té", position: 2, votes: 115, percentage: 57.5 },
+            ],
+          })}
+        />,
+      );
+      const match = screen.getByText(/Coincides con el 42,5 %/);
+      expect(match.textContent).toBe("Coincides con el 42,5 % (85 personas)");
+      expect(match.getAttribute("aria-live")).toBe("polite");
+    });
+
+    it("con una sola persona votando: «Eres el primero en votar»", () => {
+      render(
+        <PollResults
+          showMatch
+          results={withMine({
+            totalVotes: 1,
+            myOptionId: "o1",
+            options: [
+              { id: "o1", text: "Café", position: 1, votes: 1, percentage: 100 },
+              { id: "o2", text: "Té", position: 2, votes: 0, percentage: 0 },
+            ],
+          })}
+        />,
+      );
+      expect(screen.getByText("Eres el primero en votar")).toBeDefined();
+      expect(screen.queryByText(/Coincides/)).toBeNull();
+    });
+
+    it("en singular cuando sólo coincide otra persona más", () => {
+      render(
+        <PollResults
+          showMatch
+          results={withMine({
+            totalVotes: 3,
+            myOptionId: "o2",
+            options: [
+              { id: "o1", text: "Café", position: 1, votes: 2, percentage: 66.7 },
+              { id: "o2", text: "Té", position: 2, votes: 1, percentage: 33.3 },
+            ],
+          })}
+        />,
+      );
+      expect(screen.getByText("Coincides con el 33,3 % (1 persona)")).toBeDefined();
+    });
+
+    it("sin voto propio no se muestra", () => {
+      render(<PollResults showMatch results={withMine({ myOptionId: "" })} />);
+      expect(screen.queryByText(/Coincides|primero en votar/)).toBeNull();
+    });
+  });
 });

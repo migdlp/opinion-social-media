@@ -59,7 +59,7 @@ describe("PollVoting", () => {
     expect(castVote).toHaveBeenCalledOnce();
     expect(castVote).toHaveBeenCalledWith(POLL.id, "a");
     expect(await screen.findByText("Tu voto")).toBeDefined();
-    expect(screen.getByText(/75,0\s*%/)).toBeDefined();
+    expect(screen.getByText("75,0 %")).toBeDefined();
     expect(screen.queryByRole("button", { name: "Votar" })).toBeNull();
     expect(screen.queryAllByRole("radio")).toHaveLength(0);
   });
@@ -148,6 +148,16 @@ describe("PollVoting", () => {
 
     const reloaded = view({ kind: "voted", results: RESULTS });
     expect(reloaded.container.querySelector(".reveal-bar")).toBeNull();
+  });
+
+  it("tras votar anuncia con cuántas personas coincide", async () => {
+    view({ kind: "not_voted" });
+    await pick("Con cebolla");
+    await vote();
+
+    expect((await screen.findByText(/Coincides con el 75,0 %/)).textContent).toBe(
+      "Coincides con el 75,0 % (3 personas)",
+    );
   });
 
   it("quien ya había votado ve los resultados directamente, sin formulario", () => {
