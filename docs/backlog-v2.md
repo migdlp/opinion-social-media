@@ -77,7 +77,7 @@
 | V2-020 | Denunciar una encuesta | P0 | M | `database`, `frontend`, `security` | — |
 | V2-021 | Categorías fijas al crear y en la tarjeta | P1 | M | `database`, `frontend` | V2-013 |
 | V2-022 | Guardar para luego | P1 | M | `database`, `frontend` | V2-006 |
-| **E10 — Feed (en discusión)** | | | | | |
+| **E10 — Feed aprobado** | | | | | |
 | V2-030 | Definir el feed con el propietario | P0 | M | `product`, `docs` | — |
 | V2-031 | Lectura de feed con seguimientos, categoría y retención | P0 | L | `backend`, `database`, `security` | V2-030, V2-005, V2-014, V2-021 |
 | V2-032 | Pestañas, entrada por defecto y filtro de categoría | P0 | M | `frontend`, `design` | V2-030, V2-031 |
@@ -514,9 +514,9 @@ graph LR
   2. Dado otro usuario, cuando consulta `saved_polls`, entonces no ve las guardadas ajenas.
   3. Dado que una encuesta guardada pasa a no visible (oculta o cuenta privada), entonces deja de aparecer en Guardadas.
 
-### E10 — Feed (por definir)
+### E10 — Definición del feed
 
-El diseño del feed está **por definir**. Todo el contexto, la propuesta inicial, las preguntas abiertas y el procedimiento para continuar la definición están en [feed-por-definir.md](feed-por-definir.md). Cualquier agente o persona puede retomarlo desde ahí.
+El diseño del feed está **definido** en D-022 a D-025. Las respuestas y la cobertura están en [feed-por-definir.md](feed-por-definir.md); la implementación corresponde a V2-031–036. V2-030 conserva abajo sus criterios originales para acreditar su cierre.
 
 #### V2-030 — Definir el feed con el propietario
 

@@ -81,7 +81,7 @@ Cada épica contiene un checklist enlazado a sus tareas. Las dependencias de cad
 
 [Todos los issues](https://github.com/migdlp/opinion-social-media/issues) · [P0](https://github.com/migdlp/opinion-social-media/issues?q=is%3Aissue%20label%3AP0) · [P1](https://github.com/migdlp/opinion-social-media/issues?q=is%3Aissue%20label%3AP1)
 
-La implementación sigue pausada. Crear estos tickets no ejecuta las tareas ni acredita el cierre de sus criterios. JSON y CSV contienen los identificadores y URLs reales para importar o cruzar los registros.
+La implementación está reanudada (D-013). Crear estos tickets no ejecuta las tareas ni acredita el cierre de sus criterios; el estado vigente está en tareas-futuras.md. JSON y CSV contienen los identificadores y URLs reales para importar o cruzar los registros.
 
 ## Fase 2
 
