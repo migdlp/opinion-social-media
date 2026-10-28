@@ -8,6 +8,9 @@ export const alt = "Opinión — encuestas para descubrir lo que pensamos";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
+// Sólo se abrevian tokens muy largos en la vista previa; el detalle conserva el texto.
+const previewText = (text: string) => text.replace(/\S{21,}/gu, (word) => `${word.slice(0, 19)}…`);
+
 export default async function PollImage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const detail = await getPollDetail(createAnonymousClient(), id, { signedIn: false });
@@ -48,7 +51,7 @@ export default async function PollImage({ params }: { params: Promise<{ id: stri
               wordBreak: "normal",
             }}
           >
-            {poll.question}
+            {previewText(poll.question)}
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
             {poll.options.map((option) => (
@@ -67,7 +70,7 @@ export default async function PollImage({ params }: { params: Promise<{ id: stri
                   wordBreak: "normal",
                 }}
               >
-                {option.text}
+                {previewText(option.text)}
               </div>
             ))}
           </div>

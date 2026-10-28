@@ -62,6 +62,25 @@ describe("imagen social anónima", () => {
     expect(rendered).not.toMatch(/99999|Nombre privado|recuento|porcentaje|votos/);
     expect(queries.map((q) => q.target)).toEqual(["polls", "rpc:get_poll_authors"]);
   });
+  it("abrevia tokens sin espacios para evitar que invadan las otras opciones", async () => {
+    responses = {
+      polls: {
+        data: {
+          ...row,
+          question: "W".repeat(280),
+          poll_options: Array.from({ length: 6 }, (_, i) => ({
+            id: String(i),
+            text: "W".repeat(100),
+            position: i,
+          })),
+        },
+        error: null,
+      },
+    };
+    await PollImage({ params: Promise.resolve({ id: ID }) });
+    expect(rendered).toContain("W".repeat(19) + "…");
+    expect(rendered).not.toContain("W".repeat(21));
+  });
   it.each(["privada", "oculta", "inexistente"])(
     "usa sólo la marca para una encuesta %s",
     async () => {
