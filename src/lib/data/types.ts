@@ -74,6 +74,22 @@ export interface PollResults {
 export type PollViewerState =
   { kind: "anonymous" } | { kind: "not_voted" } | { kind: "voted"; results: PollResults };
 
+// Relación de quien mira con un perfil (V2-006).
+export type ViewerRelation = "self" | "none" | "pending" | "following";
+
+// Cabecera de un perfil (V2-006). Los contadores son públicos también en cuentas privadas (S-4);
+// canViewContent dice si se pueden ver sus encuestas y votos. Nunca incluye user_id.
+export interface ProfileView {
+  username: string;
+  displayName: string | null;
+  isPrivate: boolean;
+  followersCount: number;
+  followingCount: number;
+  pollsCount: number;
+  viewerRelation: ViewerRelation;
+  canViewContent: boolean;
+}
+
 // Voto visible en un perfil (V2-007). choice es null cuando la opción elegida no se puede revelar
 // (P-1): la encuesta está abierta y quien mira no la ha votado. Nunca lleva recuentos.
 export interface ProfileVote {
