@@ -40,6 +40,12 @@ const PAIRS: [string, string, number][] = [
   ["bar-muted", "track", GRAPHIC],
   ["bar-muted", "surface", GRAPHIC],
   ["foreground", "track", GRAPHIC],
+  ["accent-foreground", "accent", TEXT],
+  ["accent-foreground", "accent-hover", TEXT],
+  ["focus", "surface", GRAPHIC],
+  ["focus", "background", GRAPHIC],
+  ["bar-own", "track", GRAPHIC],
+  ["bar-own", "surface", GRAPHIC],
 ];
 
 describe.each([
@@ -57,6 +63,12 @@ describe.each([
       "bar-muted",
       "field",
       "danger",
+      "accent",
+      "accent-foreground",
+      "accent-hover",
+      "accent-soft",
+      "focus",
+      "bar-own",
     ])
       expect(theme[name], name).toMatch(/^#[0-9a-f]{6}$/i);
   });
@@ -71,5 +83,33 @@ describe("tema oscuro", () => {
     expect(luminance(dark.background)).toBeLessThan(0.05);
     expect(luminance(dark.foreground)).toBeGreaterThan(0.8);
     expect(luminance(light.background)).toBeGreaterThan(0.8);
+  });
+});
+
+// La identidad aprobada es el contrato; no basta que otra paleta también tenga contraste.
+const design = readFileSync(new URL("../../DESIGN.md", import.meta.url), "utf8");
+const approved = Object.fromEntries(
+  [...design.matchAll(/^  ([a-z-]+): "(#[0-9a-f]{6})"/gim)].map((m) => [m[1], m[2].toLowerCase()]),
+);
+describe.each([
+  ["claro", light, ""],
+  ["oscuro", dark, "-dark"],
+] as const)("identidad After Sunset (%s)", (_name, theme, suffix) => {
+  it("aplica la paleta aprobada y el acento cálido, sin cambiar el contraste según el tema", () => {
+    for (const name of [
+      "background",
+      "surface",
+      "foreground",
+      "muted",
+      "border",
+      "track",
+      "field",
+      "bar-muted",
+      "accent",
+      "accent-soft",
+      "danger",
+    ])
+      expect(theme[name]?.toLowerCase(), name).toBe(approved[name + suffix]);
+    expect(theme["accent-foreground"]?.toLowerCase()).toBe("#161e2e");
   });
 });
