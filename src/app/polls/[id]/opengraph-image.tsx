@@ -36,7 +36,7 @@ export default async function PollImage({ params }: { params: Promise<{ id: stri
         )}
       </div>
       {poll ? (
-        <>
+        <div style={{ display: "flex", flexDirection: "column", flex: 1, width: "100%" }}>
           <div
             style={{
               display: "flex",
@@ -45,7 +45,7 @@ export default async function PollImage({ params }: { params: Promise<{ id: stri
               fontSize: poll.question.length > 140 ? 30 : 42,
               lineHeight: 1.15,
               letterSpacing: "-0.02em",
-              wordBreak: "break-all",
+              wordBreak: "normal",
             }}
           >
             {poll.question}
@@ -64,7 +64,7 @@ export default async function PollImage({ params }: { params: Promise<{ id: stri
                   background: "#ffffff",
                   fontSize: 22,
                   lineHeight: 1.2,
-                  wordBreak: "break-all",
+                  wordBreak: "normal",
                 }}
               >
                 {option.text}
@@ -82,7 +82,7 @@ export default async function PollImage({ params }: { params: Promise<{ id: stri
           >
             Elige tu respuesta. Descubre lo que pensamos.
           </div>
-        </>
+        </div>
       ) : (
         <div
           style={{ display: "flex", flexDirection: "column", justifyContent: "center", flex: 1 }}
