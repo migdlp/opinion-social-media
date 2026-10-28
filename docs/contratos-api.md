@@ -160,6 +160,17 @@ public.get_poll_authors(p_poll_ids uuid[])
 - **V2-005 debe añadir `can_view_author`** a esta función para no delatar encuestas de cuentas privadas.
 - El adaptador pide los autores de cada lote con una sola llamada (feed y detalle) y los guarda en `PublicPoll.author` (`null` = sin perfil).
 
+### 3.8. Visibilidad de cuentas privadas (V2-005)
+
+```sql
+public.can_view_author(p_author uuid) returns boolean   -- stable, security definer
+```
+
+- Verdadera si el autor no tiene perfil o su perfil es público, si es la propia cuenta o si la cuenta tiene un seguimiento `accepted` hacia él. Una solicitud `pending` no basta. Ejecutable por `anon` y `authenticated` porque la evalúan las políticas de RLS con el rol del cliente; sólo devuelve un booleano.
+- **Dónde se impone:** política `polls_select_published` (`status = 'published' AND can_view_author(user_id)`; `poll_options` la hereda por su subconsulta), `vote_poll`, `get_poll_results`, `report_poll` y `get_poll_authors` (todas con `POLL_UNAVAILABLE`, indistinguible de una encuesta inexistente incluso con una opción inválida) y el trigger `votes_require_visible_poll` como defensa en profundidad.
+- Efectos: pasar a privada oculta de inmediato las encuestas a quien no sea seguidor aceptado (también para quien ya había votado, que pierde los resultados); volver a pública las devuelve. El feed (`getFeedPolls`) y el detalle no cambian: sólo ven lo que RLS permite.
+- Rendimiento medido en local (5.000 encuestas, 2.000 perfiles con un 40 % privados y 50 seguimientos): el feed de 21 filas tarda 1,8 ms con sesión y 0,4 ms sin ella, usando `polls_feed_idx`; no hacen falta índices nuevos.
+
 ## 4. Lecturas directas (RLS)
 
 No son RPC: el adaptador consulta tablas con el SDK. RLS (MVP-011, MVP-012) limita lo visible a encuestas `published`, sus opciones y los votos propios. El adaptador selecciona columnas explícitas: nunca `*`, nunca `user_id` de `polls`.
