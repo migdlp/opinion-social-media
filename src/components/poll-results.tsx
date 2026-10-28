@@ -52,7 +52,7 @@ export function PollResults({ results, animate = false, showMatch = false }: Pol
               <div aria-hidden="true" className="h-1.5 overflow-hidden rounded-full bg-track">
                 <div
                   data-bar
-                  className={`${animate ? "reveal-bar " : ""}h-full rounded-full ${isMine ? "bg-foreground" : "bg-bar-muted"}`}
+                  className={`${animate ? "reveal-bar " : ""}h-full rounded-full ${isMine ? "bg-bar-own" : "bg-bar-muted"}`}
                   style={{
                     width: `${option.percentage}%`,
                     ...(animate ? { animationDelay: `${index * STAGGER_MS}ms` } : {}),

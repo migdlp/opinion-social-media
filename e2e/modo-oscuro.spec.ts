@@ -5,9 +5,9 @@ import { createPoll, createUser } from "./support/supabase";
 
 test.use({ colorScheme: "dark" });
 
-// Colores computados: --background #0a0a0b, --foreground #f4f4f5.
-const DARK_BACKGROUND = "rgb(10, 10, 11)";
-const LIGHT_TEXT = "rgb(244, 244, 245)";
+// Colores computados: --background #161e2e, --foreground #f9f9ff.
+const DARK_BACKGROUND = "rgb(22, 30, 46)";
+const LIGHT_TEXT = "rgb(249, 249, 255)";
 
 async function expectDark(page: import("@playwright/test").Page) {
   const colors = await page.evaluate(() => ({

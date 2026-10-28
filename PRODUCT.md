@@ -45,7 +45,7 @@ Los resultados sólo se descubren después de votar, y esa regla la impone el ba
 - Idioma: español de España.
 - Personalidad: **curiosa y lúdica**. Descubrir los resultados es una pequeña sorpresa; tono cercano y con algo de chispa.
 - Dirección visual provisional: **After Sunset**, basada en la lámina PEEK enviada por el propietario el 28-10-2026 (D-026). Azul noche, blanco frío, melocotón y lavanda; curiosidad, mirada y revelación. Sustituye la dirección monocroma anterior.
-- Leer [DESIGN.md](DESIGN.md) y [la guía creativa](docs/direccion-creativa.md). «PEEK» no confirma un cambio de nombre; no hay todavía logo vectorial ni activos finales de esa referencia. La migración de CSS está pendiente.
+- Leer [DESIGN.md](DESIGN.md) y [la guía creativa](docs/direccion-creativa.md). «PEEK» no confirma un cambio de nombre; no hay todavía logo vectorial ni activos finales de esa referencia. La base CSS y los CTA compartidos se adaptan en DESIGN-002; la migración completa de pantallas y las imágenes/revisión final siguen en DESIGN-003–006.
 
 ## Evidence on Hand
 

@@ -23,7 +23,7 @@ colors:
   field-dark: "#B4C8F5"
   accent-dark: "#FFB16B"
   accent-soft-dark: "#B4C8F5"
-  danger-dark: "#ff7b7b"
+  danger-dark: "#ff9d9d"
 typography:
   brand:
     fontFamily: "Geist, system-ui, sans-serif"
@@ -71,7 +71,7 @@ spacing:
 
 **Dirección vigente provisional, D-026 (28-10-2026).** El propietario pide seguir el estilo de la lámina PEEK que adjuntó. La [guía de referencia](docs/direccion-creativa.md) describe la imagen para agentes sin acceso a la conversación y delimita su alcance. Esta dirección sustituye las restricciones anteriores de blanco y negro y ausencia de color de marca.
 
-Este archivo especifica el diseño objetivo. Los tokens de arriba **todavía no están migrados al CSS** por esta tarea documental; no confundirlos con una captura del estado implementado. El nombre sigue siendo Opinión: PEEK es la referencia creativa, sin cambio de naming confirmado.
+Este archivo especifica el diseño objetivo. Los tokens base están migrados a CSS mediante DESIGN-002, incluidos CTA compartidos, foco y barras. La adaptación completa de pantallas, imágenes sociales y su revisión final sigue en DESIGN-003–006; no confundir la base implementada con el cierre de toda la identidad. El nombre sigue siendo Opinión: PEEK es la referencia creativa, sin cambio de naming confirmado.
 
 ## Concepto: votar abre una nueva perspectiva
 
@@ -87,7 +87,8 @@ La apariencia será amable y expresiva: azul noche, blanco frío, melocotón y l
 - **Otros pares de referencia:** azul noche sobre blanco frío ≈15,90:1; pizarra sobre blanco frío ≈8,90:1; lavanda sobre azul noche ≈9,94:1. Son contrastes de colores planos calculados, no una auditoría del mockup ni del CSS existente.
 - **Controles:** borde/foco azul noche o pizarra en claro, lavanda/melocotón en oscuro. Lavanda y melocotón sobre blanco son decorativos; no bastan como único borde, foco o marca de selección.
 - **Resultados:** barra propia azul noche en claro y melocotón en oscuro; barras secundarias pizarra en claro y lavanda en oscuro. Si se usa melocotón en una barra clara, asegurar un contorno contrastado y etiquetas completas. «Tu voto» y el estado semántico identifican siempre la selección, además del color.
-- **Errores:** `danger` sigue siendo semántico, con texto e icono/mensaje; no se confunde con el acento cálido.
+- **Errores:** `danger` sigue siendo semántico, con texto e icono/mensaje; no se confunde con el acento cálido. En oscuro se aclara a `#FF9D9D` para mantener 4,5:1 también sobre la superficie pizarra.
+- **Roles de interacción:** `accent-foreground` azul noche en ambos temas; `accent-hover` melocotón claro `#FFC28C`; `focus` azul noche en claro/melocotón en oscuro; `bar-own` azul noche en claro/melocotón en oscuro. La utilidad compartida `action-primary` mantiene texto oscuro y estado desactivado sin transparencia.
 
 Al implementar, comprobar WCAG AA: texto normal ≥4,5:1, texto grande y elementos necesarios para identificar controles ≥3:1, también en hover/focus/disabled y con transparencias.
 
