@@ -23,19 +23,31 @@ type PollVotingProps = {
   loadOwnVote?: (pollId: string) => Promise<Result<PollResultsData | null>>;
   // Cerrada (V2-013): no se ofrece el selector de voto. Quien ya votó sigue viendo sus resultados.
   closed?: boolean;
+  // Opción marcada de antemano al volver del login (V2-033); se ignora si no es de esta encuesta. Nunca
+  // emite el voto: hay que confirmar.
+  initialSelected?: string | null;
 };
 
 // Votar en una encuesta: elegir, confirmar y ver los resultados. Quien no ha votado sólo
 // recibe las opciones: los resultados llegan únicamente al votar (o si ya había votado).
 // Un visitante, o una sesión caducada, ve la petición de iniciar sesión y vuelve aquí;
 // nunca se envía un voto sin confirmación posterior.
-export function PollVoting({ poll, viewer, castVote, loadOwnVote, closed }: PollVotingProps) {
+export function PollVoting({
+  poll,
+  viewer,
+  castVote,
+  loadOwnVote,
+  closed,
+  initialSelected,
+}: PollVotingProps) {
   const [results, setResults] = useState<PollResultsData | null>(
     viewer.kind === "voted" || viewer.kind === "closed" ? viewer.results : null,
   );
   // Sólo se anima la revelación de un voto emitido ahora, no unos resultados ya conocidos.
   const [justVoted, setJustVoted] = useState(false);
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(
+    poll.options.some((option) => option.id === initialSelected) ? (initialSelected ?? null) : null,
+  );
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<AppErrorCode | null>(null);
   const [needsLogin, setNeedsLogin] = useState(false);
@@ -110,6 +122,9 @@ export function PollVoting({ poll, viewer, castVote, loadOwnVote, closed }: Poll
     else setError(result.error);
   }
 
+  // Vuelve a la encuesta con la opción elegida marcada, pero sin votarla.
+  const returnTo = `/polls/${poll.id}${selected ? `?option=${encodeURIComponent(selected)}` : ""}`;
+
   return (
     <form onSubmit={submit} className="flex flex-col gap-3">
       <PollOptionGroup
@@ -134,7 +149,7 @@ export function PollVoting({ poll, viewer, castVote, loadOwnVote, closed }: Poll
       {needsLogin && (
         <p className="rounded-xl border border-border bg-surface p-3 text-sm">
           Inicia sesión para votar; volverás a esta encuesta.{" "}
-          <Link href={loginPath(`/polls/${poll.id}`)} className="font-semibold underline">
+          <Link href={loginPath(returnTo)} className="font-semibold underline">
             Iniciar sesión
           </Link>
         </p>
@@ -142,7 +157,7 @@ export function PollVoting({ poll, viewer, castVote, loadOwnVote, closed }: Poll
       {needsProfile && (
         <p className="rounded-xl border border-border bg-surface p-3 text-sm">
           Elige tu usuario para votar; volverás a esta encuesta.{" "}
-          <Link href={onboardingPath(`/polls/${poll.id}`)} className="font-semibold underline">
+          <Link href={onboardingPath(returnTo)} className="font-semibold underline">
             Elegir mi usuario
           </Link>
         </p>

@@ -10,6 +10,8 @@ type PollDetailViewProps = {
   detail: PollDetail;
   castVote: (pollId: string, optionId: string) => Promise<Result<PollResults>>;
   loadOwnVote?: (pollId: string) => Promise<Result<PollResults | null>>;
+  // Opción que se marca de antemano al volver del login (V2-033); nunca emite el voto.
+  initialSelected?: string | null;
   now?: Date;
 };
 
@@ -19,6 +21,7 @@ export function PollDetailView({
   detail,
   castVote,
   loadOwnVote,
+  initialSelected,
   now = new Date(),
 }: PollDetailViewProps) {
   const { poll } = detail;
@@ -47,6 +50,7 @@ export function PollDetailView({
         castVote={castVote}
         loadOwnVote={loadOwnVote}
         closed={isClosed(poll.closesAt, now)}
+        initialSelected={initialSelected}
       />
       <p className="text-[13px] text-muted">
         <PollAuthor author={poll.author} />
