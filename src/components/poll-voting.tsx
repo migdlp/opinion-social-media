@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRef, useState } from "react";
+import { LockedOptions } from "@/components/locked-options";
 import { PollOptionGroup } from "@/components/poll-option";
 import { PollResults } from "@/components/poll-results";
 import { loginPath } from "@/lib/auth/redirect";
@@ -20,13 +21,15 @@ type PollVotingProps = {
   castVote: (pollId: string, optionId: string) => Promise<Result<PollResultsData>>;
   // Tras una caída de red: estado real del voto propio (null: aún no votó).
   loadOwnVote?: (pollId: string) => Promise<Result<PollResultsData | null>>;
+  // Cerrada (V2-013): no se ofrece el selector de voto. Quien ya votó sigue viendo sus resultados.
+  closed?: boolean;
 };
 
 // Votar en una encuesta: elegir, confirmar y ver los resultados. Quien no ha votado sólo
 // recibe las opciones: los resultados llegan únicamente al votar (o si ya había votado).
 // Un visitante, o una sesión caducada, ve la petición de iniciar sesión y vuelve aquí;
 // nunca se envía un voto sin confirmación posterior.
-export function PollVoting({ poll, viewer, castVote, loadOwnVote }: PollVotingProps) {
+export function PollVoting({ poll, viewer, castVote, loadOwnVote, closed }: PollVotingProps) {
   const [results, setResults] = useState<PollResultsData | null>(
     viewer.kind === "voted" ? viewer.results : null,
   );
@@ -41,6 +44,15 @@ export function PollVoting({ poll, viewer, castVote, loadOwnVote }: PollVotingPr
     return (
       <div aria-live="polite">
         <PollResults results={results} />
+      </div>
+    );
+  }
+
+  if (closed) {
+    return (
+      <div className="flex flex-col gap-3">
+        <LockedOptions options={poll.options} />
+        <p className="text-sm text-muted">Esta encuesta está cerrada y ya no admite votos.</p>
       </div>
     );
   }

@@ -11,7 +11,14 @@ export type DatabaseContractChecks = [
   Assert<
     Equal<
       Public["Tables"]["polls"]["Row"],
-      { id: string; user_id: string; question: string; status: string; created_at: string }
+      {
+        id: string;
+        user_id: string;
+        question: string;
+        status: string;
+        created_at: string;
+        closes_at: string | null;
+      }
     >
   >,
   Assert<
@@ -27,7 +34,10 @@ export type DatabaseContractChecks = [
     >
   >,
   Assert<
-    Equal<Public["Functions"]["create_poll"]["Args"], { p_question: string; p_options: string[] }>
+    Equal<
+      Public["Functions"]["create_poll"]["Args"],
+      { p_question: string; p_options: string[]; p_closes_at?: string }
+    >
   >,
   Assert<Equal<Public["Functions"]["create_poll"]["Returns"], string>>,
   Assert<

@@ -11,6 +11,8 @@ export type AppErrorCode =
   | "OPTION_INVALID"
   | "ALREADY_VOTED"
   | "NOT_VOTED"
+  | "INVALID_CLOSES_AT"
+  | "POLL_CLOSED"
   | "NETWORK_ERROR"
   | "UNKNOWN";
 
@@ -26,6 +28,8 @@ export interface PublicPoll {
   id: string;
   question: string;
   createdAt: string;
+  // Cierre opcional (V2-013): desde esta fecha no se admiten votos.
+  closesAt?: string | null;
   options: PollOption[];
 }
 

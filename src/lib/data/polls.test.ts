@@ -19,6 +19,7 @@ function pollRow(
     id: uuid(n),
     question: `¿Pregunta número ${n}?`,
     created_at: createdAt,
+    closes_at: null as string | null,
     poll_options: [
       { id: uuid(1000 + n * 2), text: "Sí", position: 1 },
       { id: uuid(1001 + n * 2), text: "No", position: 2 },
@@ -54,7 +55,9 @@ describe("getFeedPolls (MVP-018)", () => {
     const [{ target, calls }] = queries;
     expect(target).toBe("polls");
     const select = calls.find(([m]) => m === "select")?.[1] as string;
-    expect(select.replace(/\s/g, "")).toBe("id,question,created_at,poll_options(id,text,position)");
+    expect(select.replace(/\s/g, "")).toBe(
+      "id,question,created_at,closes_at,poll_options(id,text,position)",
+    );
     expect(select).not.toMatch(/user_id|status|votes|\*/);
     expect(calls).toContainEqual(["order", "created_at", { ascending: false }]);
     expect(calls).toContainEqual(["order", "id", { ascending: false }]);
@@ -84,6 +87,7 @@ describe("getFeedPolls (MVP-018)", () => {
       id: rows[0].id,
       question: rows[0].question,
       createdAt: rows[0].created_at,
+      closesAt: null,
       options: rows[0].poll_options,
     });
   });
@@ -141,12 +145,15 @@ describe("getPublicPoll (MVP-019)", () => {
         id: row.id,
         question: row.question,
         createdAt: row.created_at,
+        closesAt: null,
         options: row.poll_options,
       },
     });
     const { calls } = queries[0];
     const select = calls.find(([m]) => m === "select")?.[1] as string;
-    expect(select.replace(/\s/g, "")).toBe("id,question,created_at,poll_options(id,text,position)");
+    expect(select.replace(/\s/g, "")).toBe(
+      "id,question,created_at,closes_at,poll_options(id,text,position)",
+    );
     expect(calls).toContainEqual(["eq", "id", row.id]);
     expect(calls.some(([m]) => m === "maybeSingle")).toBe(true);
   });
@@ -199,5 +206,21 @@ describe("getOwnVoteOptionId (MVP-019)", () => {
       ok: false,
       error: "AUTH_REQUIRED",
     });
+  });
+});
+
+describe("closes_at (V2-013)", () => {
+  it("pide la columna y la devuelve como closesAt", async () => {
+    const closing = { ...pollRow(1), closes_at: "2026-10-28T10:00:00+00:00" };
+    const { supabase, queries } = fakeClient({
+      polls: { data: [closing, pollRow(2)], error: null },
+    });
+    const res = await getFeedPolls(supabase);
+    const select = queries[0].calls.find(([m]) => m === "select")?.[1] as string;
+    expect(select).toBe("id, question, created_at, closes_at, poll_options(id, text, position)");
+    expect(res.ok && res.data.polls.map((p) => p.closesAt)).toEqual([
+      "2026-10-28T10:00:00+00:00",
+      null,
+    ]);
   });
 });

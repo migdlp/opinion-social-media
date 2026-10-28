@@ -125,7 +125,21 @@ describe("createPoll", () => {
     ]);
   });
 
-  it.each(["RATE_LIMITED", "VALIDATION_OPTION_DUPLICATE", "AUTH_REQUIRED"])(
+  it("con fecha de cierre añade p_closes_at; sin ella no lo envía", async () => {
+    const { supabase, queries } = fakeSupabase({ "rpc:create_poll": { data: P2, error: null } });
+    await createPoll(supabase, "¿Pregunta?", ["Sí", "No"], "2026-10-28T10:00:00.000Z");
+    expect(queries[0].calls[0]).toEqual([
+      "rpc",
+      "create_poll",
+      {
+        p_question: "¿Pregunta?",
+        p_options: ["Sí", "No"],
+        p_closes_at: "2026-10-28T10:00:00.000Z",
+      },
+    ]);
+  });
+
+  it.each(["INVALID_CLOSES_AT", "RATE_LIMITED", "VALIDATION_OPTION_DUPLICATE", "AUTH_REQUIRED"])(
     "propaga %s",
     async (code) => {
       const { supabase } = fakeSupabase({ "rpc:create_poll": rpcError(code) });

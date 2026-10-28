@@ -92,4 +92,21 @@ describe("PollCard", () => {
       expect(screen.getAllByText("?? %")).toHaveLength(2);
     },
   );
+
+  it("con cierre muestra el tiempo restante y, cerrada, cuánto hace que cerró", () => {
+    const open = { ...POLL, closesAt: "2026-10-27T23:10:00Z" };
+    const { unmount } = render(<PollCard poll={open} now={NOW} />);
+    expect(screen.getByText("Cierra en 3 h")).toBeDefined();
+    unmount();
+
+    const closed = { ...POLL, closesAt: "2026-10-27T18:00:00Z" };
+    render(<PollCard poll={closed} now={NOW} />);
+    expect(screen.getByText("Cerrada hace 2 h")).toBeDefined();
+    expect(screen.queryByText("Vota para ver")).toBeNull();
+  });
+
+  it("sin cierre no muestra ninguna indicación de cierre", () => {
+    render(<PollCard poll={POLL} now={NOW} />);
+    expect(screen.queryByText(/Cierra|Cerrada/)).toBeNull();
+  });
 });

@@ -13,6 +13,8 @@ export const ERROR_MESSAGES: Record<AppErrorCode, string> = {
   OPTION_INVALID: "Esa opción no es válida para esta encuesta.",
   ALREADY_VOTED: "Ya has votado en esta encuesta.",
   NOT_VOTED: "Vota para ver los resultados.",
+  INVALID_CLOSES_AT: "El cierre debe estar entre 1 hora y 30 días desde ahora.",
+  POLL_CLOSED: "Esta encuesta ya está cerrada y no admite votos.",
   NETWORK_ERROR: "No hay conexión. Comprueba tu red y vuelve a intentarlo.",
   UNKNOWN: "Algo ha fallado. Vuelve a intentarlo.",
 };
@@ -29,6 +31,8 @@ const RPC_CODES = new Set<string>([
   "OPTION_INVALID",
   "ALREADY_VOTED",
   "NOT_VOTED",
+  "INVALID_CLOSES_AT",
+  "POLL_CLOSED",
 ]);
 
 // 42501: sin permiso (anon). PGRST301/303: JWT inválido o caducado.

@@ -13,6 +13,8 @@ const BUSINESS: AppErrorCode[] = [
   "OPTION_INVALID",
   "ALREADY_VOTED",
   "NOT_VOTED",
+  "INVALID_CLOSES_AT",
+  "POLL_CLOSED",
 ];
 
 describe("toAppError", () => {
