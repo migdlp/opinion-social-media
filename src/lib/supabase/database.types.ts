@@ -233,6 +233,19 @@ export type Database = {
         Returns: string;
       };
       follow_user: { Args: { p_username: string }; Returns: string };
+      get_feed_results: {
+        Args: { p_poll_ids: string[] };
+        Returns: {
+          my_option_id: string;
+          option_id: string;
+          percentage: number;
+          poll_id: string;
+          position: number;
+          text: string;
+          total_votes: number;
+          votes: number;
+        }[];
+      };
       get_my_profile: {
         Args: Record<PropertyKey, never>;
         Returns: {
