@@ -23,6 +23,14 @@ export function PollDetailView({
   const { poll } = detail;
   return (
     <article className="mx-auto flex w-full max-w-content flex-col gap-4 rounded-2xl border border-border bg-surface p-5">
+      {poll.category && (
+        <p
+          data-category
+          className="self-start rounded-full border border-border px-2.5 py-0.5 text-[12px] font-medium text-muted"
+        >
+          {poll.category.name}
+        </p>
+      )}
       <div className="flex items-start justify-between gap-2">
         <h1 className="text-2xl leading-tight font-semibold tracking-[-0.02em]">{poll.question}</h1>
         <ReportPoll pollId={poll.id} signedIn={detail.viewer.kind !== "anonymous"} />

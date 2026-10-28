@@ -3,6 +3,25 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      categories: {
+        Row: {
+          name: string;
+          position: number;
+          slug: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          name: string;
+          position: number;
+          slug: string;
+        };
+        Update: {
+          name?: string;
+          position?: number;
+          slug?: string;
+        };
+        Relationships: [];
+      };
       follows: {
         Row: {
           created_at: string;
@@ -93,6 +112,7 @@ export type Database = {
       };
       polls: {
         Row: {
+          category_slug: string | null;
           closes_at: string | null;
           created_at: string;
           id: string;
@@ -102,6 +122,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          category_slug?: string | null;
           closes_at?: string | null;
           created_at?: string;
           id?: string;
@@ -110,6 +131,7 @@ export type Database = {
           user_id: string;
         };
         Update: {
+          category_slug?: string | null;
           closes_at?: string | null;
           created_at?: string;
           id?: string;
@@ -193,7 +215,12 @@ export type Database = {
     };
     Functions: {
       create_poll: {
-        Args: { p_closes_at?: string; p_options: string[]; p_question: string };
+        Args: {
+          p_category?: string;
+          p_closes_at?: string;
+          p_options: string[];
+          p_question: string;
+        };
         Returns: string;
       };
       follow_user: { Args: { p_username: string }; Returns: string };

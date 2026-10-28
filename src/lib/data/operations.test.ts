@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   createPoll,
+  getCategories,
   getFeedPage,
   getPollDetail,
   getPollResults,
@@ -146,16 +147,29 @@ describe("createPoll", () => {
     ]);
   });
 
-  it.each(["INVALID_CLOSES_AT", "RATE_LIMITED", "VALIDATION_OPTION_DUPLICATE", "AUTH_REQUIRED"])(
-    "propaga %s",
-    async (code) => {
-      const { supabase } = fakeSupabase({ "rpc:create_poll": rpcError(code) });
-      expect(await createPoll(supabase, "¿Pregunta?", ["Sí", "No"])).toEqual({
-        ok: false,
-        error: code,
-      });
-    },
-  );
+  it("con categoría envía p_category (y p_closes_at sólo si lo hay)", async () => {
+    const { supabase, queries } = fakeSupabase({ "rpc:create_poll": { data: P2, error: null } });
+    await createPoll(supabase, "¿Pregunta?", ["Sí", "No"], null, "deportes");
+    expect(queries[0].calls[0]).toEqual([
+      "rpc",
+      "create_poll",
+      { p_question: "¿Pregunta?", p_options: ["Sí", "No"], p_category: "deportes" },
+    ]);
+  });
+
+  it.each([
+    "INVALID_CATEGORY",
+    "INVALID_CLOSES_AT",
+    "RATE_LIMITED",
+    "VALIDATION_OPTION_DUPLICATE",
+    "AUTH_REQUIRED",
+  ])("propaga %s", async (code) => {
+    const { supabase } = fakeSupabase({ "rpc:create_poll": rpcError(code) });
+    expect(await createPoll(supabase, "¿Pregunta?", ["Sí", "No"])).toEqual({
+      ok: false,
+      error: code,
+    });
+  });
 
   it("un error interno no llega a la UI con detalles", async () => {
     const { supabase } = fakeSupabase({
@@ -207,6 +221,7 @@ describe("getPollDetail", () => {
           question: "¿Pregunta de prueba?",
           createdAt: pollRow(P1).created_at,
           author: null,
+          category: null,
           options: pollRow(P1).poll_options,
         },
         viewer: { kind: "voted", results },
@@ -325,5 +340,36 @@ describe("reportPoll (V2-020)", () => {
   it("una caída de red es NETWORK_ERROR", async () => {
     const { supabase } = fakeSupabase({ "rpc:report_poll": networkThrow });
     expect(await reportPoll(supabase, P1, "spam")).toEqual({ ok: false, error: "NETWORK_ERROR" });
+  });
+});
+
+describe("getCategories (V2-021)", () => {
+  it("lee la lista cerrada ordenada por posición", async () => {
+    const { supabase, queries } = fakeSupabase({
+      categories: {
+        data: [
+          { slug: "deportes", name: "Deportes" },
+          { slug: "otros", name: "Otros" },
+        ],
+        error: null,
+      },
+    });
+    expect(await getCategories(supabase)).toEqual({
+      ok: true,
+      data: [
+        { slug: "deportes", name: "Deportes" },
+        { slug: "otros", name: "Otros" },
+      ],
+    });
+    expect(queries[0].calls).toEqual([
+      ["from", "categories"],
+      ["select", "slug, name"],
+      ["order", "position", { ascending: true }],
+    ]);
+  });
+
+  it("un fallo se devuelve como error controlado", async () => {
+    const { supabase } = fakeSupabase({ categories: networkThrow });
+    expect(await getCategories(supabase)).toEqual({ ok: false, error: "NETWORK_ERROR" });
   });
 });

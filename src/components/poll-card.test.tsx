@@ -127,6 +127,18 @@ describe("PollCard", () => {
     expect(screen.queryByRole("link", { name: /^@/ })).toBeNull();
   });
 
+  it("muestra la etiqueta de la categoría, y ninguna si no tiene", () => {
+    const { unmount } = render(
+      <PollCard poll={{ ...POLL, category: { slug: "deportes", name: "Deportes" } }} now={NOW} />,
+    );
+    expect(screen.getByText("Deportes")).toBeDefined();
+    unmount();
+
+    render(<PollCard poll={{ ...POLL, category: null }} now={NOW} />);
+    expect(screen.queryByText("Deportes")).toBeNull();
+    expect(document.querySelector("[data-category]")).toBeNull();
+  });
+
   it("sin cierre no muestra ninguna indicación de cierre", () => {
     render(<PollCard poll={POLL} now={NOW} />);
     expect(screen.queryByText(/Cierra|Cerrada/)).toBeNull();

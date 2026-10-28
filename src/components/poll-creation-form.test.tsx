@@ -360,4 +360,48 @@ describe("PollCreationForm", () => {
       ).toBeDefined();
     });
   });
+
+  describe("categoría (V2-021)", () => {
+    const CATEGORIES = [
+      { slug: "deportes", name: "Deportes" },
+      { slug: "ciencia", name: "Ciencia" },
+    ];
+    const select = () => screen.getByRole("combobox", { name: "Categoría (opcional)" });
+
+    it("sin categorías disponibles no muestra el selector", () => {
+      render(<PollCreationForm {...props()} />);
+      expect(screen.queryByRole("combobox", { name: /Categoría/ })).toBeNull();
+    });
+
+    it("ofrece «Sin categoría» y la lista, y por defecto no envía categoría", async () => {
+      const user = userEvent.setup();
+      const p = props();
+      render(<PollCreationForm {...p} categories={CATEGORIES} />);
+
+      expect(screen.getByRole("option", { name: "Sin categoría" })).toBeDefined();
+      expect(screen.getByRole("option", { name: "Deportes" })).toBeDefined();
+      await fill(user, "¿Qué tomas por la mañana?", ["Café", "Té"]);
+      await user.click(screen.getByRole("button", { name: "Publicar" }));
+
+      expect(p.onSubmit).toHaveBeenCalledWith({
+        question: "¿Qué tomas por la mañana?",
+        options: ["Café", "Té"],
+      });
+    });
+
+    it("envía el slug de la categoría elegida", async () => {
+      const user = userEvent.setup();
+      const p = props();
+      render(<PollCreationForm {...p} categories={CATEGORIES} />);
+      await fill(user, "¿Qué tomas por la mañana?", ["Café", "Té"]);
+      await user.selectOptions(select(), "Ciencia");
+      await user.click(screen.getByRole("button", { name: "Publicar" }));
+
+      expect(p.onSubmit).toHaveBeenCalledWith({
+        question: "¿Qué tomas por la mañana?",
+        options: ["Café", "Té"],
+        category: "ciencia",
+      });
+    });
+  });
 });
