@@ -8,7 +8,7 @@ export function feedHref(mode: FeedMode, category: string | null): string {
 
 const TAB =
   "inline-flex min-h-11 items-center rounded-full px-4 text-sm font-semibold transition-colors";
-const SELECTED = `${TAB} bg-foreground text-background`;
+const SELECTED = `${TAB} bg-accent-soft text-accent-foreground`;
 const UNSELECTED = `${TAB} border border-field hover:border-foreground`;
 const CHIP =
   "inline-flex min-h-11 items-center rounded-full px-3.5 text-[13px] font-medium transition-colors";
@@ -57,7 +57,7 @@ export function FeedControls({
               key={slug ?? "todas"}
               href={feedHref(mode, slug)}
               aria-current={category === slug ? "page" : undefined}
-              className={`${CHIP} ${category === slug ? "bg-foreground text-background" : "border border-border hover:border-foreground"}`}
+              className={`${CHIP} ${category === slug ? "bg-accent-soft text-accent-foreground" : "border border-border hover:border-foreground"}`}
             >
               {name}
             </Link>

@@ -13,7 +13,7 @@ type ProfileFormProps = {
 };
 
 const fieldClass =
-  "w-full rounded-xl border border-field bg-surface px-3.5 py-2.5 text-[15px] transition-colors hover:border-foreground focus:border-foreground focus:outline-none aria-invalid:border-danger";
+  "w-full rounded-xl border border-field bg-surface px-3.5 py-2.5 text-[15px] transition-colors hover:border-foreground focus:border-foreground aria-invalid:border-danger aria-invalid:focus:border-danger";
 
 // Elegir @usuario (obligatorio) y nombre visible (opcional) tras el primer login (V2-002).
 // Valida en cliente al enviar con las mismas reglas que la base de datos; la disponibilidad
@@ -120,7 +120,7 @@ export function ProfileForm({ onSubmit, onDone }: ProfileFormProps) {
       <button
         type="submit"
         disabled={pending}
-        className="min-h-11 self-start rounded-full bg-foreground px-6 font-semibold text-background transition-opacity hover:opacity-85 disabled:opacity-50"
+        className="min-h-11 self-start action-primary rounded-full px-6 font-semibold"
       >
         {pending ? "Guardando…" : "Guardar"}
       </button>
