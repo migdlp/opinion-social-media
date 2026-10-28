@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getPollDetail } from "@/lib/data/operations";
-import { createClient } from "@/lib/supabase/server";
+import { createAnonymousClient } from "@/lib/supabase/anonymous";
 
 const UNAVAILABLE: Metadata = { title: "No disponible", robots: { index: false } };
 
@@ -8,7 +8,7 @@ const UNAVAILABLE: Metadata = { title: "No disponible", robots: { index: false }
 // (signedIn: false) para que nunca entren votos ni resultados en el HTML o en las
 // tarjetas sociales. Oculta, inexistente o mal formada no revelan nada.
 export async function pollMetadata(id: string): Promise<Metadata> {
-  const supabase = await createClient();
+  const supabase = createAnonymousClient();
   const detail = await getPollDetail(supabase, id, { signedIn: false });
   if (!detail.ok) return detail.error === "POLL_UNAVAILABLE" ? UNAVAILABLE : {};
 
