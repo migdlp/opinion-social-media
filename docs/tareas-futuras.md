@@ -97,7 +97,7 @@ La columna Orden es orientativa; las dependencias y las reservas de cada fila de
 
 ## Fase 2 (backlog-v2)
 
-Tareas de [backlog-v2.md](backlog-v2.md), con el mismo protocolo de reserva. Antes de elegir una, mirar su oleada y sus dependencias en el [mapa de dependencias](backlog-v2.md#4-mapa-de-dependencias). El feed (E10) está [por definir](feed-por-definir.md); de esa épica sólo se puede reservar V2-030. Épicas: [E06](https://github.com/migdlp/opinion-social-media/issues/109), [E07](https://github.com/migdlp/opinion-social-media/issues/110), [E08](https://github.com/migdlp/opinion-social-media/issues/111), [E09](https://github.com/migdlp/opinion-social-media/issues/112), [E10](https://github.com/migdlp/opinion-social-media/issues/113), [E11](https://github.com/migdlp/opinion-social-media/issues/114).
+Tareas de [backlog-v2.md](backlog-v2.md), con el mismo protocolo de reserva. Antes de elegir una, mirar su oleada y sus dependencias en el [mapa de dependencias](backlog-v2.md#4-mapa-de-dependencias). El feed (E10) está [por definir](feed-por-definir.md); de esa épica sólo se puede reservar V2-030. Épicas: [E06](https://github.com/migdlp/opinion-social-media/issues/109), [E07](https://github.com/migdlp/opinion-social-media/issues/110), [E08](https://github.com/migdlp/opinion-social-media/issues/111), [E09](https://github.com/migdlp/opinion-social-media/issues/112), [E10](https://github.com/migdlp/opinion-social-media/issues/113), [E11](https://github.com/migdlp/opinion-social-media/issues/114), [E12](https://github.com/migdlp/opinion-social-media/issues/162). La épica E12 reúne propuestas de agente (D-CRECIMIENTO-001), todas P1: V2-048 a V2-051 están bloqueadas hasta que V2-040 obtenga la decisión del propietario.
 
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|
@@ -127,6 +127,19 @@ Tareas de [backlog-v2.md](backlog-v2.md), con el mismo protocolo de reserva. Ant
 | [V2-024](https://github.com/migdlp/opinion-social-media/issues/137) | Pruebas de fugas de privacidad y cierre | P0 | V2-005, V2-007, V2-014 | Pendiente | — |
 | [V2-025](https://github.com/migdlp/opinion-social-media/issues/140) | E2E del ciclo social | P0 | V2-002, V2-006, V2-009 | Pendiente | — |
 | [V2-030](https://github.com/migdlp/opinion-social-media/issues/123) | Definir el feed con el propietario | P0 | — | En progreso: preguntas de producto enviadas; pendiente de respuestas del propietario | Codex /root (opinion_social_media) |
+| [V2-040](https://github.com/migdlp/opinion-social-media/issues/170) | Decidir con el propietario las apuestas de crecimiento | P1 | — | Pendiente | — |
+| [V2-041](https://github.com/migdlp/opinion-social-media/issues/163) | Métricas del ciclo desde SQL | P1 | — | Pendiente | — |
+| [V2-042](https://github.com/migdlp/opinion-social-media/issues/164) | Imagen «Mi voto» para compartir | P1 | V2-018, V2-019 | Pendiente | — |
+| [V2-043](https://github.com/migdlp/opinion-social-media/issues/165) | Pregunta del día y ruta `/hoy` | P1 | V2-005 | Pendiente | — |
+| [V2-044](https://github.com/migdlp/opinion-social-media/issues/166) | Racha de participación | P1 | — | Pendiente | — |
+| [V2-045](https://github.com/migdlp/opinion-social-media/issues/167) | Predicciones: tabla y RPC | P1 | V2-005, V2-013 | Pendiente | — |
+| [V2-046](https://github.com/migdlp/opinion-social-media/issues/172) | Predicciones: interfaz | P1 | V2-045 | Pendiente | — |
+| [V2-047](https://github.com/migdlp/opinion-social-media/issues/168) | Vibración y texto en la revelación | P1 | V2-015 | Pendiente | — |
+| [V2-048](https://github.com/migdlp/opinion-social-media/issues/173) | Retos de compatibilidad: modelo y RPC | P1 | V2-005, V2-007, V2-040 | Bloqueada: requiere la decisión del propietario P-3 (V2-040); siguiente paso: plantearla en V2-040 | — |
+| [V2-049](https://github.com/migdlp/opinion-social-media/issues/176) | Retos de compatibilidad: interfaz | P1 | V2-048 | Bloqueada: espera a V2-048, que requiere la decisión P-3 | — |
+| [V2-050](https://github.com/migdlp/opinion-social-media/issues/174) | Sugerir una pregunta con IA | P1 | V2-040 | Bloqueada: requiere la decisión del propietario P-4 (V2-040); siguiente paso: plantearla en V2-040 | — |
+| [V2-051](https://github.com/migdlp/opinion-social-media/issues/175) | Encuesta incrustable | P1 | V2-005, V2-040 | Bloqueada: requiere la decisión del propietario P-5 (V2-040); siguiente paso: plantearla en V2-040 | — |
+| [V2-052](https://github.com/migdlp/opinion-social-media/issues/169) | Conservar la elección al iniciar sesión | P1 | — | Pendiente | — |
 
 ## Condición de cierre
 

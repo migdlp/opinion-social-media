@@ -5,6 +5,8 @@
 > Este documento amplía el MVP con funciones que el [brief](brief-producto.md) dejaba fuera (§3.2, §5 y §8). El brief se conserva como fuente histórica; donde choque con este backlog, prevalecen las decisiones D-015 a D-021 de [decisiones.md](decisiones.md). El backlog del MVP ([backlog.md](backlog.md)) sigue vigente para sus tareas pendientes (MVP-005, MVP-049 a MVP-051).
 >
 > **El feed (épica E10) está por definir.** Ver [feed-por-definir.md](feed-por-definir.md). Sólo se puede reservar su tarea de definición, V2-030.
+>
+> **La épica E12 (crecimiento y hábito)** reúne propuestas de agente que el propietario pidió incorporar el 28-10-2026 ([D-CRECIMIENTO-001](decisiones.md)). Todas son P1. V2-048, V2-050 y V2-051 esperan una decisión suya (V2-040).
 
 ## 1. Cómo usar este documento
 
@@ -30,6 +32,7 @@
 | Cierre | Fecha de cierre opcional. Cerrada, no admite votos y **sus resultados pasan a ser visibles para todos** los que puedan ver la encuesta, aunque no hayan votado (D-020). |
 | Regla crítica | Sigue vigente para toda encuesta **abierta**: nadie, ni el autor, obtiene agregados antes de votar. La única excepción es la encuesta cerrada (D-020). Siempre se impone en Supabase. |
 | Contenido | Denuncias, categorías fijas y «Guardar para luego» (D-021). |
+| Crecimiento (E12) | Propuestas de agente, no decisiones D-015 a D-021. Incorporadas por petición del propietario (D-CRECIMIENTO-001). Las que cambian una regla o dependen de un servicio externo están bloqueadas hasta que V2-040 obtenga su decisión. |
 
 ### Supuestos tomados por el planificador (corregibles por el propietario)
 
@@ -42,10 +45,20 @@
 - **S-7 Votar en encuestas de cuentas privadas:** sólo pueden votarlas quienes pueden verlas.
 - **S-8 Denuncias:** no ocultan nada automáticamente; las revisa un moderador con el procedimiento de [moderacion.md](moderacion.md).
 - **S-9 Guardadas:** la lista de guardadas es privada siempre; sólo la ve su dueño.
+- **S-10 Pregunta del día (E12):** la elige una persona con acceso SQL, igual que la moderación. No hay selección automática ni panel.
+- **S-11 Día y racha (E12):** el día natural se calcula en `Europe/Madrid`. Un día cuenta si la cuenta tiene al menos un voto, y la racha no se rompe hasta que pasa un día entero sin votar.
+- **S-12 Predicciones (E12):** sólo se predice qué opción ganará, antes de votar, una vez por encuesta y sin cambios. Acierta si su opción tiene en ese momento el máximo de votos (los empates cuentan). No hay marcador acumulado en esta fase.
+- **S-13 Medición (E12):** consultas de agregados que ejecuta un operador, sin tabla de eventos ni analítica de terceros y sin identificar a nadie. Las visitas a enlaces no se miden.
 
 ### Preguntas abiertas
 
 - **P-1 Votos públicos frente a la regla crítica.** Si en un perfil se ve la opción elegida en encuestas que el visitante todavía no ha votado, recorriendo perfiles se puede intuir qué opción va ganando antes de votar. **Propuesta:** en el perfil ajeno, mostrar la opción elegida sólo en encuestas que el visitante ya ha votado o que están cerradas; en el resto, «Votó · vota para ver su elección». V2-007 implementa la propuesta salvo que el propietario indique lo contrario.
+
+- **P-2 Imagen «Mi voto» y la regla crítica (V2-042).** La imagen se genera para quien ya votó y la puede reenviar a quien no. Mostrar en ella el porcentaje de su opción enseñaría un agregado de una encuesta abierta a gente que no ha votado. **Por defecto** V2-042 no incluye ninguna cifra mientras la encuesta esté abierta. Cambiarlo requiere decisión del propietario.
+- **P-3 Retos de compatibilidad (V2-048).** Comparar a dos personas revela algo de ambas. Opciones: (a) sólo el número de coincidencias, sin nombres (propuesta); (b) con `@usuario` y detalle por encuesta, sólo entre cuentas que lo aceptan; (c) no hacerlo. Riesgo de (a): con varias cuentas de prueba se puede deducir qué votó quien lanzó el reto. El límite diario por cuenta y exigir haber votado antes lo reducen, no lo eliminan.
+- **P-4 Sugerencias con IA (V2-050).** El brief (§4) excluye servicios externos. Decidir si se acepta un proveedor de modelos, cuál, quién asume el coste, qué se le envía (sólo el tema que escribe la persona) y el límite de uso por cuenta.
+- **P-5 Encuesta incrustable (V2-051).** Permitir que otras webs incrusten una página de Opinión abre la puerta al clickjacking y exige cambiar cabeceras de seguridad, que gestiona Codex /root con la configuración de Vercel. Decidir si se acepta y para qué rutas.
+- **P-6 Voto automático tras el login (sin tarea).** V2-052 conserva la elección y exige un toque de confirmación, como fija la regla actual. Votar solo al volver del login subiría la conversión, pero cambia esa regla y aún no hay datos que lo justifiquen. Sólo se plantearía con las métricas de V2-041 delante.
 
 ## 3. Catálogo
 
@@ -84,6 +97,20 @@
 | V2-023 | RPC de resultados por lotes para el feed | P1 | M | `database`, `backend` | V2-014 |
 | V2-024 | Pruebas de fugas de privacidad y cierre | P0 | M | `testing`, `security` | V2-005, V2-007, V2-014 |
 | V2-025 | E2E del ciclo social | P0 | M | `testing` | V2-002, V2-006, V2-009 |
+| **E12 — Crecimiento y hábito** | | | | | |
+| V2-040 | Decidir con el propietario las apuestas de crecimiento | P1 | S | `product`, `docs` | — |
+| V2-041 | Métricas del ciclo desde SQL | P1 | M | `database`, `testing` | — |
+| V2-042 | Imagen «Mi voto» para compartir | P1 | M | `frontend`, `backend` | V2-018, V2-019 |
+| V2-043 | Pregunta del día y ruta `/hoy` | P1 | M | `database`, `frontend` | V2-005 |
+| V2-044 | Racha de participación | P1 | S | `database`, `frontend` | — |
+| V2-045 | Predicciones: tabla y RPC | P1 | M | `database`, `security` | V2-005, V2-013 |
+| V2-046 | Predicciones: interfaz | P1 | M | `frontend` | V2-045 |
+| V2-047 | Vibración y texto en la revelación | P1 | S | `frontend`, `design` | V2-015 |
+| V2-048 | Retos de compatibilidad: modelo y RPC | P1 | L | `database`, `security` | V2-005, V2-007, V2-040 |
+| V2-049 | Retos de compatibilidad: interfaz | P1 | M | `frontend` | V2-048 |
+| V2-050 | Sugerir una pregunta con IA | P1 | M | `backend`, `frontend`, `security` | V2-040 |
+| V2-051 | Encuesta incrustable | P1 | M | `frontend`, `security` | V2-005, V2-040 |
+| V2-052 | Conservar la elección al iniciar sesión | P1 | S | `frontend`, `auth` | — |
 
 Qué bloquea a qué y por cuál empezar: ver la sección 4, «Mapa de dependencias».
 
@@ -97,21 +124,21 @@ Qué bloquea a qué y por cuál empezar: ver la sección 4, «Mapa de dependenci
 | [V2-002](https://github.com/migdlp/opinion-social-media/issues/124) Onboarding: elegir `@usuario` tras el primer login | P0 | M | V2-001 | V2-008, V2-010, V2-025 | 1 |
 | [V2-003](https://github.com/migdlp/opinion-social-media/issues/125) Firmar encuestas con `@usuario` | P0 | M | V2-001 | V2-006 | 1 |
 | [V2-004](https://github.com/migdlp/opinion-social-media/issues/126) Crear tabla `follows` con solicitudes | P0 | L | V2-001 | V2-005, V2-008, V2-009 | 1 |
-| [V2-005](https://github.com/migdlp/opinion-social-media/issues/128) Visibilidad de cuentas privadas en RLS y RPC | P0 | L | V2-001, V2-004 | V2-006, V2-007, V2-014, V2-019, V2-024 | 2 |
+| [V2-005](https://github.com/migdlp/opinion-social-media/issues/128) Visibilidad de cuentas privadas en RLS y RPC | P0 | L | V2-001, V2-004 | V2-006, V2-007, V2-014, V2-019, V2-024, V2-043, V2-045, V2-048, V2-051 | 2 |
 | [V2-006](https://github.com/migdlp/opinion-social-media/issues/135) Página de perfil `/u/[username]` | P0 | L | V2-003, V2-005, V2-007 | V2-009, V2-022, V2-025 | 4 |
-| [V2-007](https://github.com/migdlp/opinion-social-media/issues/132) RPC de votos visibles en un perfil | P0 | M | V2-005 | V2-006, V2-024 | 3 |
+| [V2-007](https://github.com/migdlp/opinion-social-media/issues/132) RPC de votos visibles en un perfil | P0 | M | V2-005 | V2-006, V2-024, V2-048 | 3 |
 | [V2-008](https://github.com/migdlp/opinion-social-media/issues/129) Ajustes de perfil y privacidad (`/settings`) | P0 | M | V2-002, V2-004 | — | 2 |
 | [V2-009](https://github.com/migdlp/opinion-social-media/issues/138) Seguidores, seguidos y solicitudes | P0 | M | V2-004, V2-006 | V2-025 | 5 |
 | [V2-010](https://github.com/migdlp/opinion-social-media/issues/130) Navegación con perfil: cabecera y barra inferior móvil | P1 | M | V2-002 | — | 2 |
 | [V2-011](https://github.com/migdlp/opinion-social-media/issues/116) Plantilla Sí/No en el formulario | P1 | S | — | — | 0 |
 | [V2-012](https://github.com/migdlp/opinion-social-media/issues/117) Permitir hasta 6 opciones | P0 | M | — | V2-013 | 0 |
-| [V2-013](https://github.com/migdlp/opinion-social-media/issues/127) Fecha de cierre opcional | P0 | L | V2-012 | V2-014, V2-021 | 1 |
+| [V2-013](https://github.com/migdlp/opinion-social-media/issues/127) Fecha de cierre opcional | P0 | L | V2-012 | V2-014, V2-021, V2-045 | 1 |
 | [V2-014](https://github.com/migdlp/opinion-social-media/issues/133) Resultados públicos al cerrarse | P0 | L | V2-005, V2-013 | V2-023, V2-024 | 3 |
-| [V2-015](https://github.com/migdlp/opinion-social-media/issues/118) Animar las barras al revelar resultados | P1 | S | — | — | 0 |
+| [V2-015](https://github.com/migdlp/opinion-social-media/issues/118) Animar las barras al revelar resultados | P1 | S | — | V2-047 | 0 |
 | [V2-016](https://github.com/migdlp/opinion-social-media/issues/119) Mensaje «Coincides con el X %» tras votar | P1 | S | — | — | 0 |
 | [V2-017](https://github.com/migdlp/opinion-social-media/issues/120) Modo oscuro | P1 | M | — | — | 0 |
-| [V2-018](https://github.com/migdlp/opinion-social-media/issues/121) Compartir con la hoja nativa | P1 | S | — | — | 0 |
-| [V2-019](https://github.com/migdlp/opinion-social-media/issues/134) Imagen OG dinámica por encuesta | P1 | M | V2-005 | — | 3 |
+| [V2-018](https://github.com/migdlp/opinion-social-media/issues/121) Compartir con la hoja nativa | P1 | S | — | V2-042 | 0 |
+| [V2-019](https://github.com/migdlp/opinion-social-media/issues/134) Imagen OG dinámica por encuesta | P1 | M | V2-005 | V2-042 | 3 |
 | [V2-020](https://github.com/migdlp/opinion-social-media/issues/122) Denunciar una encuesta | P0 | M | — | — | 0 |
 | [V2-021](https://github.com/migdlp/opinion-social-media/issues/131) Categorías fijas al crear y en la tarjeta | P1 | M | V2-013 | — | 2 |
 | [V2-022](https://github.com/migdlp/opinion-social-media/issues/139) Guardar para luego | P1 | M | V2-006 | — | 5 |
@@ -119,17 +146,30 @@ Qué bloquea a qué y por cuál empezar: ver la sección 4, «Mapa de dependenci
 | [V2-024](https://github.com/migdlp/opinion-social-media/issues/137) Pruebas de fugas de privacidad y cierre | P0 | M | V2-005, V2-007, V2-014 | — | 4 |
 | [V2-025](https://github.com/migdlp/opinion-social-media/issues/140) E2E del ciclo social | P0 | M | V2-002, V2-006, V2-009 | — | 6 |
 | [V2-030](https://github.com/migdlp/opinion-social-media/issues/123) Definir el feed con el propietario | P0 | M | — | — | 0 |
+| [V2-040](https://github.com/migdlp/opinion-social-media/issues/170) Decidir con el propietario las apuestas de crecimiento | P1 | S | — | V2-048, V2-050, V2-051 | 0 |
+| [V2-041](https://github.com/migdlp/opinion-social-media/issues/163) Métricas del ciclo desde SQL | P1 | M | — | — | 0 |
+| [V2-042](https://github.com/migdlp/opinion-social-media/issues/164) Imagen «Mi voto» para compartir | P1 | M | V2-018, V2-019 | — | 4 |
+| [V2-043](https://github.com/migdlp/opinion-social-media/issues/165) Pregunta del día y ruta `/hoy` | P1 | M | V2-005 | — | 3 |
+| [V2-044](https://github.com/migdlp/opinion-social-media/issues/166) Racha de participación | P1 | S | — | — | 0 |
+| [V2-045](https://github.com/migdlp/opinion-social-media/issues/167) Predicciones: tabla y RPC | P1 | M | V2-005, V2-013 | V2-046 | 3 |
+| [V2-046](https://github.com/migdlp/opinion-social-media/issues/172) Predicciones: interfaz | P1 | M | V2-045 | — | 4 |
+| [V2-047](https://github.com/migdlp/opinion-social-media/issues/168) Vibración y texto en la revelación | P1 | S | V2-015 | — | 1 |
+| [V2-048](https://github.com/migdlp/opinion-social-media/issues/173) Retos de compatibilidad: modelo y RPC | P1 | L | V2-005, V2-007, V2-040 | V2-049 | 4 |
+| [V2-049](https://github.com/migdlp/opinion-social-media/issues/176) Retos de compatibilidad: interfaz | P1 | M | V2-048 | — | 5 |
+| [V2-050](https://github.com/migdlp/opinion-social-media/issues/174) Sugerir una pregunta con IA | P1 | M | V2-040 | — | 1 |
+| [V2-051](https://github.com/migdlp/opinion-social-media/issues/175) Encuesta incrustable | P1 | M | V2-005, V2-040 | — | 3 |
+| [V2-052](https://github.com/migdlp/opinion-social-media/issues/169) Conservar la elección al iniciar sesión | P1 | S | — | — | 0 |
 
 ### Oleadas
 
 Todas las tareas de una oleada pueden hacerse en paralelo cuando la anterior está terminada (en realidad basta con que lo estén sus propias dependencias).
 
-- **Oleada 0:** V2-001 (P0), V2-011 (P1), V2-012 (P0), V2-015 (P1), V2-016 (P1), V2-017 (P1), V2-018 (P1), V2-020 (P0), V2-030 (P0)
-- **Oleada 1:** V2-002 (P0), V2-003 (P0), V2-004 (P0), V2-013 (P0)
+- **Oleada 0:** V2-001 (P0), V2-011 (P1), V2-012 (P0), V2-015 (P1), V2-016 (P1), V2-017 (P1), V2-018 (P1), V2-020 (P0), V2-030 (P0), V2-040 (P1), V2-041 (P1), V2-044 (P1), V2-052 (P1)
+- **Oleada 1:** V2-002 (P0), V2-003 (P0), V2-004 (P0), V2-013 (P0), V2-047 (P1), V2-050 (P1)
 - **Oleada 2:** V2-005 (P0), V2-008 (P0), V2-010 (P1), V2-021 (P1)
-- **Oleada 3:** V2-007 (P0), V2-014 (P0), V2-019 (P1)
-- **Oleada 4:** V2-006 (P0), V2-023 (P1), V2-024 (P0)
-- **Oleada 5:** V2-009 (P0), V2-022 (P1)
+- **Oleada 3:** V2-007 (P0), V2-014 (P0), V2-019 (P1), V2-043 (P1), V2-045 (P1), V2-051 (P1)
+- **Oleada 4:** V2-006 (P0), V2-023 (P1), V2-024 (P0), V2-042 (P1), V2-046 (P1), V2-048 (P1)
+- **Oleada 5:** V2-009 (P0), V2-022 (P1), V2-049 (P1)
 - **Oleada 6:** V2-025 (P0)
 
 ### Camino crítico
@@ -143,6 +183,7 @@ La cadena más larga, unos 11 días de trabajo secuencial, es **V2-001 → V2-00
 3. **Tercer agente, interfaz sin dependencias:** V2-011, V2-015, V2-016, V2-017, V2-018 y V2-020 no bloquean ni dependen de nada. Son buenas para huecos o para alguien que empieza.
 4. **Producto:** V2-030 (definir el feed) no requiere código y puede ir en paralelo con todo.
 5. Entre varias disponibles, P0 antes que P1, y la que más tareas bloquee antes que la que no bloquea ninguna.
+6. **Épica E12 (todas P1, después de las P0 disponibles):** empezar por V2-052 y V2-041, que no dependen de nada. V2-040 bloquea a V2-048, V2-050 y V2-051 y no requiere código, pero necesita respuestas del propietario. V2-045 → V2-046 y V2-048 → V2-049 son cadenas. V2-042 espera a V2-019.
 
 ### Grafo
 
@@ -175,6 +216,20 @@ graph LR
   V2_002[V2-002] --> V2_025[V2-025]
   V2_006[V2-006] --> V2_025[V2-025]
   V2_009[V2-009] --> V2_025[V2-025]
+  V2_018[V2-018] --> V2_042[V2-042]
+  V2_019[V2-019] --> V2_042[V2-042]
+  V2_005[V2-005] --> V2_043[V2-043]
+  V2_005[V2-005] --> V2_045[V2-045]
+  V2_013[V2-013] --> V2_045[V2-045]
+  V2_045[V2-045] --> V2_046[V2-046]
+  V2_015[V2-015] --> V2_047[V2-047]
+  V2_005[V2-005] --> V2_048[V2-048]
+  V2_007[V2-007] --> V2_048[V2-048]
+  V2_040[V2-040] --> V2_048[V2-048]
+  V2_048[V2-048] --> V2_049[V2-049]
+  V2_040[V2-040] --> V2_050[V2-050]
+  V2_005[V2-005] --> V2_051[V2-051]
+  V2_040[V2-040] --> V2_051[V2-051]
   V2_011[V2-011]
   V2_015[V2-015]
   V2_016[V2-016]
@@ -182,6 +237,9 @@ graph LR
   V2_018[V2-018]
   V2_020[V2-020]
   V2_030[V2-030]
+  V2_041[V2-041]
+  V2_044[V2-044]
+  V2_052[V2-052]
 ```
 
 ## 5. Detalle de tareas
@@ -549,6 +607,251 @@ El diseño del feed está **por definir**. Todo el contexto, la propuesta inicia
   1. El recorrido pasa en escritorio y móvil en dos ejecuciones seguidas.
   2. Rompe (RED) si se elimina la comprobación de `can_view_author` en la política de `polls`.
 
+### E12 — Crecimiento y hábito
+
+Las tareas de esta épica son **propuestas de agente** que el propietario pidió incorporar al backlog el 28-10-2026 ([D-CRECIMIENTO-001](decisiones.md)). No sustituyen a E06–E11 ni cambian D-015 a D-021. Persiguen que quien vota vuelva y comparta, sin tocar la regla crítica.
+
+**Prioridad.** Todas son P1: ninguna es condición para cerrar la fase 2. Dentro de P1 conviene este orden: V2-052 y V2-041, porque son baratas y no dependen de nada; después V2-042, V2-043, V2-044 y V2-047; después V2-045 → V2-046. V2-040 bloquea a las tres tareas que necesitan una decisión del propietario (V2-048, V2-050 y V2-051; V2-049 espera a V2-048).
+
+**Qué esperamos de cada una.** Las puntuaciones son estimaciones del planificador de 1 a 10, hechas leyendo este backlog y el código; no son mediciones.
+
+| Tarea | Impacto | Esfuerzo | Por qué esta posición |
+|---|---|---|---|
+| V2-052 Conservar la elección al iniciar sesión | 7 | 2 | Quita una pérdida en el paso de login, el más frágil para quien llega por un enlace. Sin cambiar ninguna regla |
+| V2-041 Métricas del ciclo | 8 | 3 | No crece nada por sí sola, pero sin números no se sabe cuál de las demás funciona |
+| V2-042 Imagen «Mi voto» | 8 | 3 | Cada voto produce algo que se comparte y lleva al enlace |
+| V2-043 y V2-044 Pregunta del día y racha | 7 | 4 | Motivo diario para volver sin notificaciones |
+| V2-045 y V2-046 Predicciones | 8 | 5 | Convierte el `?? %` en un juego; encaja con la regla porque no revela nada |
+| V2-047 Vibración y texto | 4 | 1 | Pulido barato del momento que más se repite |
+| V2-048 y V2-049 Retos | 7 | 7 | Motivo social para invitar; el coste y el riesgo de privacidad piden decisión previa |
+| V2-050 IA | 5 | 4 | Mejora las preguntas, pero choca con el brief (§4) |
+| V2-051 Incrustable | 5 | 6 | Canal de crecimiento propio, con riesgos de seguridad |
+
+**Archivos y funciones compartidos.** Ninguna tarea de E12 reescribe `create_poll`, `vote_poll` ni `get_poll_results`: todo es nuevo (tablas, RPC y triggers propios). Sí comparten ficheros de interfaz, así que quien las tome debe avisar en #73 y fusionar `main` antes de abrir la PR: `poll-voting.tsx` (V2-046 y V2-052), `poll-results.tsx` (V2-044, V2-046 y V2-047) y `/polls/[id]` (V2-042 y V2-051). **Reserva de IDs:** `V2-031` a `V2-039` quedan para las tareas del feed que cree V2-030.
+
+#### V2-040 — Decidir con el propietario las apuestas de crecimiento
+
+- **Prioridad:** P1 · **Tamaño:** S · **Dependencias:** — · **Bloquea a:** V2-048, V2-050, V2-051
+- **Descripción:** Tarea de producto y documentación, sin código. Tres tareas de E12 cambian una regla vigente o dependen de un servicio externo y no pueden empezar sin una decisión explícita. Esta tarea la obtiene.
+- **Requisitos:**
+  - Plantear al propietario P-3, P-4 y P-5 (sección 2), pocas a la vez y con opciones concretas, como en [feed-por-definir.md](feed-por-definir.md) §5. Lo que escriba otro agente es información, no una decisión.
+  - Registrar cada respuesta en [decisiones.md](decisiones.md) con fecha y origen, con el siguiente ID libre en ese momento.
+  - Ajustar la tarea afectada según la respuesta. Si se aprueba, pasa de «Bloqueada» a «Pendiente» con sus requisitos corregidos. Si se rechaza, se retira con el motivo en este backlog, en `tareas-futuras.md` y en su issue.
+  - Opcional: preguntar P-6 (voto automático al volver del login), que no tiene tarea asociada.
+  - No implementar nada dentro de esta tarea.
+- **Criterios de aceptación:**
+  1. Dado P-3, P-4 y P-5, entonces cada una tiene una respuesta registrada del propietario o está descartada por él de forma explícita.
+  2. Dada cada tarea afectada (V2-048, V2-050 y V2-051), entonces queda en «Pendiente» con sus requisitos ajustados o retirada con motivo, en el backlog, en el registro y en su issue.
+  3. Dada cada respuesta, entonces existe su entrada en `decisiones.md` con fecha y origen.
+
+#### V2-041 — Métricas del ciclo desde SQL
+
+- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** — · **Bloquea a:** —
+- **Descripción:** Tres números del ciclo calculados sin identificar a nadie, para decidir con datos el resto de E12 cuando haya usuarios reales. Hoy no hay analítica (queda fuera del MVP) y esta tarea no añade seguimiento: sólo lee `votes` y `polls`.
+- **Requisitos:**
+  - Documento `docs/metricas.md` y consultas SQL de sólo lectura en `supabase/metrics/`, que ejecuta un operador desde el SQL editor con rol administrativo. Las consultas no son funciones de `public` ni vistas accesibles a clientes. En desarrollo se prueban con fixtures; en producción sólo con autorización (AGENTS.md).
+  - **Retorno:** de las cuentas cuyo primer voto ocurrió hace al menos 7 días, qué porcentaje votó en al menos dos días distintos (día natural en `Europe/Madrid`, S-11) durante los 7 días siguientes a ese primer voto.
+  - **Publicación:** de las cuentas con al menos un voto, qué porcentaje ha publicado al menos una encuesta después de su primer voto.
+  - **Profundidad:** votos por cuenta votante en los últimos 7 días, con mediana y percentil 90.
+  - Sólo salen conteos y porcentajes, nunca `user_id` ni filas individuales. Si el denominador es menor de 5, el porcentaje sale `NULL` para no señalar a personas concretas.
+  - El documento explica qué significa cada número y deja constancia de que las visitas a enlaces no se miden. Medirlas, por ejemplo con analítica sin cookies de Vercel, sería una decisión aparte de la operación de Vercel.
+  - Test SQL `supabase/tests/NNN_metrics.test.sql` (el siguiente número libre) con fixtures de resultado calculado a mano, que se ejecuta con `npm run test:db`.
+- **Criterios de aceptación:**
+  1. Dado un conjunto de votos y encuestas de fixture con resultado calculado a mano, cuando se ejecutan las tres consultas, entonces devuelven exactamente esos valores.
+  2. Dada una cohorte de menos de 5 cuentas, entonces el porcentaje es `NULL`.
+  3. Dados `anon` y `authenticated`, cuando intentan leer esas consultas o sus resultados, entonces no existe ningún objeto en `public` que se lo permita (`008_privileges.test.sql` sigue en verde).
+  4. Dado `docs/metricas.md`, entonces explica cómo ejecutar las consultas en desarrollo y qué significa cada resultado.
+
+#### V2-042 — Imagen «Mi voto» para compartir
+
+- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** V2-018, V2-019 · **Bloquea a:** —
+- **Descripción:** Tras votar, la persona puede compartir una imagen con la pregunta y la opción que eligió, que invita a votar: «Yo voté esto. ¿Y tú?». Cada voto produce algo que apetece enseñar y que lleva al enlace de la encuesta. V2-016 ya muestra «Coincides con el X %» sólo en pantalla; esta tarea saca el gesto de la app sin sacar cifras.
+- **Requisitos:**
+  - Ruta `src/app/polls/[id]/mi-voto/route.tsx` que devuelve un PNG con `ImageResponse` de `next/og` (consultar `node_modules/next/dist/docs/`) en formato historia, 1080×1920. Reutiliza la fuente y el diseño de tarjeta de V2-019. Si V2-019 aún no está fusionada, esperar a ella en lugar de duplicar la carga de la fuente (coordinar en #73).
+  - Contenido: la pregunta, la opción elegida marcada como «Mi voto», la frase «¿Y tú?» y la marca «Opinión». No lleva nombre ni `@usuario` de quien comparte (anonimato por defecto).
+  - **Sin cifras (P-2):** mientras la encuesta esté abierta, la imagen no contiene porcentajes ni recuentos de ninguna opción. Para componerla se usa `getOwnVoteOptionId` (`src/lib/data/polls.ts`) y **no** `get_poll_results`, de modo que el servidor ni siquiera lee agregados.
+  - Autorización: la genera sólo una cuenta con sesión que haya votado esa encuesta. En cualquier otro caso (sin sesión, sin voto, encuesta oculta o de cuenta privada no visible para quien la pide) responde 404, igual que una encuesta inexistente.
+  - La respuesta lleva `Cache-Control: private, no-store`: contiene datos de la cuenta y no hay caché compartida (D-014).
+  - Interfaz: botón «Compartir mi voto» bajo los resultados tras votar. Con `navigator.canShare({ files })` abre la hoja nativa con la imagen y el enlace de la encuesta; si no hay soporte, copia el enlace como V2-018 y lo confirma. Cancelar no muestra error.
+  - Fuera de alcance: variante con porcentaje para encuestas cerradas, que se añadirá cuando exista V2-014.
+- **Criterios de aceptación:**
+  1. Dado quien votó una encuesta abierta, cuando pide la imagen, entonces recibe un PNG de 1080×1920 con la pregunta y su opción, y los datos que llegan al renderizador no contienen ningún porcentaje ni recuento (se comprueba sobre esos datos, no sobre los píxeles).
+  2. Dado un visitante sin sesión, una cuenta que no ha votado o una encuesta oculta o no visible, cuando pide la imagen, entonces recibe el mismo 404 en los tres casos.
+  3. Dada cualquier respuesta, entonces lleva `Cache-Control: private, no-store`.
+  4. Dado un navegador con `canShare` para archivos, cuando se pulsa el botón, entonces se abre la hoja con la imagen y la URL. Sin soporte, se copia el enlace y se confirma «Enlace copiado». Si se cancela, no aparece ningún error.
+  5. Dados los tests de fugas del SSR (`src/app/ssr-sin-fugas.test.tsx`), entonces siguen en verde: el botón no añade agregados al HTML de quien no ha votado.
+
+#### V2-043 — Pregunta del día y ruta `/hoy`
+
+- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** V2-005 · **Bloquea a:** —
+- **Descripción:** Una encuesta destacada por día, la misma para todos, y una ruta `/hoy` que lleva a ella. Da un motivo diario para volver sin notificaciones y sin tocar el feed, que sigue sin definir (E10).
+- **Requisitos:**
+  - Tabla `public.daily_polls` (`day date PK`, `poll_id uuid not null references polls on delete cascade`, `created_at timestamptz not null default now()`). El día es la fecha en `Europe/Madrid` (S-11). Los clientes no escriben: la gestiona una persona con acceso SQL (S-10).
+  - Lectura para `anon` y `authenticated` limitada por RLS a filas cuya encuesta puede ver quien consulta (la misma visibilidad que `polls` tras V2-005).
+  - Un trigger `BEFORE INSERT OR UPDATE` rechaza encuestas que no estén publicadas o cuyo autor sea una cuenta privada: la pregunta del día es siempre pública.
+  - Ruta `/hoy`: busca la fila de hoy y redirige a `/polls/[id]`. Si no hay fila, o la encuesta ya no es visible, redirige a `/` sin error ni 404. Es dinámica: no se cachea (`cacheComponents`, D-014).
+  - Sección «Elegir la pregunta del día» en [moderacion.md](moderacion.md) con el SQL para fijarla, comprobarla y quitarla.
+  - No añade enlace en la cabecera ni bloque en el feed: dependen de V2-010 y de la decisión del feed (V2-030). Ampliar `008_privileges.test.sql`, regenerar `database.types.ts` y actualizar [contratos-api.md](contratos-api.md).
+- **Criterios de aceptación:**
+  1. Dada una fila para hoy con una encuesta pública, cuando se abre `/hoy` (con o sin sesión), entonces redirige a esa encuesta.
+  2. Dada ninguna fila para hoy, entonces `/hoy` redirige a `/`.
+  3. Dado un intento de fijar una encuesta oculta o de una cuenta privada, entonces la base de datos lo rechaza.
+  4. Dada una encuesta del día que pasa a oculta después, entonces `/hoy` redirige a `/` en lugar de mostrar un 404 ni un enlace roto.
+  5. Dado cualquier cliente, cuando inserta, actualiza o borra en `daily_polls`, entonces se deniega.
+  6. Dado el cambio de día a medianoche en `Europe/Madrid`, entonces `/hoy` apunta a la nueva fila (probado con reloj fijo en SQL).
+
+#### V2-044 — Racha de participación
+
+- **Prioridad:** P1 · **Tamaño:** S · **Dependencias:** — · **Bloquea a:** —
+- **Descripción:** Tras votar, la persona ve cuántos días seguidos lleva votando. Se calcula a partir de `votes`, sin tabla nueva ni datos adicionales.
+- **Requisitos:**
+  - RPC `get_my_streak()` que devuelve `{ current, best, voted_today }` de la cuenta que llama, sólo para `authenticated`. Un día cuenta si la cuenta tiene al menos un voto con `votes.created_at` en esa fecha de `Europe/Madrid` (S-11). `current` son los días consecutivos que acaban hoy o ayer, así que no se rompe hasta que pasa un día entero sin votar. `best` es la mejor racha histórica.
+  - Interfaz: frase bajo los resultados tras votar, junto a «Coincides con el X %» (V2-016): «Llevas N días seguidos votando». Sólo aparece si N es 2 o más. Se anuncia con `aria-live="polite"`.
+  - Es privada: no aparece en perfiles ni en la imagen de V2-042, y no revela qué se votó.
+  - Ampliar `008_privileges.test.sql` con la RPC nueva, regenerar `database.types.ts` y actualizar [contratos-api.md](contratos-api.md).
+- **Criterios de aceptación:**
+  1. Dados votos en tres días seguidos que acaban hoy, entonces `current` es 3.
+  2. Dado un hueco de un día entero sin votos, entonces `current` vuelve a 1 y `best` conserva la racha anterior.
+  3. Dados varios votos el mismo día, entonces cuentan como un solo día.
+  4. Dado el cambio de hora del 25 de octubre de 2026 (día de 25 horas), entonces una racha que lo atraviesa no se rompe ni se duplica.
+  5. Dado `anon`, cuando llama a la RPC, entonces recibe `AUTH_REQUIRED`; los votos de otras cuentas no cuentan.
+  6. Dado N igual a 1, entonces la interfaz no muestra la frase.
+
+#### V2-045 — Predicciones: tabla y RPC
+
+- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** V2-005, V2-013 · **Bloquea a:** V2-046
+- **Descripción:** Antes de votar, la persona puede decir qué opción cree que ganará; tras votar se compara. Esta tarea es la parte de datos. No revela nada antes del voto: la predicción se hace a ciegas y su resultado sólo se calcula para quien ya votó.
+- **Requisitos:**
+  - Tabla `public.poll_predictions` (`poll_id`, `user_id references auth.users on delete cascade`, `option_id`, `created_at`, `PK (poll_id, user_id)`), con la misma clave compuesta que `votes` para que la opción pertenezca a la encuesta. Sin lectura ni escritura directa para clientes; todo va por RPC.
+  - RPC `submit_prediction(p_poll_id, p_option_id)`: exige sesión y perfil, encuesta visible para quien llama (`can_view_author`), publicada y abierta, y opción de esa encuesta. Rechaza con `ALREADY_VOTED` si la cuenta ya votó y con `ALREADY_PREDICTED` (código nuevo) si ya predijo. Es inmutable. Orden de errores: `AUTH_REQUIRED` → `PROFILE_REQUIRED` → `POLL_UNAVAILABLE` → `POLL_CLOSED` → `ALREADY_VOTED` → `ALREADY_PREDICTED`.
+  - RPC `get_my_prediction(p_poll_id)`: devuelve cero filas si la cuenta no predijo, y si predijo `{ option_id, hit, final }`. Exige que la cuenta **haya votado**; si no, `NOT_VOTED`, con la misma autorización que `get_poll_results`. `hit` es verdadero si la opción predicha tiene el máximo de votos en este momento (S-12; los empates cuentan) y `final` si la encuesta está cerrada. No devuelve recuentos, porcentajes ni cuál es la ganadora.
+  - No reescribe `vote_poll` ni `get_poll_results`. Ampliar `008_privileges.test.sql`, regenerar `database.types.ts` y actualizar [contratos-api.md](contratos-api.md) (códigos de error incluidos).
+- **Criterios de aceptación:**
+  1. Dada una cuenta que no ha votado, cuando predice, entonces se guarda una fila y no se emite ningún voto.
+  2. Dada una cuenta que ya votó, cuando predice, entonces recibe `ALREADY_VOTED` y no se guarda nada.
+  3. Dada una cuenta que ya predijo, cuando predice otra vez, entonces recibe `ALREADY_PREDICTED`; diez peticiones simultáneas dejan una sola fila (patrón de `npm run test:db:concurrency`).
+  4. Dada una encuesta cerrada, oculta o de una cuenta privada que no puede ver, cuando predice, entonces recibe `POLL_CLOSED` o `POLL_UNAVAILABLE` según corresponda.
+  5. Dada una cuenta que predijo pero no votó, cuando llama a `get_my_prediction`, entonces recibe `NOT_VOTED`.
+  6. Dada una cuenta que votó, cuando llama a `get_my_prediction`, entonces la respuesta contiene exactamente `option_id`, `hit` y `final`.
+  7. Dado cualquier cliente, cuando lee o escribe `poll_predictions` directamente, entonces se deniega.
+
+#### V2-046 — Predicciones: interfaz
+
+- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** V2-045 · **Bloquea a:** —
+- **Descripción:** En el detalle de la encuesta, un paso opcional antes de votar, «¿Cuál crees que ganará?», y una frase con el resultado tras la revelación.
+- **Requisitos:**
+  - En `poll-voting.tsx`, un desplegable opcional «Adivina qué ganará» con las opciones. Si la persona elige una, se envía `submit_prediction` justo antes de `vote_poll`. Un fallo de la predicción no impide votar: se avisa sin bloquear, porque tras votar ya no se puede predecir.
+  - Tras votar se llama a `get_my_prediction` y se muestra una frase junto a los resultados, con `aria-live="polite"`. En una encuesta abierta: «Tu predicción va ganando ahora» o «Tu predicción no va en cabeza ahora». En una cerrada: «Acertaste» o «Esta vez no». Sin predicción, no aparece nada.
+  - No cambia el feed: votar desde la tarjeta se decide en E10. Mobile-first desde 320 px, accesible con teclado, con leyenda y foco visibles.
+  - Coordinar con V2-052, que también toca `poll-voting.tsx`.
+- **Criterios de aceptación:**
+  1. Dada una persona que predice A y vota B, cuando vota, entonces se llama a `submit_prediction` antes que a `vote_poll` y, tras la revelación, ve la frase que corresponde (verificado con los fakes de `src/lib/data/testing`).
+  2. Dada una persona que no hace predicción, entonces el flujo de voto es idéntico al actual y los tests existentes siguen en verde.
+  3. Dado un fallo de red al predecir, entonces el voto se envía igualmente y se muestra un aviso sin bloquear.
+  4. Dado un visitante o una cuenta sin voto, entonces el HTML y los props no contienen `hit` ni ningún agregado (`ssr-sin-fugas` en verde).
+  5. Dado un viewport de 320 px y el teclado, entonces el desplegable se puede usar sin desbordes y con foco visible.
+
+#### V2-047 — Vibración y texto en la revelación
+
+- **Prioridad:** P1 · **Tamaño:** S · **Dependencias:** V2-015 · **Bloquea a:** —
+- **Descripción:** Pulir el momento de la revelación. V2-015 ya anima las barras; esta tarea añade una vibración suave en el móvil y una línea de apertura con la chispa que pide el tono del producto.
+- **Requisitos:**
+  - Una sola llamada a `navigator.vibrate(30)` cuando se revelan resultados de un voto emitido ahora, si el navegador lo soporta y no hay `prefers-reduced-motion: reduce`. No se llama al recargar resultados ya conocidos, igual que la animación de V2-015.
+  - Una línea de texto sobre las cifras, elegida de forma determinista a partir del ID de la encuesta (por ejemplo «Ya puedes verlo.», «Así ha quedado.», «Resultado desbloqueado.»), sin aleatoriedad para que se pueda probar. Sin sonido, confeti ni efectos nuevos: el estilo es plano y en blanco y negro (DESIGN.md).
+  - La línea no repite las cifras para lectores de pantalla ni cambia lo que anuncia `aria-live`.
+- **Criterios de aceptación:**
+  1. Dado un voto emitido ahora en un navegador con `vibrate` y sin movimiento reducido, entonces se llama a `vibrate(30)` una vez.
+  2. Dado movimiento reducido o un navegador sin `vibrate`, entonces no se llama y no hay error.
+  3. Dada una encuesta ya votada que se recarga, entonces no vibra ni muestra la línea de estreno.
+  4. Dada la misma encuesta, entonces muestra siempre la misma línea.
+
+#### V2-048 — Retos de compatibilidad: modelo y RPC
+
+- **Prioridad:** P1 · **Tamaño:** L · **Dependencias:** V2-005, V2-007, V2-040 · **Bloquea a:** V2-049
+- **Descripción:** Una persona crea un reto con entre 3 y 5 encuestas que ya ha votado y comparte un enlace. Quien lo abre las vota y, cuando las ha votado todas, ve en cuántas coincide con quien lo lanzó. **Bloqueada hasta que el propietario decida P-3:** comparar a dos personas revela algo de ambas, y con varias cuentas de prueba se puede llegar a deducir qué votó quien lanzó el reto. Los requisitos siguientes son la propuesta por defecto y se ajustan a lo que se decida.
+- **Requisitos:**
+  - Tablas `public.challenges` (`id uuid PK`, `owner_id`, `created_at`) y `public.challenge_polls` (`challenge_id`, `poll_id`, `position`), sin acceso directo para clientes.
+  - RPC `create_challenge(p_poll_ids uuid[])`: entre 3 y 5 encuestas distintas, publicadas, visibles para cualquiera (de cuentas públicas) y que quien lo crea haya votado; máximo 5 retos por cuenta y día. Devuelve el `id`.
+  - RPC `get_challenge(p_challenge_id)`: devuelve las encuestas del reto (pregunta y opciones, sin agregados) y ninguna identidad de quien lo lanzó.
+  - RPC `get_challenge_match(p_challenge_id)`: si quien llama ha votado todas las encuestas del reto, devuelve `{ total, matches }`; si no, `CHALLENGE_INCOMPLETE` (código nuevo). Sólo devuelve el número de coincidencias, no cuáles. Un reto inexistente, o pedido por quien lo lanzó, responde `CHALLENGE_UNAVAILABLE` (código nuevo).
+  - No reescribe funciones compartidas. Ampliar `008_privileges.test.sql`, regenerar tipos, actualizar [contratos-api.md](contratos-api.md) y la batería de ataques `tests/security/` con las vías nuevas.
+- **Criterios de aceptación:**
+  1. Dadas entre 3 y 5 encuestas públicas votadas, cuando se crea el reto, entonces se guarda y devuelve un `id`; con 2 o 6, o con una encuesta no votada, privada u oculta, se rechaza.
+  2. Dada una cuenta que no ha votado todas las encuestas del reto, cuando pide el resultado, entonces recibe `CHALLENGE_INCOMPLETE` y ningún dato.
+  3. Dada una cuenta que las votó todas, entonces recibe sólo `total` y `matches`, calculados bien con fixtures (por ejemplo 3 de 5).
+  4. Dado cualquier cliente, cuando lee `challenges` o `challenge_polls` directamente, entonces se deniega, y `get_challenge` no devuelve identidad ni agregados.
+  5. Dado el sexto reto del día de una cuenta, entonces se rechaza por límite.
+  6. Dado un reto inexistente, o pedido por quien lo lanzó, entonces recibe `CHALLENGE_UNAVAILABLE`.
+  7. Dados los ataques HTTP de `npm run test:security`, entonces las vías nuevas están cubiertas y en verde.
+
+#### V2-049 — Retos de compatibilidad: interfaz
+
+- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** V2-048 · **Bloquea a:** —
+- **Descripción:** Las pantallas del reto: crearlo, votarlo y ver el resultado. Hereda la decisión de P-3 a través de V2-048.
+- **Requisitos:**
+  - `/retos/nuevo`: lista las últimas encuestas votadas por la cuenta para elegir entre 3 y 5 y crear el reto; al terminar, muestra el enlace con el botón de compartir de V2-018.
+  - `/retos/[id]`: presenta el reto sin identificar a nadie («Alguien te ha retado»), deja votar cada encuesta con `PollVoting` y, al votarlas todas, muestra «Coincidís en 3 de 5». Sin sesión lleva a iniciar sesión y vuelve al reto.
+  - Estados vacíos, de carga y de error con los componentes existentes; sin entrada en la cabecera hasta que V2-010 y E10 lo decidan.
+  - Mobile-first desde 320 px y accesible con teclado.
+- **Criterios de aceptación:**
+  1. Dado un usuario con al menos 3 encuestas votadas, cuando crea un reto, entonces obtiene un enlace compartible.
+  2. Dado otro usuario que abre el enlace, cuando vota todas las encuestas, entonces ve el número de coincidencias y antes de eso no ve ninguna cifra.
+  3. Dado un visitante sin sesión, cuando abre el reto y pulsa votar, entonces se le lleva al login y regresa al mismo reto.
+  4. Dado un reto inexistente, entonces ve el mismo «no disponible» que una encuesta inexistente.
+  5. El recorrido completo pasa en un E2E de escritorio y móvil.
+
+#### V2-050 — Sugerir una pregunta con IA
+
+- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** V2-040 · **Bloquea a:** —
+- **Descripción:** En `/create`, la persona escribe un tema y recibe una propuesta de pregunta y opciones redactadas sin sesgo, que puede editar. Nunca publica sola. **Bloqueada hasta que el propietario decida P-4:** el brief (§4) excluye servicios externos, y el proveedor, el coste y los datos enviados son decisiones suyas.
+- **Requisitos:**
+  - Server Action que llama al proveedor elegido en P-4. La clave vive en una variable de entorno de servidor, nunca `NEXT_PUBLIC_*` y nunca en Git. Al proveedor sólo se le envía el tema que escribe la persona, ningún dato de la cuenta.
+  - Límite por cuenta de 10 sugerencias por hora, impuesto en el servidor.
+  - La respuesta se interpreta como `{ question, options }` y pasa por las mismas reglas que el formulario (pregunta de 10 a 280 caracteres, de 2 a 6 opciones de 1 a 100, sin duplicados). Si no valida, error recuperable sin rellenar nada.
+  - Si valida, rellena el formulario como texto editable y la persona publica con el botón de siempre. Una línea avisa de que la propuesta es generada y conviene revisarla. Sin sesión, lleva al login.
+  - Los tests inyectan un proveedor falso: ninguno llama a la red.
+- **Criterios de aceptación:**
+  1. Dado un tema y un proveedor que responde bien, cuando se pide una sugerencia, entonces el formulario se rellena con pregunta y opciones editables y no se publica nada.
+  2. Dada una respuesta del proveedor que viola las reglas de validación, entonces la persona ve un error recuperable y el formulario queda como estaba.
+  3. Dada una cuenta que supera 10 sugerencias en una hora, entonces recibe un error de límite sin llamar al proveedor.
+  4. Dado un visitante sin sesión, entonces se le lleva al login y no se llama al proveedor.
+  5. Dado el repositorio, entonces ninguna clave ni secreto aparece en Git ni en el cliente (`npm run check:secrets` en verde).
+
+#### V2-051 — Encuesta incrustable
+
+- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** V2-005, V2-040 · **Bloquea a:** —
+- **Descripción:** Una versión mínima de la encuesta que se pega en otra web con un `iframe`: muestra la pregunta y las opciones bloqueadas, y votar lleva a Opinión. **Bloqueada hasta que el propietario decida P-5:** permitir que otros sitios incrusten una página abre la puerta al clickjacking y obliga a cambiar cabeceras de seguridad, que gestiona Codex /root junto con la configuración de Vercel.
+- **Requisitos:**
+  - Ruta `/embed/polls/[id]` con lectura anónima sin cookies, como V2-019. Muestra la pregunta, las opciones con su `?? %` y un botón «Votar en Opinión» que abre `/polls/[id]` en otra pestaña (`target="_blank"`, `rel="noopener"`). **Nunca muestra resultados:** el widget no puede saber quién ha votado porque el navegador limita las cookies de terceros, así que la regla crítica se cumple por construcción.
+  - Sólo esa ruta admite ser incrustada (`frame-ancestors` abierto para ella) y el resto conserva su protección actual. Revisar las cabeceras vigentes antes de tocar nada y pedir el cambio en #73 si afecta a `vercel.json`.
+  - Una encuesta inexistente, oculta, privada o cerrada se muestra como no disponible, sin distinguir los casos.
+  - En el detalle de la encuesta, un desplegable «Incrustar» con el código `iframe` listo para copiar, con alternativa si el portapapeles falla.
+- **Criterios de aceptación:**
+  1. Dada una encuesta pública abierta, cuando se carga `/embed/polls/[id]` sin cookies, entonces muestra la pregunta y las opciones con `?? %` y ninguna cifra real en HTML ni props.
+  2. Dada una encuesta inexistente, oculta, privada o cerrada, entonces muestra el mismo «no disponible».
+  3. Dado el botón «Votar en Opinión», entonces abre la encuesta en otra pestaña.
+  4. Dadas las demás rutas, entonces siguen sin poder incrustarse (comprobado por cabeceras).
+  5. Dado el desplegable «Incrustar», entonces copia un `iframe` que carga la ruta embebida.
+
+#### V2-052 — Conservar la elección al iniciar sesión
+
+- **Prioridad:** P1 · **Tamaño:** S · **Dependencias:** — · **Bloquea a:** —
+- **Descripción:** Hoy, quien llega por un enlace, elige una opción y pulsa «Votar» sin sesión ve «Inicia sesión para votar» y, al volver, ha perdido su elección. Es el paso más frágil del embudo. Esta tarea conserva la elección en la URL de retorno y la deja lista para confirmar con un toque. **No cambia ninguna regla:** nunca se vota sin confirmación posterior.
+- **Requisitos:**
+  - Al pedir login (y onboarding, si falta `@usuario`), la ruta de retorno es `/polls/[id]?elige=<option_id>`. `safeNextPath` y `loginPath`/`onboardingPath` (`src/lib/auth/redirect.ts`) ya admiten una ruta local con parámetros.
+  - `/polls/[id]` lee `elige` dentro del `Suspense` (es dinámico, D-014), comprueba que es un UUID y que pertenece a las opciones de esa encuesta; si no, lo ignora. Si es válido, `PollVoting` arranca con esa opción seleccionada y el botón «Votar» a un toque, sin votar automáticamente.
+  - Si la cuenta ya votó, se ignora `elige` y se muestran sus resultados. Tras usarlo se limpia de la URL.
+  - No usa `localStorage` ni `sessionStorage`: no persiste nada en el navegador.
+  - Fuera de alcance: votar automáticamente al volver. Cambiaría la regla vigente y queda como pregunta P-6, sin tarea.
+  - Coordinar con V2-046, que también toca `poll-voting.tsx`.
+- **Criterios de aceptación:**
+  1. Dado un visitante que elige B y pulsa «Votar», cuando inicia sesión y vuelve, entonces ve B seleccionada y no existe ningún voto suyo hasta que pulsa «Votar».
+  2. Dado un `elige` que no es un UUID o que es de otra encuesta, entonces se ignora sin error.
+  3. Dada una cuenta que ya votó, entonces ve sus resultados y `elige` se ignora.
+  4. Dada una cuenta sin `@usuario`, cuando pasa por el onboarding, entonces la elección sobrevive y vuelve preseleccionada.
+  5. Dado el código, entonces no escribe en `localStorage` ni `sessionStorage` (verificado por test).
+  6. Dado un E2E de escritorio y móvil, cuando un visitante elige, inicia sesión con un usuario de prueba y confirma, entonces ve sus resultados.
+
 ## 6. Registro
 
-El estado de cada tarea se lleva en [tareas-futuras.md](tareas-futuras.md), sección «Fase 2», con el mismo protocolo de reserva del MVP. Issues: épicas #109–#114 y tareas #115–#140 (tabla en [github-issues.md](github-issues.md#fase-2)). Cada issue repite sus dependencias y a quién bloquea.
+El estado de cada tarea se lleva en [tareas-futuras.md](tareas-futuras.md), sección «Fase 2», con el mismo protocolo de reserva del MVP. Issues: épicas #109–#114 y tareas #115–#140 (tabla en [github-issues.md](github-issues.md#fase-2)); épica E12 #162 y sus tareas #163–#170 y #172–#176. Cada issue repite sus dependencias y a quién bloquea.
