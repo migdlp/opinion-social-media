@@ -115,7 +115,7 @@ Tareas de [backlog-v2.md](backlog-v2.md), con el mismo protocolo de reserva. Ant
 | [V2-012](https://github.com/migdlp/opinion-social-media/issues/117) | Permitir hasta 6 opciones | P0 | — | Completada: [PR #142](https://github.com/migdlp/opinion-social-media/pull/142), merge `d7affbc`; CI verde (SQL, E2E, RLS, reproducibilidad); TDD RED (001 y vitest) → GREEN, 224 tests; 6 opciones a 320 px sin revisar en navegador; migración sin aplicar aún a dev | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
 | [V2-013](https://github.com/migdlp/opinion-social-media/issues/127) | Fecha de cierre opcional | P0 | V2-012 | En progreso | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
 | [V2-014](https://github.com/migdlp/opinion-social-media/issues/133) | Resultados públicos al cerrarse | P0 | V2-005, V2-013 | Pendiente | — |
-| [V2-015](https://github.com/migdlp/opinion-social-media/issues/118) | Animar las barras al revelar resultados | P1 | — | Pendiente | — |
+| [V2-015](https://github.com/migdlp/opinion-social-media/issues/118) | Animar las barras al revelar resultados | P1 | — | En progreso | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
 | [V2-016](https://github.com/migdlp/opinion-social-media/issues/119) | Mensaje «Coincides con el X %» tras votar | P1 | — | Pendiente | — |
 | [V2-017](https://github.com/migdlp/opinion-social-media/issues/120) | Modo oscuro | P1 | — | Pendiente | — |
 | [V2-018](https://github.com/migdlp/opinion-social-media/issues/121) | Compartir con la hoja nativa | P1 | — | Pendiente | — |
