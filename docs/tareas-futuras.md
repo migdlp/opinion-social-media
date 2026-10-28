@@ -120,7 +120,7 @@ Tareas de [backlog-v2.md](backlog-v2.md), con el mismo protocolo de reserva. Ant
 | [V2-017](https://github.com/migdlp/opinion-social-media/issues/120) | Modo oscuro | P1 | — | Pendiente | — |
 | [V2-018](https://github.com/migdlp/opinion-social-media/issues/121) | Compartir con la hoja nativa | P1 | — | En progreso | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
 | [V2-019](https://github.com/migdlp/opinion-social-media/issues/134) | Imagen OG dinámica por encuesta | P1 | V2-005 | Pendiente | — |
-| [V2-020](https://github.com/migdlp/opinion-social-media/issues/122) | Denunciar una encuesta | P0 | — | Pendiente | — |
+| [V2-020](https://github.com/migdlp/opinion-social-media/issues/122) | Denunciar una encuesta | P0 | — | En progreso | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
 | [V2-021](https://github.com/migdlp/opinion-social-media/issues/131) | Categorías fijas al crear y en la tarjeta | P1 | V2-013 | Pendiente | — |
 | [V2-022](https://github.com/migdlp/opinion-social-media/issues/139) | Guardar para luego | P1 | V2-006 | Pendiente | — |
 | [V2-023](https://github.com/migdlp/opinion-social-media/issues/136) | RPC de resultados por lotes para el feed | P1 | V2-014 | Pendiente | — |
