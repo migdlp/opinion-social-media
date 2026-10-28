@@ -109,4 +109,5 @@ export type DatabaseContractChecks = [
       { p_poll_id: string; p_reason: string; p_details?: string }
     >
   >,
+  Assert<Equal<Public["Functions"]["get_poll_authors"]["Args"], { p_poll_ids: string[] }>>,
 ];

@@ -1,4 +1,5 @@
 import { CopyLinkButton } from "@/components/copy-link-button";
+import { PollAuthor } from "@/components/poll-author";
 import { PollVoting } from "@/components/poll-voting";
 import { ReportPoll } from "@/components/report-poll";
 import type { PollDetail, PollResults, Result } from "@/lib/data/types";
@@ -34,7 +35,7 @@ export function PollDetailView({
         closed={isClosed(poll.closesAt, now)}
       />
       <p className="text-[13px] text-muted">
-        <span>Anónimo</span>
+        <PollAuthor author={poll.author} />
         {" · "}
         <time dateTime={poll.createdAt}>{formatApproximateDate(poll.createdAt, now)}</time>
         {poll.closesAt && (

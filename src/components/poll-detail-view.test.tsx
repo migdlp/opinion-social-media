@@ -35,6 +35,17 @@ describe("PollDetailView", () => {
     expect(container.querySelector("time")?.textContent).toBe("hace 1 hora");
   });
 
+  it("firma con @usuario enlazado a su perfil", () => {
+    const detail = {
+      ...DETAIL,
+      poll: { ...DETAIL.poll, author: { username: "ana_23", displayName: null } },
+    };
+    render(<PollDetailView detail={detail} castVote={castVote} now={NOW} />);
+
+    expect(screen.getByRole("link", { name: "@ana_23" }).getAttribute("href")).toBe("/u/ana_23");
+    expect(screen.queryByText("Anónimo")).toBeNull();
+  });
+
   it("ofrece copiar el enlace de la encuesta", () => {
     render(<PollDetailView detail={DETAIL} castVote={castVote} now={NOW} />);
 

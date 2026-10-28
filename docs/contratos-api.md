@@ -148,6 +148,18 @@ public.remove_follower(p_username text) returns void
 - `follow_user` es idempotente: cuenta pública → `accepted`; privada → `pending`. `unfollow_user` también cancela una solicitud pendiente. `respond_follow_request` lo ejecuta el **seguido** sobre la solicitud de `p_username`: aceptar la pasa a `accepted`, rechazar la borra. `remove_follower` borra la relación de un seguidor (o una solicitud) hacia la cuenta propia.
 - Lectura directa: `follows` solo para `authenticated`, solo las filas donde la cuenta es `follower_id` o `followee_id`. Los contadores públicos y las listas se sirven por RPC en V2-006/V2-009.
 
+### 3.7. `get_poll_authors` (V2-003)
+
+```sql
+public.get_poll_authors(p_poll_ids uuid[])
+  returns table (poll_id uuid, username text, display_name text)
+```
+
+- Firma las encuestas con `@usuario` sin dar `polls.user_id` a los clientes. Se eligió una RPC definer en lugar de una vista `security_invoker`, porque ésta exigiría permiso de columna sobre los `user_id` de `polls` y `profiles`.
+- Ejecutable por `anon` y `authenticated` (datos públicos). Devuelve sólo autores de encuestas **publicadas** con perfil; sin perfil, oculta o inexistente no produce fila (la interfaz muestra «Anónimo», S-5). Máximo 50 ids por llamada (los demás se ignoran); el feed usa lotes de 20.
+- **V2-005 debe añadir `can_view_author`** a esta función para no delatar encuestas de cuentas privadas.
+- El adaptador pide los autores de cada lote con una sola llamada (feed y detalle) y los guarda en `PublicPoll.author` (`null` = sin perfil).
+
 ## 4. Lecturas directas (RLS)
 
 No son RPC: el adaptador consulta tablas con el SDK. RLS (MVP-011, MVP-012) limita lo visible a encuestas `published`, sus opciones y los votos propios. El adaptador selecciona columnas explícitas: nunca `*`, nunca `user_id` de `polls`.
@@ -230,6 +242,7 @@ export interface PublicPoll {
   question: string
   createdAt: string // ISO 8601
   closesAt?: string | null // ISO 8601; V2-013, null/ausente = sin cierre
+  author?: { username: string; displayName: string | null } | null // V2-003; null = Anónimo
   options: PollOption[] // ordenadas por position
 }
 
