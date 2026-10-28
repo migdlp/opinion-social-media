@@ -41,8 +41,11 @@ export function ReportPoll({ pollId, signedIn }: { pollId: string; signedIn: boo
   const sending = useRef(false);
 
   useEffect(() => {
-    if (dialogOpen) dialog.current?.showModal();
-  }, [dialogOpen]);
+    if (!dialogOpen || !dialog.current) return;
+    if (!dialog.current.open) dialog.current.showModal();
+    // El formulario desaparece al confirmar: llevar el foco al único control restante.
+    if (done) dialog.current.querySelector("button")?.focus();
+  }, [dialogOpen, done]);
 
   // El menú se cierra al pulsar fuera de él.
   useEffect(() => {
@@ -72,6 +75,37 @@ export function ReportPoll({ pollId, signedIn }: { pollId: string; signedIn: boo
   function onClose() {
     setDialogOpen(false);
     trigger.current?.focus();
+  }
+
+  // Completa el modal nativo: Tab desde el último control no debe perder el foco
+  // hacia el chrome del navegador. El grupo de motivos aporta una sola parada.
+  function keepDialogFocus(event: React.KeyboardEvent<HTMLDialogElement>) {
+    if (event.key !== "Tab") return;
+    const controls = Array.from(
+      event.currentTarget.querySelectorAll<HTMLElement>(
+        'button:not(:disabled), input:not(:disabled):not([type="hidden"]), textarea:not(:disabled), a[href]',
+      ),
+    ).filter((element) => element.tabIndex >= 0 && !element.hidden);
+    const stops = controls.filter((element) => {
+      if (!(element instanceof HTMLInputElement) || element.type !== "radio") return true;
+      const group = controls.filter(
+        (candidate): candidate is HTMLInputElement =>
+          candidate instanceof HTMLInputElement &&
+          candidate.type === "radio" &&
+          candidate.name === element.name,
+      );
+      return element === (group.find((radio) => radio.checked) ?? group[0]);
+    });
+    const first = stops[0];
+    const last = stops.at(-1);
+    if (!first || !last) return;
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
   }
 
   async function submit(event: React.FormEvent) {
@@ -139,7 +173,8 @@ export function ReportPoll({ pollId, signedIn }: { pollId: string; signedIn: boo
           ref={dialog}
           aria-labelledby={`${id}-title`}
           onClose={onClose}
-          className="m-auto w-[min(32rem,calc(100%-2rem))] rounded-2xl border border-border bg-surface p-5 text-foreground backdrop:bg-black/50"
+          onKeyDown={keepDialogFocus}
+          className="m-auto w-[min(32rem,calc(100%-2rem))] rounded-2xl border border-border bg-surface p-5 text-foreground backdrop:bg-accent-foreground/65"
         >
           {done ? (
             <div className="flex flex-col gap-4">
@@ -150,7 +185,7 @@ export function ReportPoll({ pollId, signedIn }: { pollId: string; signedIn: boo
               <button
                 type="button"
                 onClick={() => dialog.current?.close()}
-                className="min-h-11 self-start rounded-full bg-foreground px-5 text-sm font-semibold text-background"
+                className="min-h-11 self-start action-primary rounded-full px-5 text-sm font-semibold"
               >
                 Cerrar
               </button>
@@ -194,7 +229,7 @@ export function ReportPoll({ pollId, signedIn }: { pollId: string; signedIn: boo
                   onChange={(event) => setDetails(event.target.value)}
                   maxLength={DETAILS_MAX}
                   rows={3}
-                  className="w-full rounded-xl border border-field bg-surface px-3.5 py-2.5 text-[15px] focus:border-foreground focus:outline-none"
+                  className="w-full rounded-xl border border-field bg-surface px-3.5 py-2.5 text-[15px] focus:border-foreground"
                 />
               </div>
               {error === "AUTH_REQUIRED" ? (
@@ -215,7 +250,7 @@ export function ReportPoll({ pollId, signedIn }: { pollId: string; signedIn: boo
                 <button
                   type="submit"
                   disabled={pending}
-                  className="min-h-11 rounded-full bg-foreground px-5 text-sm font-semibold text-background transition-opacity hover:opacity-85 disabled:opacity-50"
+                  className="min-h-11 action-primary rounded-full px-5 text-sm font-semibold"
                 >
                   {pending ? "Enviando…" : "Enviar denuncia"}
                 </button>
