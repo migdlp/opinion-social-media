@@ -5,7 +5,7 @@ import type { AppErrorCode } from "./types";
 export const ERROR_MESSAGES: Record<AppErrorCode, string> = {
   AUTH_REQUIRED: "Inicia sesión para continuar.",
   VALIDATION_QUESTION_LENGTH: "La pregunta debe tener entre 10 y 280 caracteres.",
-  VALIDATION_OPTION_COUNT: "Añade entre 2 y 4 opciones.",
+  VALIDATION_OPTION_COUNT: "Añade entre 2 y 6 opciones.",
   VALIDATION_OPTION_LENGTH: "Cada opción debe tener entre 1 y 100 caracteres.",
   VALIDATION_OPTION_DUPLICATE: "Hay opciones repetidas.",
   RATE_LIMITED: "Has alcanzado el límite de 5 encuestas por hora. Inténtalo más tarde.",
