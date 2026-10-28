@@ -18,7 +18,7 @@ type PollCreationFormProps = {
 };
 
 const MIN_OPTIONS = 2;
-const MAX_OPTIONS = 4;
+const MAX_OPTIONS = 6;
 
 const fieldClass =
   "w-full rounded-xl border border-field bg-surface px-3.5 py-2.5 text-[15px] transition-colors hover:border-foreground focus:border-foreground focus:outline-none aria-invalid:border-danger";

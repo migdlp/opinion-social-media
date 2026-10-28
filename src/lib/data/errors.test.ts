@@ -71,3 +71,9 @@ describe("ERROR_MESSAGES", () => {
     }
   });
 });
+
+describe("VALIDATION_OPTION_COUNT", () => {
+  it("anuncia el rango vigente de 2 a 6 opciones", () => {
+    expect(ERROR_MESSAGES.VALIDATION_OPTION_COUNT).toBe("Añade entre 2 y 6 opciones.");
+  });
+});

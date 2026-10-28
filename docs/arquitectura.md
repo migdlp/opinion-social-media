@@ -19,7 +19,7 @@ Versiones fijadas en D-014 (`package.json` y `package-lock.json`). Con `cacheCom
 | Entidad | Campos y restricciones principales |
 |---|---|
 | `polls` | `id` UUID PK, `user_id` FK a `auth.users`, `question`, `created_at`, `status` limitado a `published/hidden` |
-| `poll_options` | `id` UUID PK, `poll_id` FK, `text`, `position` 1–4; posición única por encuesta |
+| `poll_options` | `id` UUID PK, `poll_id` FK, `text`, `position` 1–6; posición única por encuesta |
 | `votes` | `id` UUID PK, `poll_id`, `user_id`, `option_id`, `created_at`; `UNIQUE(poll_id,user_id)` |
 
 Tres tablas del brief (`polls`, `poll_options`, `votes`) más `profiles` (D-015, V2-001) y `auth.users`. Los nombres de campos del [brief](brief-producto.md) son vinculantes.

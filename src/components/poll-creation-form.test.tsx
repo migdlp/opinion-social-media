@@ -30,7 +30,7 @@ async function fill(user: ReturnType<typeof userEvent.setup>, question: string, 
 }
 
 describe("PollCreationForm", () => {
-  it("empieza con pregunta y dos opciones, y permite añadir hasta cuatro", async () => {
+  it("empieza con pregunta y dos opciones, y permite añadir hasta seis", async () => {
     const user = userEvent.setup();
     render(<PollCreationForm {...props()} />);
 
@@ -38,13 +38,12 @@ describe("PollCreationForm", () => {
     expect(optionInputs()).toHaveLength(2);
 
     const add = screen.getByRole("button", { name: "Añadir opción" });
-    await user.click(add);
-    await user.click(add);
-    expect(optionInputs()).toHaveLength(4);
+    for (let i = 0; i < 4; i++) await user.click(add);
+    expect(optionInputs()).toHaveLength(6);
     expect(screen.queryByRole("button", { name: "Añadir opción" })).toBeNull();
 
     await user.click(screen.getByRole("button", { name: "Quitar opción 3" }));
-    expect(optionInputs()).toHaveLength(3);
+    expect(optionInputs()).toHaveLength(5);
   });
 
   it("no deja quitar opciones por debajo de dos", () => {
