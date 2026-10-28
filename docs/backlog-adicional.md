@@ -18,9 +18,9 @@ Reservar desde main actualizado conforme a AGENTS.md; respetar reservas. TDD al 
 | [SEC-001](https://github.com/migdlp/opinion-social-media/issues/193) | Impedir que borrar seguimientos reinicie la cuota | P0 | M | V2-004 |
 | [OPS-001](https://github.com/migdlp/opinion-social-media/issues/194) | Integrar las migraciones de fase 2 en Supabase dev | P0 | L | V2-007, V2-014, V2-021, V2-031, SEC-001 |
 | [OPS-002](https://github.com/migdlp/opinion-social-media/issues/195) | Validar fase 2 integrada con Google real en desarrollo | P0 | L | OPS-001, MVP-005, V2-025, V2-036 |
-| [DOC-001](https://github.com/migdlp/opinion-social-media/issues/196) | Actualizar documentación operativa al candidato de fase 2 | P0 | M | OPS-002, DESIGN-006 |
+| [DOC-009](https://github.com/migdlp/opinion-social-media/issues/196) | Actualizar documentación operativa al candidato de fase 2 | P0 | M | OPS-002, DESIGN-006 |
 
-**Listas para tomar cuando se integre esta auditoría:** DESIGN-002 y SEC-001, cuyas dependencias ya figuran completadas. Después DESIGN-003/005; DESIGN-004 espera las pantallas sociales. OPS-001 espera las migraciones del feed y la cuota; OPS-002 prueba el conjunto contra dev; DESIGN-006 y DOC-001 cierran verificación y guías. No usar el orden de los números de issue como orden de ejecución.
+**Listas para tomar cuando se integre esta auditoría:** DESIGN-002 y SEC-001, cuyas dependencias ya figuran completadas. Después DESIGN-003/005; DESIGN-004 espera las pantallas sociales. OPS-001 espera las migraciones del feed y la cuota; OPS-002 prueba el conjunto contra dev; DESIGN-006 y DOC-009 cierran verificación y guías. No usar el orden de los números de issue como orden de ejecución.
 
 ## Tareas implementables
 
@@ -121,7 +121,7 @@ Actualizar la composición PNG de las encuestas y su variante genérica con la p
 - **Prioridad:** P0 · **Estimación relativa:** L · **Etiquetas:** testing, frontend, design
 - **Estado:** consultar tareas-futuras.md; al crear, Pendiente y Agente —.
 - **Dependencias:** [DESIGN-003](https://github.com/migdlp/opinion-social-media/issues/189), [DESIGN-004](https://github.com/migdlp/opinion-social-media/issues/190), [DESIGN-005](https://github.com/migdlp/opinion-social-media/issues/191), [V2-025](https://github.com/migdlp/opinion-social-media/issues/140), [V2-036](https://github.com/migdlp/opinion-social-media/issues/183)
-- **Bloquea a:** [DOC-001](https://github.com/migdlp/opinion-social-media/issues/196)
+- **Bloquea a:** [DOC-009](https://github.com/migdlp/opinion-social-media/issues/196)
 
 Cerrar la migración visual con evidencia del conjunto integrado, no sólo de componentes aislados.
 
@@ -193,7 +193,7 @@ Cerrar la distancia entre migraciones integradas en Git/CI y el esquema alojado 
 - **Prioridad:** P0 · **Estimación relativa:** L · **Etiquetas:** testing, auth, devops
 - **Estado:** consultar tareas-futuras.md; al crear, Pendiente y Agente —.
 - **Dependencias:** [OPS-001](https://github.com/migdlp/opinion-social-media/issues/194), [MVP-005](https://github.com/migdlp/opinion-social-media/issues/10), [V2-025](https://github.com/migdlp/opinion-social-media/issues/140), [V2-036](https://github.com/migdlp/opinion-social-media/issues/183)
-- **Bloquea a:** [DOC-001](https://github.com/migdlp/opinion-social-media/issues/196)
+- **Bloquea a:** [DOC-009](https://github.com/migdlp/opinion-social-media/issues/196)
 
 Verificar los flujos del candidato contra el Supabase de desarrollo, complementando los E2E locales que usan sesiones de prueba.
 
@@ -211,7 +211,7 @@ Verificar los flujos del candidato contra el Supabase de desarrollo, complementa
 3. Dadas fixtures de cierre y volumen, entonces se verifican el límite temporal de 24h y el plan/tiempos de consulta, con evidencia y limpieza posterior.
 4. Dado el informe, entonces identifica SHA, proyecto dev, pasos reales, comprobaciones simuladas y limitaciones; no declara listo producción.
 
-### DOC-001 — Actualizar documentación operativa al candidato de fase 2
+### DOC-009 — Actualizar documentación operativa al candidato de fase 2
 
 **Issue:** [#196](https://github.com/migdlp/opinion-social-media/issues/196) · **Épica:** [#114](https://github.com/migdlp/opinion-social-media/issues/114)
 

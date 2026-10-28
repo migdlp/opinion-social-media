@@ -100,6 +100,6 @@ Prioridad P0 para el nuevo feed; no cambia las condiciones del MVP original. Tra
 
 ## Huecos completados por AUDIT-001
 
-Consultar [backlog-adicional.md](backlog-adicional.md) y main antes de reservar. Las primeras disponibles son **DESIGN-002** (tokens After Sunset) y **SEC-001** (cuota persistente de follows), ambas P0. Luego se pueden preparar DESIGN-003/005 y, al existir las rutas sociales, DESIGN-004. DESIGN-006 verifica todo con feed y ciclo social integrados. OPS-001 aplica el esquema candidato sólo en dev; OPS-002 valida Google real y el conjunto en dev; DOC-001 consolida guías al resultado probado.
+Consultar [backlog-adicional.md](backlog-adicional.md) y main antes de reservar. Las primeras disponibles son **DESIGN-002** (tokens After Sunset) y **SEC-001** (cuota persistente de follows), ambas P0. Luego se pueden preparar DESIGN-003/005 y, al existir las rutas sociales, DESIGN-004. DESIGN-006 verifica todo con feed y ciclo social integrados. OPS-001 aplica el esquema candidato sólo en dev; OPS-002 valida Google real y el conjunto en dev; DOC-009 consolida guías al resultado probado.
 
 V2-052 #169 ya existía, conserva P1 y se coordina con V2-033 para compartir el retorno de selección. Las propuestas V2-040–051 de #184 no son requisitos aprobados por esta auditoría. Producción y recuperación siguen en MVP-049–051; no se crean despliegues como parte de completar el backlog.
