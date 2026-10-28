@@ -101,7 +101,7 @@ Tareas de [backlog-v2.md](backlog-v2.md), con el mismo protocolo de reserva. Ant
 
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|
-| [V2-001](https://github.com/migdlp/opinion-social-media/issues/115) | Crear tabla `profiles` y RPC de perfil | P0 | — | En progreso | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
+| [V2-001](https://github.com/migdlp/opinion-social-media/issues/115) | Crear tabla `profiles` y RPC de perfil | P0 | — | Completada: [PR #143](https://github.com/migdlp/opinion-social-media/pull/143), merge `7b7e70d`; CI verde (SQL 001–010, RLS, E2E, tipos reproducibles); TDD RED (008 y errores) → GREEN; migración sin aplicar aún a dev | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
 | [V2-002](https://github.com/migdlp/opinion-social-media/issues/124) | Onboarding: elegir `@usuario` tras el primer login | P0 | V2-001 | Pendiente | — |
 | [V2-003](https://github.com/migdlp/opinion-social-media/issues/125) | Firmar encuestas con `@usuario` | P0 | V2-001 | Pendiente | — |
 | [V2-004](https://github.com/migdlp/opinion-social-media/issues/126) | Crear tabla `follows` con solicitudes | P0 | V2-001 | Pendiente | — |
