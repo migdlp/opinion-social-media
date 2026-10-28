@@ -248,6 +248,20 @@ public.saved_polls (user_id uuid default auth.uid(), poll_id uuid, created_at ti
 - `getFeedPage`, `getProfilePolls` y `getPollDetail` añaden `saved` (sólo con sesión) con **una** consulta por página; si esa consulta falla, la página se entrega sin el marcador.
 - La lista no se ve desde fuera: la pestaña «Guardadas» sólo existe en el perfil propio.
 
+### 3.14. `get_feed` (V2-031)
+
+```sql
+public.get_feed(p_mode text default 'recientes', p_category text default null, p_cursor text default null)
+  returns table (poll_id uuid, created_at timestamptz, cursor text)
+```
+
+- Ejecutable por `anon` y `authenticated`. **Sólo ids, fecha y cursor**: ni `user_id`, ni autor, ni agregados. Los datos de cada encuesta salen por la RLS de `polls` y los resultados por `get_feed_results` / `get_poll_results` (§3.3, §3.11), con la autorización de siempre.
+- `p_mode`: `recientes` (todo lo publicado que quien llama puede ver, `can_view_author`) o `siguiendo` (sólo autores con relación **aceptada** de `auth.uid()` hacia ellos; no hay parámetro de identidad; sin sesión, `AUTH_REQUIRED`). Otro valor o nulo: `INVALID_FEED_MODE`.
+- `p_category`: nulo o vacío = Todas; si no, debe existir en `categories` (`INVALID_CATEGORY`).
+- Retención (D-025): una encuesta cerrada sale del feed cuando `now() >= closes_at + 24 h` (límite exclusivo, hora del servidor). No se borra ni se oculta: detalle y perfil siguen funcionando. Sin `closes_at` no caduca.
+- Orden `created_at DESC, id DESC`; hasta **21 filas** (20 + 1). `p_cursor` es el `cursor` de la última fila entregada (`<created_at UTC>|<id>`, opaco); uno ilegible es `INVALID_CURSOR` (a diferencia de las listas de perfil, que lo ignoran).
+- Adaptador: `getFeed(supabase, { mode, category, cursor }, viewer)` → `FeedPage` con el mismo estado de voto, resultados y «guardada» que el resto de listas. `getFeedPage` (la lectura anterior, sin modos) sigue existiendo hasta que V2-032 integre la interfaz.
+
 ## 4. Lecturas directas (RLS)
 
 `categories` (V2-021) es de lectura pública (`slug, name, position`) y sin escrituras de clientes; el formulario de creación la lee con `getCategories`. Feed y detalle incluyen `category:categories(slug, name)`.

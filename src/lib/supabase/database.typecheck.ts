@@ -155,4 +155,16 @@ export type DatabaseContractChecks = [
       { poll_id: string; user_id?: string; created_at?: string }
     >
   >,
+  Assert<
+    Equal<
+      Public["Functions"]["get_feed"]["Args"],
+      { p_mode?: string; p_category?: string; p_cursor?: string }
+    >
+  >,
+  Assert<
+    Equal<
+      Public["Functions"]["get_feed"]["Returns"],
+      { poll_id: string; created_at: string; cursor: string }[]
+    >
+  >,
 ];

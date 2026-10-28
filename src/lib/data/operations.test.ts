@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   createPoll,
   getCategories,
+  getFeed,
   getFeedPage,
   getMyProfile,
   followUser,
@@ -1050,5 +1051,101 @@ describe("guardar para luego (V2-022)", () => {
     });
     const r = await getFeedPage(supabase, null, { signedIn: true });
     expect(r.ok && r.data.items[0].saved).toBeUndefined();
+  });
+});
+
+describe("getFeed (V2-031)", () => {
+  const idRow = (n: number) => ({
+    poll_id: uuid(n),
+    created_at: "2026-10-27T10:00:00+00:00",
+    cursor: `2026-10-27T10:00:00.000000Z|${uuid(n)}`,
+  });
+
+  it("pide los ids por RPC con modo, categoría y cursor, y las encuestas por RLS en el mismo orden", async () => {
+    const { supabase, queries } = fakeSupabase({
+      "rpc:get_feed": { data: [idRow(2), idRow(1)], error: null },
+      polls: { data: [pollRow(uuid(1)), pollRow(uuid(2))], error: null },
+    });
+    const r = await getFeed(
+      supabase,
+      { mode: "recientes", category: "deportes", cursor: "c0" },
+      { signedIn: false },
+    );
+    expect(r.ok && r.data.items.map((i) => i.poll.id)).toEqual([uuid(2), uuid(1)]);
+    expect(r.ok && r.data.nextCursor).toBeNull();
+    expect(queries[0].calls[0]).toEqual([
+      "rpc",
+      "get_feed",
+      { p_mode: "recientes", p_category: "deportes", p_cursor: "c0" },
+    ]);
+    expect(queries[1].calls.find(([m]) => m === "in")).toEqual(["in", "id", [uuid(2), uuid(1)]]);
+  });
+
+  it("sin categoría ni cursor envía null", async () => {
+    const { supabase, queries } = fakeSupabase({ "rpc:get_feed": { data: [], error: null } });
+    await getFeed(supabase, { mode: "siguiendo" }, { signedIn: true });
+    expect(queries[0].calls[0]).toEqual([
+      "rpc",
+      "get_feed",
+      { p_mode: "siguiendo", p_category: null, p_cursor: null },
+    ]);
+  });
+
+  it("con 21 ids entrega 20 y el cursor del último entregado", async () => {
+    const ids = Array.from({ length: 21 }, (_, i) => idRow(i + 1));
+    const { supabase } = fakeSupabase({
+      "rpc:get_feed": { data: ids, error: null },
+      polls: { data: ids.map((i) => pollRow(i.poll_id)), error: null },
+    });
+    const r = await getFeed(supabase, { mode: "recientes" }, { signedIn: false });
+    expect(r.ok && r.data.items).toHaveLength(20);
+    expect(r.ok && r.data.nextCursor).toBe(ids[19].cursor);
+  });
+
+  it("sin resultados devuelve una página vacía sin consultar encuestas", async () => {
+    const { supabase, queries } = fakeSupabase({ "rpc:get_feed": { data: [], error: null } });
+    expect(await getFeed(supabase, { mode: "recientes" }, { signedIn: false })).toEqual({
+      ok: true,
+      data: { items: [], nextCursor: null },
+    });
+    expect(queries.map((q) => q.target)).toEqual(["rpc:get_feed"]);
+  });
+
+  it.each([["INVALID_CURSOR"], ["INVALID_FEED_MODE"], ["INVALID_CATEGORY"], ["AUTH_REQUIRED"]])(
+    "traduce %s a un error controlado y no pide encuestas",
+    async (code) => {
+      const { supabase, queries } = fakeSupabase({ "rpc:get_feed": rpcError(code) });
+      expect(await getFeed(supabase, { mode: "siguiendo" }, { signedIn: false })).toEqual({
+        ok: false,
+        error: code,
+      });
+      expect(queries.map((q) => q.target)).toEqual(["rpc:get_feed"]);
+    },
+  );
+
+  it("con sesión añade votos propios y resultados sólo de las votadas, como el resto de listas", async () => {
+    const { supabase, queries } = fakeSupabase({
+      "rpc:get_feed": { data: [idRow(1), idRow(2)], error: null },
+      polls: { data: [pollRow(uuid(1)), pollRow(uuid(2))], error: null },
+      votes: { data: [{ poll_id: uuid(1), option_id: B }], error: null },
+      saved_polls: { data: [], error: null },
+      "rpc:get_feed_results": {
+        data: resultRows.map((r) => ({ ...r, poll_id: uuid(1) })),
+        error: null,
+      },
+    });
+    const r = await getFeed(supabase, { mode: "recientes" }, { signedIn: true });
+    expect(r.ok && r.data.items.map((i) => i.viewer.kind)).toEqual(["voted", "not_voted"]);
+    const batch = queries.filter((q) => q.target === "rpc:get_feed_results");
+    expect(batch).toHaveLength(1);
+    expect(batch[0].calls[0]).toEqual(["rpc", "get_feed_results", { p_poll_ids: [uuid(1)] }]);
+  });
+
+  it("un fallo de red es NETWORK_ERROR", async () => {
+    const { supabase } = fakeSupabase({ "rpc:get_feed": networkThrow });
+    expect(await getFeed(supabase, { mode: "recientes" }, { signedIn: false })).toEqual({
+      ok: false,
+      error: "NETWORK_ERROR",
+    });
   });
 });
