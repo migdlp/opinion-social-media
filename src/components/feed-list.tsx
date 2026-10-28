@@ -10,18 +10,20 @@ type FeedListProps = {
   now?: Date;
   // Estado vacío propio (p. ej. el perfil de alguien sin encuestas); por defecto, el del feed.
   empty?: { title: string; description: string; action?: { href: string; label: string } };
+  // Destino de «Reintentar» (por defecto «/»): permite conservar la pestaña y la categoría.
+  retryHref?: string;
 };
 
 // Lista del feed público: tarjetas en el orden que da el adaptador (más reciente
 // primero), un estado vacío útil o un error recuperable sin romper la página.
-export function FeedList({ page, loadMore, now, empty }: FeedListProps) {
+export function FeedList({ page, loadMore, now, empty, retryHref = "/" }: FeedListProps) {
   if (!page.ok) {
     return (
       <div role="alert">
         <EmptyState
           title="No se han podido cargar las encuestas"
           description={ERROR_MESSAGES[page.error]}
-          action={{ href: "/", label: "Reintentar" }}
+          action={{ href: retryHref, label: "Reintentar" }}
         />
       </div>
     );
