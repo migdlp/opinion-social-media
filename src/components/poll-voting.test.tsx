@@ -105,6 +105,21 @@ describe("PollVoting", () => {
     expect(await screen.findByRole("link", { name: "Iniciar sesión" })).toBeDefined();
   });
 
+  it("sin @usuario (PROFILE_REQUIRED) ofrece elegirlo y volver a la encuesta, sin voto", async () => {
+    castVote.mockResolvedValue({ ok: false, error: "PROFILE_REQUIRED" });
+    view({ kind: "not_voted" });
+
+    await pick("Con cebolla");
+    await vote();
+
+    const link = await screen.findByRole("link", { name: "Elegir mi usuario" });
+    expect(link.getAttribute("href")).toBe(
+      `/onboarding?next=${encodeURIComponent(`/polls/${POLL.id}`)}`,
+    );
+    expect(screen.queryByText("Tu voto")).toBeNull();
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+
   it("si falla la red avisa, mantiene la elección y permite reintentar", async () => {
     castVote.mockResolvedValueOnce({ ok: false, error: "NETWORK_ERROR" });
     view({ kind: "not_voted" });

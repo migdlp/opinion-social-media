@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useId, useRef, useState } from "react";
-import { loginPath } from "@/lib/auth/redirect";
+import { loginPath, onboardingPath } from "@/lib/auth/redirect";
 import { ERROR_MESSAGES } from "@/lib/data/errors";
 import type { AppErrorCode, Result } from "@/lib/data/types";
 import { normalizeText } from "@/lib/utils/text";
@@ -256,6 +256,13 @@ export function PollCreationForm({ onSubmit, onPublished, onRecover }: PollCreat
           Inicia sesión para publicar; volverás aquí y podrás terminar la encuesta.{" "}
           <Link href={loginPath("/create")} className="font-semibold underline">
             Iniciar sesión
+          </Link>
+        </p>
+      ) : failure === "PROFILE_REQUIRED" ? (
+        <p className="rounded-xl border border-border bg-surface p-3 text-sm">
+          Elige tu usuario para publicar; volverás aquí y podrás terminar la encuesta.{" "}
+          <Link href={onboardingPath("/create")} className="font-semibold underline">
+            Elegir mi usuario
           </Link>
         </p>
       ) : (

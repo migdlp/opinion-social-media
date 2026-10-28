@@ -14,7 +14,7 @@ begin
     assert has_function_privilege('anon', r.oid, 'execute') = (r.proname in ('get_poll_authors')), r.proname || ' con permiso de anon inesperado';
     assert has_function_privilege('authenticated', r.oid, 'execute'), r.proname || ' no ejecutable por authenticated';
   end loop;
-  assert (select count(*) from pg_proc where pronamespace = 'public'::regnamespace and prorettype <> 'trigger'::regtype) = 11,
+  assert (select count(*) from pg_proc where pronamespace = 'public'::regnamespace and prorettype <> 'trigger'::regtype) = 12,
     'funciones en public distintas de las RPC previstas';
 
   -- Perfiles (V2-001): sólo se leen columnas públicas; user_id nunca.

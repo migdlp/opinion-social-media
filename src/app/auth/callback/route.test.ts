@@ -1,9 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const exchange = vi.fn();
+const getMyProfile = vi.fn();
 vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({ auth: { exchangeCodeForSession: exchange } }),
 }));
+vi.mock("@/lib/data/operations", () => ({ getMyProfile }));
 
 const { GET } = await import("./route");
 
@@ -13,6 +15,11 @@ const location = (res: Response) => new URL(res.headers.get("location")!);
 beforeEach(() => {
   exchange.mockReset();
   exchange.mockResolvedValue({ error: null });
+  getMyProfile.mockReset();
+  getMyProfile.mockResolvedValue({
+    ok: true,
+    data: { username: "ana_23", displayName: null, isPrivate: false },
+  });
 });
 
 describe("GET /auth/callback", () => {
@@ -73,5 +80,47 @@ describe("GET /auth/callback", () => {
     expect(exchange).not.toHaveBeenCalled();
     expect(location(res).pathname).toBe("/login");
     expect(location(res).href).not.toContain("denied");
+  });
+
+  describe("onboarding (V2-002)", () => {
+    it("un usuario sin perfil va a /onboarding conservando el destino", async () => {
+      getMyProfile.mockResolvedValue({ ok: true, data: null });
+
+      const res = await call("?code=abc&next=/polls/1");
+
+      expect(location(res).pathname).toBe("/onboarding");
+      expect(location(res).searchParams.get("next")).toBe("/polls/1");
+    });
+
+    it("sin destino va a /onboarding sin next", async () => {
+      getMyProfile.mockResolvedValue({ ok: true, data: null });
+
+      const res = await call("?code=abc");
+
+      expect(location(res).href).toBe("http://localhost:3000/onboarding");
+    });
+
+    it("un destino externo no se conserva en el onboarding", async () => {
+      getMyProfile.mockResolvedValue({ ok: true, data: null });
+
+      const res = await call(`?code=abc&next=${encodeURIComponent("//ajeno.example")}`);
+
+      expect(location(res).origin).toBe("http://localhost:3000");
+      expect(location(res).searchParams.has("next")).toBe(false);
+    });
+
+    it("con perfil sigue al destino pedido", async () => {
+      const res = await call("?code=abc&next=/create");
+
+      expect(location(res).pathname).toBe("/create");
+    });
+
+    it("si no se puede saber si hay perfil, no bloquea el acceso", async () => {
+      getMyProfile.mockResolvedValue({ ok: false, error: "NETWORK_ERROR" });
+
+      const res = await call("?code=abc&next=/create");
+
+      expect(location(res).pathname).toBe("/create");
+    });
   });
 });

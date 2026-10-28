@@ -35,6 +35,13 @@ export interface PollOption {
   position: number;
 }
 
+// Perfil propio (V2-001). Nunca incluye user_id.
+export interface Profile {
+  username: string;
+  displayName: string | null;
+  isPrivate: boolean;
+}
+
 // Autor con perfil (V2-003). Sin perfil, PublicPoll.author es null y se muestra «Anónimo».
 export interface PollAuthor {
   username: string;

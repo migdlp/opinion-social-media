@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import { LockedOptions } from "@/components/locked-options";
 import { PollOptionGroup } from "@/components/poll-option";
 import { PollResults } from "@/components/poll-results";
-import { loginPath } from "@/lib/auth/redirect";
+import { loginPath, onboardingPath } from "@/lib/auth/redirect";
 import { ERROR_MESSAGES } from "@/lib/data/errors";
 import type {
   AppErrorCode,
@@ -39,6 +39,7 @@ export function PollVoting({ poll, viewer, castVote, loadOwnVote, closed }: Poll
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<AppErrorCode | null>(null);
   const [needsLogin, setNeedsLogin] = useState(false);
+  const [needsProfile, setNeedsProfile] = useState(false);
   const sending = useRef(false);
   const checkFirst = useRef(false);
 
@@ -101,6 +102,7 @@ export function PollVoting({ poll, viewer, castVote, loadOwnVote, closed }: Poll
       setJustVoted(true);
       setResults(result.data);
     } else if (result.error === "AUTH_REQUIRED") setNeedsLogin(true);
+    else if (result.error === "PROFILE_REQUIRED") setNeedsProfile(true);
     else setError(result.error);
   }
 
@@ -130,6 +132,14 @@ export function PollVoting({ poll, viewer, castVote, loadOwnVote, closed }: Poll
           Inicia sesión para votar; volverás a esta encuesta.{" "}
           <Link href={loginPath(`/polls/${poll.id}`)} className="font-semibold underline">
             Iniciar sesión
+          </Link>
+        </p>
+      )}
+      {needsProfile && (
+        <p className="rounded-xl border border-border bg-surface p-3 text-sm">
+          Elige tu usuario para votar; volverás a esta encuesta.{" "}
+          <Link href={onboardingPath(`/polls/${poll.id}`)} className="font-semibold underline">
+            Elegir mi usuario
           </Link>
         </p>
       )}
