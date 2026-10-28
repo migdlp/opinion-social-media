@@ -10,7 +10,14 @@ export type DatabaseContractChecks = [
   Assert<
     Equal<
       keyof Public["Tables"],
-      "polls" | "poll_options" | "votes" | "poll_reports" | "profiles" | "follows" | "categories"
+      | "polls"
+      | "poll_options"
+      | "votes"
+      | "poll_reports"
+      | "profiles"
+      | "follows"
+      | "categories"
+      | "saved_polls"
     >
   >,
   Assert<
@@ -135,5 +142,17 @@ export type DatabaseContractChecks = [
   >,
   Assert<
     Equal<Public["Functions"]["list_following"]["Args"], { p_username: string; p_cursor?: string }>
+  >,
+  Assert<
+    Equal<
+      Public["Tables"]["saved_polls"]["Row"],
+      { user_id: string; poll_id: string; created_at: string }
+    >
+  >,
+  Assert<
+    Equal<
+      Public["Tables"]["saved_polls"]["Insert"],
+      { poll_id: string; user_id?: string; created_at?: string }
+    >
   >,
 ];

@@ -6,7 +6,19 @@ export type Call = [method: string, ...args: unknown[]];
 export type FakeResponse = { data: unknown; error: unknown } | (() => never);
 export type FakeQuery = { target: string; calls: Call[] };
 
-const CHAIN = ["select", "order", "limit", "or", "eq", "in", "maybeSingle", "single"];
+const CHAIN = [
+  "select",
+  "order",
+  "limit",
+  "or",
+  "eq",
+  "in",
+  "maybeSingle",
+  "single",
+  "insert",
+  "upsert",
+  "delete",
+];
 
 // responses: por tabla («polls») o RPC («rpc:vote_poll»). Un array se consume en orden.
 export function fakeSupabase(responses: Record<string, FakeResponse | FakeResponse[]>) {

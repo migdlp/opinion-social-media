@@ -236,6 +236,18 @@ public.count_follow_requests() returns integer                      -- sólo aut
 - Adaptadores: `listFollowers`, `listFollowing`, `listFollowRequests` → `{ users: FollowEntry[], nextCursor }`; `countFollowRequests`; `respondFollowRequest`, `removeFollower`.
 - Rutas: `/u/[username]/seguidores`, `/u/[username]/siguiendo` (aviso de cuenta privada sin pedir la lista; «Eliminar» sólo en los seguidores propios) y `/solicitudes` (sólo propio; sin sesión lleva al login). El indicador de pendientes está en la cabecera del perfil propio.
 
+### 3.13. `saved_polls` (V2-022)
+
+```sql
+public.saved_polls (user_id uuid default auth.uid(), poll_id uuid, created_at timestamptz, PK (user_id, poll_id))
+```
+
+- Tabla con RLS y escritura directa **sólo** para `authenticated` (`select`, `insert`, `delete`; nunca `update`) y sin acceso para `anon`. Cada cuenta lee, inserta y borra únicamente sus filas (`user_id = auth.uid()`); `user_id` se rellena solo y no se envía.
+- `insert` exige que la encuesta sea **visible para quien guarda**: la política consulta `polls` con la RLS del propio cliente, así que una encuesta privada sin acceso, oculta o inexistente se rechaza. Una guardada que deja de ser visible no se lee al unirla con `polls`, que es como se lista.
+- Adaptadores: `savePoll` (idempotente, `upsert` con `ignoreDuplicates`; la violación de RLS se informa como `POLL_UNAVAILABLE`), `unsavePoll` (idempotente) y `getSavedPolls(cursor)` → `FeedPage` con `saved: true` y el estado de voto de cada encuesta; cursor por `(created_at de guardado, poll_id)`, 20 por página.
+- `getFeedPage`, `getProfilePolls` y `getPollDetail` añaden `saved` (sólo con sesión) con **una** consulta por página; si esa consulta falla, la página se entrega sin el marcador.
+- La lista no se ve desde fuera: la pestaña «Guardadas» sólo existe en el perfil propio.
+
 ## 4. Lecturas directas (RLS)
 
 `categories` (V2-021) es de lectura pública (`slug, name, position`) y sin escrituras de clientes; el formulario de creación la lee con `getCategories`. Feed y detalle incluyen `category:categories(slug, name)`.

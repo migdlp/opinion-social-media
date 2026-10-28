@@ -177,6 +177,33 @@ export type Database = {
         };
         Relationships: [];
       };
+      saved_polls: {
+        Row: {
+          created_at: string;
+          poll_id: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          poll_id: string;
+          user_id?: string;
+        };
+        Update: {
+          created_at?: string;
+          poll_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "saved_polls_poll_id_fkey";
+            columns: ["poll_id"];
+            isOneToOne: false;
+            referencedRelation: "polls";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       votes: {
         Row: {
           created_at: string;

@@ -204,6 +204,45 @@ describe("/u/[username]", () => {
     expect(queries.map((q) => q.target)).not.toContain("rpc:count_follow_requests");
   });
 
+  it("V2-022: «Guardadas» sólo existe en el perfil propio y lista lo guardado", async () => {
+    user = { id: "u1" };
+    responses = {
+      "rpc:get_profile": { data: [header({ viewer_relation: "self" })], error: null },
+      saved_polls: {
+        data: [{ poll_id: ID, created_at: "2026-10-27T19:00:00Z", polls: { id: ID } }],
+        error: null,
+      },
+      polls: { data: [pollRow], error: null },
+      votes: { data: [], error: null },
+      "rpc:get_poll_authors": { data: [], error: null },
+    };
+    const own = await render("guardadas");
+    expect(own).toMatch(/aria-current="page"[^>]*>Guardadas/);
+    expect(own).toContain("¿Tortilla con o sin cebolla?");
+    expect(own).toContain("Quitar de guardadas");
+    expect(queries.map((q) => q.target)).not.toContain("rpc:get_profile_polls");
+
+    // En el perfil de otra persona no hay pestaña ni se piden sus guardadas.
+    user = { id: "u1" };
+    responses = {
+      "rpc:get_profile": { data: [header({ viewer_relation: "following" })], error: null },
+      "rpc:get_profile_polls": { data: [], error: null },
+    };
+    const other = await render("guardadas");
+    expect(other).not.toContain("Guardadas");
+    expect(queries.map((q) => q.target)).not.toContain("saved_polls");
+    expect(other).toMatch(/aria-current="page"[^>]*>Creadas/);
+  });
+
+  it("V2-022: sin guardadas lo explica", async () => {
+    user = { id: "u1" };
+    responses = {
+      "rpc:get_profile": { data: [header({ viewer_relation: "self" })], error: null },
+      saved_polls: { data: [], error: null },
+    };
+    expect(await render("guardadas")).toContain("Todavía no has guardado ninguna encuesta");
+  });
+
   it("con muchas encuestas sin ninguna, la pestaña Creadas explica el vacío", async () => {
     responses = {
       "rpc:get_profile": { data: [header({ polls_count: 0 })], error: null },

@@ -44,8 +44,8 @@ export function FeedMore({ cursor: firstCursor, seenIds, loadMore, now }: FeedMo
 
   return (
     <>
-      {polls.map(({ poll, viewer }) => (
-        <PollCard key={poll.id} poll={poll} viewer={viewer} now={now} />
+      {polls.map(({ poll, viewer, saved }) => (
+        <PollCard key={poll.id} poll={poll} viewer={viewer} saved={saved} now={now} />
       ))}
       <div className="flex flex-col items-center gap-2 py-2 md:col-span-2">
         {error && (
