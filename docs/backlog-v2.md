@@ -6,7 +6,7 @@
 >
 > **El feed (épica E10) está por definir.** Ver [feed-por-definir.md](feed-por-definir.md). Sólo se puede reservar su tarea de definición, V2-030.
 >
-> **La épica E12 (crecimiento y hábito)** reúne propuestas de agente que el propietario pidió incorporar el 28-10-2026 ([D-CRECIMIENTO-001](decisiones.md)). Todas son P1. V2-048, V2-050 y V2-051 esperan una decisión suya (V2-040).
+> **La épica E12 (crecimiento y hábito)** reúne propuestas de agente redactadas a petición de un miembro del equipo que no es el propietario. Son P1 y no entran en el alcance hasta que V2-040 obtenga su confirmación, salvo V2-052.
 
 ## 1. Cómo usar este documento
 
@@ -32,7 +32,7 @@
 | Cierre | Fecha de cierre opcional. Cerrada, no admite votos y **sus resultados pasan a ser visibles para todos** los que puedan ver la encuesta, aunque no hayan votado (D-020). |
 | Regla crítica | Sigue vigente para toda encuesta **abierta**: nadie, ni el autor, obtiene agregados antes de votar. La única excepción es la encuesta cerrada (D-020). Siempre se impone en Supabase. |
 | Contenido | Denuncias, categorías fijas y «Guardar para luego» (D-021). |
-| Crecimiento (E12) | Propuestas de agente, no decisiones D-015 a D-021. Incorporadas por petición del propietario (D-CRECIMIENTO-001). Las que cambian una regla o dependen de un servicio externo están bloqueadas hasta que V2-040 obtenga su decisión. |
+| Crecimiento (E12) | Propuestas de agente, no decisiones D-015 a D-021 ni del propietario. Bloqueadas hasta que V2-040 obtenga su confirmación (salvo V2-052). Las que cambian una regla o dependen de un servicio externo necesitan además una decisión concreta. |
 
 ### Supuestos tomados por el planificador (corregibles por el propietario)
 
@@ -99,13 +99,13 @@
 | V2-025 | E2E del ciclo social | P0 | M | `testing` | V2-002, V2-006, V2-009 |
 | **E12 — Crecimiento y hábito** | | | | | |
 | V2-040 | Decidir con el propietario las apuestas de crecimiento | P1 | S | `product`, `docs` | — |
-| V2-041 | Métricas del ciclo desde SQL | P1 | M | `database`, `testing` | — |
-| V2-042 | Imagen «Mi voto» para compartir | P1 | M | `frontend`, `backend` | V2-018, V2-019 |
-| V2-043 | Pregunta del día y ruta `/hoy` | P1 | M | `database`, `frontend` | V2-005 |
-| V2-044 | Racha de participación | P1 | S | `database`, `frontend` | — |
-| V2-045 | Predicciones: tabla y RPC | P1 | M | `database`, `security` | V2-005, V2-013 |
+| V2-041 | Métricas del ciclo desde SQL | P1 | M | `database`, `testing` | V2-040 |
+| V2-042 | Imagen «Mi voto» para compartir | P1 | M | `frontend`, `backend` | V2-018, V2-019, V2-040 |
+| V2-043 | Pregunta del día y ruta `/hoy` | P1 | M | `database`, `frontend` | V2-005, V2-040 |
+| V2-044 | Racha de participación | P1 | S | `database`, `frontend` | V2-040 |
+| V2-045 | Predicciones: tabla y RPC | P1 | M | `database`, `security` | V2-005, V2-013, V2-040 |
 | V2-046 | Predicciones: interfaz | P1 | M | `frontend` | V2-045 |
-| V2-047 | Vibración y texto en la revelación | P1 | S | `frontend`, `design` | V2-015 |
+| V2-047 | Vibración y texto en la revelación | P1 | S | `frontend`, `design` | V2-015, V2-040 |
 | V2-048 | Retos de compatibilidad: modelo y RPC | P1 | L | `database`, `security` | V2-005, V2-007, V2-040 |
 | V2-049 | Retos de compatibilidad: interfaz | P1 | M | `frontend` | V2-048 |
 | V2-050 | Sugerir una pregunta con IA | P1 | M | `backend`, `frontend`, `security` | V2-040 |
@@ -146,14 +146,14 @@ Qué bloquea a qué y por cuál empezar: ver la sección 4, «Mapa de dependenci
 | [V2-024](https://github.com/migdlp/opinion-social-media/issues/137) Pruebas de fugas de privacidad y cierre | P0 | M | V2-005, V2-007, V2-014 | — | 4 |
 | [V2-025](https://github.com/migdlp/opinion-social-media/issues/140) E2E del ciclo social | P0 | M | V2-002, V2-006, V2-009 | — | 6 |
 | [V2-030](https://github.com/migdlp/opinion-social-media/issues/123) Definir el feed con el propietario | P0 | M | — | — | 0 |
-| [V2-040](https://github.com/migdlp/opinion-social-media/issues/170) Decidir con el propietario las apuestas de crecimiento | P1 | S | — | V2-048, V2-050, V2-051 | 0 |
-| [V2-041](https://github.com/migdlp/opinion-social-media/issues/163) Métricas del ciclo desde SQL | P1 | M | — | — | 0 |
-| [V2-042](https://github.com/migdlp/opinion-social-media/issues/164) Imagen «Mi voto» para compartir | P1 | M | V2-018, V2-019 | — | 4 |
-| [V2-043](https://github.com/migdlp/opinion-social-media/issues/165) Pregunta del día y ruta `/hoy` | P1 | M | V2-005 | — | 3 |
-| [V2-044](https://github.com/migdlp/opinion-social-media/issues/166) Racha de participación | P1 | S | — | — | 0 |
-| [V2-045](https://github.com/migdlp/opinion-social-media/issues/167) Predicciones: tabla y RPC | P1 | M | V2-005, V2-013 | V2-046 | 3 |
+| [V2-040](https://github.com/migdlp/opinion-social-media/issues/170) Decidir con el propietario las apuestas de crecimiento | P1 | S | — | V2-041, V2-042, V2-043, V2-044, V2-045, V2-047, V2-048, V2-050, V2-051 | 0 |
+| [V2-041](https://github.com/migdlp/opinion-social-media/issues/163) Métricas del ciclo desde SQL | P1 | M | V2-040 | — | 1 |
+| [V2-042](https://github.com/migdlp/opinion-social-media/issues/164) Imagen «Mi voto» para compartir | P1 | M | V2-018, V2-019, V2-040 | — | 4 |
+| [V2-043](https://github.com/migdlp/opinion-social-media/issues/165) Pregunta del día y ruta `/hoy` | P1 | M | V2-005, V2-040 | — | 3 |
+| [V2-044](https://github.com/migdlp/opinion-social-media/issues/166) Racha de participación | P1 | S | V2-040 | — | 1 |
+| [V2-045](https://github.com/migdlp/opinion-social-media/issues/167) Predicciones: tabla y RPC | P1 | M | V2-005, V2-013, V2-040 | V2-046 | 3 |
 | [V2-046](https://github.com/migdlp/opinion-social-media/issues/172) Predicciones: interfaz | P1 | M | V2-045 | — | 4 |
-| [V2-047](https://github.com/migdlp/opinion-social-media/issues/168) Vibración y texto en la revelación | P1 | S | V2-015 | — | 1 |
+| [V2-047](https://github.com/migdlp/opinion-social-media/issues/168) Vibración y texto en la revelación | P1 | S | V2-015, V2-040 | — | 1 |
 | [V2-048](https://github.com/migdlp/opinion-social-media/issues/173) Retos de compatibilidad: modelo y RPC | P1 | L | V2-005, V2-007, V2-040 | V2-049 | 4 |
 | [V2-049](https://github.com/migdlp/opinion-social-media/issues/176) Retos de compatibilidad: interfaz | P1 | M | V2-048 | — | 5 |
 | [V2-050](https://github.com/migdlp/opinion-social-media/issues/174) Sugerir una pregunta con IA | P1 | M | V2-040 | — | 1 |
@@ -164,8 +164,8 @@ Qué bloquea a qué y por cuál empezar: ver la sección 4, «Mapa de dependenci
 
 Todas las tareas de una oleada pueden hacerse en paralelo cuando la anterior está terminada (en realidad basta con que lo estén sus propias dependencias).
 
-- **Oleada 0:** V2-001 (P0), V2-011 (P1), V2-012 (P0), V2-015 (P1), V2-016 (P1), V2-017 (P1), V2-018 (P1), V2-020 (P0), V2-030 (P0), V2-040 (P1), V2-041 (P1), V2-044 (P1), V2-052 (P1)
-- **Oleada 1:** V2-002 (P0), V2-003 (P0), V2-004 (P0), V2-013 (P0), V2-047 (P1), V2-050 (P1)
+- **Oleada 0:** V2-001 (P0), V2-011 (P1), V2-012 (P0), V2-015 (P1), V2-016 (P1), V2-017 (P1), V2-018 (P1), V2-020 (P0), V2-030 (P0), V2-040 (P1), V2-052 (P1)
+- **Oleada 1:** V2-002 (P0), V2-003 (P0), V2-004 (P0), V2-013 (P0), V2-041 (P1), V2-044 (P1), V2-047 (P1), V2-050 (P1)
 - **Oleada 2:** V2-005 (P0), V2-008 (P0), V2-010 (P1), V2-021 (P1)
 - **Oleada 3:** V2-007 (P0), V2-014 (P0), V2-019 (P1), V2-043 (P1), V2-045 (P1), V2-051 (P1)
 - **Oleada 4:** V2-006 (P0), V2-023 (P1), V2-024 (P0), V2-042 (P1), V2-046 (P1), V2-048 (P1)
@@ -183,7 +183,7 @@ La cadena más larga, unos 11 días de trabajo secuencial, es **V2-001 → V2-00
 3. **Tercer agente, interfaz sin dependencias:** V2-011, V2-015, V2-016, V2-017, V2-018 y V2-020 no bloquean ni dependen de nada. Son buenas para huecos o para alguien que empieza.
 4. **Producto:** V2-030 (definir el feed) no requiere código y puede ir en paralelo con todo.
 5. Entre varias disponibles, P0 antes que P1, y la que más tareas bloquee antes que la que no bloquea ninguna.
-6. **Épica E12 (todas P1, después de las P0 disponibles):** empezar por V2-052 y V2-041, que no dependen de nada. V2-040 bloquea a V2-048, V2-050 y V2-051 y no requiere código, pero necesita respuestas del propietario. V2-045 → V2-046 y V2-048 → V2-049 son cadenas. V2-042 espera a V2-019.
+6. **Épica E12 (todas P1, después de las P0 disponibles):** sólo V2-052 está disponible sin confirmación. V2-040 no requiere código, pero necesita respuestas del propietario y bloquea al resto de la épica. V2-045 → V2-046 y V2-048 → V2-049 son cadenas.
 
 ### Grafo
 
@@ -225,6 +225,12 @@ graph LR
   V2_015[V2-015] --> V2_047[V2-047]
   V2_005[V2-005] --> V2_048[V2-048]
   V2_007[V2-007] --> V2_048[V2-048]
+  V2_040[V2-040] --> V2_041[V2-041]
+  V2_040[V2-040] --> V2_042[V2-042]
+  V2_040[V2-040] --> V2_043[V2-043]
+  V2_040[V2-040] --> V2_044[V2-044]
+  V2_040[V2-040] --> V2_045[V2-045]
+  V2_040[V2-040] --> V2_047[V2-047]
   V2_040[V2-040] --> V2_048[V2-048]
   V2_048[V2-048] --> V2_049[V2-049]
   V2_040[V2-040] --> V2_050[V2-050]
@@ -237,8 +243,6 @@ graph LR
   V2_018[V2-018]
   V2_020[V2-020]
   V2_030[V2-030]
-  V2_041[V2-041]
-  V2_044[V2-044]
   V2_052[V2-052]
 ```
 
@@ -609,15 +613,15 @@ El diseño del feed está **por definir**. Todo el contexto, la propuesta inicia
 
 ### E12 — Crecimiento y hábito
 
-Las tareas de esta épica son **propuestas de agente** que el propietario pidió incorporar al backlog el 28-10-2026 ([D-CRECIMIENTO-001](decisiones.md)). No sustituyen a E06–E11 ni cambian D-015 a D-021. Persiguen que quien vota vuelva y comparta, sin tocar la regla crítica.
+Las tareas de esta épica son **propuestas de agente**, redactadas el 28-10-2026 a petición de un miembro del equipo que no es el propietario. **No son decisiones del propietario ni forman parte del alcance hasta que las confirme V2-040.** No sustituyen a E06–E11 ni cambian D-015 a D-021. Persiguen que quien vota vuelva y comparta, sin tocar la regla crítica. Hasta esa confirmación, ninguna tarea de E12 se reserva, salvo V2-040 y V2-052.
 
-**Prioridad.** Todas son P1: ninguna es condición para cerrar la fase 2. Dentro de P1 conviene este orden: V2-052 y V2-041, porque son baratas y no dependen de nada; después V2-042, V2-043, V2-044 y V2-047; después V2-045 → V2-046. V2-040 bloquea a las tres tareas que necesitan una decisión del propietario (V2-048, V2-050 y V2-051; V2-049 espera a V2-048).
+**Prioridad.** Todas son P1: ninguna es condición para cerrar la fase 2. **V2-052 es la única disponible sin confirmación:** corrige que la elección se pierda al iniciar sesión, algo que [contexto-aplicacion.md](contexto-aplicacion.md) («Acceder con Google») ya promete. V2-040 recoge la confirmación del propietario y bloquea al resto. Una vez confirmadas, conviene este orden: V2-041, porque es barata y no depende de nada más; después V2-042, V2-043, V2-044 y V2-047; después V2-045 → V2-046. V2-048, V2-050 y V2-051 necesitan además una decisión concreta (V2-049 espera a V2-048).
 
 **Qué esperamos de cada una.** Las puntuaciones son estimaciones del planificador de 1 a 10, hechas leyendo este backlog y el código; no son mediciones.
 
 | Tarea | Impacto | Esfuerzo | Por qué esta posición |
 |---|---|---|---|
-| V2-052 Conservar la elección al iniciar sesión | 7 | 2 | Quita una pérdida en el paso de login, el más frágil para quien llega por un enlace. Sin cambiar ninguna regla |
+| V2-052 Conservar la elección al iniciar sesión | 7 | 2 | Quita una pérdida en el paso de login, el más frágil para quien llega por un enlace. Cumple lo ya documentado, sin cambiar ninguna regla |
 | V2-041 Métricas del ciclo | 8 | 3 | No crece nada por sí sola, pero sin números no se sabe cuál de las demás funciona |
 | V2-042 Imagen «Mi voto» | 8 | 3 | Cada voto produce algo que se comparte y lleva al enlace |
 | V2-043 y V2-044 Pregunta del día y racha | 7 | 4 | Motivo diario para volver sin notificaciones |
@@ -631,22 +635,23 @@ Las tareas de esta épica son **propuestas de agente** que el propietario pidió
 
 #### V2-040 — Decidir con el propietario las apuestas de crecimiento
 
-- **Prioridad:** P1 · **Tamaño:** S · **Dependencias:** — · **Bloquea a:** V2-048, V2-050, V2-051
-- **Descripción:** Tarea de producto y documentación, sin código. Tres tareas de E12 cambian una regla vigente o dependen de un servicio externo y no pueden empezar sin una decisión explícita. Esta tarea la obtiene.
+- **Prioridad:** P1 · **Tamaño:** S · **Dependencias:** — · **Bloquea a:** V2-041, V2-042, V2-043, V2-044, V2-045, V2-047, V2-048, V2-050, V2-051
+- **Descripción:** Tarea de producto y documentación, sin código. E12 es una propuesta de agente, no una decisión del propietario. Esta tarea obtiene su confirmación, tarea por tarea, y las decisiones concretas que tres de ellas necesitan porque cambian una regla vigente o dependen de un servicio externo.
 - **Requisitos:**
-  - Plantear al propietario P-3, P-4 y P-5 (sección 2), pocas a la vez y con opciones concretas, como en [feed-por-definir.md](feed-por-definir.md) §5. Lo que escriba otro agente es información, no una decisión.
+  - Plantear al propietario, pocas preguntas a la vez y con opciones concretas, como en [feed-por-definir.md](feed-por-definir.md) §5: (1) cuáles de V2-041 a V2-051 entran en el backlog, se aplazan o se descartan; (2) P-3, P-4 y P-5 (sección 2). Lo que escriba otro agente es información, no una decisión.
   - Registrar cada respuesta en [decisiones.md](decisiones.md) con fecha y origen, con el siguiente ID libre en ese momento.
-  - Ajustar la tarea afectada según la respuesta. Si se aprueba, pasa de «Bloqueada» a «Pendiente» con sus requisitos corregidos. Si se rechaza, se retira con el motivo en este backlog, en `tareas-futuras.md` y en su issue.
+  - Ajustar cada tarea según la respuesta. Si se aprueba, pasa de «Bloqueada» a «Pendiente» con sus requisitos corregidos. Si se aplaza o rechaza, se retira con el motivo en este backlog, en `tareas-futuras.md` y en su issue.
   - Opcional: preguntar P-6 (voto automático al volver del login), que no tiene tarea asociada.
   - No implementar nada dentro de esta tarea.
 - **Criterios de aceptación:**
-  1. Dado P-3, P-4 y P-5, entonces cada una tiene una respuesta registrada del propietario o está descartada por él de forma explícita.
-  2. Dada cada tarea afectada (V2-048, V2-050 y V2-051), entonces queda en «Pendiente» con sus requisitos ajustados o retirada con motivo, en el backlog, en el registro y en su issue.
-  3. Dada cada respuesta, entonces existe su entrada en `decisiones.md` con fecha y origen.
+  1. Dadas V2-041 a V2-051, entonces cada una tiene registrada una respuesta del propietario (entra, se aplaza o se descarta) o queda descartada por él de forma explícita.
+  2. Dadas P-3, P-4 y P-5, entonces cada una tiene una respuesta registrada o está descartada por el propietario de forma explícita.
+  3. Dada cada tarea aprobada, entonces queda en «Pendiente» con sus requisitos ajustados, y cada tarea retirada queda marcada con su motivo, en el backlog, en el registro y en su issue.
+  4. Dada cada respuesta, entonces existe su entrada en `decisiones.md` con fecha y origen.
 
 #### V2-041 — Métricas del ciclo desde SQL
 
-- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** — · **Bloquea a:** —
+- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** V2-040 · **Bloquea a:** —
 - **Descripción:** Tres números del ciclo calculados sin identificar a nadie, para decidir con datos el resto de E12 cuando haya usuarios reales. Hoy no hay analítica (queda fuera del MVP) y esta tarea no añade seguimiento: sólo lee `votes` y `polls`.
 - **Requisitos:**
   - Documento `docs/metricas.md` y consultas SQL de sólo lectura en `supabase/metrics/`, que ejecuta un operador desde el SQL editor con rol administrativo. Las consultas no son funciones de `public` ni vistas accesibles a clientes. En desarrollo se prueban con fixtures; en producción sólo con autorización (AGENTS.md).
@@ -664,7 +669,7 @@ Las tareas de esta épica son **propuestas de agente** que el propietario pidió
 
 #### V2-042 — Imagen «Mi voto» para compartir
 
-- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** V2-018, V2-019 · **Bloquea a:** —
+- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** V2-018, V2-019, V2-040 · **Bloquea a:** —
 - **Descripción:** Tras votar, la persona puede compartir una imagen con la pregunta y la opción que eligió, que invita a votar: «Yo voté esto. ¿Y tú?». Cada voto produce algo que apetece enseñar y que lleva al enlace de la encuesta. V2-016 ya muestra «Coincides con el X %» sólo en pantalla; esta tarea saca el gesto de la app sin sacar cifras.
 - **Requisitos:**
   - Ruta `src/app/polls/[id]/mi-voto/route.tsx` que devuelve un PNG con `ImageResponse` de `next/og` (consultar `node_modules/next/dist/docs/`) en formato historia, 1080×1920. Reutiliza la fuente y el diseño de tarjeta de V2-019. Si V2-019 aún no está fusionada, esperar a ella en lugar de duplicar la carga de la fuente (coordinar en #73).
@@ -683,7 +688,7 @@ Las tareas de esta épica son **propuestas de agente** que el propietario pidió
 
 #### V2-043 — Pregunta del día y ruta `/hoy`
 
-- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** V2-005 · **Bloquea a:** —
+- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** V2-005, V2-040 · **Bloquea a:** —
 - **Descripción:** Una encuesta destacada por día, la misma para todos, y una ruta `/hoy` que lleva a ella. Da un motivo diario para volver sin notificaciones y sin tocar el feed, que sigue sin definir (E10).
 - **Requisitos:**
   - Tabla `public.daily_polls` (`day date PK`, `poll_id uuid not null references polls on delete cascade`, `created_at timestamptz not null default now()`). El día es la fecha en `Europe/Madrid` (S-11). Los clientes no escriben: la gestiona una persona con acceso SQL (S-10).
@@ -702,7 +707,7 @@ Las tareas de esta épica son **propuestas de agente** que el propietario pidió
 
 #### V2-044 — Racha de participación
 
-- **Prioridad:** P1 · **Tamaño:** S · **Dependencias:** — · **Bloquea a:** —
+- **Prioridad:** P1 · **Tamaño:** S · **Dependencias:** V2-040 · **Bloquea a:** —
 - **Descripción:** Tras votar, la persona ve cuántos días seguidos lleva votando. Se calcula a partir de `votes`, sin tabla nueva ni datos adicionales.
 - **Requisitos:**
   - RPC `get_my_streak()` que devuelve `{ current, best, voted_today }` de la cuenta que llama, sólo para `authenticated`. Un día cuenta si la cuenta tiene al menos un voto con `votes.created_at` en esa fecha de `Europe/Madrid` (S-11). `current` son los días consecutivos que acaban hoy o ayer, así que no se rompe hasta que pasa un día entero sin votar. `best` es la mejor racha histórica.
@@ -719,7 +724,7 @@ Las tareas de esta épica son **propuestas de agente** que el propietario pidió
 
 #### V2-045 — Predicciones: tabla y RPC
 
-- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** V2-005, V2-013 · **Bloquea a:** V2-046
+- **Prioridad:** P1 · **Tamaño:** M · **Dependencias:** V2-005, V2-013, V2-040 · **Bloquea a:** V2-046
 - **Descripción:** Antes de votar, la persona puede decir qué opción cree que ganará; tras votar se compara. Esta tarea es la parte de datos. No revela nada antes del voto: la predicción se hace a ciegas y su resultado sólo se calcula para quien ya votó.
 - **Requisitos:**
   - Tabla `public.poll_predictions` (`poll_id`, `user_id references auth.users on delete cascade`, `option_id`, `created_at`, `PK (poll_id, user_id)`), con la misma clave compuesta que `votes` para que la opción pertenezca a la encuesta. Sin lectura ni escritura directa para clientes; todo va por RPC.
@@ -753,7 +758,7 @@ Las tareas de esta épica son **propuestas de agente** que el propietario pidió
 
 #### V2-047 — Vibración y texto en la revelación
 
-- **Prioridad:** P1 · **Tamaño:** S · **Dependencias:** V2-015 · **Bloquea a:** —
+- **Prioridad:** P1 · **Tamaño:** S · **Dependencias:** V2-015, V2-040 · **Bloquea a:** —
 - **Descripción:** Pulir el momento de la revelación. V2-015 ya anima las barras; esta tarea añade una vibración suave en el móvil y una línea de apertura con la chispa que pide el tono del producto.
 - **Requisitos:**
   - Una sola llamada a `navigator.vibrate(30)` cuando se revelan resultados de un voto emitido ahora, si el navegador lo soporta y no hay `prefers-reduced-motion: reduce`. No se llama al recargar resultados ya conocidos, igual que la animación de V2-015.
@@ -836,7 +841,7 @@ Las tareas de esta épica son **propuestas de agente** que el propietario pidió
 #### V2-052 — Conservar la elección al iniciar sesión
 
 - **Prioridad:** P1 · **Tamaño:** S · **Dependencias:** — · **Bloquea a:** —
-- **Descripción:** Hoy, quien llega por un enlace, elige una opción y pulsa «Votar» sin sesión ve «Inicia sesión para votar» y, al volver, ha perdido su elección. Es el paso más frágil del embudo. Esta tarea conserva la elección en la URL de retorno y la deja lista para confirmar con un toque. **No cambia ninguna regla:** nunca se vota sin confirmación posterior.
+- **Descripción:** Hoy, quien llega por un enlace, elige una opción y pulsa «Votar» sin sesión ve «Inicia sesión para votar» y, al volver, ha perdido su elección. Es el paso más frágil del embudo. Esta tarea conserva la elección en la URL de retorno y la deja lista para confirmar con un toque. **Ya está en el alcance documentado:** [contexto-aplicacion.md](contexto-aplicacion.md) dice que, si el login interrumpe un voto, «se recupera la selección cuando sea posible y se exige confirmación explícita», y hoy no ocurre. **No cambia ninguna regla:** nunca se vota sin confirmación posterior, así que no necesita pasar por V2-040.
 - **Requisitos:**
   - Al pedir login (y onboarding, si falta `@usuario`), la ruta de retorno es `/polls/[id]?elige=<option_id>`. `safeNextPath` y `loginPath`/`onboardingPath` (`src/lib/auth/redirect.ts`) ya admiten una ruta local con parámetros.
   - `/polls/[id]` lee `elige` dentro del `Suspense` (es dinámico, D-014), comprueba que es un UUID y que pertenece a las opciones de esa encuesta; si no, lo ignora. Si es válido, `PollVoting` arranca con esa opción seleccionada y el botón «Votar» a un toque, sin votar automáticamente.

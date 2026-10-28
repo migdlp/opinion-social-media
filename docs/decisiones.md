@@ -27,9 +27,8 @@
 | D-019 | Tipos de encuesta: plantilla Sí/No y entre 2 y 6 opciones (antes 2–4) | Ídem |
 | D-020 | Fecha de cierre opcional. Una encuesta cerrada no admite votos y sus resultados pasan a ser visibles para todos los que puedan verla, aunque no hayan votado. Única excepción a la regla crítica, que sigue íntegra para encuestas abiertas. Sustituye a la exclusión de caducidad del brief §3.3 y §8 | Ídem |
 | D-021 | Contenido: denuncias de encuestas (revisión manual), categorías fijas y «Guardar para luego» privado | Ídem |
-| D-CRECIMIENTO-001 | Incorporar al backlog de la fase 2 la épica E12 (crecimiento y hábito), con las propuestas del planificador divididas en 13 tareas, V2-040 a V2-052, todas P1. No aprueba por sí sola las que cambian una regla vigente o dependen de un servicio externo (V2-048 a V2-051): quedan bloqueadas hasta que V2-040 obtenga la decisión del propietario sobre P-3, P-4 y P-5. V2-052 conserva la regla de confirmación explícita del voto tras el login | Petición del propietario del 28-10-2026 («convierte las ideas en tareas del backlog, pero ten en cuenta su prioridad, y si bloquean algo, y describirlas bien») |
 
-D-015 a D-021 abren la fase 2 descrita en [backlog-v2.md](backlog-v2.md); donde contradigan al brief, prevalecen ellas. La épica del feed (E10) sigue en discusión con el propietario. D-CRECIMIENTO-001 añade a esa fase la épica E12.
+D-015 a D-021 abren la fase 2 descrita en [backlog-v2.md](backlog-v2.md); donde contradigan al brief, prevalecen ellas. La épica del feed (E10) sigue en discusión con el propietario.
 
 D-005 conserva el historial de pausa. D-013 la levanta para el resto de tareas y D-VERCEL-001 asigna Vercel a Codex; ninguna permite declarar finalizadas tareas sin evidencia ni tomar trabajo reservado a otros agentes. La [guía de operación](vercel-operacion.md) concreta la responsabilidad y los controles de Vercel. Las acciones con infraestructura compartida (OAuth, migraciones en Supabase, producción) siguen requiriendo los datos y confirmaciones que indique cada tarea.
 
@@ -40,7 +39,7 @@ Resultados sólo tras votar, voto único inmutable, feed público cronológico, 
 ## Pendiente de definir o aportar
 
 - Nuevas aportaciones posteriores al brief incorporado, si el propietario las envía.
-- Respuestas del propietario a P-3, P-4 y P-5 (y, si procede, P-6) de [backlog-v2.md](backlog-v2.md), que obtiene V2-040.
+- Confirmación del propietario de la épica E12 (propuesta de agente) y sus respuestas a P-3, P-4 y P-5 de [backlog-v2.md](backlog-v2.md), que obtiene V2-040.
 - Nombre y estilo visual definitivos, si se desea concretarlos.
 - Configuración OAuth de Google Cloud: proyecto, cliente web y secreto mediante un canal seguro.
 - Dominio público definitivo, o uso inicial del subdominio de Vercel.
