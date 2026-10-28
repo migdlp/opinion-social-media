@@ -85,7 +85,7 @@ La implementación está reanudada (D-013). Crear estos tickets no ejecuta las t
 
 ## Fase 2
 
-38 issues creadas el 28-10-2026: seis épicas y 32 tareas. Cada tarea es un sub-issue de su épica e incluye prioridad, tamaño, oleada, criterios, «Dependencias bloqueantes» y «Bloquea a» enlazados. Los requisitos completos están en [backlog-v2.md](backlog-v2.md).
+38 issues creadas el 28-10-2026: seis épicas y 32 tareas. Ese mismo día se añadieron la épica E12 (#162) y sus 13 tareas (#163 a #170 y #172 a #176), con el mismo formato. Cada tarea es un sub-issue de su épica e incluye prioridad, tamaño, oleada, criterios, «Dependencias bloqueantes» y «Bloquea a» enlazados. Los requisitos completos están en [backlog-v2.md](backlog-v2.md).
 
 | Épica | Issue |
 |---|---|
@@ -95,6 +95,7 @@ La implementación está reanudada (D-013). Crear estos tickets no ejecuta las t
 | E09 Contenido y seguridad | [#112](https://github.com/migdlp/opinion-social-media/issues/112) |
 | E10 Feed | [#113](https://github.com/migdlp/opinion-social-media/issues/113) |
 | E11 Calidad y rendimiento | [#114](https://github.com/migdlp/opinion-social-media/issues/114) |
+| E12 Crecimiento y hábito | [#162](https://github.com/migdlp/opinion-social-media/issues/162) |
 
 | ID | Issue | Prioridad | Épica |
 |---|---|---|---|
@@ -130,5 +131,18 @@ La implementación está reanudada (D-013). Crear estos tickets no ejecuta las t
 | V2-034 | [#181: Scroll infinito con botón alternativo](https://github.com/migdlp/opinion-social-media/issues/181) | P0 | [E10](https://github.com/migdlp/opinion-social-media/issues/113) |
 | V2-035 | [#182: Ataques a la privacidad del nuevo feed](https://github.com/migdlp/opinion-social-media/issues/182) | P0 | [E10](https://github.com/migdlp/opinion-social-media/issues/113) |
 | V2-036 | [#183: E2E y cierre del feed](https://github.com/migdlp/opinion-social-media/issues/183) | P0 | [E10](https://github.com/migdlp/opinion-social-media/issues/113) |
+| V2-040 | [#170: Decidir con el propietario las apuestas de crecimiento](https://github.com/migdlp/opinion-social-media/issues/170) | P1 | [E12](https://github.com/migdlp/opinion-social-media/issues/162) |
+| V2-041 | [#163: Métricas del ciclo desde SQL](https://github.com/migdlp/opinion-social-media/issues/163) | P1 | [E12](https://github.com/migdlp/opinion-social-media/issues/162) |
+| V2-042 | [#164: Imagen «Mi voto» para compartir](https://github.com/migdlp/opinion-social-media/issues/164) | P1 | [E12](https://github.com/migdlp/opinion-social-media/issues/162) |
+| V2-043 | [#165: Pregunta del día y ruta /hoy](https://github.com/migdlp/opinion-social-media/issues/165) | P1 | [E12](https://github.com/migdlp/opinion-social-media/issues/162) |
+| V2-044 | [#166: Racha de participación](https://github.com/migdlp/opinion-social-media/issues/166) | P1 | [E12](https://github.com/migdlp/opinion-social-media/issues/162) |
+| V2-045 | [#167: Predicciones: tabla y RPC](https://github.com/migdlp/opinion-social-media/issues/167) | P1 | [E12](https://github.com/migdlp/opinion-social-media/issues/162) |
+| V2-046 | [#172: Predicciones: interfaz](https://github.com/migdlp/opinion-social-media/issues/172) | P1 | [E12](https://github.com/migdlp/opinion-social-media/issues/162) |
+| V2-047 | [#168: Vibración y texto en la revelación](https://github.com/migdlp/opinion-social-media/issues/168) | P1 | [E12](https://github.com/migdlp/opinion-social-media/issues/162) |
+| V2-048 | [#173: Retos de compatibilidad: modelo y RPC](https://github.com/migdlp/opinion-social-media/issues/173) | P1 | [E12](https://github.com/migdlp/opinion-social-media/issues/162) |
+| V2-049 | [#176: Retos de compatibilidad: interfaz](https://github.com/migdlp/opinion-social-media/issues/176) | P1 | [E12](https://github.com/migdlp/opinion-social-media/issues/162) |
+| V2-050 | [#174: Sugerir una pregunta con IA](https://github.com/migdlp/opinion-social-media/issues/174) | P1 | [E12](https://github.com/migdlp/opinion-social-media/issues/162) |
+| V2-051 | [#175: Encuesta incrustable](https://github.com/migdlp/opinion-social-media/issues/175) | P1 | [E12](https://github.com/migdlp/opinion-social-media/issues/162) |
+| V2-052 | [#169: Conservar la elección al iniciar sesión](https://github.com/migdlp/opinion-social-media/issues/169) | P1 | [E12](https://github.com/migdlp/opinion-social-media/issues/162) |
 
 Las seis tareas del feed tienen dependencias nativas de GitHub y pertenecen como sub-issues a E10. El orden está en el mapa de backlog-v2; V2-031 y V2-033 pueden desarrollarse en paralelo al cumplirse sus dependencias.

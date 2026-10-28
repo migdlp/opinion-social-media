@@ -46,6 +46,7 @@ Resultados sólo tras votar, voto único inmutable, feed público cronológico, 
 ## Pendiente de definir o aportar
 
 - Nuevas aportaciones posteriores al brief incorporado, si el propietario las envía.
+- Confirmación del propietario de la épica E12 (propuesta de agente) y sus respuestas a P-3, P-4 y P-5 de [backlog-v2.md](backlog-v2.md), que obtiene V2-040.
 - Nombre definitivo y activos de marca: el estilo provisional ya está elegido en D-026; PEEK no se adopta automáticamente como nombre.
 - Configuración OAuth de Google Cloud: proyecto, cliente web y secreto mediante un canal seguro.
 - Dominio público definitivo, o uso inicial del subdominio de Vercel.
