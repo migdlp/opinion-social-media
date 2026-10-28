@@ -11,10 +11,10 @@ begin
     assert r.proacl is not null and not exists (select 1 from aclexplode(r.proacl) a where a.grantee = 0),
       r.proname || ' ejecutable por PUBLIC';
     -- Sólo las RPC públicas por diseño admiten a anon; el resto exige sesión.
-    assert has_function_privilege('anon', r.oid, 'execute') = (r.proname in ('get_poll_authors')), r.proname || ' con permiso de anon inesperado';
+    assert has_function_privilege('anon', r.oid, 'execute') = (r.proname in ('get_poll_authors', 'can_view_author')), r.proname || ' con permiso de anon inesperado';
     assert has_function_privilege('authenticated', r.oid, 'execute'), r.proname || ' no ejecutable por authenticated';
   end loop;
-  assert (select count(*) from pg_proc where pronamespace = 'public'::regnamespace and prorettype <> 'trigger'::regtype) = 12,
+  assert (select count(*) from pg_proc where pronamespace = 'public'::regnamespace and prorettype <> 'trigger'::regtype) = 13,
     'funciones en public distintas de las RPC previstas';
 
   -- Perfiles (V2-001): sólo se leen columnas públicas; user_id nunca.

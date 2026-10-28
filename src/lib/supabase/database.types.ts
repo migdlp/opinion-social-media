@@ -192,6 +192,7 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      can_view_author: { Args: { p_author: string }; Returns: boolean };
       create_poll: {
         Args: { p_closes_at?: string; p_options: string[]; p_question: string };
         Returns: string;
