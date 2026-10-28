@@ -30,6 +30,7 @@ Leer [AGENTS.md](../AGENTS.md), el [contexto de la aplicación](contexto-aplicac
 | [Pruebas de base de datos](pruebas-bd.md) | Suites SQL, concurrencia y reproducibilidad; criterios de MVP-041–043 |
 | [Seguridad de datos y RPC](seguridad-rpc.md) | Revisión de funciones, permisos y rutas alternativas (MVP-020) |
 | [Integración en Supabase dev](ops-001-integracion-dev.md) | Migraciones de fase 2 aplicadas en dev, evidencia anterior y posterior (OPS-001) |
+| [Guía de validación con Google real](ops-002-guia-validacion.md) | Pasos manuales para validar la fase 2 en dev con dos cuentas (OPS-002) |
 | [Entornos y variables](entornos.md) | Proyectos dev/prod, variables públicas, secretos y protecciones |
 | [Estado del proyecto](estado-proyecto.md) | Evidencias de acceso e infraestructura creada |
 | [Acceso a Supabase](supabase-acceso.md) | Proyectos, URLs y conexión de colaboradores, agentes, app, CLI y SQL |
