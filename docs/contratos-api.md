@@ -29,6 +29,7 @@ Modelo de datos: el del [brief §5](brief-producto.md#5-modelo-de-datos-obligato
 | `VALIDATION_OPTION_LENGTH` | `create_poll` | Alguna opción normalizada fuera de 1–100 (incluye vacías) | «Cada opción debe tener entre 1 y 100 caracteres.» |
 | `VALIDATION_OPTION_DUPLICATE` | `create_poll` | Dos opciones iguales según §1 | «Hay opciones repetidas.» |
 | `INVALID_CLOSES_AT` | `create_poll` | `p_closes_at` fuera de [ahora + 1 hora, ahora + 30 días] | «El cierre debe estar entre 1 hora y 30 días desde ahora.» |
+| `INVALID_CATEGORY` | `create_poll` | `p_category` no nulo que no existe en `categories` (distingue mayúsculas) | «Elige una categoría válida.» |
 | `POLL_CLOSED` | `vote_poll` (trigger en `votes`) | `now() >= closes_at`; gana también sobre `ALREADY_VOTED` | «Esta encuesta ya está cerrada y no admite votos.» |
 | `RATE_LIMITED` | `create_poll` | Ya hay 5 encuestas de la cuenta en los últimos 60 minutos | «Has alcanzado el límite de 5 encuestas por hora. Inténtalo más tarde.» |
 | `POLL_UNAVAILABLE` | `vote_poll`, `get_poll_results`, detalle | UUID mal formado, inexistente u oculto; no se distingue entre ellos | «Esta encuesta no está disponible.» |
@@ -52,7 +53,7 @@ Modelo de datos: el del [brief §5](brief-producto.md#5-modelo-de-datos-obligato
 
 Orden de comprobación dentro de cada RPC (determina qué código gana si hay varios fallos):
 
-- `create_poll`: `AUTH_REQUIRED` → `VALIDATION_OPTION_COUNT` → `VALIDATION_QUESTION_LENGTH` → `VALIDATION_OPTION_LENGTH` → `VALIDATION_OPTION_DUPLICATE` → `INVALID_CLOSES_AT` → `RATE_LIMITED`.
+- `create_poll`: `AUTH_REQUIRED` → `VALIDATION_OPTION_COUNT` → `VALIDATION_QUESTION_LENGTH` → `VALIDATION_OPTION_LENGTH` → `VALIDATION_OPTION_DUPLICATE` → `INVALID_CLOSES_AT` → `INVALID_CATEGORY` → `RATE_LIMITED`.
 - `vote_poll`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `OPTION_INVALID` → `POLL_CLOSED` → `ALREADY_VOTED`.
 - `get_poll_results`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `NOT_VOTED`. Ningún agregado se calcula antes de superar las tres.
 - `report_poll`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `REPORT_INVALID` → `ALREADY_REPORTED` → `REPORT_RATE_LIMITED`.
@@ -67,13 +68,14 @@ Las funciones: `EXECUTE` sólo para `authenticated`, revocado a `PUBLIC` y `anon
 ### 3.1. `create_poll`
 
 ```sql
-public.create_poll(p_question text, p_options text[], p_closes_at timestamptz default null) returns uuid
+public.create_poll(p_question text, p_options text[], p_closes_at timestamptz default null, p_category text default null) returns uuid
 ```
 
 - Normaliza y valida según §1 y §2; el orden del array define `position` 1..n.
 - Inserta `polls` (`status = 'published'`, `user_id = auth.uid()`, `created_at = now()`) y sus opciones en la misma transacción. Cualquier error revierte todo.
 - Cuota: cuenta las encuestas de `auth.uid()` con `created_at > now() - interval '60 minutes'` tras serializar por cuenta (p. ej. `pg_advisory_xact_lock` sobre el usuario). La técnica concreta se decide en MVP-015; el contrato sólo fija `RATE_LIMITED`.
 - `p_closes_at` (V2-013, opcional): si se indica debe estar entre 1 hora y 30 días desde ahora (`INVALID_CLOSES_AT`). Se guarda en `polls.closes_at` y no se puede editar. La firma de dos argumentos sigue valiendo.
+- `p_category` (V2-021, opcional): `slug` de `public.categories` (`deportes`, `tecnologia`, `politica`, `entretenimiento`, `ciencia`, `estilo-de-vida`, `otros`); si no existe, `INVALID_CATEGORY`. Se guarda en `polls.category_slug`.
 - Devuelve el `id` de la encuesta.
 
 ```ts
@@ -191,6 +193,8 @@ public.get_profile_votes(p_username text, p_cursor text default null)
 
 ## 4. Lecturas directas (RLS)
 
+`categories` (V2-021) es de lectura pública (`slug, name, position`) y sin escrituras de clientes; el formulario de creación la lee con `getCategories`. Feed y detalle incluyen `category:categories(slug, name)`.
+
 No son RPC: el adaptador consulta tablas con el SDK. RLS (MVP-011, MVP-012) limita lo visible a encuestas `published`, sus opciones y los votos propios. El adaptador selecciona columnas explícitas: nunca `*`, nunca `user_id` de `polls`.
 
 ### 4.1. Feed (MVP-018)
@@ -247,6 +251,7 @@ export type AppErrorCode =
   | 'REPORT_INVALID'
   | 'INVALID_CLOSES_AT'
   | 'POLL_CLOSED'
+  | 'INVALID_CATEGORY'
   | 'USERNAME_INVALID'
   | 'USERNAME_TAKEN'
   | 'USERNAME_RESERVED'
@@ -273,6 +278,7 @@ export interface PublicPoll {
   createdAt: string // ISO 8601
   closesAt?: string | null // ISO 8601; V2-013, null/ausente = sin cierre
   author?: { username: string; displayName: string | null } | null // V2-003; null = Anónimo
+  category?: { slug: string; name: string } | null // V2-021; null = sin categoría
   options: PollOption[] // ordenadas por position
 }
 

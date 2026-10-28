@@ -5,6 +5,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { toAppError } from "./errors";
 import { getFeedPolls, getOwnVoteOptionId, getPublicPoll } from "./polls";
 import type {
+  Category,
   FeedPage,
   PollDetail,
   PollResults,
@@ -90,15 +91,29 @@ export function createPoll(
   question: string,
   options: string[],
   closesAt?: string | null,
+  category?: string | null,
 ): Promise<Result<{ id: string }>> {
   return guard(async () => {
     const { data, error } = await supabase.rpc("create_poll", {
       p_question: question,
       p_options: options,
       ...(closesAt ? { p_closes_at: closesAt } : {}),
+      ...(category ? { p_category: category } : {}),
     });
     if (error) return { ok: false, error: toAppError(error) };
     return { ok: true, data: { id: data as string } };
+  });
+}
+
+// Lista cerrada de categorías, en el orden de la base de datos (V2-021).
+export function getCategories(supabase: SupabaseClient): Promise<Result<Category[]>> {
+  return guard(async () => {
+    const { data, error } = await supabase
+      .from("categories")
+      .select("slug, name")
+      .order("position", { ascending: true });
+    if (error) return { ok: false, error: toAppError(error) };
+    return { ok: true, data: (data ?? []) as Category[] };
   });
 }
 

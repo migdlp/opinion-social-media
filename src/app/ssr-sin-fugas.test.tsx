@@ -49,7 +49,9 @@ function expectNoAggregates(html: string) {
   expect(queries.map((q) => q.target)).not.toContain("rpc:get_poll_results");
   const polls = queries.find((q) => q.target === "polls")!;
   const select = polls.calls.find((c) => c[0] === "select")![1] as string;
-  expect(select).toBe("id, question, created_at, closes_at, poll_options(id, text, position)");
+  expect(select).toBe(
+    "id, question, created_at, closes_at, category:categories(slug, name), poll_options(id, text, position)",
+  );
 }
 
 beforeEach(() => {

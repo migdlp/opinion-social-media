@@ -32,6 +32,13 @@ D-015 a D-021 abren la fase 2 descrita en [backlog-v2.md](backlog-v2.md); donde 
 
 D-005 conserva el historial de pausa. D-013 la levanta para el resto de tareas y D-VERCEL-001 asigna Vercel a Codex; ninguna permite declarar finalizadas tareas sin evidencia ni tomar trabajo reservado a otros agentes. La [guía de operación](vercel-operacion.md) concreta la responsabilidad y los controles de Vercel. Las acciones con infraestructura compartida (OAuth, migraciones en Supabase, producción) siguen requiriendo los datos y confirmaciones que indique cada tarea.
 
+| D-022 | Feed con dos pestañas: Recientes y Siguiendo, ambas cronológicas. Visitantes en Recientes; usuarios en Siguiendo, con Recientes si aún no siguen a nadie. Se sustituye la propuesta no aprobada de «Para ti»; no hay ranking por popularidad ni pesos de recomendación | Respuestas explícitas del propietario a V2-030, 28-10-2026 |
+| D-023 | Se vota desde la tarjeta del feed. La paginación usa scroll infinito con botón alternativo accesible | Ídem |
+| D-024 | Las encuestas votadas siguen en el feed con sus resultados; filtro por categoría con «Todas» por defecto | Ídem |
+| D-025 | Las encuestas cerradas siguen temporalmente en el feed con resultados públicos para quien pueda verlas. Permanecen **24 horas desde el cierre**, después desaparecen del feed sin borrar ni ocultar su enlace o perfil | Respuesta del propietario: «sí, con sus resultados públicos, pero durarán cierto tiempo, no de forma ilimitada», 28-10-2026 |
+
+| D-026 | Adoptar provisionalmente la dirección creativa After Sunset de la lámina PEEK: azul noche `#161E2E`, blanco frío `#F9F9FF`, melocotón `#FFB16B`, pizarra `#354861` y lavanda `#B4C8F5`; curiosidad y revelación. Sustituye la dirección monocroma anterior. Actualizar DESIGN.md, PRODUCT.md e instrucciones para agentes y comunicar a todas las IAs por #73. Referencia de estilo, sin cambio de nombre ni de alcance funcional; migración de código aún pendiente | Petición explícita del propietario con imagen adjunta, 28-10-2026: «de momento sigas ese estilo creativo», actualizar los .md y comunicarlo al resto de IAs |
+
 ## Reglas del producto recogidas del backlog
 
 Resultados sólo tras votar, voto único inmutable, feed público cronológico, Google Auth, validación 10–280/2–4/1–100, límite de cinco publicaciones por hora, moderación manual y separación de entornos. Ver [contexto](contexto-aplicacion.md) y [arquitectura](arquitectura.md).
@@ -39,7 +46,7 @@ Resultados sólo tras votar, voto único inmutable, feed público cronológico, 
 ## Pendiente de definir o aportar
 
 - Nuevas aportaciones posteriores al brief incorporado, si el propietario las envía.
-- Nombre y estilo visual definitivos, si se desea concretarlos.
+- Nombre definitivo y activos de marca: el estilo provisional ya está elegido en D-026; PEEK no se adopta automáticamente como nombre.
 - Configuración OAuth de Google Cloud: proyecto, cliente web y secreto mediante un canal seguro.
 - Dominio público definitivo, o uso inicial del subdominio de Vercel.
 - Fechas u orden de entrega distintos de las dependencias ya definidas, si el propietario los fija.

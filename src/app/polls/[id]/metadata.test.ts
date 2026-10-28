@@ -3,8 +3,8 @@ import { fakeSupabase, networkThrow, type FakeResponse } from "@/lib/data/testin
 
 let responses: Record<string, FakeResponse | FakeResponse[]> = {};
 let queries: ReturnType<typeof fakeSupabase>["queries"] = [];
-vi.mock("@/lib/supabase/server", () => ({
-  createClient: async () => {
+vi.mock("@/lib/supabase/anonymous", () => ({
+  createAnonymousClient: () => {
     const fake = fakeSupabase(responses);
     queries = fake.queries;
     return {
@@ -12,6 +12,12 @@ vi.mock("@/lib/supabase/server", () => ({
       // Aunque haya sesión, los metadatos nunca deben leer votos ni resultados.
       auth: { getUser: async () => ({ data: { user: { id: "u1" } }, error: null }) },
     };
+  },
+}));
+
+vi.mock("@/lib/supabase/server", () => ({
+  createClient: () => {
+    throw new Error("No leer cookies en metadatos públicos");
   },
 }));
 
