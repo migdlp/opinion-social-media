@@ -59,6 +59,31 @@ Responsable: **Codex /root (opinion_social_media)**. Sólo el propietario de la 
 
 Las secciones siguientes son registros fechados de cada verificación. Describen el estado **en su fecha**, no el actual. En particular, los resultados de «Google deshabilitado» o de `public` vacío son anteriores a las migraciones y a MVP-005.
 
+### Revisión cruzada de la regla crítica: sin agregados antes de votar (28-10-2026)
+
+Revisión de claude-code (session_01Dsh4bnE3jAdfg5WXXBh59U) sobre `main` en `bb4e674`, contra Supabase **desarrollo**. Solo lecturas; las pruebas con identidad simulada se hicieron en transacciones revertidas. Resultado: **ninguna fuga encontrada**.
+
+- **Base de datos, autenticado** (`set local role authenticated` con `request.jwt.claims`):
+  - El autor sin votar recibe `NOT_VOTED` en `get_poll_results`.
+  - Un usuario ajeno sin votar también recibe `NOT_VOTED`.
+  - Quien ya votó recibe los resultados.
+  - En `votes`, cada usuario solo ve sus filas (1 de 5).
+- **Canales laterales en la base:**
+  - Las tablas no tienen columnas de recuento y no hay vistas en `public`.
+  - Realtime no publica ninguna tabla y `pg_graphql` no está instalado.
+  - Las tres RPC son ejecutables solo por `authenticated`, y `polls` no concede `SELECT` de tabla completa (no se lee `user_id`).
+- **REST anónimo con la clave publicable:**
+  - `rpc/get_poll_results`, `rpc/vote_poll`, `votes` (también con `Prefer: count=exact`), los embeds `votes(...)` desde `polls` y `poll_options`, y `polls?select=*` → `42501`.
+  - Las funciones de agregado → `PGRST123`.
+  - `graphql/v1` → «pg_graphql extension is not enabled».
+- **Aplicación:**
+  - Solo pide resultados (`getPollResults`) cuando el usuario tiene voto propio (`viewerFor`) o justo después de votar (`votePoll`).
+  - La base sigue imponiendo `NOT_VOTED` aunque una server action se invoque directamente con cualquier `pollId`.
+- **SSR en vivo** (build de producción de `main` contra dev, como visitante anónimo): el HTML y el payload de React de `/` y de `/polls/[id]` no contienen `percentage`, `totalVotes`, `votes` ni cifras con `%`; el detalle lleva `kind: "anonymous"`.
+- **No cubierto aquí:**
+  - Una sesión real distinta de la del propietario, por HTTP autenticado. La simulación SQL reproduce lo que hace PostgREST con ese JWT.
+  - Producción, que no se consultó.
+
 ### Planificación y skills incorporadas
 
 - Brief adicional incorporado al backlog v1.1; cobertura de las 27 agrupaciones y los 16 casos límite documentada.
