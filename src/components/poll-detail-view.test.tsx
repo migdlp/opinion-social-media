@@ -70,6 +70,16 @@ describe("PollDetailView", () => {
     expect(screen.queryAllByRole("radio")).toHaveLength(0);
   });
 
+  it("muestra la etiqueta de la categoría", () => {
+    const detail = {
+      ...DETAIL,
+      poll: { ...DETAIL.poll, category: { slug: "otros", name: "Otros" } },
+    };
+    render(<PollDetailView detail={detail} castVote={castVote} now={NOW} />);
+
+    expect(screen.getByText("Otros")).toBeDefined();
+  });
+
   it("ofrece copiar el enlace de la encuesta", () => {
     render(<PollDetailView detail={DETAIL} castVote={castVote} now={NOW} />);
 

@@ -10,7 +10,7 @@ export type DatabaseContractChecks = [
   Assert<
     Equal<
       keyof Public["Tables"],
-      "polls" | "poll_options" | "votes" | "poll_reports" | "profiles" | "follows"
+      "polls" | "poll_options" | "votes" | "poll_reports" | "profiles" | "follows" | "categories"
     >
   >,
   Assert<
@@ -23,6 +23,7 @@ export type DatabaseContractChecks = [
         status: string;
         created_at: string;
         closes_at: string | null;
+        category_slug: string | null;
       }
     >
   >,
@@ -41,7 +42,7 @@ export type DatabaseContractChecks = [
   Assert<
     Equal<
       Public["Functions"]["create_poll"]["Args"],
-      { p_question: string; p_options: string[]; p_closes_at?: string }
+      { p_question: string; p_options: string[]; p_closes_at?: string; p_category?: string }
     >
   >,
   Assert<Equal<Public["Functions"]["create_poll"]["Returns"], string>>,
