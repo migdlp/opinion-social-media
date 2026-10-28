@@ -21,11 +21,16 @@ export const admin = createClient(URL_, SECRET, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
-export type TestUser = { id: string; email: string };
+export type TestUser = { id: string; email: string; username: string | null };
 
 let counter = 0;
 
-export async function createUser(label: string): Promise<TestUser> {
+// profile: false deja la cuenta sin @usuario (como tras el primer login, antes del onboarding);
+// isPrivate: true crea el perfil como cuenta privada (V2-005).
+export async function createUser(
+  label: string,
+  options: { profile?: boolean; isPrivate?: boolean } = {},
+): Promise<TestUser> {
   const email = `${label}-${Date.now()}-${counter++}@e2e.test`;
   const { data, error } = await admin.auth.admin.createUser({
     email,
@@ -33,11 +38,14 @@ export async function createUser(label: string): Promise<TestUser> {
     email_confirm: true,
   });
   if (error) throw error;
+  if (options.profile === false) return { id: data.user.id, email, username: null };
   // Crear y votar exigen @usuario (V2-002): se crea el perfil como tras el onboarding.
   const username = `${label}${Date.now() % 1_000_000}${counter}`.slice(0, 20);
-  const profile = await admin.from("profiles").insert({ user_id: data.user.id, username });
+  const profile = await admin
+    .from("profiles")
+    .insert({ user_id: data.user.id, username, is_private: options.isPrivate ?? false });
   if (profile.error) throw profile.error;
-  return { id: data.user.id, email };
+  return { id: data.user.id, email, username };
 }
 
 // Inicia sesión como `user` en el contexto del navegador con las cookies de @supabase/ssr.
