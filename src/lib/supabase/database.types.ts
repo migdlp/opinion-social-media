@@ -274,6 +274,27 @@ export type Database = {
           votes: number;
         }[];
       };
+      get_profile: {
+        Args: { p_username: string };
+        Returns: {
+          can_view_content: boolean;
+          display_name: string;
+          followers_count: number;
+          following_count: number;
+          is_private: boolean;
+          polls_count: number;
+          username: string;
+          viewer_relation: string;
+        }[];
+      };
+      get_profile_polls: {
+        Args: { p_cursor?: string; p_username: string };
+        Returns: {
+          created_at: string;
+          cursor: string;
+          poll_id: string;
+        }[];
+      };
       get_profile_votes: {
         Args: { p_cursor?: string; p_username: string };
         Returns: {

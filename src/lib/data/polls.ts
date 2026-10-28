@@ -118,6 +118,35 @@ export async function getFeedPolls(
   };
 }
 
+// Varias encuestas por id, en el orden de los ids (V2-006). La RLS decide cuáles se ven: una id
+// que no se puede ver simplemente no aparece.
+export async function getPublicPollsByIds(
+  supabase: SupabaseClient,
+  ids: string[],
+): Promise<Result<PublicPoll[]>> {
+  const valid = ids.filter((id) => UUID.test(id));
+  if (valid.length === 0) return { ok: true, data: [] };
+
+  const { data, error } = await supabase
+    .from("polls")
+    .select(PUBLIC_POLL_COLUMNS)
+    .in("id", valid)
+    .order("position", { referencedTable: "poll_options", ascending: true });
+  if (error) return { ok: false, error: toAppError(error) };
+
+  const rows = new Map(((data ?? []) as unknown as PollRow[]).map((row) => [row.id, row]));
+  const found = valid.flatMap((id) => (rows.has(id) ? [rows.get(id) as PollRow] : []));
+  const authors = await getAuthors(
+    supabase,
+    found.map((row) => row.id),
+  );
+  if (!authors.ok) return authors;
+  return {
+    ok: true,
+    data: found.map((row) => toPublicPoll(row, authors.data.get(row.id) ?? null)),
+  };
+}
+
 export async function getPublicPoll(
   supabase: SupabaseClient,
   id: string,

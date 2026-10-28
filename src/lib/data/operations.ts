@@ -2,9 +2,9 @@
 // pantallas usan estas funciones: reciben el cliente Supabase del contexto
 // (src/lib/supabase/server.ts o client.ts) y devuelven Result con AppErrorCode.
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { toAppError } from "./errors";
 import { isClosed } from "@/lib/utils/date";
-import { getFeedPolls, getOwnVoteOptionId, getPublicPoll } from "./polls";
+import { toAppError } from "./errors";
+import { getFeedPolls, getOwnVoteOptionId, getPublicPoll, getPublicPollsByIds } from "./polls";
 import type {
   Category,
   FeedPage,
@@ -12,9 +12,11 @@ import type {
   PollResults,
   PollViewerState,
   Profile,
+  ProfileView,
   ProfileVote,
   PublicPoll,
   Result,
+  ViewerRelation,
 } from "./types";
 
 // signedIn lo decide quien llama a partir de la sesión; RLS sigue siendo la barrera.
@@ -363,29 +365,125 @@ export function getFeedPage(
   return guard(async () => {
     const page = await getFeedPolls(supabase, cursor);
     if (!page.ok) return page;
-    const { polls, nextCursor } = page.data;
+    return withOwnVotes(supabase, page.data.polls, page.data.nextCursor, viewer);
+  });
+}
 
-    if (!viewer.signedIn || polls.length === 0) {
+// Voto propio de cada encuesta de la página (una sola consulta; RLS sólo devuelve los del usuario)
+// y estado de cada una para quien mira.
+async function withOwnVotes(
+  supabase: SupabaseClient,
+  polls: PublicPoll[],
+  nextCursor: string | null,
+  viewer: Viewer,
+): Promise<Result<FeedPage>> {
+  if (!viewer.signedIn || polls.length === 0) {
+    return withViewerStates(supabase, polls, nextCursor, new Map(), false);
+  }
+
+  const { data, error } = await supabase
+    .from("votes")
+    .select("poll_id, option_id")
+    .in(
+      "poll_id",
+      polls.map((p) => p.id),
+    );
+  if (error) {
+    if (toAppError(error) === "AUTH_REQUIRED") {
       return withViewerStates(supabase, polls, nextCursor, new Map(), false);
     }
+    return { ok: false, error: toAppError(error) };
+  }
+  const own = new Map(
+    (data as { poll_id: string; option_id: string }[]).map((v) => [v.poll_id, v.option_id]),
+  );
+  return withViewerStates(supabase, polls, nextCursor, own, true);
+}
 
-    // Una consulta de votos propios para todo el lote (RLS sólo devuelve los del usuario).
-    const { data, error } = await supabase
-      .from("votes")
-      .select("poll_id, option_id")
-      .in(
-        "poll_id",
-        polls.map((p) => p.id),
-      );
-    if (error) {
-      if (toAppError(error) === "AUTH_REQUIRED") {
-        return withViewerStates(supabase, polls, nextCursor, new Map(), false);
-      }
-      return { ok: false, error: toAppError(error) };
-    }
-    const own = new Map(
-      (data as { poll_id: string; option_id: string }[]).map((v) => [v.poll_id, v.option_id]),
+type ProfileViewRow = {
+  username: string;
+  display_name: string | null;
+  is_private: boolean;
+  followers_count: number;
+  following_count: number;
+  polls_count: number;
+  viewer_relation: ViewerRelation;
+  can_view_content: boolean;
+};
+
+// Cabecera de un perfil (V2-006). Errores: USER_NOT_FOUND.
+export function getProfileView(
+  supabase: SupabaseClient,
+  username: string,
+): Promise<Result<ProfileView>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("get_profile", { p_username: username });
+    if (error) return { ok: false, error: toAppError(error) };
+    const row = ((data ?? []) as ProfileViewRow[])[0];
+    if (!row) return { ok: false, error: "USER_NOT_FOUND" };
+    return {
+      ok: true,
+      data: {
+        username: row.username,
+        displayName: row.display_name,
+        isPrivate: row.is_private,
+        followersCount: row.followers_count,
+        followingCount: row.following_count,
+        pollsCount: row.polls_count,
+        viewerRelation: row.viewer_relation,
+        canViewContent: row.can_view_content,
+      },
+    };
+  });
+}
+
+export const PROFILE_POLLS_PAGE_SIZE = 20;
+
+// Encuestas creadas por @username que quien mira puede ver, con el mismo formato y estado de
+// voto que el feed (V2-006). Errores: USER_NOT_FOUND, PROFILE_PRIVATE.
+export function getProfilePolls(
+  supabase: SupabaseClient,
+  username: string,
+  cursor: string | null | undefined,
+  viewer: Viewer,
+): Promise<Result<FeedPage>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("get_profile_polls", {
+      p_username: username,
+      p_cursor: cursor ?? null,
+    });
+    if (error) return { ok: false, error: toAppError(error) };
+    const rows = (data ?? []) as { poll_id: string; cursor: string }[];
+    const page = rows.slice(0, PROFILE_POLLS_PAGE_SIZE);
+    if (page.length === 0) return { ok: true, data: { items: [], nextCursor: null } };
+    const nextCursor = rows.length > PROFILE_POLLS_PAGE_SIZE ? page[page.length - 1].cursor : null;
+
+    const polls = await getPublicPollsByIds(
+      supabase,
+      page.map((row) => row.poll_id),
     );
-    return withViewerStates(supabase, polls, nextCursor, own, true);
+    if (!polls.ok) return polls;
+    return withOwnVotes(supabase, polls.data, nextCursor, viewer);
+  });
+}
+
+// Sigue (o pide seguir) a @username: «accepted» si la cuenta es pública, «pending» si es privada.
+export function followUser(
+  supabase: SupabaseClient,
+  username: string,
+): Promise<Result<"accepted" | "pending">> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("follow_user", { p_username: username });
+    if (error) return { ok: false, error: toAppError(error) };
+    return { ok: true, data: data === "pending" ? "pending" : "accepted" };
+  });
+}
+
+// Deja de seguir o cancela la solicitud pendiente. Idempotente.
+export function unfollowUser(supabase: SupabaseClient, username: string): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("unfollow_user", { p_username: username });
+    if (error) return { ok: false, error: toAppError(error) };
+    return { ok: true, data: undefined };
   });
 }

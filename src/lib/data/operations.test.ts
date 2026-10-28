@@ -4,7 +4,11 @@ import {
   getCategories,
   getFeedPage,
   getMyProfile,
+  followUser,
+  getProfilePolls,
+  getProfileView,
   getProfileVotes,
+  unfollowUser,
   getPollDetail,
   getPollResults,
   reportPoll,
@@ -521,6 +525,126 @@ describe("getProfileVotes (V2-007)", () => {
     const { supabase } = fakeSupabase({ "rpc:get_profile_votes": rpcError(code) });
     expect(await getProfileVotes(supabase, "perfil_b")).toEqual({ ok: false, error: code });
   });
+});
+
+describe("página de perfil (V2-006)", () => {
+  const header = {
+    username: "perfil_b",
+    display_name: "Beto",
+    is_private: false,
+    followers_count: 2,
+    following_count: 1,
+    polls_count: 5,
+    viewer_relation: "following",
+    can_view_content: true,
+  };
+
+  it("getProfileView mapea la cabecera y no pide user_id", async () => {
+    const { supabase, queries } = fakeSupabase({
+      "rpc:get_profile": { data: [header], error: null },
+    });
+    expect(await getProfileView(supabase, "perfil_b")).toEqual({
+      ok: true,
+      data: {
+        username: "perfil_b",
+        displayName: "Beto",
+        isPrivate: false,
+        followersCount: 2,
+        followingCount: 1,
+        pollsCount: 5,
+        viewerRelation: "following",
+        canViewContent: true,
+      },
+    });
+    expect(queries[0].calls[0]).toEqual(["rpc", "get_profile", { p_username: "perfil_b" }]);
+  });
+
+  it("getProfileView: sin filas o USER_NOT_FOUND es un error controlado", async () => {
+    const none = fakeSupabase({ "rpc:get_profile": { data: [], error: null } });
+    expect(await getProfileView(none.supabase, "x")).toEqual({
+      ok: false,
+      error: "USER_NOT_FOUND",
+    });
+    const missing = fakeSupabase({ "rpc:get_profile": rpcError("USER_NOT_FOUND") });
+    expect(await getProfileView(missing.supabase, "x")).toEqual({
+      ok: false,
+      error: "USER_NOT_FOUND",
+    });
+  });
+
+  const idRow = (n: number) => ({
+    poll_id: uuid(n),
+    created_at: "2026-10-27T10:00:00+00:00",
+    cursor: `2026-10-27T10:00:00.000000Z|${uuid(n)}`,
+  });
+
+  it("getProfilePolls pide los ids por RPC y las encuestas por RLS, en el mismo orden", async () => {
+    const { supabase, queries } = fakeSupabase({
+      "rpc:get_profile_polls": { data: [idRow(2), idRow(1)], error: null },
+      polls: { data: [pollRow(uuid(1)), pollRow(uuid(2))], error: null },
+    });
+    const r = await getProfilePolls(supabase, "perfil_b", null, { signedIn: false });
+    expect(r.ok && r.data.items.map((i) => i.poll.id)).toEqual([uuid(2), uuid(1)]);
+    expect(r.ok && r.data.nextCursor).toBeNull();
+    expect(queries[0].calls[0]).toEqual([
+      "rpc",
+      "get_profile_polls",
+      { p_username: "perfil_b", p_cursor: null },
+    ]);
+    const inFilter = queries[1].calls.find(([m]) => m === "in");
+    expect(inFilter).toEqual(["in", "id", [uuid(2), uuid(1)]]);
+  });
+
+  it("con 21 ids entrega 20 y el cursor del último", async () => {
+    const ids = Array.from({ length: 21 }, (_, i) => idRow(i + 1));
+    const rows = ids.map((i) => pollRow(i.poll_id));
+    const { supabase } = fakeSupabase({
+      "rpc:get_profile_polls": { data: ids, error: null },
+      polls: { data: rows, error: null },
+    });
+    const r = await getProfilePolls(supabase, "perfil_b", "abc", { signedIn: false });
+    expect(r.ok && r.data.items).toHaveLength(20);
+    expect(r.ok && r.data.nextCursor).toBe(ids[19].cursor);
+  });
+
+  it("propaga PROFILE_PRIVATE y no pide encuestas", async () => {
+    const { supabase, queries } = fakeSupabase({
+      "rpc:get_profile_polls": rpcError("PROFILE_PRIVATE"),
+    });
+    expect(await getProfilePolls(supabase, "perfil_c", null, { signedIn: true })).toEqual({
+      ok: false,
+      error: "PROFILE_PRIVATE",
+    });
+    expect(queries.map((q) => q.target)).toEqual(["rpc:get_profile_polls"]);
+  });
+
+  it("sin encuestas devuelve una página vacía sin consultar polls", async () => {
+    const { supabase, queries } = fakeSupabase({
+      "rpc:get_profile_polls": { data: [], error: null },
+    });
+    expect(await getProfilePolls(supabase, "perfil_b", null, { signedIn: false })).toEqual({
+      ok: true,
+      data: { items: [], nextCursor: null },
+    });
+    expect(queries.map((q) => q.target)).toEqual(["rpc:get_profile_polls"]);
+  });
+
+  it("followUser devuelve accepted o pending; unfollowUser, ok", async () => {
+    const f = fakeSupabase({ "rpc:follow_user": { data: "pending", error: null } });
+    expect(await followUser(f.supabase, "perfil_c")).toEqual({ ok: true, data: "pending" });
+    expect(f.queries[0].calls[0]).toEqual(["rpc", "follow_user", { p_username: "perfil_c" }]);
+
+    const u = fakeSupabase({ "rpc:unfollow_user": { data: null, error: null } });
+    expect(await unfollowUser(u.supabase, "perfil_c")).toEqual({ ok: true, data: undefined });
+  });
+
+  it.each(["CANNOT_FOLLOW_SELF", "FOLLOW_RATE_LIMITED", "PROFILE_REQUIRED", "USER_NOT_FOUND"])(
+    "followUser propaga %s",
+    async (code) => {
+      const { supabase } = fakeSupabase({ "rpc:follow_user": rpcError(code) });
+      expect(await followUser(supabase, "x")).toEqual({ ok: false, error: code });
+    },
+  );
 });
 
 describe("encuestas cerradas (V2-014)", () => {

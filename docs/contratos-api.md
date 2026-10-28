@@ -177,17 +177,6 @@ public.can_view_author(p_author uuid) returns boolean   -- stable, security defi
 - Efectos: pasar a privada oculta de inmediato las encuestas a quien no sea seguidor aceptado (también para quien ya había votado, que pierde los resultados); volver a pública las devuelve. El feed (`getFeedPolls`) y el detalle no cambian: sólo ven lo que RLS permite.
 - Rendimiento medido en local (5.000 encuestas, 2.000 perfiles con un 40 % privados y 50 seguimientos): el feed de 21 filas tarda 1,8 ms con sesión y 0,4 ms sin ella, usando `polls_feed_idx`; no hacen falta índices nuevos.
 
-### 3.11. `get_feed_results` (V2-023)
-
-```sql
-public.get_feed_results(p_poll_ids uuid[])
-  returns table (poll_id uuid, option_id uuid, "position" smallint, text text, votes integer,
-                 percentage numeric(4,1), total_votes integer, my_option_id uuid)
-```
-
-- Máximo 20 ids por llamada (los demás se ignoran). Por **cada** encuesta aplica la misma autorización que `get_poll_results` (publicada, visible para quien llama, y cerrada o votada por quien llama) y devuelve sólo las autorizadas, **sin error** por las demás: una lista mezclada no filtra agregados de las no votadas. Las filas de una encuesta salen ordenadas por `position`.
-- `EXECUTE` también para `anon` (las cerradas son públicas). Hay que mantenerla sincronizada con `get_poll_results` si cambia la autorización.
-- Adaptador: `getFeedPage` hace, como máximo, una consulta de encuestas, una de votos propios y una de resultados por página (más la de autores).
 ### 3.9. `get_profile_votes` (V2-007)
 
 ```sql
@@ -202,6 +191,33 @@ public.get_profile_votes(p_username text, p_cursor text default null)
 - Sólo encuestas publicadas que el visitante puede ver (`can_view_author` del autor): una encuesta de una cuenta privada no aparece aunque el votante sea público.
 - **P-1:** `option_id` y `option_text` sólo vienen informados si el visitante es el propio usuario, si ya votó esa encuesta o si está cerrada; si no, `choice_hidden = true` y ambos `null`. Nunca recuentos ni porcentajes (esos se piden con `get_poll_results`, §3.3).
 - Adaptador: `getProfileVotes(supabase, username, cursor)` → `{ votes: ProfileVote[], nextCursor }`.
+
+### 3.10. `get_profile` y `get_profile_polls` (V2-006)
+
+```sql
+public.get_profile(p_username text)
+  returns table (username text, display_name text, is_private boolean, followers_count integer,
+                 following_count integer, polls_count integer, viewer_relation text, can_view_content boolean)
+public.get_profile_polls(p_username text, p_cursor text default null)
+  returns table (poll_id uuid, created_at timestamptz, cursor text)
+```
+
+- Ejecutables por `anon` y `authenticated`. Errores: `USER_NOT_FOUND` y, en `get_profile_polls`, `PROFILE_PRIVATE`.
+- `get_profile` devuelve la cabecera y los contadores (seguidores y seguidos **aceptados**, encuestas publicadas), que son públicos también en cuentas privadas (S-4). `viewer_relation`: `self`, `following`, `pending` o `none` (sin sesión, `none`). `can_view_content` = `can_view_author` del perfil.
+- `get_profile_polls` sólo devuelve ids y cursor (hasta 21 filas, mismo formato de cursor que `get_profile_votes`); el adaptador `getProfilePolls` pide después las encuestas por RLS (`polls ... in (ids)`) y les añade el estado de voto como el feed.
+- Adaptadores: `getProfileView`, `getProfilePolls`, `followUser`, `unfollowUser`.
+
+### 3.11. `get_feed_results` (V2-023)
+
+```sql
+public.get_feed_results(p_poll_ids uuid[])
+  returns table (poll_id uuid, option_id uuid, "position" smallint, text text, votes integer,
+                 percentage numeric(4,1), total_votes integer, my_option_id uuid)
+```
+
+- Máximo 20 ids por llamada (los demás se ignoran). Por **cada** encuesta aplica la misma autorización que `get_poll_results` (publicada, visible para quien llama, y cerrada o votada por quien llama) y devuelve sólo las autorizadas, **sin error** por las demás: una lista mezclada no filtra agregados de las no votadas. Las filas de una encuesta salen ordenadas por `position`.
+- `EXECUTE` también para `anon` (las cerradas son públicas). Hay que mantenerla sincronizada con `get_poll_results` si cambia la autorización.
+- Adaptador: `getFeedPage` hace, como máximo, una consulta de encuestas, una de votos propios y una de resultados por página (más la de autores).
 
 ## 4. Lecturas directas (RLS)
 
