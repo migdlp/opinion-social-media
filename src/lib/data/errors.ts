@@ -13,6 +13,12 @@ export const ERROR_MESSAGES: Record<AppErrorCode, string> = {
   OPTION_INVALID: "Esa opción no es válida para esta encuesta.",
   ALREADY_VOTED: "Ya has votado en esta encuesta.",
   NOT_VOTED: "Vota para ver los resultados.",
+  USERNAME_INVALID:
+    "Usa de 3 a 20 letras minúsculas, números o guiones bajos, y empieza por una letra.",
+  USERNAME_TAKEN: "Ese nombre ya está en uso.",
+  USERNAME_RESERVED: "Ese nombre no está disponible. Elige otro.",
+  DISPLAY_NAME_INVALID: "El nombre visible debe tener entre 1 y 50 caracteres.",
+  PROFILE_REQUIRED: "Elige tu @usuario para continuar.",
   NETWORK_ERROR: "No hay conexión. Comprueba tu red y vuelve a intentarlo.",
   UNKNOWN: "Algo ha fallado. Vuelve a intentarlo.",
 };
@@ -29,6 +35,11 @@ const RPC_CODES = new Set<string>([
   "OPTION_INVALID",
   "ALREADY_VOTED",
   "NOT_VOTED",
+  "USERNAME_INVALID",
+  "USERNAME_TAKEN",
+  "USERNAME_RESERVED",
+  "DISPLAY_NAME_INVALID",
+  "PROFILE_REQUIRED",
 ]);
 
 // 42501: sin permiso (anon). PGRST301/303: JWT inválido o caducado.

@@ -33,6 +33,11 @@ Modelo de datos: el del [brief §5](brief-producto.md#5-modelo-de-datos-obligato
 | `OPTION_INVALID` | `vote_poll` | La opción no existe o pertenece a otra encuesta | «Esa opción no es válida para esta encuesta.» |
 | `ALREADY_VOTED` | `vote_poll` | La cuenta ya tenía voto en la encuesta (incluida una carrera perdida) | No es un fallo: la interfaz pasa a «Ya has votado» y pide resultados |
 | `NOT_VOTED` | `get_poll_results` | La cuenta (incluido el autor) aún no ha votado | No se muestra: la interfaz enseña el selector de voto |
+| `USERNAME_INVALID` | `upsert_my_profile` | `@usuario` nulo o fuera de `^[a-z][a-z0-9_]{2,19}$` tras pasarlo a minúsculas (espacios incluidos) | «Usa de 3 a 20 letras minúsculas, números o guiones bajos, y empieza por una letra.» |
+| `USERNAME_RESERVED` | `upsert_my_profile` | `@usuario` en la lista de nombres reservados (rutas de la app) | «Ese nombre no está disponible. Elige otro.» |
+| `USERNAME_TAKEN` | `upsert_my_profile` | Otra cuenta ya usa ese `@usuario` sin distinguir mayúsculas (incluida una carrera perdida) | «Ese nombre ya está en uso.» |
+| `DISPLAY_NAME_INVALID` | `upsert_my_profile` | Nombre visible normalizado fuera de 1–50 (vacío incluido); nulo lo borra | «El nombre visible debe tener entre 1 y 50 caracteres.» |
+| `PROFILE_REQUIRED` | `set_profile_privacy` (y las de V2-002) | La cuenta aún no tiene perfil | «Elige tu @usuario para continuar.» |
 | `NETWORK_ERROR` | Adaptador (cliente) | `fetch` falla o no llega respuesta | «No hay conexión. Comprueba tu red y vuelve a intentarlo.» |
 | `UNKNOWN` | Adaptador (cliente) | Cualquier otro error | «Algo ha fallado. Vuelve a intentarlo.» |
 
@@ -41,10 +46,12 @@ Orden de comprobación dentro de cada RPC (determina qué código gana si hay va
 - `create_poll`: `AUTH_REQUIRED` → `VALIDATION_OPTION_COUNT` → `VALIDATION_QUESTION_LENGTH` → `VALIDATION_OPTION_LENGTH` → `VALIDATION_OPTION_DUPLICATE` → `RATE_LIMITED`.
 - `vote_poll`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `OPTION_INVALID` → `ALREADY_VOTED`.
 - `get_poll_results`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `NOT_VOTED`. Ningún agregado se calcula antes de superar las tres.
+- `upsert_my_profile`: `AUTH_REQUIRED` → `USERNAME_INVALID` → `USERNAME_RESERVED` → `DISPLAY_NAME_INVALID` → `USERNAME_TAKEN`.
+- `set_profile_privacy`: `AUTH_REQUIRED` → `PROFILE_REQUIRED`.
 
 ## 3. RPC
 
-Las tres funciones: `EXECUTE` sólo para `authenticated`, revocado a `PUBLIC` y `anon`. Si son `SECURITY DEFINER`, llevan `SET search_path = ''` y referencias cualificadas (`public.polls`). Detalle de endurecimiento en MVP-020.
+Todas las funciones: `EXECUTE` sólo para `authenticated`, revocado a `PUBLIC` y `anon`. Si son `SECURITY DEFINER`, llevan `SET search_path = ''` y referencias cualificadas (`public.polls`). Detalle de endurecimiento en MVP-020.
 
 ### 3.1. `create_poll`
 
@@ -95,6 +102,19 @@ public.get_poll_results(p_poll_id uuid)
 - La suma de porcentajes puede no ser exactamente 100,0 por el redondeo; se acepta.
 - **No contiene** `user_id`, identidades de votantes, fechas de voto ni otro dato por votante. Sólo agregados por opción, el total y la opción propia.
 - Sin caché compartida: se llama con la sesión del usuario y la página que la usa es dinámica (`no-store`).
+
+### 3.4. `upsert_my_profile` y `set_profile_privacy` (V2-001)
+
+```sql
+public.upsert_my_profile(p_username text, p_display_name text)
+  returns table (username text, display_name text, is_private boolean)
+
+public.set_profile_privacy(p_private boolean) returns boolean  -- STRICT: con nulo no hace nada
+```
+
+- `upsert_my_profile` crea el perfil de `auth.uid()` o lo actualiza (`@usuario` y nombre visible). Normaliza el `@usuario` a minúsculas y el nombre visible con la regla de §1; un nombre visible nulo lo borra.
+- `set_profile_privacy` cambia la privacidad del propio perfil y devuelve el nuevo valor. V2-004 añadirá aquí la aceptación de solicitudes pendientes al pasar a pública (S-6).
+- Lectura directa de `profiles` (RLS, también `anon`): sólo `username`, `display_name`, `is_private` y `created_at`. Nunca `user_id` ni `updated_at`; el email no está en la tabla.
 
 ## 4. Lecturas directas (RLS)
 
@@ -149,6 +169,11 @@ export type AppErrorCode =
   | 'OPTION_INVALID'
   | 'ALREADY_VOTED'
   | 'NOT_VOTED'
+  | 'USERNAME_INVALID'
+  | 'USERNAME_TAKEN'
+  | 'USERNAME_RESERVED'
+  | 'DISPLAY_NAME_INVALID'
+  | 'PROFILE_REQUIRED'
   | 'NETWORK_ERROR'
   | 'UNKNOWN'
 

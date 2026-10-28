@@ -58,6 +58,34 @@ export type Database = {
         };
         Relationships: [];
       };
+      profiles: {
+        Row: {
+          created_at: string;
+          display_name: string | null;
+          is_private: boolean;
+          updated_at: string;
+          user_id: string;
+          username: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          display_name?: string | null;
+          is_private?: boolean;
+          updated_at?: string;
+          user_id: string;
+          username: string;
+        };
+        Update: {
+          created_at?: string;
+          display_name?: string | null;
+          is_private?: boolean;
+          updated_at?: string;
+          user_id?: string;
+          username?: string;
+        };
+        Relationships: [];
+      };
       votes: {
         Row: {
           created_at: string;
@@ -114,6 +142,15 @@ export type Database = {
           text: string;
           total_votes: number;
           votes: number;
+        }[];
+      };
+      set_profile_privacy: { Args: { p_private: boolean }; Returns: boolean };
+      upsert_my_profile: {
+        Args: { p_display_name: string; p_username: string };
+        Returns: {
+          display_name: string;
+          is_private: boolean;
+          username: string;
         }[];
       };
       vote_poll: {

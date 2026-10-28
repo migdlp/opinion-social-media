@@ -9,11 +9,13 @@ Revisión del 27-10-2026 sobre el proyecto de **desarrollo** tras las migracione
 | `create_poll(text, text[])` | `SECURITY DEFINER` | `""` | `postgres` | `authenticated` (+ `postgres`, `service_role`) |
 | `vote_poll(uuid, uuid)` | `SECURITY DEFINER` | `""` | `postgres` | igual |
 | `get_poll_results(uuid)` | `SECURITY DEFINER` | `""` | `postgres` | igual |
+| `upsert_my_profile(text, text)` (V2-001) | `SECURITY DEFINER` | `""` | `postgres` | igual |
+| `set_profile_privacy(boolean)` (V2-001) | `SECURITY DEFINER` | `""` | `postgres` | igual |
 
 - **Por qué `SECURITY DEFINER`:** los clientes no tienen INSERT en ninguna tabla, así que validación, cuota y atomicidad no se pueden saltar. `get_poll_results` necesita contar votos ajenos, que la RLS oculta. Con `SECURITY INVOKER` habría que conceder escrituras o lecturas que abrirían rutas directas.
 - **Cómo se acota:** cada función toma el usuario de `auth.uid()`. Ningún argumento identifica al autor o al votante. Todas las referencias van cualificadas (`public.`, `auth.`) y el `search_path` está vacío, así que ningún objeto de otro esquema puede suplantarlas. `postgres` tiene `BYPASSRLS`; por eso cada función filtra de forma explícita (encuesta publicada, voto propio).
 - **Sin sesión:** `anon` y `PUBLIC` no tienen EXECUTE; REST anónimo → `42501 permission denied`. Un rol `authenticated` sin `sub` recibe `AUTH_REQUIRED`.
-- **Advisor de Supabase:** `authenticated_security_definer_function_executable` (WARN) en las tres. **Aceptado**: son exactamente la API autenticada prevista en el contrato. Cualquier otra función que aparezca en `public` hace fallar `008_privileges`.
+- **Advisor de Supabase:** `authenticated_security_definer_function_executable` (WARN) en todas (cinco desde V2-001). **Aceptado**: son exactamente la API autenticada prevista en el contrato. Cualquier otra función que aparezca en `public` hace fallar `008_privileges`.
 
 ## Tablas
 
@@ -22,6 +24,7 @@ Revisión del 27-10-2026 sobre el proyecto de **desarrollo** tras las migracione
 | `polls` | `SELECT (id, question, created_at)`; RLS: sólo `published` | igual |
 | `poll_options` | `SELECT`; RLS: sólo de encuestas publicadas | igual |
 | `votes` | nada | `SELECT`; RLS: sólo propios y de encuestas publicadas |
+| `profiles` (V2-001) | `SELECT (username, display_name, is_private, created_at)`; nunca `user_id` ni `updated_at` | igual |
 
 Ningún cliente tiene INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES ni TRIGGER. RLS no cubre TRUNCATE, por eso se revoca aparte.
 
@@ -33,6 +36,7 @@ Ningún cliente tiene INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES ni TRIGGER. R
 | Embedding `polls?select=id,votes(count)`, `poll_options(votes(...))` como anon | `42501` |
 | `Prefer: count=exact` sobre `votes` | anon `401`; authenticated sólo cuenta sus filas (≤ 1 por encuesta) |
 | `polls?select=user_id` / `select=*` | `42501` |
+| `profiles?select=user_id` / `select=*` como anon (dev, 28-10-2026) | `42501`; `rpc/upsert_my_profile` como anon → `42501` |
 | GraphQL (`pg_graphql`) | Extensión no instalada |
 | Realtime | Publicación `supabase_realtime` sin tablas |
 | Vistas o vistas materializadas en `public` | Ninguna |

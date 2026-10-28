@@ -1,6 +1,6 @@
 -- MVP-009: esquema de polls y poll_options. Cada bloque aborta si falla.
 
--- Columnas exactas del brief y sin tablas propias adicionales.
+-- Columnas exactas del brief y sólo las tablas previstas.
 do $$
 declare cols text;
 begin
@@ -13,9 +13,9 @@ begin
   from information_schema.columns where table_schema = 'public' and table_name = 'poll_options';
   assert cols = 'id:uuid,poll_id:uuid,text:text,position:smallint', 'columnas de poll_options: ' || cols;
 
+  -- D-015 (fase 2) permite tablas nuevas; cada una se añade aquí con su migración y sus tests.
   assert not exists (select 1 from information_schema.tables where table_schema = 'public'
-    and table_name not in ('polls', 'poll_options', 'votes')), 'hay tablas propias no previstas';
-  assert not exists (select 1 from information_schema.tables where table_name = 'profiles'), 'existe profiles';
+    and table_name not in ('polls', 'poll_options', 'votes', 'profiles')), 'hay tablas propias no previstas';
 end $$;
 
 -- FK: polls.user_id -> auth.users, poll_options.poll_id -> polls.
