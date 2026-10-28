@@ -35,7 +35,7 @@ Contra el Supabase de desarrollo, con la aplicación de `main`:
 
 | Entorno | Nombre | Referencia | Estado observado (28-10-2026) |
 |---|---|---|---|
-| Desarrollo | `opinion-social-media-dev` | `ltlrujmqenhktiilsnis` | 8 migraciones (última `20261027195157`); datos de prueba (`[fixture …]`); Auth: Google **y** Email activos |
+| Desarrollo | `opinion-social-media-dev` | `ltlrujmqenhktiilsnis` | 25 migraciones (última `20261028280000`, OPS-001 del 28-10-2026; ver [la integración](ops-001-integracion-dev.md)); datos de prueba (`[fixture …]`); Auth: Google **y** Email activos |
 | Producción | `opinion-social-media-prod` | `qchpdrolulcgmiliysvr` | No consultado en esta revisión; según el último registro, sin tablas. Se prepara en MVP-049 |
 
 Los datos de desarrollo se observaron con lecturas: 28 encuestas, 5 votos y 3 usuarios.
