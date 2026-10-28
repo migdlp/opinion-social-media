@@ -55,7 +55,7 @@ function resolveCloseDate(choice: string, custom: string): string | undefined | 
 }
 
 const fieldClass =
-  "w-full rounded-xl border border-field bg-surface px-3.5 py-2.5 text-[15px] transition-colors hover:border-foreground focus:border-foreground focus:outline-none aria-invalid:border-danger";
+  "w-full rounded-xl border border-field bg-surface px-3.5 py-2.5 text-[15px] transition-colors hover:border-foreground focus:border-foreground aria-invalid:border-danger aria-invalid:focus:border-danger";
 
 // Formulario de creación. Los campos sólo viven en memoria: no se guardan borradores
 // en el navegador ni en la base de datos (D-007). Publicar es responsabilidad de quien
@@ -327,7 +327,7 @@ export function PollCreationForm({
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-full bg-foreground px-6 py-2.5 font-semibold text-background transition-opacity hover:opacity-85 disabled:opacity-50"
+        className="self-start action-primary rounded-full px-6 py-2.5 font-semibold"
       >
         {pending ? "Publicando…" : "Publicar"}
       </button>

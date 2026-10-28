@@ -71,7 +71,7 @@ spacing:
 
 **Dirección vigente provisional, D-026 (28-10-2026).** El propietario pide seguir el estilo de la lámina PEEK que adjuntó. La [guía de referencia](docs/direccion-creativa.md) describe la imagen para agentes sin acceso a la conversación y delimita su alcance. Esta dirección sustituye las restricciones anteriores de blanco y negro y ausencia de color de marca.
 
-Este archivo especifica el diseño objetivo. Los tokens base están migrados a CSS mediante DESIGN-002, incluidos CTA compartidos, foco y barras. La adaptación completa de pantallas, imágenes sociales y su revisión final sigue en DESIGN-003–006; no confundir la base implementada con el cierre de toda la identidad. El nombre sigue siendo Opinión: PEEK es la referencia creativa, sin cambio de naming confirmado.
+Este archivo especifica el diseño objetivo. Los tokens base están migrados a CSS mediante DESIGN-002, incluidos CTA compartidos, foco y barras. Los recorridos principales (feed, voto, creación, acceso y onboarding) se adaptan en DESIGN-003; perfiles/solicitudes, imágenes sociales y revisión final siguen en DESIGN-004–006; no confundir la base implementada con el cierre de toda la identidad. El nombre sigue siendo Opinión: PEEK es la referencia creativa, sin cambio de naming confirmado.
 
 ## Concepto: votar abre una nueva perspectiva
 

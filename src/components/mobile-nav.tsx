@@ -35,7 +35,7 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
           key={label}
           href={href}
           aria-current={active ? "page" : undefined}
-          className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-lg text-[13px] ${active ? "font-semibold text-foreground" : "text-muted hover:text-foreground"}`}
+          className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-lg text-[13px] ${active ? "font-semibold text-foreground dark:text-accent" : "text-muted hover:text-foreground"}`}
         >
           <NavigationIcon name={icon} />
           <span>{label}</span>
