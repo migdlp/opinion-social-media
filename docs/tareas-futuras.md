@@ -95,6 +95,38 @@ La columna Orden es orientativa; las dependencias y las reservas de cada fila de
 | 52 | [MVP-052](https://github.com/migdlp/opinion-social-media/issues/46) | Mejorar transiciones visuales y skeletons no bloqueantes | P1 | MVP-040 | Completada: [PR #102](https://github.com/migdlp/opinion-social-media/pull/102), merge `87f65b1`; CI verde (Vercel omitido); sin RED observado y sin revisión con carga lenta real | claude-code (migdlp local, Sonnet 5.5, worktree MVP-052) |
 | 53 | [MVP-053](https://github.com/migdlp/opinion-social-media/issues/47) | Añadir metadatos sociales básicos a URLs públicas | P1 | MVP-035 | Completada: [PR #90](https://github.com/migdlp/opinion-social-media/pull/90), merge `4eabe79`; CI verde; 8 tests de metadatos, `npm run check` exit 0 y verificación en vivo contra Supabase dev (pública con pregunta sin cifras; inexistente o mal formada «No disponible» + noindex). Trabajo de claude-code (session_01Dsh4bnE3jAdfg5WXXBh59U); integración y merge tras traspaso | claude-code (session_01M3nCETGQVVZnUPhnAbfRHV) |
 
+## Fase 2 (backlog-v2)
+
+Tareas de [backlog-v2.md](backlog-v2.md), con el mismo protocolo de reserva. La épica del feed (E10) está en discusión y aún no tiene filas. Los issues se crearán cuando el propietario apruebe el backlog.
+
+| ID | Tarea | Prioridad | Dependencias | Estado | Agente |
+|---|---|---|---|---|---|
+| V2-001 | Crear tabla `profiles` y RPC de perfil | P0 | — | Pendiente | — |
+| V2-002 | Onboarding: elegir `@usuario` tras el primer login | P0 | V2-001 | Pendiente | — |
+| V2-003 | Firmar encuestas con `@usuario` | P0 | V2-001 | Pendiente | — |
+| V2-004 | Crear tabla `follows` con solicitudes | P0 | V2-001 | Pendiente | — |
+| V2-005 | Visibilidad de cuentas privadas en RLS y RPC | P0 | V2-001, V2-004 | Pendiente | — |
+| V2-006 | Página de perfil `/u/[username]` | P0 | V2-003, V2-005, V2-007 | Pendiente | — |
+| V2-007 | RPC de votos visibles en un perfil | P0 | V2-005 | Pendiente | — |
+| V2-008 | Ajustes de perfil y privacidad (`/settings`) | P0 | V2-002, V2-004 | Pendiente | — |
+| V2-009 | Seguidores, seguidos y solicitudes | P0 | V2-004, V2-006 | Pendiente | — |
+| V2-010 | Navegación con perfil: cabecera y barra inferior móvil | P1 | V2-002 | Pendiente | — |
+| V2-011 | Plantilla Sí/No en el formulario | P1 | — | Pendiente | — |
+| V2-012 | Permitir hasta 6 opciones | P0 | — | Pendiente | — |
+| V2-013 | Fecha de cierre opcional | P0 | — | Pendiente | — |
+| V2-014 | Resultados públicos al cerrarse | P0 | V2-013 | Pendiente | — |
+| V2-015 | Animar las barras al revelar resultados | P1 | — | Pendiente | — |
+| V2-016 | Mensaje «Coincides con el X %» tras votar | P1 | — | Pendiente | — |
+| V2-017 | Modo oscuro | P1 | — | Pendiente | — |
+| V2-018 | Compartir con la hoja nativa | P1 | — | Pendiente | — |
+| V2-019 | Imagen OG dinámica por encuesta | P1 | V2-005 | Pendiente | — |
+| V2-020 | Denunciar una encuesta | P0 | — | Pendiente | — |
+| V2-021 | Categorías fijas al crear y en la tarjeta | P1 | — | Pendiente | — |
+| V2-022 | Guardar para luego | P1 | V2-006 | Pendiente | — |
+| V2-023 | RPC de resultados por lotes para el feed | P1 | — | Pendiente | — |
+| V2-024 | Pruebas de fugas de privacidad y cierre | P0 | V2-005, V2-007, V2-014 | Pendiente | — |
+| V2-025 | E2E del ciclo social | P0 | V2-002, V2-006, V2-009 | Pendiente | — |
+
 ## Condición de cierre
 
 Cada tarea requiere evidencia de sus criterios de aceptación antes de pasar a completada. Crear documentos, escribir un borrador o disponer de acceso a un servicio no basta. MVP-051 permanece pendiente hasta verificar todas las condiciones obligatorias del checklist global del backlog.

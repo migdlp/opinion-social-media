@@ -15,6 +15,7 @@ Leer [AGENTS.md](../AGENTS.md), el [contexto de la aplicación](contexto-aplicac
 | [Contratos de datos y RPC](contratos-api.md) | Argumentos, respuestas, tipos y códigos de error (MVP-013) |
 | [Brief consolidado](brief-producto.md) | Contexto adicional del propietario y requisitos obligatorios |
 | [Backlog vigente v1.1](backlog.md) | 53 tareas revisadas, dependencias y aceptación |
+| [Backlog fase 2](backlog-v2.md) | Perfiles, seguidores, tipos de encuesta, diseño y contenido (D-015 a D-021) |
 | [Fuente histórica v1](fuentes/backlog-v1.md) | Documento original conservado sin modificaciones |
 | [Cobertura del brief](cobertura-brief.md) | Equivalencia T01–T27, casos límite y cambios de requisitos |
 | [GitHub Issues](github-issues.md) | Identificadores reales, épicas, tareas y enlaces |
