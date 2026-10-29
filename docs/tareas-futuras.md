@@ -187,7 +187,7 @@ Auditoría anónima de `release` `4e22089` construida en local contra Supabase d
 |---|---|---|---|---|---|
 | [DESIGN-009](https://github.com/migdlp/opinion-social-media/issues/229) | Ofrecer un camino para seguir explorando tras votar en el detalle | P1 | DESIGN-003, V2-016 (completadas); independiente de DESIGN-007/008 | Pendiente | — |
 | [DESIGN-010](https://github.com/migdlp/opinion-social-media/issues/230) | Ampliar los objetivos táctiles pequeños en móvil (@usuario de autoría, marca) | P1 | DESIGN-003 (completada); coordinar con DESIGN-008 | Pendiente | — |
-| [DESIGN-011](https://github.com/migdlp/opinion-social-media/issues/231) | Dar un título propio a cada página | P1 | — | Pendiente | — |
+| [DESIGN-011](https://github.com/migdlp/opinion-social-media/issues/231) | Dar un título propio a cada página | P1 | — | En progreso | claude-code (session_01Dsh4bnE3jAdfg5WXXBh59U) |
 
 ## Condición de cierre
 
