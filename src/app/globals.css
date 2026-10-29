@@ -90,6 +90,20 @@ body {
   opacity: 1;
 }
 
+/* Una sola fila: el documento no se ensancha aunque haya ocho categorías. */
+.category-rail {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-padding-inline: 4px;
+  scrollbar-width: thin;
+  padding: 4px 2px 10px;
+}
+
 /* Base compartida de color para CTA. Cada componente conserva su tamaño y etiqueta. */
 @utility action-primary {
   background-color: var(--accent);
