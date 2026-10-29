@@ -228,7 +228,7 @@ Detalle, criterios y orden: [backlog de cuenta y legales](backlog-cuenta-legales
 
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|
-| [AUTH-001](https://github.com/migdlp/opinion-social-media/issues/258) | Verificar duración y atributos de cookies de sesión/PKCE; coordinar clasificación legal | P1 | LEGAL-001; coordinar LEGAL-004 | Pendiente | — |
+| [AUTH-001](https://github.com/migdlp/opinion-social-media/issues/258) | Verificar duración y atributos de cookies de sesión/PKCE; coordinar clasificación legal | P1 | LEGAL-001; coordinar LEGAL-004 | En progreso | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
 
 ## Condición de cierre
 
