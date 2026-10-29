@@ -19,7 +19,7 @@ function Bookmark({ filled }: { filled: boolean }) {
       height="20"
       fill={filled ? "currentColor" : "none"}
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth="1.8"
       strokeLinejoin="round"
     >
       <path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z" />

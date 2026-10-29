@@ -11,17 +11,17 @@ type PollOptionProps = {
 
 // Una opción de respuesta: radio nativo con su etiqueta, para que teclado y
 // tecnología asistiva reciban el estado (seleccionada / deshabilitada) sin ARIA extra.
-// La selección conserva un foco azul noche sobre melocotón, también en tema oscuro.
+// El foco contrasta con la superficie seleccionada en cada tema.
 export function PollOption({ name, option, checked, onSelect }: PollOptionProps) {
   return (
-    <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-surface px-4 py-3 text-[15px] transition-colors hover:border-foreground has-checked:border-accent-foreground has-checked:bg-accent has-checked:font-semibold has-checked:text-accent-foreground has-disabled:cursor-not-allowed has-disabled:hover:border-border">
+    <label className="poll-choice flex cursor-pointer items-center gap-3 px-3.5 py-3 text-[15px] has-checked:font-semibold">
       <input
         type="radio"
         name={name}
         value={option.id}
         checked={checked}
         onChange={() => onSelect(option.id)}
-        className="size-4 shrink-0 appearance-none rounded-full border-2 border-current checked:bg-accent-foreground checked:shadow-[inset_0_0_0_3px_var(--accent)] checked:[--focus:var(--accent-foreground)]"
+        className="poll-radio shrink-0"
       />
       <span>{option.text}</span>
     </label>

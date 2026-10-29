@@ -9,13 +9,13 @@ type EmptyStateProps = {
 // Estado vacío: explica qué pasa y ofrece un siguiente paso útil.
 export function EmptyState({ title, description, action }: EmptyStateProps) {
   return (
-    <section className="flex flex-col items-start gap-3 rounded-2xl border border-border bg-surface px-5 py-8">
+    <section className="flex flex-col items-start gap-3 poll-surface px-5 py-8">
       <h2 className="text-[17px] font-semibold tracking-[-0.01em]">{title}</h2>
       <p className="text-muted">{description}</p>
       {action && (
         <Link
           href={action.href}
-          className="action-primary rounded-full px-4 py-2 text-sm font-semibold"
+          className="inline-flex min-h-11 items-center action-primary rounded-xl px-4 py-2 text-sm font-semibold"
         >
           {action.label}
         </Link>

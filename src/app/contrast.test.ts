@@ -37,15 +37,19 @@ const PAIRS: [string, string, number][] = [
   ["danger", "surface", TEXT],
   ["field", "surface", GRAPHIC],
   ["field", "background", GRAPHIC],
-  ["bar-muted", "track", GRAPHIC],
-  ["bar-muted", "surface", GRAPHIC],
+  ["bar-outline", "track", GRAPHIC],
+  ["bar-outline", "surface", GRAPHIC],
   ["foreground", "track", GRAPHIC],
   ["accent-foreground", "accent", TEXT],
   ["accent-foreground", "accent-hover", TEXT],
   ["focus", "surface", GRAPHIC],
   ["focus", "background", GRAPHIC],
-  ["bar-own", "track", GRAPHIC],
-  ["bar-own", "surface", GRAPHIC],
+  ["foreground", "option-selected", TEXT],
+  ["focus", "option-selected", GRAPHIC],
+  ["foreground", "result-own", TEXT],
+  ["foreground", "option-surface", TEXT],
+  ["muted", "disabled-bg", TEXT],
+  ["option-selected-border", "option-selected", GRAPHIC],
 ];
 
 describe.each([
@@ -69,6 +73,12 @@ describe.each([
       "accent-soft",
       "focus",
       "bar-own",
+      "bar-outline",
+      "option-selected",
+      "option-selected-border",
+      "option-surface",
+      "result-own",
+      "disabled-bg",
     ])
       expect(theme[name], name).toMatch(/^#[0-9a-f]{6}$/i);
   });

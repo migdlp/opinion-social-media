@@ -57,7 +57,7 @@ export function PollVoting({
 
   if (results) {
     return (
-      <div aria-live="polite">
+      <div aria-live="polite" className={justVoted ? "reveal-results" : undefined}>
         <PollResults
           results={results}
           animate={justVoted}
@@ -142,10 +142,35 @@ export function PollVoting({
       <button
         type="submit"
         disabled={!selected || pending}
-        className="min-h-11 action-primary rounded-full px-5 text-sm font-semibold"
+        aria-label="Votar y descubrir"
+        aria-busy={pending}
+        className="min-h-12 action-primary rounded-xl px-5 text-[15px] font-semibold"
       >
-        Votar
+        {pending ? "Enviando voto…" : "Votar y descubrir"}
       </button>
+      <p className="flex items-start justify-center gap-1.5 text-center text-[12px] leading-relaxed text-muted">
+        <svg
+          aria-hidden="true"
+          className="mt-0.5 shrink-0"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <rect x="5" y="10" width="14" height="11" rx="2" />
+          <path d="M8 10V6a4 4 0 0 1 8 0v4" />
+        </svg>
+        <span>El voto es definitivo. Los resultados se revelan después de votar.</span>
+      </p>
+      {pending && (
+        <span role="status" className="sr-only">
+          Enviando voto…
+        </span>
+      )}
       {needsLogin && (
         <p className="rounded-xl border border-border bg-surface p-3 text-sm">
           Inicia sesión para votar; volverás a esta encuesta.{" "}

@@ -38,6 +38,10 @@ Los resultados sólo se descubren después de votar, y esa regla la impone el ba
 - Stack fijado: Next.js App Router, React, TypeScript, Tailwind CSS, Supabase y Vercel (`docs/arquitectura.md`, D-014).
 - Fuente del detalle: `docs/brief-producto.md`, `docs/contexto-aplicacion.md`, `docs/contratos-api.md`.
 
+## Rediseño del 29-10-2026
+
+La [especificación After Sunset claro](docs/redisenio-aftersunset-claro.md) concreta la interfaz sin cambiar las reglas V2. Mantener Siguiendo y perfiles reales, 2–6 opciones y resultados públicos autorizados al cerrar. No añadir funciones sociales dibujadas en el prototipo ni usar sus cifras ficticias en la aplicación. Nombre provisional Opinión, sin adoptar PEEK.
+
 ## Brand Commitments
 
 - Nombre: **Opinión**, confirmado para el MVP.

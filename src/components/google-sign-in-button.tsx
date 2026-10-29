@@ -35,7 +35,7 @@ export function GoogleSignInButton({ next }: { next: string }) {
         type="button"
         onClick={signIn}
         disabled={pending}
-        className="min-h-11 action-primary rounded-full px-5 text-sm font-semibold"
+        className="min-h-11 action-primary rounded-xl px-5 text-sm font-semibold"
       >
         Continuar con Google
       </button>

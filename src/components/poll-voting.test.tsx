@@ -31,7 +31,7 @@ let loadOwnVote: ReturnType<typeof vi.fn<(pollId: string) => Promise<Result<Poll
 const view = (viewer: PollViewerState) =>
   render(<PollVoting poll={POLL} viewer={viewer} castVote={castVote} loadOwnVote={loadOwnVote} />);
 const pick = (name: string) => userEvent.click(screen.getByRole("radio", { name }));
-const vote = () => userEvent.click(screen.getByRole("button", { name: "Votar" }));
+const vote = () => userEvent.click(screen.getByRole("button", { name: "Votar y descubrir" }));
 
 beforeEach(() => {
   castVote = vi.fn(async () => ({ ok: true, data: RESULTS }));
@@ -44,10 +44,10 @@ describe("PollVoting", () => {
     const { container } = view({ kind: "not_voted" });
 
     expect(screen.getAllByRole("radio")).toHaveLength(2);
-    expect((screen.getByRole("button", { name: "Votar" }) as HTMLButtonElement).disabled).toBe(
-      true,
-    );
-    expect(container.textContent).not.toMatch(/\d\s*%|\bvotos?\b/i);
+    expect(
+      (screen.getByRole("button", { name: "Votar y descubrir" }) as HTMLButtonElement).disabled,
+    ).toBe(true);
+    expect(container.textContent).not.toMatch(/\d\s*%|\b\d[\d.,]*\s+votos?\b|en total/i);
   });
 
   it("al confirmar envía sólo esa opción y pasa a mostrar los resultados", async () => {
@@ -60,7 +60,7 @@ describe("PollVoting", () => {
     expect(castVote).toHaveBeenCalledWith(POLL.id, "a");
     expect(await screen.findByText("Tu voto")).toBeDefined();
     expect(screen.getByText("75,0 %")).toBeDefined();
-    expect(screen.queryByRole("button", { name: "Votar" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Votar y descubrir" })).toBeNull();
     expect(screen.queryAllByRole("radio")).toHaveLength(0);
   });
 
@@ -70,7 +70,7 @@ describe("PollVoting", () => {
     view({ kind: "not_voted" });
     await pick("Con cebolla");
 
-    const button = screen.getByRole("button", { name: "Votar" });
+    const button = screen.getByRole("button", { name: "Votar y descubrir" });
     await userEvent.dblClick(button);
 
     expect(castVote).toHaveBeenCalledOnce();
@@ -110,9 +110,9 @@ describe("PollVoting", () => {
       true,
     );
     expect(castVote).not.toHaveBeenCalled();
-    expect((screen.getByRole("button", { name: "Votar" }) as HTMLButtonElement).disabled).toBe(
-      false,
-    );
+    expect(
+      (screen.getByRole("button", { name: "Votar y descubrir" }) as HTMLButtonElement).disabled,
+    ).toBe(false);
   });
 
   it("initialSelected con una opción que no existe se ignora", () => {
@@ -177,9 +177,9 @@ describe("PollVoting", () => {
       true,
     );
     await waitFor(() =>
-      expect((screen.getByRole("button", { name: "Votar" }) as HTMLButtonElement).disabled).toBe(
-        false,
-      ),
+      expect(
+        (screen.getByRole("button", { name: "Votar y descubrir" }) as HTMLButtonElement).disabled,
+      ).toBe(false),
     );
 
     await vote();
@@ -233,7 +233,7 @@ describe("PollVoting", () => {
 
     expect(screen.getByText("75,0 %")).toBeDefined();
     expect(screen.queryAllByRole("radio")).toHaveLength(0);
-    expect(screen.queryByRole("button", { name: "Votar" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Votar y descubrir" })).toBeNull();
     expect(screen.queryByText("Tu voto")).toBeNull();
     expect(screen.queryByText(/Coincides|primero en votar/)).toBeNull();
   });
@@ -242,7 +242,7 @@ describe("PollVoting", () => {
     view({ kind: "voted", results: RESULTS });
 
     expect(screen.getByText("Tu voto")).toBeDefined();
-    expect(screen.queryByRole("button", { name: "Votar" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Votar y descubrir" })).toBeNull();
     expect(screen.queryAllByRole("radio")).toHaveLength(0);
     expect(castVote).not.toHaveBeenCalled();
   });

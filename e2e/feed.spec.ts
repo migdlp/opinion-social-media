@@ -228,7 +228,7 @@ test("voto desde la tarjeta con teclado y movimiento reducido: persiste al recar
   await page.keyboard.press("Space");
   await expect(card.getByRole("radio", { name: "Azul" })).toBeChecked();
   expect(await votesOf(pollId)).toHaveLength(0);
-  await card.getByRole("button", { name: "Votar" }).focus();
+  await card.getByRole("button", { name: "Votar y descubrir" }).focus();
   await page.keyboard.press("Enter");
 
   await expect(card.getByText("Tu voto")).toBeVisible();

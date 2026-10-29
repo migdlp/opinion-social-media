@@ -23,6 +23,17 @@ const item = (text: string) =>
 const bar = (li: HTMLElement) => li.querySelector<HTMLElement>("[data-bar]")!;
 
 describe("PollResults", () => {
+  it("explica que el voto ya está registrado sin ofrecer modificarlo", () => {
+    render(<PollResults results={RESULTS} />);
+    expect(screen.getByText("Ya has votado")).toBeDefined();
+    expect(screen.queryByRole("button", { name: /votar/i })).toBeNull();
+  });
+
+  it("los resultados públicos de una cerrada no atribuyen un voto al visitante", () => {
+    render(<PollResults results={{ ...RESULTS, myOptionId: null }} />);
+    expect(screen.getByText("Encuesta cerrada")).toBeDefined();
+    expect(screen.queryByText("Ya has votado")).toBeNull();
+  });
   it("muestra todas las opciones con barra, recuento y porcentaje, y el total", () => {
     render(<PollResults results={RESULTS} />);
 
@@ -88,11 +99,11 @@ describe("PollResults con miles de votos", () => {
       expect(container.querySelector(".reveal-figure")).toBeNull();
     });
 
-    it("con animate las barras crecen escalonadas por opción", () => {
+    it("con animate las barras empiezan juntas sin retrasar las últimas opciones", () => {
       const { container } = render(<PollResults results={RESULTS} animate />);
 
       expect(bars(container).every((b) => b.classList.contains("reveal-bar"))).toBe(true);
-      expect(bars(container).map((b) => b.style.animationDelay)).toEqual(["0ms", "80ms", "160ms"]);
+      expect(bars(container).map((b) => b.style.animationDelay)).toEqual(["", "", ""]);
     });
 
     it("las cifras están en el DOM desde el principio, también animando", () => {
