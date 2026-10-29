@@ -63,3 +63,25 @@ Se aplica al trabajo de interfaz (E03 y la revisión de UX). No sustituye el bri
 ### Relación con las reglas del proyecto
 
 Es una ayuda opcional de navegación. No sustituye leer los documentos obligatorios de `AGENTS.md`, ni el protocolo de reserva, ni TDD; las instrucciones del propietario, `AGENTS.md` y karpathy-guidelines prevalecen. Actualizarla consiste en fijar una nueva versión y regenerar ambas carpetas con el instalador de esa versión, no en actualizaciones automáticas.
+
+## project-planner
+
+- **Solicitud:** el propietario pidió incorporar al proyecto la skill de planificación (30-10-2026; «Mete la skill de planificación en el proyecto»).
+- **Qué es:** planifica proyectos, features, epics o tareas hasta un nivel que un agente ejecutor pueda implementar sin decisiones pendientes: entrevista por rondas, barrido de puntos ciegos, arquitectura y ADRs, desglose en epics y tareas con dependencias y criterios de aceptación, y validación con `scripts/validate_plan.py`. Escribe los planes en `docs/plan/<slug>/`.
+- **Origen:** skill sincronizada desde la cuenta de Claude del propietario (`anthropic-skills:project-planner`). No se ha localizado un repositorio público de origen, por lo que no hay URL de revisión fijada; el registro de la copia es la huella de abajo.
+- **Licencia:** no declarada en la skill sincronizada; no se añade ningún texto de licencia inventado.
+- **Archivos locales**, copiados sin modificar en ambas carpetas:
+  - [.agents/skills/project-planner/SKILL.md](../.agents/skills/project-planner/SKILL.md), para Codex y agentes que leen `.agents/skills`;
+  - [.claude/skills/project-planner/SKILL.md](../.claude/skills/project-planner/SKILL.md), para Claude Code.
+  - Referencias en `references/` (banco de preguntas, puntos ciegos, arquitectura, plantillas de plan y de tarea) y el validador `scripts/validate_plan.py`.
+- **Huella de cada carpeta** (`find . -type f | sort | xargs sha256sum | sha256sum`, ejecutado dentro de la carpeta `project-planner`): `1365c111033ff1ce3e052ea0ca6f4d772d5f2d4dc67ae778f01a452d3b180afe`, igual en `.agents` y en `.claude`.
+
+### Revisión de seguridad
+
+- `SKILL.md` y `references/*.md` son texto.
+- `scripts/validate_plan.py` usa sólo la biblioteca estándar de Python (`re`, `sys`, `pathlib`). Lee ficheros Markdown de la carpeta del plan e imprime resultados; no abre conexiones de red, no ejecuta comandos ni escribe en el repositorio. Se comprobó con `python3 -I` sobre una carpeta vacía: sale con código 1 y el mensaje de «no se encontraron tareas», comportamiento esperado.
+- No requiere instalar paquetes ni hooks.
+
+### Relación con las reglas del proyecto
+
+Es una ayuda para preparar planes. No modifica el backlog, `docs/tareas-futuras.md` ni el protocolo de reserva de `AGENTS.md`: cualquier plan que genere debe integrarse en esas fuentes siguiendo ese protocolo. Las instrucciones del propietario, `AGENTS.md` y karpathy-guidelines prevalecen. Actualizarla implica sustituir ambas copias por una versión revisada y registrar su nueva huella aquí.
