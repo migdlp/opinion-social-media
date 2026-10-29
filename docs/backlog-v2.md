@@ -31,6 +31,8 @@
 | Regla crítica | Sigue vigente para toda encuesta **abierta**: nadie, ni el autor, obtiene agregados antes de votar. La única excepción es la encuesta cerrada (D-020). Siempre se impone en Supabase. |
 | Contenido | Denuncias, categorías fijas y «Guardar para luego» (D-021). |
 
+Las peticiones del **29-10-2026**, D-028 a D-031, amplían este backlog con [cuenta, apariencia y requisitos legales](backlog-cuenta-legales.md): tema manual, iconos/foto y privacidad independiente del historial. Son tareas nuevas pendientes; la tabla anterior describe el contrato previo hasta su implementación. V2-008 conserva su reserva.
+
 ### Supuestos tomados por el planificador (corregibles por el propietario)
 
 - **S-1 `@usuario`:** obligatorio. Se elige tras el primer login y hace falta tenerlo para crear, votar o seguir; explorar no lo requiere. Formato: 3–20 caracteres `[a-z0-9_]`, empieza por letra, único sin distinguir mayúsculas, con lista de nombres reservados. Se puede cambiar; los enlaces antiguos dejan de funcionar.

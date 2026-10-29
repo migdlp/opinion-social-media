@@ -68,3 +68,7 @@ Perfiles públicos, usernames, seguidores, comentarios, likes, mensajes, notific
 ## Información adicional
 
 El [brief adicional](brief-producto.md) está incorporado al [backlog revisado](backlog.md). La [matriz de cobertura](cobertura-brief.md) documenta las 27 agrupaciones originales y los 16 casos límite. Su objetivo es validar la interacción central, sin ampliar el producto a una red social completa. Las referencias a la pausa conservan el contexto histórico; prevalecen las instrucciones posteriores del propietario, las dependencias y las reservas vigentes en `main`.
+
+## Peticiones de cuenta y legales del 29-10-2026 (pendientes)
+
+El propietario pide selector de tema claro/oscuro, avatar mediante iconos o foto propia, una sección de ajustes ampliada, control sobre si sus amigos ven las encuestas que vota, cierre del menú al pulsar fuera y bases legales. El [backlog ejecutable](backlog-cuenta-legales.md) contiene 12 tickets nuevos, prioridades, dependencias y criterios; `tareas-futuras.md` refleja su estado. Amigos sigue significando seguidores aceptados. La preferencia de actividad será independiente de Cuenta privada y nunca sustituye la autorización del backend. V2-008 ya existe y mantiene su responsable. Esta petición registra trabajo futuro, no acredita implementación ni autoriza un despliegue nuevo.
