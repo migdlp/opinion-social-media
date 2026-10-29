@@ -1,3 +1,4 @@
+import { THEME_BOOTSTRAP } from "@/lib/theme";
 import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import { Header } from "@/components/header";
@@ -12,7 +13,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="es" className={`${GeistSans.variable} h-full antialiased`}>
+    <html suppressHydrationWarning lang="es" className={`${GeistSans.variable} h-full antialiased`}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP }} />
+      </head>
       <body className="flex min-h-full flex-col pb-[calc(5rem+env(safe-area-inset-bottom))] sm:pb-0">
         <a
           href="#contenido"
