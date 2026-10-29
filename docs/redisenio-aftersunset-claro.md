@@ -44,4 +44,8 @@ La revisión completa detectó regiones `status` vacías repetidas al compartir 
 
 La integración y las capturas se verifican contra Supabase local efímero en CI. El entorno de trabajo no puede descargar su imagen PostgreSQL por falta de espacio bajo el controlador Docker existente; no se reinicia ni escribe en los proyectos compartidos para resolverlo. Las capturas cubren 320, 375, 390, 430, 768 y 1280 px, ambos temas, antes de votar, selección sin enviar y resultados confirmados. Las pruebas existentes cubren textos máximos, seis opciones, menús, recuperación de red, voto duplicado, cronología y fugas HTTP/RLS.
 
+Las opciones usan borde decorativo suave: el radio y el foco conservan el contraste de control, sin dar a todos los contornos el mismo peso.
+
+Revisión adicional de movimiento reducido: RED observado en Chromium al mantener pulsada una opción (matriz de escala 0,985); la regla de reducción ahora elimina también esa transformación (GREEN en Chromium: `none`) y el E2E la comprueba.
+
 Este cambio no despliega Vercel: producción sigue la versión de `release` hasta publicación autorizada. El cierre de DESIGN-012 exige CI verde y revisión de las capturas reales; los enlaces finales y los resultados quedan en el issue/PR y en el registro de tareas.

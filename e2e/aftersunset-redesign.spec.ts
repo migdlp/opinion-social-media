@@ -51,6 +51,13 @@ test("After Sunset: explorar, elegir y descubrir en seis anchos y ambos temas", 
       });
       const choice = card.getByRole("radio", { name: "Sí, siempre", exact: true });
       expect((await choice.locator("..").boundingBox())!.height).toBeGreaterThanOrEqual(44);
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      const area = (await choice.locator("..").boundingBox())!;
+      await page.mouse.move(area.x + area.width / 2, area.y + area.height / 2);
+      await page.mouse.down();
+      await expect(choice.locator("..")).toHaveCSS("transform", "none");
+      await page.mouse.up();
+      await page.emulateMedia({ reducedMotion: "no-preference" });
       await choice.check();
       await expect(card.locator("[data-bar]")).toHaveCount(0);
       expect((await votesOf(id)).length).toBe(total);
