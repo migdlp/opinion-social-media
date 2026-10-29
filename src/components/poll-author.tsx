@@ -10,7 +10,7 @@ export function PollAuthor({ author }: { author?: PollAuthorData | null }) {
     <span>
       <Link
         href={`/u/${author.username}`}
-        className="relative z-10 font-medium text-foreground hover:underline"
+        className="relative z-10 py-1.5 font-medium text-foreground hover:underline"
       >
         @{author.username}
       </Link>
