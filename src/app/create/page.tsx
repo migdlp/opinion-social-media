@@ -1,6 +1,10 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { LoadingState } from "@/components/loading-state";
 import { CreateForm } from "./create-form";
+import { pageTitle } from "@/lib/page-titles";
+
+export const metadata: Metadata = { title: pageTitle("Crear encuesta") };
 
 export default function CreatePollPage() {
   return (
