@@ -176,8 +176,8 @@ Tareas de [backlog adicional](backlog-adicional.md), añadidas por la [auditorí
 
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|
-| [DESIGN-007](https://github.com/migdlp/opinion-social-media/issues/227) | Corregir capas, contraste y legibilidad del menú Denunciar sobre resultados | P0 | DESIGN-003, V2-020 (completadas) | Pendiente | — |
-| [DESIGN-008](https://github.com/migdlp/opinion-social-media/issues/228) | Reorganizar categorías y jerarquía de controles del feed móvil | P1 | DESIGN-003, V2-032 (completadas); independiente de DESIGN-007 | Pendiente | — |
+| [DESIGN-007](https://github.com/migdlp/opinion-social-media/issues/227) | Corregir capas, contraste y legibilidad del menú Denunciar sobre resultados | P0 | DESIGN-003, V2-020 (completadas) | En progreso | Codex /root (opinion_social_media) |
+| [DESIGN-008](https://github.com/migdlp/opinion-social-media/issues/228) | Categorías en una fila horizontal y jerarquía del feed (nuevo encargo claro) | P0 | DESIGN-003, V2-032 (completadas); independiente de DESIGN-007 | Pendiente | — |
 
 ## Auditoría de la web en local — 29-10-2026
 
@@ -188,6 +188,12 @@ Auditoría anónima de `release` `4e22089` construida en local contra Supabase d
 | [DESIGN-009](https://github.com/migdlp/opinion-social-media/issues/229) | Ofrecer un camino para seguir explorando tras votar en el detalle | P1 | DESIGN-003, V2-016 (completadas); independiente de DESIGN-007/008 | Completada: [PR #234](https://github.com/migdlp/opinion-social-media/pull/234), merge `b7d9c7f`; enlace «Ver más encuestas» (44 px) en el detalle antes y después de votar y en cerradas, sin depender de los resultados; 648 pruebas unitarias, `npm run check` y E2E de escritorio y móvil verdes | claude-code (session_01Dsh4bnE3jAdfg5WXXBh59U) |
 | [DESIGN-010](https://github.com/migdlp/opinion-social-media/issues/230) | Ampliar los objetivos táctiles pequeños en móvil (@usuario de autoría, marca) | P1 | DESIGN-003 (completada); coordinar con DESIGN-008 | En progreso | claude-code (session_01Dsh4bnE3jAdfg5WXXBh59U) |
 | [DESIGN-011](https://github.com/migdlp/opinion-social-media/issues/231) | Dar un título propio a cada página | P1 | — | Completada: [PR #233](https://github.com/migdlp/opinion-social-media/pull/233), merge `386f700`; título propio en login, crear, onboarding, solicitudes, perfil y listas (`@usuario` sin consultar datos) y 404; `/polls/[id]` sin cambios; 643 pruebas unitarias, `npm run check` y E2E de escritorio y móvil verdes | claude-code (session_01Dsh4bnE3jAdfg5WXXBh59U) |
+
+## Rediseño After Sunset claro — nuevo encargo 29-10-2026
+
+| ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
+|---|---|---|---|---|---|
+| [DESIGN-012](https://github.com/migdlp/opinion-social-media/issues/235) | Implementar tarjetas/resultados/estados, movimiento P1 y refinado/entrega P2 | P0 | DESIGN-002/003 completadas; coordinar DESIGN-007/008/010 y reserva ajena DESIGN-009 | Pendiente | — |
 
 ## Condición de cierre
 
