@@ -241,3 +241,9 @@ Cada tarea requiere evidencia de sus criterios de aceptación antes de pasar a c
 | [PERF-001](https://github.com/migdlp/opinion-social-media/issues/262) | Diagnosticar y reducir el lag al navegar y cambiar de pestaña, con mediciones antes/después | P0 | Diagnóstico independiente; coordinar DESIGN-013 y V2-008 | Pendiente | — |
 
 Petición del propietario del 29-10-2026. Medir navegador/Next/Vercel/Supabase antes de atribuir la causa; incluir estado activo tardío de la barra móvil y avisos de prerender. Criterios, muestras, seguridad y TDD en el issue. Prioridad operativa tras cerrar la tarea actualmente reservada; no esperar a personalización de avatares.
+
+## Publicación de tema y cuenta
+
+| ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
+|---|---|---|---|---|---|
+| [REL-002](https://github.com/migdlp/opinion-social-media/issues/265) | Publicar selector Claro/Oscuro/Sistema y cierre del menú de cuenta; conservar el esquema productivo actual | P0 | BUG-004 #246 y DESIGN-013 #245 completadas; orden explícita del propietario (29-10-2026) | En progreso | Codex /root (opinion_social_media) |
