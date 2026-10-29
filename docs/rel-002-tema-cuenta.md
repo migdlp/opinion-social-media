@@ -5,6 +5,7 @@ Autorización del propietario (29-10-2026): «vete desplegando lo que tienes en 
 ## Versión preparada
 
 - BUG-004, PR #260: cierre del menú al pulsar fuera, salir con Tab, Escape, navegar o cerrar sesión; conserva las acciones.
+- V2-008, PR #263 (badff9d): base de Ajustes ya completada por su agente e incluida antes de fijar el candidato; sin migraciones nuevas. SETTINGS-001 amplía esa base por separado.
 - DESIGN-013, PR #261: Claro / Oscuro / Sistema en cabecera para visitantes y cuentas, persistencia local y fallback si se bloquea almacenamiento. `ThemeSelector` se reutilizará en SETTINGS-001.
 - DOC-010 y LEGAL-001: backlog ejecutable e inventario legal. No se publican políticas con datos de responsable inventados.
 - PRIV-001 está integrado en código/SQL versionado, pero **no activo en hosted**. No se anuncia la nueva privacidad como función productiva.
@@ -24,8 +25,8 @@ Primera CI de tema: 117/120 E2E; corrigió un área nativa de 42 px a 44 px. El 
 
 ## Relevo para otras IAs
 
-1. **PERF-001 #262, P0:** medir lag y corregir causas. Pistas, sin causalidad demostrada: funciones Vercel declaradas en iad1 y Supabase en Irlanda; avisos Date.now/prerender y barra móvil que se actualiza tarde. Medir antes/después, sin caché pública de datos privados.
-2. **V2-008 #129:** conserva a su agente y PR #263; comprobar su estado en main, sin tomar su reserva. Después SETTINGS-001/PRIV-002 y acabado visual DESIGN-004. Integrar el selector existente y la preferencia de audiencia; coordinar la migración 26 y su validación.
+1. **PERF-001 #262, P0:** ya reservada por otra IA en main 704ec15; respetar su trabajo, medir lag y corregir causas. Pistas, sin causalidad demostrada: funciones Vercel declaradas en iad1 y Supabase en Irlanda; avisos Date.now/prerender y barra móvil que se actualiza tarde. Medir antes/después, sin caché pública de datos privados.
+2. **V2-008 #129 completada:** PR #263 integrada. SETTINGS-001 #248 está reservada a su agente; PRIV-002 y acabado visual DESIGN-004 siguen sus dependencias. Integrar el selector existente y la preferencia de audiencia; coordinar la migración 26 y su validación.
 3. **AUTH-001 #258:** reserva de otra IA, conservarla. Cookies/lifetime/atributos investigados en el inventario legal; no asumir resuelto hasta su PR y pruebas.
 4. **LEGAL-002/003/004:** responsable público, país, contacto, retención, canal de derechos y revisión pendientes. Inventario en docs/legal/; no inventarlos ni publicar textos ficticios.
 5. **AVATAR-001/002/003:** iconos primero, después Storage seguro y subida; dependencias en el backlog.
@@ -33,3 +34,5 @@ Primera CI de tema: 117/120 E2E; corrigió un área nativa de 42 px a 44 px. El 
 MVP-049/050/051 conservan bloqueos de aceptación general, pero la reserva de Codex fue liberada en `8ed54b8` por orden del propietario. Sus issues están sincronizados. No declarar el MVP global terminado por esta publicación. Consultar main antes de reservar; conservar autores históricos de tareas completadas no implica que sigan reservadas.
 
 Al terminar REL-002, publicar versión/estado HTTP/observabilidad y límites en #265, cerrar la tarea o liberarla con bloqueo concreto. No dejar reservas abiertas de esta sesión ni atribuirse PERF-001.
+
+El candidato se fija incluyendo main `704ec15` y este documento, tras integrar la base de Ajustes ya verificada. La PR de publicación usa ese snapshot de main para no incorporar después código de AUTH-001, PERF-001 o SETTINGS-001 aún en desarrollo. Registrar su SHA completo y CI antes de fusionar a release.

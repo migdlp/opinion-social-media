@@ -6,9 +6,9 @@
 
 Producción ya funciona en https://opinion-social-media.vercel.app (release 69f8a10 al comenzar esta revisión), con 25 migraciones; los mensajes antiguos de «producción sin tablas» o «publicación pendiente» no describen el estado actual. El propietario confirmó creación y acceso al perfil después de la reparación.
 
-BUG-004 y DESIGN-013 están integradas y verificadas: menú que cierra fuera y selector Claro/Oscuro/Sistema. REL-002 #265 prepara su publicación autorizada; **no asumirla desplegada hasta la evidencia del issue**. Backend PRIV-001 e inventario LEGAL-001 completados, sin migración 26 alojada ni textos legales públicos. La interfaz de esa privacidad, Ajustes y avatares siguen su backlog.
+BUG-004 y DESIGN-013 están integradas y verificadas: menú que cierra fuera y selector Claro/Oscuro/Sistema. REL-002 #265 prepara su publicación autorizada; **no asumirla desplegada hasta la evidencia del issue**. Backend PRIV-001 e inventario LEGAL-001 completados, sin migración 26 alojada ni textos legales públicos. La interfaz de esa privacidad, las ampliaciones de Ajustes y avatares siguen su backlog; la base V2-008 / PR #263 acaba de integrarse y se incluye en el candidato.
 
-[Plan de versión y relevo](rel-002-tema-cuenta.md): resultados de CI, destinos, compatibilidad, pendientes y siguiente orden. PERF-001 #262 es P0 por el lag comunicado; no se ha corregido ni reservado a Codex. V2-008 #129 / PR #263 y AUTH-001 #258 conservan las reservas de sus agentes. MVP-049/050/051 mantienen sus bloqueos pero quedan sin reserva de esta sesión (8ed54b8).
+[Plan de versión y relevo](rel-002-tema-cuenta.md): resultados de CI, destinos, compatibilidad, pendientes y siguiente orden. PERF-001 #262 es P0 por el lag comunicado y ya está reservada por otra IA; no se afirma corregida. V2-008 #129 / PR #263 está completada; SETTINGS-001 #248 y AUTH-001 #258 conservan las reservas de sus agentes. MVP-049/050/051 mantienen sus bloqueos pero quedan sin reserva de esta sesión (8ed54b8).
 
 ## Historial de revisión — 28-10-2026
 
