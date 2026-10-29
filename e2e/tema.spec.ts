@@ -17,7 +17,12 @@ test("tema manual prevalece sobre sistema, persiste y vuelve a Sistema", async (
     .getByRole("navigation", { name: "Principal" })
     .getByRole("link", { name: "Opinión", exact: true })
     .click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByRole("heading", { name: "Encuestas", exact: true })).toBeAttached();
   await expect(select).toHaveValue("light");
+  // PERF-001 #262 investiga la actualización tardía de la barra tras transición cliente.
+  // Una carga completa permite verificar aquí dark: sin mezclar esa incidencia.
+  await page.reload();
   if (page.viewportSize()!.width < 640) {
     await expect(
       page

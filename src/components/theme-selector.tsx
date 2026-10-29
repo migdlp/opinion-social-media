@@ -80,7 +80,7 @@ export function ThemeSelector() {
         title="Elegir tema: Sistema, Claro u Oscuro"
         value={theme}
         onChange={(event) => setTheme(parseTheme(event.target.value))}
-        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+        className="absolute -inset-px h-11 w-11 cursor-pointer opacity-0"
       >
         <option value="system">Sistema</option>
         <option value="light">Claro</option>

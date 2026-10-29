@@ -17,3 +17,5 @@ La clave localStorage `opinion-theme` contiene únicamente light o dark. Sistema
 - Pruebas de navegador añadidas: sistema/manual, persistencia y navegación, bootstrap anterior al body e hidratación, almacenamiento bloqueado, tamaños 320/390/1280 y capturas en ambos temas. El resultado completo se registra en la PR y en la tarea al terminar la CI.
 
 No incluye despliegue ni migraciones alojadas.
+
+Primera CI: 117/120 E2E correctos. Detectó un área real de select de 42 px dentro del borde de 44 px: corregida para cubrir 44 px. La comprobación de color de Feed encontró que su estado activo seguía retrasado después de cambiar la URL en navegación cliente; PERF-001 #262 recoge el diagnóstico solicitado por el propietario. El test conserva navegación/persistencia y verifica dark: tras carga completa, sin afirmar que se haya corregido ese retraso. Bootstrap previo al body y ausencia de errores de hidratación pasaron en ambos proyectos.
