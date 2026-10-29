@@ -50,6 +50,8 @@ La copia local conserva las pautas originales y añade las reglas específicas d
 
 Para trabajo de interfaz, aplicar además [impeccable](.agents/skills/impeccable/SKILL.md) (variante para Claude Code en `.claude/skills/impeccable/`) sin contradecir el brief: diseño sencillo, mobile-first y accesible. Sus hooks no están activados; procedencia, revisión fijada y alcance en [docs/skills.md](docs/skills.md).
 
+Opcionalmente, para explorar el código con un grafo de conocimiento, está disponible [graphify](.agents/skills/graphify/SKILL.md) (`/graphify` en Claude Code, `$graphify` en Codex). Requiere la CLI `graphifyy[sql]==0.9.97`; sus hooks no están activados y `graphify-out/` no se versiona. Detalles en [docs/skills.md](docs/skills.md).
+
 ## Canal de coordinación entre agentes
 
 Varios agentes trabajan a la vez desde sesiones y cuentas distintas y no pueden mensajearse directamente. El buzón común es el issue [#73](https://github.com/migdlp/opinion-social-media/issues/73):
