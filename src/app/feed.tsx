@@ -23,18 +23,22 @@ export async function Feed({ searchParams }: { searchParams?: SearchParams } = {
   const user = data.user;
   const signedIn = Boolean(user);
 
-  const categories = await getCategories(supabase);
+  const requestedTab = first(params.tab);
+  const explicit: FeedMode | null =
+    requestedTab === "recientes" || requestedTab === "siguiendo" ? requestedTab : null;
+  // Categorías y seguimientos no dependen entre sí: se piden a la vez (PERF-001). Los seguimientos
+  // sólo hacen falta para elegir la pestaña cuando la URL no la fija.
+  const [categories, follows] = await Promise.all([
+    getCategories(supabase),
+    user && !explicit ? hasAcceptedFollows(supabase, user.id) : Promise.resolve(false),
+  ]);
   const list = categories.ok ? categories.data : [];
   const requestedCategory = first(params.categoria);
   const category = list.some((c) => c.slug === requestedCategory)
     ? (requestedCategory ?? null)
     : null;
 
-  const requestedTab = first(params.tab);
-  const explicit: FeedMode | null =
-    requestedTab === "recientes" || requestedTab === "siguiendo" ? requestedTab : null;
-  const mode: FeedMode =
-    explicit ?? (user && (await hasAcceptedFollows(supabase, user.id)) ? "siguiendo" : "recientes");
+  const mode: FeedMode = explicit ?? (follows ? "siguiendo" : "recientes");
 
   const controls = (
     <FeedControls mode={mode} category={category} categories={list} signedIn={signedIn} />
