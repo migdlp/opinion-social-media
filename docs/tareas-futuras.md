@@ -205,7 +205,7 @@ Auditoría anónima de `release` `4e22089` construida en local contra Supabase d
 
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|
-| [DOC-010](https://github.com/migdlp/opinion-social-media/issues/243) | Incorporar tema manual, avatares, privacidad de votos, cierre del menú y requisitos legales al backlog | P0 | Revisar V2-008, V2-017 y decisiones vigentes | En progreso | Codex /root (opinion_social_media) |
+| [DOC-010](https://github.com/migdlp/opinion-social-media/issues/243) | Incorporar tema manual, avatares, privacidad de votos, cierre del menú y requisitos legales al backlog | P0 | Revisar V2-008, V2-017 y decisiones vigentes | Completada · [PR #256](https://github.com/migdlp/opinion-social-media/pull/256), merge bdd2959; 12 tickets reales, cobertura y enlaces/dependencias sin ciclos revisados; sólo documentación | Codex /root (opinion_social_media) |
 
 Detalle, criterios y orden: [backlog de cuenta y legales](backlog-cuenta-legales.md). La tarea base V2-008 conserva su responsable; no se duplica.
 
