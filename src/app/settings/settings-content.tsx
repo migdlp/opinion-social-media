@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { EmptyState } from "@/components/empty-state";
 import { loginPath, onboardingPath } from "@/lib/auth/redirect";
 import { ERROR_MESSAGES } from "@/lib/data/errors";
-import { getMyProfile } from "@/lib/data/operations";
+import { getMyProfile, getMyVoteVisibility } from "@/lib/data/operations";
 import { createClient } from "@/lib/supabase/server";
 import { SettingsForm } from "./settings-form";
 
@@ -29,10 +29,12 @@ export async function SettingsContent() {
     );
   }
 
+  const voteVisibility = await getMyVoteVisibility(supabase);
+
   return (
     <div className="mx-auto flex w-full max-w-content flex-col gap-6">
       <h1 className="text-2xl font-semibold">Ajustes</h1>
-      <SettingsForm profile={profile.data} />
+      <SettingsForm profile={profile.data} voteVisibility={voteVisibility} />
     </div>
   );
 }

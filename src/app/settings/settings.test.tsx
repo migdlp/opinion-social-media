@@ -4,12 +4,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const getUser = vi.fn();
 const getMyProfile = vi.fn();
+const getMyVoteVisibility = vi.fn();
 vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({ auth: { getUser } }),
 }));
-vi.mock("@/lib/data/operations", () => ({ getMyProfile }));
+vi.mock("@/lib/data/operations", () => ({ getMyProfile, getMyVoteVisibility }));
 vi.mock("@/app/auth/actions", () => ({ signOut: vi.fn() }));
-vi.mock("@/app/profile-actions", () => ({ saveProfile: vi.fn(), savePrivacy: vi.fn() }));
+vi.mock("@/app/profile-actions", () => ({
+  saveProfile: vi.fn(),
+  savePrivacy: vi.fn(),
+  saveVoteVisibility: vi.fn(),
+}));
 vi.mock("next/navigation", () => ({
   redirect: (to: string) => {
     throw new Error(`REDIRECT:${to}`);
@@ -22,6 +27,8 @@ const { SettingsContent } = await import("./settings-content");
 beforeEach(() => {
   getUser.mockReset();
   getMyProfile.mockReset();
+  getMyVoteVisibility.mockReset();
+  getMyVoteVisibility.mockResolvedValue({ ok: true, data: "private" });
   getUser.mockResolvedValue({ data: { user: { id: "u1" } }, error: null });
   getMyProfile.mockResolvedValue({
     ok: true,
@@ -95,5 +102,30 @@ describe("SettingsContent (/settings)", () => {
       within(account).getByRole("link", { name: "Volver a mi perfil" }).getAttribute("href"),
     ).toBe("/me");
     expect(within(account).getByRole("button", { name: "Cerrar sesión" })).toBeDefined();
+  });
+
+  it("Privacidad muestra la audiencia real del historial, separada de Cuenta privada", async () => {
+    getMyVoteVisibility.mockResolvedValue({ ok: true, data: "followers" });
+    render(await SettingsContent());
+    const privacy = screen.getByRole("region", { name: "Privacidad" });
+
+    expect(within(privacy).getByRole("switch", { name: "Cuenta privada" })).toBeDefined();
+    const group = within(privacy).getByRole("radiogroup", {
+      name: "Quién puede ver las encuestas que votas",
+    });
+    expect(
+      (within(group).getByRole("radio", { name: /Seguidores aceptados/ }) as HTMLInputElement)
+        .checked,
+    ).toBe(true);
+  });
+
+  it("si no se puede leer la audiencia, avisa en Privacidad sin inventar un valor", async () => {
+    getMyVoteVisibility.mockResolvedValue({ ok: false, error: "NETWORK_ERROR" });
+    render(await SettingsContent());
+    const privacy = screen.getByRole("region", { name: "Privacidad" });
+
+    expect(within(privacy).queryByRole("radiogroup")).toBeNull();
+    expect(within(privacy).getByRole("alert")).toBeDefined();
+    expect(within(privacy).getByRole("switch", { name: "Cuenta privada" })).toBeDefined();
   });
 });

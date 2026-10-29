@@ -38,3 +38,31 @@ test("ajustes: sin sesión vuelve a /settings tras iniciar sesión", async ({ pa
   await page.goto("/settings");
   await expect(page).toHaveURL(/\/login\?next=%2Fsettings/);
 });
+
+test("ajustes: la audiencia del historial persiste y es independiente de Cuenta privada", async ({
+  page,
+  baseURL,
+}) => {
+  const user = await createUser("audiencia");
+  await signIn(page.context(), user, baseURL!);
+  await page.goto("/settings");
+
+  const privacy = page.getByRole("region", { name: "Privacidad", exact: true });
+  const group = privacy.getByRole("radiogroup", {
+    name: "Quién puede ver las encuestas que votas",
+  });
+  await expect(group.getByRole("radio", { name: "Solo yo" })).toBeChecked();
+
+  await group.getByRole("radio", { name: "Seguidores aceptados" }).check();
+  await expect(privacy.getByText("Audiencia guardada.")).toBeVisible();
+
+  await page.reload();
+  await expect(group.getByRole("radio", { name: "Seguidores aceptados" })).toBeChecked();
+
+  await privacy.getByRole("switch", { name: "Cuenta privada" }).click();
+  await privacy.getByRole("button", { name: "Hacer privada" }).click();
+  await expect(privacy.getByRole("switch", { name: "Cuenta privada" })).toBeChecked();
+  await page.reload();
+  await expect(privacy.getByRole("switch", { name: "Cuenta privada" })).toBeChecked();
+  await expect(group.getByRole("radio", { name: "Seguidores aceptados" })).toBeChecked();
+});
