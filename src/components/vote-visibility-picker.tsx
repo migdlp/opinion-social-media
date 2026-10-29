@@ -41,6 +41,9 @@ export function VoteVisibilityPicker({ value, onChange }: VoteVisibilityPickerPr
   async function choose(next: VoteVisibility) {
     if (next === selected || sending.current) return;
     sending.current = true;
+    const previous = selected;
+    // Se marca al instante para que el control responda; si el guardado falla, se revierte.
+    setSelected(next);
     setPending(true);
     setSaved(false);
     setFailure(null);
@@ -51,9 +54,9 @@ export function VoteVisibilityPicker({ value, onChange }: VoteVisibilityPickerPr
     sending.current = false;
     setPending(false);
     if (result.ok) {
-      setSelected(next);
       setSaved(true);
     } else {
+      setSelected(previous);
       setFailure(result.error);
     }
   }

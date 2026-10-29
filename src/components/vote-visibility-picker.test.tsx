@@ -51,6 +51,21 @@ describe("VoteVisibilityPicker", () => {
     expect(await screen.findByText("Audiencia guardada.")).toBeDefined();
   });
 
+  it("marca la opción al instante mientras guarda y la revierte si falla", async () => {
+    let finish: (result: Result<void>) => void = () => {};
+    const onChange = vi.fn(() => new Promise<Result<void>>((resolve) => (finish = resolve)));
+    setup("private", onChange);
+    await userEvent.click(radio("Seguidores aceptados"));
+
+    expect((radio("Seguidores aceptados") as HTMLInputElement).checked).toBe(true);
+    expect(screen.queryByText("Audiencia guardada.")).toBeNull();
+
+    finish({ ok: false, error: "NETWORK_ERROR" });
+    expect(await screen.findByRole("alert")).toBeDefined();
+    expect((radio("Solo yo") as HTMLInputElement).checked).toBe(true);
+    expect((radio("Seguidores aceptados") as HTMLInputElement).checked).toBe(false);
+  });
+
   it("elegir la ya guardada no llama al servidor", async () => {
     const onChange = setup("private");
     await userEvent.click(radio("Solo yo"));
