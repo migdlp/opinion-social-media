@@ -7,6 +7,7 @@ import { fakeSupabase, networkThrow, type FakeResponse } from "@/lib/data/testin
 // El feed real se carga en el servidor con el cliente de src/lib/supabase/server.ts.
 let responses: Record<string, FakeResponse | FakeResponse[]> = {};
 let clients: ReturnType<typeof fakeSupabase>["queries"][] = [];
+let events: string[] = [];
 let user: { id: string } | null = null;
 const targets = () => clients.flatMap((c) => c.map((q) => q.target));
 const callsOf = (target: string) => clients.flatMap((c) => c).filter((q) => q.target === target);
@@ -14,6 +15,7 @@ vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => {
     const fake = fakeSupabase(responses);
     clients.push(fake.queries);
+    events = fake.events;
     return { ...fake.supabase, auth: { getUser: async () => ({ data: { user }, error: null }) } };
   },
 }));
@@ -65,6 +67,29 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("Feed (página /)", () => {
+  // PERF-001: categorías y seguimientos son independientes; en serie suman una ida y vuelta a la
+  // base de datos (en otra región) cada una antes de poder pedir el feed.
+  it("con sesión pide las encuestas y los votos propios a la vez, no uno tras otro", async () => {
+    user = { id: "u1" };
+    responses = { ...base(), follows: { data: [], error: null } };
+    await render_({ tab: "recientes" });
+
+    expect(events.indexOf("inicio:votes")).toBeGreaterThanOrEqual(0);
+    expect(events.indexOf("inicio:votes")).toBeLessThan(events.indexOf("fin:polls"));
+  });
+
+  it("pide a la vez las categorías y los seguimientos, antes de que cualquiera responda", async () => {
+    user = { id: "u1" };
+    responses = { ...base(), follows: { data: [{ followee_id: "x" }], error: null } };
+    await render_();
+
+    const started = (t: string) => events.indexOf(`inicio:${t}`);
+    const finished = (t: string) => events.indexOf(`fin:${t}`);
+    expect(started("follows")).toBeGreaterThanOrEqual(0);
+    expect(started("follows")).toBeLessThan(finished("categories"));
+    expect(started("categories")).toBeLessThan(finished("follows"));
+  });
+
   it("un visitante sin selección ve Recientes, con las encuestas en el orden de la RPC", async () => {
     responses = base();
     await render_();

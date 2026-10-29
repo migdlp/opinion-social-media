@@ -14,6 +14,7 @@ import {
   getPublicPollsByIds,
 } from "./polls";
 import type {
+  AppErrorCode,
   Category,
   FeedPage,
   FeedQuery,
@@ -436,33 +437,45 @@ export function getFeedPage(
 
 // Voto propio de cada encuesta de la página (una sola consulta; RLS sólo devuelve los del usuario)
 // y estado de cada una para quien mira.
-async function withOwnVotes(
-  supabase: SupabaseClient,
-  polls: PublicPoll[],
-  nextCursor: string | null,
-  viewer: Viewer,
-): Promise<Result<FeedPage>> {
-  if (!viewer.signedIn || polls.length === 0) {
-    return withViewerStates(supabase, polls, nextCursor, new Map(), false);
-  }
+type OwnVotes =
+  { ok: true; own: Map<string, string>; signedIn: boolean } | { ok: false; error: AppErrorCode };
 
+// Votos propios de las encuestas dadas (la RLS sólo devuelve los de quien llama). Sin sesión válida
+// (AUTH_REQUIRED) se trata como visitante.
+async function fetchOwnVotes(supabase: SupabaseClient, pollIds: string[]): Promise<OwnVotes> {
   const { data, error } = await supabase
     .from("votes")
     .select("poll_id, option_id")
-    .in(
-      "poll_id",
-      polls.map((p) => p.id),
-    );
+    .in("poll_id", pollIds);
   if (error) {
-    if (toAppError(error) === "AUTH_REQUIRED") {
-      return withViewerStates(supabase, polls, nextCursor, new Map(), false);
-    }
+    if (toAppError(error) === "AUTH_REQUIRED") return { ok: true, own: new Map(), signedIn: false };
     return { ok: false, error: toAppError(error) };
   }
   const own = new Map(
     (data as { poll_id: string; option_id: string }[]).map((v) => [v.poll_id, v.option_id]),
   );
-  return withViewerStates(supabase, polls, nextCursor, own, true);
+  return { ok: true, own, signedIn: true };
+}
+
+// `preloaded` permite haber lanzado la lectura de votos a la vez que la de las encuestas (PERF-001).
+async function withOwnVotes(
+  supabase: SupabaseClient,
+  polls: PublicPoll[],
+  nextCursor: string | null,
+  viewer: Viewer,
+  preloaded?: OwnVotes,
+): Promise<Result<FeedPage>> {
+  if (!viewer.signedIn || polls.length === 0) {
+    return withViewerStates(supabase, polls, nextCursor, new Map(), false);
+  }
+  const votes =
+    preloaded ??
+    (await fetchOwnVotes(
+      supabase,
+      polls.map((p) => p.id),
+    ));
+  if (!votes.ok) return { ok: false, error: votes.error };
+  return withViewerStates(supabase, polls, nextCursor, votes.own, votes.signedIn);
 }
 
 type ProfileViewRow = {
@@ -523,12 +536,14 @@ export function getProfilePolls(
     if (page.length === 0) return { ok: true, data: { items: [], nextCursor: null } };
     const nextCursor = rows.length > PROFILE_POLLS_PAGE_SIZE ? page[page.length - 1].cursor : null;
 
-    const polls = await getPublicPollsByIds(
-      supabase,
-      page.map((row) => row.poll_id),
-    );
+    // Encuestas y votos propios dependen sólo de los ids: se piden a la vez (PERF-001).
+    const ids = page.map((row) => row.poll_id);
+    const [polls, votes] = await Promise.all([
+      getPublicPollsByIds(supabase, ids),
+      viewer.signedIn ? fetchOwnVotes(supabase, ids) : Promise.resolve(undefined),
+    ]);
     if (!polls.ok) return polls;
-    return withOwnVotes(supabase, polls.data, nextCursor, viewer);
+    return withOwnVotes(supabase, polls.data, nextCursor, viewer, votes);
   });
 }
 
@@ -745,12 +760,14 @@ export function getFeed(
     if (page.length === 0) return { ok: true, data: { items: [], nextCursor: null } };
     const nextCursor = rows.length > FEED_PAGE_SIZE ? page[page.length - 1].cursor : null;
 
-    const polls = await getPublicPollsByIds(
-      supabase,
-      page.map((row) => row.poll_id),
-    );
+    // Encuestas y votos propios dependen sólo de los ids: se piden a la vez (PERF-001).
+    const ids = page.map((row) => row.poll_id);
+    const [polls, votes] = await Promise.all([
+      getPublicPollsByIds(supabase, ids),
+      viewer.signedIn ? fetchOwnVotes(supabase, ids) : Promise.resolve(undefined),
+    ]);
     if (!polls.ok) return polls;
-    return withOwnVotes(supabase, polls.data, nextCursor, viewer);
+    return withOwnVotes(supabase, polls.data, nextCursor, viewer, votes);
   });
 }
 
