@@ -14,7 +14,7 @@ type AvatarPickerProps = {
 };
 
 const OPTION =
-  "flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border border-border bg-surface text-foreground transition-colors hover:border-foreground has-[:checked]:border-foreground has-[:checked]:bg-track has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2";
+  "relative flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border border-border bg-surface text-foreground transition-colors hover:border-foreground has-[:checked]:border-foreground has-[:checked]:bg-track has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2";
 
 // Imagen de perfil (AVATAR-001): iniciales o un icono del catálogo, con vista previa. Se guarda al
 // elegir; el control se marca al instante y vuelve a la elección anterior si falla. No toca

@@ -77,9 +77,12 @@ test("ajustes: el icono de perfil se elige, persiste y aparece en la cabecera y 
 
   const profile = page.getByRole("region", { name: "Perfil", exact: true });
   const group = profile.getByRole("radiogroup", { name: "Imagen de perfil" });
+  // Los radios son visualmente ocultos: se elige pulsando su etiqueta, como una persona.
+  const option = (name: string) =>
+    group.locator("label").filter({ has: page.getByRole("radio", { name, exact: true }) });
   await expect(group.getByRole("radio", { name: "Iniciales" })).toBeChecked();
 
-  await group.getByRole("radio", { name: "Luna" }).check();
+  await option("Luna").click();
   await expect(profile.getByText("Imagen guardada.")).toBeVisible();
 
   await page.reload();
@@ -92,7 +95,7 @@ test("ajustes: el icono de perfil se elige, persiste y aparece en la cabecera y 
   await expect(page.locator('header [data-avatar-icon="luna"]').last()).toBeVisible();
 
   await page.goto("/settings");
-  await group.getByRole("radio", { name: "Iniciales" }).check();
+  await option("Iniciales").click();
   await expect(profile.getByText("Imagen guardada.")).toBeVisible();
   await page.reload();
   await expect(group.getByRole("radio", { name: "Iniciales" })).toBeChecked();

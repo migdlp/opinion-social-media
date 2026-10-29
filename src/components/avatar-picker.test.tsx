@@ -78,6 +78,14 @@ describe("AvatarPicker", () => {
     expect(radio("Sol").checked).toBe(false);
   });
 
+  it("ancla cada radio oculto a su etiqueta para que enfocarlo no desplace la página", () => {
+    setup();
+    for (const input of screen.getAllByRole("radio")) {
+      expect(input.className).toContain("sr-only");
+      expect(input.closest("label")!.className).toMatch(/(^|\s)relative(\s|$)/);
+    }
+  });
+
   it("es operable con teclado", async () => {
     const { onChange } = setup(null);
     radio("Iniciales").focus();
