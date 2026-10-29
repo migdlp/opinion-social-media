@@ -1,9 +1,20 @@
 import { expect, test } from "@playwright/test";
-import { createUser, signIn } from "./support/supabase";
+import { createPoll, createUser, signIn } from "./support/supabase";
 
 test("el menú de cuenta y Perfil móvil abren el usuario propio", async ({ page, baseURL }) => {
   const user = await createUser("acceso_perfil");
+  const question = `¿Acceso al autor desde su encuesta ${Date.now()}?`;
+  await createPoll(user, question, ["Sí", "No"]);
   await signIn(page.context(), user, baseURL!);
+  await page.goto("/");
+  await page
+    .locator("article", { hasText: question })
+    .getByRole("link", {
+      name: `@${user.username}`,
+      exact: true,
+    })
+    .click();
+  await expect(page).toHaveURL(`/u/${user.username}`);
   await page.goto("/");
   await page.getByLabel("Menú de cuenta").click();
   await page.getByRole("link", { name: "Mi perfil", exact: true }).click();
