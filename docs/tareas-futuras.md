@@ -212,7 +212,7 @@ Detalle, criterios y orden: [backlog de cuenta y legales](backlog-cuenta-legales
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|
 | [SETTINGS-001](https://github.com/migdlp/opinion-social-media/issues/248) | Organizar Ajustes por Perfil, Apariencia, Privacidad y Cuenta | P0 | V2-008 #129 (en progreso; conservar su responsable); DESIGN-004 #190 (coordinar acabado visual) | Pendiente | — |
-| [PRIV-001](https://github.com/migdlp/opinion-social-media/issues/249) | Proteger en backend la audiencia del historial de votos | P0 | V2-005 #128 y V2-007 #132 (completadas) | Pendiente | — |
+| [PRIV-001](https://github.com/migdlp/opinion-social-media/issues/249) | Proteger en backend la audiencia del historial de votos | P0 | V2-005 #128 y V2-007 #132 (completadas) | En progreso | Codex /root (opinion_social_media) |
 | [PRIV-002](https://github.com/migdlp/opinion-social-media/issues/254) | Elegir desde Ajustes quién puede ver las encuestas que voto | P0 | PRIV-001 #249; SETTINGS-001 #248; V2-008 #129 (respetar reserva) | Pendiente | — |
 | [LEGAL-001](https://github.com/migdlp/opinion-social-media/issues/244) | Inventariar tratamientos, cookies y datos necesarios para los textos legales | P0 | — | Pendiente | — |
 | [LEGAL-002](https://github.com/migdlp/opinion-social-media/issues/251) | Publicar aviso legal, privacidad, condiciones y política de cookies | P0 | LEGAL-001 #244 y datos reales/revisión del responsable | Pendiente | — |
