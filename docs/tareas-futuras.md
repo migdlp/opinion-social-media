@@ -169,7 +169,7 @@ Tareas de [backlog adicional](backlog-adicional.md), añadidas por la [auditorí
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|
 | [BUG-001](https://github.com/migdlp/opinion-social-media/issues/221) | Restaurar feed y alinear esquema productivo con release | P0 | Migraciones versionadas; coordinar MVP-049 | Completada: [PR #224](https://github.com/migdlp/opinion-social-media/pull/224), [CI verde](https://github.com/migdlp/opinion-social-media/actions/runs/40856161930); prod con 25 migraciones exactas, cuatro cuentas/identidades intactas; contrato RED PGRST202 → GREEN; dominio muestra feed vacío válido | Codex /root (opinion_social_media) |
-| [BUG-002](https://github.com/migdlp/opinion-social-media/issues/222) | Corregir publicación real de encuestas | P0 | BUG-001 para validación productiva | En progreso: esquema productivo reparado; validación del flujo | Codex /root (opinion_social_media) |
+| [BUG-002](https://github.com/migdlp/opinion-social-media/issues/222) | Corregir publicación real de encuestas | P0 | BUG-001 para validación productiva | Completada: [PR #225](https://github.com/migdlp/opinion-social-media/pull/225), [CI verde](https://github.com/migdlp/opinion-social-media/actions/runs/40856535117); publicación del caso reportado verificada como authenticated en transacción productiva con rollback; 39 pruebas formulario/acciones y E2E verdes | Codex /root (opinion_social_media) |
 | [BUG-003](https://github.com/migdlp/opinion-social-media/issues/223) | Corregir acceso al perfil desde móvil | P0 | BUG-001 para validación productiva | En progreso: corregir fallo silencioso de /me y probar enlaces móviles | Codex /root (opinion_social_media) |
 
 ## Condición de cierre
