@@ -1,7 +1,13 @@
 "use server";
 
-import { setProfilePrivacy, setVoteVisibility, upsertMyProfile } from "@/lib/data/operations";
+import {
+  setProfileAvatar,
+  setProfilePrivacy,
+  setVoteVisibility,
+  upsertMyProfile,
+} from "@/lib/data/operations";
 import { toAppError } from "@/lib/data/errors";
+import type { AvatarIcon } from "@/lib/avatar-icons";
 import type { Profile, Result, VoteVisibility } from "@/lib/data/types";
 import { createClient } from "@/lib/supabase/server";
 
@@ -43,6 +49,19 @@ export async function saveVoteVisibility(visibility: VoteVisibility): Promise<Re
     const { data } = await supabase.auth.getUser();
     if (!data.user) return { ok: false, error: "AUTH_REQUIRED" };
     return await setVoteVisibility(supabase, visibility);
+  } catch (error) {
+    return { ok: false, error: toAppError(error) };
+  }
+}
+
+// Elige el icono de perfil de la cuenta con sesión, o vuelve a las iniciales con null
+// (AVATAR-001). El catálogo y la autorización los impone la base de datos.
+export async function saveAvatar(icon: AvatarIcon | null): Promise<Result<void>> {
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getUser();
+    if (!data.user) return { ok: false, error: "AUTH_REQUIRED" };
+    return await setProfileAvatar(supabase, icon);
   } catch (error) {
     return { ok: false, error: toAppError(error) };
   }

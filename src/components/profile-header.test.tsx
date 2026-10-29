@@ -78,4 +78,14 @@ describe("ProfileHeader", () => {
     render(<ProfileHeader profile={PROFILE} pendingRequests={5} {...props} />);
     expect(screen.queryByRole("link", { name: /Solicitudes/ })).toBeNull();
   });
+
+  it("AVATAR-001: muestra el icono elegido o las iniciales", () => {
+    const { container, rerender } = render(
+      <ProfileHeader profile={{ ...PROFILE, avatarIcon: "hoja" }} {...props} />,
+    );
+    expect(container.querySelector('[data-avatar-icon="hoja"]')).not.toBeNull();
+    rerender(<ProfileHeader profile={PROFILE} {...props} />);
+    expect(container.querySelector("[data-avatar-icon]")).toBeNull();
+    expect(screen.getByText("BE")).toBeDefined();
+  });
 });

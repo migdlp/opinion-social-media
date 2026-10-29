@@ -1,4 +1,5 @@
 // Tipos del dominio definidos en docs/contratos-api.md §5 (MVP-013).
+import type { AvatarIcon } from "@/lib/avatar-icons";
 
 export type AppErrorCode =
   | "AUTH_REQUIRED"
@@ -28,6 +29,7 @@ export type AppErrorCode =
   | "PROFILE_PRIVATE"
   | "VOTES_PRIVATE"
   | "VOTE_VISIBILITY_INVALID"
+  | "AVATAR_INVALID"
   | "CANNOT_FOLLOW_SELF"
   | "FOLLOW_RATE_LIMITED"
   | "NETWORK_ERROR"
@@ -46,6 +48,8 @@ export interface Profile {
   username: string;
   displayName: string | null;
   isPrivate: boolean;
+  // Icono elegido (AVATAR-001); ausente = iniciales.
+  avatarIcon?: AvatarIcon | null;
 }
 
 // Autor con perfil (V2-003). Sin perfil, PublicPoll.author es null y se muestra «Anónimo».
@@ -106,6 +110,7 @@ export interface ProfileView {
   pollsCount: number;
   viewerRelation: ViewerRelation;
   canViewContent: boolean;
+  avatarIcon?: AvatarIcon | null;
 }
 
 // Voto visible en un perfil (V2-007). choice es null cuando la opción elegida no se puede revelar
@@ -124,6 +129,7 @@ export interface ProfileVote {
 export interface FollowEntry {
   username: string;
   displayName: string | null;
+  avatarIcon?: AvatarIcon | null;
 }
 
 export interface FollowPage {

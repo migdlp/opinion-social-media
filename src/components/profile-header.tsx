@@ -27,7 +27,12 @@ export function ProfileHeader({
   return (
     <header className="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-5">
       <div className="flex items-center gap-4">
-        <Avatar username={profile.username} displayName={profile.displayName} size="lg" />
+        <Avatar
+          username={profile.username}
+          displayName={profile.displayName}
+          size="lg"
+          icon={profile.avatarIcon}
+        />
         <div className="flex min-w-0 flex-col">
           <h1 className="text-2xl leading-tight font-semibold tracking-[-0.02em]">
             {profile.displayName ?? `@${profile.username}`}

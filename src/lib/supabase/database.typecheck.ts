@@ -89,6 +89,7 @@ export type DatabaseContractChecks = [
         created_at: string;
         updated_at: string;
         vote_visibility: string;
+        avatar_icon: string | null;
       }
     >
   >,
@@ -177,4 +178,17 @@ export type VoteVisibilityRpcChecks = [
   Assert<Equal<Public["Functions"]["get_my_vote_visibility"]["Returns"], string>>,
   Assert<Equal<Public["Functions"]["set_vote_visibility"]["Args"], { p_visibility: string }>>,
   Assert<Equal<Public["Functions"]["set_vote_visibility"]["Returns"], undefined>>,
+];
+
+// AVATAR-001: sólo el titular elige un icono del catálogo (null = iniciales).
+export type ProfileAvatarRpcChecks = [
+  Assert<Equal<Public["Functions"]["set_profile_avatar"]["Args"], { p_icon: string }>>,
+  Assert<Equal<Public["Functions"]["set_profile_avatar"]["Returns"], undefined>>,
+  Assert<Equal<Public["Tables"]["profiles"]["Row"]["avatar_icon"], string | null>>,
+  Assert<
+    Equal<
+      Public["Functions"]["get_my_profile"]["Returns"],
+      { avatar_icon: string; display_name: string; is_private: boolean; username: string }[]
+    >
+  >,
 ];

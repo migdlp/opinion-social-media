@@ -206,6 +206,19 @@ public.set_vote_visibility(p_visibility text) returns void
 - Adaptadores: `getMyVoteVisibility(supabase)` → `Result<VoteVisibility>` y `setVoteVisibility(supabase, visibility)` → `Result<void>`. No se crea una caché pública ni se consulta esta preferencia desde el feed.
 - Un cambio o retirada de seguimiento se refleja en futuras consultas al servidor. No puede retirar copias de información que un visitante ya hubiera recibido lícitamente. La UI de ajustes y su invalidación tras guardar corresponden a PRIV-002; esta tarea no aplica SQL en proyectos compartidos.
 
+#### Icono de perfil (AVATAR-001)
+
+```sql
+public.set_profile_avatar(p_icon text) returns void
+public.get_my_profile() returns table (username text, display_name text, is_private boolean, avatar_icon text)
+```
+
+- `set_profile_avatar`: sólo `authenticated`, con perfil. `p_icon` es uno de `sol`, `luna`, `estrella`, `hoja`, `ola`, `montana`, `nube`, `llama`, o `null` para volver a las iniciales. Errores: `AUTH_REQUIRED`, `PROFILE_REQUIRED`, `AVATAR_INVALID` (cualquier otro valor, incluida otra capitalización o una URL). Actúa siempre sobre la cuenta de `auth.uid()`; no cambia nombre, @usuario ni privacidad. La restricción de catálogo también está como `check` en la tabla.
+- `profiles.avatar_icon`: columna **pública** (`grant select` a `anon` y `authenticated`), como `username`; sin escritura directa.
+- `get_my_profile` pasa a devolver también `avatar_icon`, para que la cabecera lo obtenga en la misma consulta. Se recrea con `drop function` + `create function` y mantiene los mismos permisos (sólo `authenticated`).
+- El resto del contrato no cambia: `get_profile` y las listas de seguidores no devuelven el icono; los adaptadores `getProfileView`, `listFollowers`, `listFollowing` y `listFollowRequests` lo leen de la columna pública con una consulta aparte (cabecera en paralelo; una por página de lista). Un fallo de esa lectura sólo hace que se vean las iniciales.
+- Adaptadores: `setProfileAvatar(supabase, icon | null)` → `Result<void>`; `Profile.avatarIcon`, `ProfileView.avatarIcon` y `FollowEntry.avatarIcon` son opcionales. Detalle de catálogo y procedencia: [avatares.md](avatares.md).
+
 ### 3.10. `get_profile` y `get_profile_polls` (V2-006)
 
 ```sql

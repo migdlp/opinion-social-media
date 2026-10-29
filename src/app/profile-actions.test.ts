@@ -3,21 +3,24 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const getUser = vi.fn();
 const setVoteVisibility = vi.fn();
 const setProfilePrivacy = vi.fn();
+const setProfileAvatar = vi.fn();
 vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({ auth: { getUser } }),
 }));
 vi.mock("@/lib/data/operations", () => ({
   setVoteVisibility,
   setProfilePrivacy,
+  setProfileAvatar,
   upsertMyProfile: vi.fn(),
 }));
 
-const { saveVoteVisibility, savePrivacy } = await import("./profile-actions");
+const { saveVoteVisibility, savePrivacy, saveAvatar } = await import("./profile-actions");
 
 beforeEach(() => {
   getUser.mockReset();
   setVoteVisibility.mockReset();
   setProfilePrivacy.mockReset();
+  setProfileAvatar.mockReset();
   getUser.mockResolvedValue({ data: { user: { id: "u1" } } });
 });
 
@@ -55,5 +58,28 @@ describe("savePrivacy (V2-008)", () => {
   it("sin sesión devuelve AUTH_REQUIRED", async () => {
     getUser.mockResolvedValue({ data: { user: null } });
     expect(await savePrivacy(true)).toEqual({ ok: false, error: "AUTH_REQUIRED" });
+  });
+});
+
+describe("saveAvatar (AVATAR-001)", () => {
+  it("sin sesión no llega a la base de datos", async () => {
+    getUser.mockResolvedValue({ data: { user: null } });
+    expect(await saveAvatar("sol")).toEqual({ ok: false, error: "AUTH_REQUIRED" });
+    expect(setProfileAvatar).not.toHaveBeenCalled();
+  });
+
+  it("guarda el icono o null (iniciales) y devuelve el resultado", async () => {
+    setProfileAvatar.mockResolvedValue({ ok: true, data: undefined });
+    expect(await saveAvatar("sol")).toEqual({ ok: true, data: undefined });
+    expect(setProfileAvatar).toHaveBeenLastCalledWith(expect.anything(), "sol");
+    await saveAvatar(null);
+    expect(setProfileAvatar).toHaveBeenLastCalledWith(expect.anything(), null);
+  });
+
+  it("propaga el rechazo del backend y nunca lanza", async () => {
+    setProfileAvatar.mockResolvedValue({ ok: false, error: "AVATAR_INVALID" });
+    expect(await saveAvatar("sol")).toEqual({ ok: false, error: "AVATAR_INVALID" });
+    setProfileAvatar.mockRejectedValue(new TypeError("fetch failed"));
+    expect((await saveAvatar("sol")).ok).toBe(false);
   });
 });

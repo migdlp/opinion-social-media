@@ -180,7 +180,8 @@ describe("/u/[username]", () => {
       expect(html).not.toContain("Votadas");
     }
     const targets = queries.map((q) => q.target);
-    expect(targets).toEqual(["rpc:get_profile"]);
+    // Cabecera y su icono público; ni encuestas ni votos.
+    expect(targets).toEqual(["rpc:get_profile", "profiles"]);
   });
 
   it("criterio 4: un usuario inexistente responde 404", async () => {

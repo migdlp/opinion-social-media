@@ -3,11 +3,21 @@
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { signOut } from "@/app/auth/actions";
+import type { AvatarIcon } from "@/lib/avatar-icons";
+import { parseAvatarIcon } from "@/lib/avatar-icons";
+import { AvatarGlyph } from "./avatar";
 import { NavigationIcon } from "./navigation-icon";
 
 const ITEM = "block min-h-11 rounded-lg px-3 py-2.5 text-sm hover:bg-track focus-visible:bg-track";
 
-export function AccountMenu({ username }: { username: string | null }) {
+export function AccountMenu({
+  username,
+  avatarIcon,
+}: {
+  username: string | null;
+  avatarIcon?: AvatarIcon | null;
+}) {
+  const icon = parseAvatarIcon(avatarIcon);
   const root = useRef<HTMLDetailsElement>(null);
   useEffect(() => {
     const onPointerDown = (event: PointerEvent) => {
@@ -51,7 +61,20 @@ export function AccountMenu({ username }: { username: string | null }) {
           aria-hidden="true"
           className={`flex h-11 w-11 items-center justify-center rounded-full text-sm ${darkAvatar ? "bg-foreground text-background" : "bg-track text-foreground"}`}
         >
-          {username ? username.slice(0, 2).toUpperCase() : <NavigationIcon name="profile" />}
+          {username ? (
+            icon ? (
+              <span
+                data-avatar-icon={icon}
+                className="inline-flex h-full w-full items-center justify-center"
+              >
+                <AvatarGlyph icon={icon} className="h-5 w-5" />
+              </span>
+            ) : (
+              username.slice(0, 2).toUpperCase()
+            )
+          ) : (
+            <NavigationIcon name="profile" />
+          )}
         </span>
         {username && <span className="hidden text-sm sm:inline">@{username}</span>}
       </summary>

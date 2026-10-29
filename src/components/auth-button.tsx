@@ -8,7 +8,7 @@ const BUTTON =
 // El menú usa sólo @usuario. La sesión y el perfil se comparten con la navegación móvil
 // durante esta petición; ninguna lectura privada entra en una caché pública.
 export async function AuthButton() {
-  const { signedIn, username } = await getNavigationAccount();
+  const { signedIn, username, avatarIcon } = await getNavigationAccount();
 
   if (!signedIn) {
     return (
@@ -17,7 +17,7 @@ export async function AuthButton() {
       </Link>
     );
   }
-  return <AccountMenu username={username} />;
+  return <AccountMenu username={username} avatarIcon={avatarIcon} />;
 }
 
 // Hueco del mismo tamaño mientras se lee la sesión, para que la cabecera no salte.
