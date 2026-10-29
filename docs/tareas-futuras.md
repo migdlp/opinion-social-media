@@ -224,6 +224,12 @@ Detalle, criterios y orden: [backlog de cuenta y legales](backlog-cuenta-legales
 | [AVATAR-002](https://github.com/migdlp/opinion-social-media/issues/252) | Preparar subida segura y almacenamiento de fotos de perfil | P1 | AVATAR-001 #247 (contrato común icono/foto/iniciales) | Pendiente | — |
 | [AVATAR-003](https://github.com/migdlp/opinion-social-media/issues/255) | Subir, previsualizar, reemplazar y quitar una foto desde Ajustes | P1 | AVATAR-002 #252; AVATAR-001 #247; SETTINGS-001 #248; LEGAL-002 #251 (información sobre foto y su visibilidad) | Pendiente | — |
 
+## Hallazgo técnico del inventario legal
+
+| ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
+|---|---|---|---|---|---|
+| [AUTH-001](https://github.com/migdlp/opinion-social-media/issues/258) | Verificar duración y atributos de cookies de sesión/PKCE; coordinar clasificación legal | P1 | LEGAL-001; coordinar LEGAL-004 | Pendiente | — |
+
 ## Condición de cierre
 
 Cada tarea requiere evidencia de sus criterios de aceptación antes de pasar a completada. Crear documentos, escribir un borrador o disponer de acceso a un servicio no basta. MVP-051 permanece pendiente hasta verificar todas las condiciones obligatorias del checklist global del backlog.

@@ -272,3 +272,7 @@ Integrar en Perfil/Ajustes la alternativa de subir una foto, junto a iconos e in
 Cada implementación con código exige TDD y las pruebas de su ticket; datos/Storage se prueban en entornos locales aislados y nunca con archivos o votos de prueba en producción. Las tareas con esquema o políticas exigen migraciones/tipos y comprobaciones por HTTP/RLS, no sólo capturas. La apariencia conserva After Sunset, accesibilidad, estados de error y móvil desde 320 px.
 
 DOC-010 verifica únicamente coherencia documental, enlaces, ausencia de IDs duplicados y cobertura de la petición. No atribuye ciclos TDD ni resultados de aplicación a esta ampliación documental. Comunicar al responsable de V2-008 y a todas las IAs por #73. Las nuevas funciones requieren futuras reservas/PR; esta petición no pide implementarlas ni desplegar ahora.
+
+## Evidencia de LEGAL-001
+
+Inventario técnico y decisiones pendientes: [tratamientos/proveedores](legal/inventario-tratamientos.md), [cookies y almacenamiento](legal/registro-cookies.md) y [datos del responsable](legal/datos-responsable-pendientes.md). AUTH-001 [#258](https://github.com/migdlp/opinion-social-media/issues/258) verifica duración/atributos reales de Auth/PKCE; coordinarlo antes de cerrar la clasificación de LEGAL-004. No asumir que 400 días de persistencia del SDK es una cookie de sesión exenta. Los documentos no son políticas publicadas.
