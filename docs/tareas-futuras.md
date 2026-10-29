@@ -193,7 +193,7 @@ Auditoría anónima de `release` `4e22089` construida en local contra Supabase d
 
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|
-| [DESIGN-012](https://github.com/migdlp/opinion-social-media/issues/235) | Implementar tarjetas/resultados/estados, movimiento P1 y refinado/entrega P2 | P0 | DESIGN-002/003 completadas; coordinar DESIGN-007/008/010 y reserva ajena DESIGN-009 | Pendiente | — |
+| [DESIGN-012](https://github.com/migdlp/opinion-social-media/issues/235) | Implementar tarjetas/resultados/estados, movimiento P1 y refinado/entrega P2 | P0 | DESIGN-002/003 completadas; coordinar DESIGN-007/008/010 y reserva ajena DESIGN-009 | En progreso | Codex /root (opinion_social_media) |
 
 ## Condición de cierre
 
