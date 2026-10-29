@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const getUser = vi.fn();
@@ -8,6 +8,7 @@ vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({ auth: { getUser } }),
 }));
 vi.mock("@/lib/data/operations", () => ({ getMyProfile }));
+vi.mock("@/app/auth/actions", () => ({ signOut: vi.fn() }));
 vi.mock("@/app/profile-actions", () => ({ saveProfile: vi.fn(), savePrivacy: vi.fn() }));
 vi.mock("next/navigation", () => ({
   redirect: (to: string) => {
@@ -63,5 +64,36 @@ describe("SettingsContent (/settings)", () => {
 
     expect(screen.getByRole("alert")).toBeDefined();
     expect(screen.getByRole("link", { name: "Reintentar" }).getAttribute("href")).toBe("/settings");
+  });
+
+  it("organiza los controles en Perfil, Apariencia, Privacidad y Cuenta", async () => {
+    render(await SettingsContent());
+
+    const names = screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent);
+    expect(names).toEqual(["Perfil", "Apariencia", "Privacidad", "Cuenta"]);
+    for (const name of names) {
+      expect(screen.getByRole("region", { name: name! })).toBeDefined();
+    }
+  });
+
+  it("Apariencia reutiliza el selector de tema compartido", async () => {
+    render(await SettingsContent());
+    const appearance = screen.getByRole("region", { name: "Apariencia" });
+    expect(within(appearance).getByRole("combobox", { name: "Tema" })).toBeDefined();
+  });
+
+  it("la privacidad de cuenta vive en su apartado", async () => {
+    render(await SettingsContent());
+    const privacy = screen.getByRole("region", { name: "Privacidad" });
+    expect(within(privacy).getByRole("switch", { name: "Cuenta privada" })).toBeDefined();
+  });
+
+  it("Cuenta permite volver al perfil y cerrar sesión", async () => {
+    render(await SettingsContent());
+    const account = screen.getByRole("region", { name: "Cuenta" });
+    expect(
+      within(account).getByRole("link", { name: "Volver a mi perfil" }).getAttribute("href"),
+    ).toBe("/me");
+    expect(within(account).getByRole("button", { name: "Cerrar sesión" })).toBeDefined();
   });
 });
