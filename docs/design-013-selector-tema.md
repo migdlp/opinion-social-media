@@ -19,3 +19,5 @@ La clave localStorage `opinion-theme` contiene únicamente light o dark. Sistema
 No incluye despliegue ni migraciones alojadas.
 
 Primera CI: 117/120 E2E correctos. Detectó un área real de select de 42 px dentro del borde de 44 px: corregida para cubrir 44 px. La comprobación de color de Feed encontró que su estado activo seguía retrasado después de cambiar la URL en navegación cliente; PERF-001 #262 recoge el diagnóstico solicitado por el propietario. El test conserva navegación/persistencia y verifica dark: tras carga completa, sin afirmar que se haya corregido ese retraso. Bootstrap previo al body y ausencia de errores de hidratación pasaron en ambos proyectos.
+
+CI final [40914648426](https://github.com/migdlp/opinion-social-media/actions/runs/40914648426), SHA 79d6dc5: **691 unitarias, 120 E2E y 89 HTTP** correctos; SQL/concurrencia/upgrade, reproducción/tipos, secretos y build verdes. Capturas de ambos temas a 320/390/1280 revisadas. Integrado en PR #261 (1900bc0); issue #245 cerrado. Publicación separada REL-002 #265.
