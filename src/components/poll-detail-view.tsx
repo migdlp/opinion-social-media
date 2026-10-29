@@ -29,7 +29,7 @@ export function PollDetailView({
   const signedIn =
     detail.viewer.kind === "closed" ? detail.viewer.signedIn : detail.viewer.kind !== "anonymous";
   return (
-    <article className="mx-auto flex w-full max-w-content flex-col gap-4 rounded-2xl border border-border bg-surface p-5">
+    <article className="relative isolate mx-auto flex w-full max-w-content flex-col gap-4 rounded-2xl border border-border bg-surface p-5">
       {poll.category && (
         <p
           data-category
@@ -40,7 +40,7 @@ export function PollDetailView({
       )}
       <div className="flex items-start justify-between gap-2">
         <h1 className="text-2xl leading-tight font-semibold tracking-[-0.02em]">{poll.question}</h1>
-        <div className="flex items-center">
+        <div className="relative z-20 flex shrink-0 items-center">
           <SavePoll pollId={poll.id} signedIn={signedIn} initialSaved={detail.saved} />
           <ReportPoll pollId={poll.id} signedIn={signedIn} />
         </div>

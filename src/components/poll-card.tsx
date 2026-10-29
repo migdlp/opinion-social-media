@@ -25,7 +25,7 @@ export function PollCard({ poll, viewer, saved, now = new Date() }: PollCardProp
   const signedIn =
     !viewer || (viewer.kind === "closed" ? viewer.signedIn : viewer.kind !== "anonymous");
   return (
-    <article className="relative flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4 transition-colors focus-within:border-foreground hover:border-bar-muted">
+    <article className="relative isolate flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4 transition-colors focus-within:border-foreground hover:border-bar-muted">
       {poll.category && (
         <p
           data-category
@@ -43,7 +43,7 @@ export function PollCard({ poll, viewer, saved, now = new Date() }: PollCardProp
             {poll.question}
           </Link>
         </h2>
-        <div className="flex items-center">
+        <div className="relative z-20 flex shrink-0 items-center">
           <SavePoll pollId={poll.id} signedIn={signedIn} initialSaved={saved} />
           <ReportPoll pollId={poll.id} signedIn={signedIn} />
         </div>
