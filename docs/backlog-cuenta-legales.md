@@ -49,6 +49,8 @@ Las dependencias de **coordinación** no implican esperar a todas las ampliacion
 
 ### SETTINGS-001 — Organizar Ajustes por Perfil, Apariencia, Privacidad y Cuenta
 
+Integración de Apariencia: reutilizar `ThemeSelector` de DESIGN-013 cuando esté integrado, con la misma clave y estado compartido que la cabecera. No crear una segunda preferencia ni esperar a avatares.
+
 - **Issue:** [#248](https://github.com/migdlp/opinion-social-media/issues/248) · **Prioridad:** P0 · **Estimación relativa:** S
 - **Etiquetas:** `frontend`, `design`, `auth`, `testing`
 - **Estado:** Pendiente · **Agente:** —
