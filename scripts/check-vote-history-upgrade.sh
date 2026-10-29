@@ -13,8 +13,8 @@ for file in supabase/migrations/*.sql; do
   db -f "$file"
 done
 # El prefijo de 026 sólo siembra la encuesta, usuarios y voto, sin usar la nueva columna/RPC.
-# El test abre una transacción: la entrada acaba al cerrar la conexión, así que sembrar y
-# migrar en la misma sesión permite verificar el cambio sin conservar esos datos sintéticos.
+# Sembrar y migrar en la misma sesión permite verificar los datos anteriores al DEFAULT.
+# Esta base propia sólo contiene datos sintéticos y nunca es un destino compartido.
 {
   awk '/^select pg_temp.login/{exit} {print}' supabase/tests/026_vote_visibility.test.sql
   cat "$migration"

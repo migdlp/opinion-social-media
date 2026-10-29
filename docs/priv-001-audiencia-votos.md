@@ -21,6 +21,8 @@ Migración creada con la CLI 2.122.0: `20261029152251_vote_history_visibility.sq
 
 El entorno local no dispone de espacio para la imagen completa de Supabase; se usa PostgreSQL aislado para SQL y la pila efímera de CI para HTTP/Auth/tipos generados/navegador. El error inicial del wrapper local de psql y la ruta de telemetría CLI no se cuentan como RED de aplicación; se corrigió el entorno antes de observar el fallo de permisos real.
 
+Supabase CLI `db advisors --db-url` contra PostgreSQL local aislado: **No issues found**. La primera conexión exigía TLS a un servidor de pruebas sin TLS; se corrigió la conexión local con `sslmode=disable`, sin alterar conexiones remotas. El inventario de permisos SQL y las pruebas HTTP complementan el asesor.
+
 ## Alcance pendiente
 
 La UI y la invalidación tras guardar son PRIV-002; SETTINGS-001 y V2-008 conservan sus dependencias/reservas. Las migraciones no están aplicadas en los proyectos compartidos y no hay publicación de esta versión por esta tarea. Los resultados finales de CI y la integración se registran en el issue #249 y la PR correspondiente antes del cierre.

@@ -36,5 +36,5 @@ test("la audiencia protege HTML/RSC y el propietario conserva su historial", asy
   await signIn(page.context(), owner, baseURL!);
   await page.reload();
   await expect(page.getByText(question, { exact: true })).toBeVisible();
-  await expect(page.getByText("Naranja", { exact: true })).toBeVisible();
+  await expect(page.getByText("Votó: Naranja", { exact: true })).toBeVisible();
 });
