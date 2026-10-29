@@ -40,9 +40,9 @@ export function PrivacyToggle({ isPrivate: initial, onChange }: PrivacyTogglePro
   return (
     <section aria-labelledby={`${id}-label`} className="flex flex-col gap-2">
       <div className="flex items-center justify-between gap-4">
-        <h2 id={`${id}-label`} className="text-[15px] font-semibold">
+        <h3 id={`${id}-label`} className="text-[15px] font-semibold">
           Cuenta privada
-        </h2>
+        </h3>
         <button
           type="button"
           role="switch"
