@@ -172,6 +172,13 @@ Tareas de [backlog adicional](backlog-adicional.md), añadidas por la [auditorí
 | [BUG-002](https://github.com/migdlp/opinion-social-media/issues/222) | Corregir publicación real de encuestas | P0 | BUG-001 para validación productiva | Completada: [PR #225](https://github.com/migdlp/opinion-social-media/pull/225), [CI verde](https://github.com/migdlp/opinion-social-media/actions/runs/40856535117); publicación del caso reportado verificada como authenticated en transacción productiva con rollback; 39 pruebas formulario/acciones y E2E verdes | Codex /root (opinion_social_media) |
 | [BUG-003](https://github.com/migdlp/opinion-social-media/issues/223) | Corregir acceso al perfil desde móvil | P0 | BUG-001 para validación productiva | Completada: [PR #226](https://github.com/migdlp/opinion-social-media/pull/226), [CI verde](https://github.com/migdlp/opinion-social-media/actions/runs/40859851901); 632 pruebas y 80 E2E. Propietario confirma Perfil/publicación en prod tras BUG-001; recuperación de /me y retorno de onboarding integrados en main para próxima release | Codex /root (opinion_social_media) |
 
+## Revisión visual reportada en móvil — 29-10-2026
+
+| ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
+|---|---|---|---|---|---|
+| [DESIGN-007](https://github.com/migdlp/opinion-social-media/issues/227) | Corregir capas, contraste y legibilidad del menú Denunciar sobre resultados | P0 | DESIGN-003, V2-020 (completadas) | Pendiente | — |
+| [DESIGN-008](https://github.com/migdlp/opinion-social-media/issues/228) | Reorganizar categorías y jerarquía de controles del feed móvil | P1 | DESIGN-003, V2-032 (completadas); independiente de DESIGN-007 | Pendiente | — |
+
 ## Condición de cierre
 
 Cada tarea requiere evidencia de sus criterios de aceptación antes de pasar a completada. Crear documentos, escribir un borrador o disponer de acceso a un servicio no basta. MVP-051 permanece pendiente hasta verificar todas las condiciones obligatorias del checklist global del backlog.
