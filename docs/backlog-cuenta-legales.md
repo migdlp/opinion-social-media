@@ -2,6 +2,8 @@
 
 Petición del propietario del 29-10-2026, incorporada por DOC-010 [#243](https://github.com/migdlp/opinion-social-media/issues/243). **Este documento es planificación:** los tickets nuevos están pendientes; no se han implementado ni desplegado sus funciones. No se asignan responsables, fechas ni sprints. Estimaciones relativas: S ≈ 0,5 día; M ≈ 1–2 días, no compromisos.
 
+El estado operativo vigente se consulta en [tareas-futuras.md](tareas-futuras.md); las fichas siguientes conservan el plan inicial. Los contratos implementados se detallan en [contratos-api.md](contratos-api.md) y la evidencia de PRIV-001.
+
 ## Qué existe y qué falta
 
 - El tema sigue el sistema (V2-017 [#120](https://github.com/migdlp/opinion-social-media/issues/120) completada). Falta el selector manual; no reabrir el trabajo anterior para fingir que ya lo incluía.

@@ -20,6 +20,8 @@ insert into public.profiles (user_id, username, display_name, is_private) values
 insert into public.follows (follower_id, followee_id, status) values
   ('00000000-0000-0000-0000-00000000000e', '00000000-0000-0000-0000-00000000000d', 'accepted'),
   ('00000000-0000-0000-0000-00000000000b', '00000000-0000-0000-0000-0000000000bb', 'accepted');
+-- Estos casos prueban el modo heredado profile; el defecto privado se prueba en 026.
+update public.profiles set vote_visibility='profile';
 select set_config('request.jwt.claims', '', true);
 reset role;
 
@@ -135,7 +137,7 @@ reset role;
 reset role;
 select set_config('request.jwt.claims', '', true);
 insert into auth.users (id) values ('00000000-0000-0000-0000-0000000000cc');
-insert into public.profiles (user_id, username) values ('00000000-0000-0000-0000-0000000000cc', 'paginas');
+insert into public.profiles (user_id, username, vote_visibility) values ('00000000-0000-0000-0000-0000000000cc', 'paginas', 'profile');
 insert into public.polls (id, user_id, question, created_at)
   select ('30000000-0000-0000-0000-' || lpad(n::text, 12, '0'))::uuid, '00000000-0000-0000-0000-0000000000aa', '¿Pregunta de paginación número ' || n || '?', now() - interval '9 hours'
   from generate_series(1, 25) n;

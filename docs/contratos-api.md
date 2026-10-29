@@ -186,11 +186,25 @@ public.get_profile_votes(p_username text, p_cursor text default null)
                  option_id uuid, option_text text, choice_hidden boolean, cursor text)
 ```
 
-- Ejecutable por `anon` y `authenticated`. Errores: `USER_NOT_FOUND`, `PROFILE_PRIVATE` (perfil privado y quien mira no es el dueño ni seguidor aceptado).
+- Ejecutable por `anon` y `authenticated`. Errores: `USER_NOT_FOUND`, `PROFILE_PRIVATE` (perfil privado y quien mira no es el dueño ni seguidor aceptado) y `VOTES_PRIVATE` (historial no compartido con quien consulta, PRIV-001). Se comprueban los permisos antes de procesar cursor o entregar filas.
 - Orden `votes.created_at DESC, votes.id DESC`; hasta **21 filas** (20 + 1 para saber si hay más). `cursor` de cada fila es opaco (`<created_at UTC>|<id del voto>`); se pasa el de la última fila entregada para la página siguiente. Un cursor ilegible se ignora.
 - Sólo encuestas publicadas que el visitante puede ver (`can_view_author` del autor): una encuesta de una cuenta privada no aparece aunque el votante sea público.
 - **P-1:** `option_id` y `option_text` sólo vienen informados si el visitante es el propio usuario, si ya votó esa encuesta o si está cerrada; si no, `choice_hidden = true` y ambos `null`. Nunca recuentos ni porcentajes (esos se piden con `get_poll_results`, §3.3).
 - Adaptador: `getProfileVotes(supabase, username, cursor)` → `{ votes: ProfileVote[], nextCursor }`.
+
+#### Audiencia del historial (PRIV-001)
+
+```sql
+public.get_my_vote_visibility() returns text
+public.set_vote_visibility(p_visibility text) returns void
+```
+
+- Sólo `authenticated`, con `auth.uid()` no nulo y perfil existente. Sin identidad objetivo en los parámetros. Errores: `AUTH_REQUIRED`, `PROFILE_REQUIRED`, `VOTE_VISIBILITY_INVALID`. `p_visibility` admite exactamente `private`, `followers` o `profile`; `null` y cualquier otro valor se rechazan.
+- Columna privada `profiles.vote_visibility`: sin lectura directa ni escritura para clientes, pese a que otras columnas del perfil sean públicas. No se añade a `get_profile` ni `get_my_profile`; el titular la lee mediante la RPC específica.
+- `private` («Solo yo»): únicamente el titular consulta el historial; `followers`: además seguidores aceptados; `profile`: reglas previas de la privacidad de cuenta. El permiso de cuenta y el de cada encuesta siguen siendo límites superiores. P-1 continúa ocultando la opción ajena de abiertas hasta que quien consulta haya votado.
+- Valor inicial elegido: `private` para cuentas nuevas y existentes. La migración agrega un DEFAULT constante; no elimina votos ni cambia `is_private`, agregados o relaciones. El cambio sólo restringe la exposición anterior del historial. Ensayo de actualización sobre cuentas/votos existentes en `scripts/check-vote-history-upgrade.sh`.
+- Adaptadores: `getMyVoteVisibility(supabase)` → `Result<VoteVisibility>` y `setVoteVisibility(supabase, visibility)` → `Result<void>`. No se crea una caché pública ni se consulta esta preferencia desde el feed.
+- Un cambio o retirada de seguimiento se refleja en futuras consultas al servidor. No puede retirar copias de información que un visitante ya hubiera recibido lícitamente. La UI de ajustes y su invalidación tras guardar corresponden a PRIV-002; esta tarea no aplica SQL en proyectos compartidos.
 
 ### 3.10. `get_profile` y `get_profile_polls` (V2-006)
 
@@ -330,6 +344,8 @@ export type AppErrorCode =
   | 'PROFILE_REQUIRED'
   | 'USER_NOT_FOUND'
   | 'PROFILE_PRIVATE'
+  | 'VOTES_PRIVATE'
+  | 'VOTE_VISIBILITY_INVALID'
   | 'CANNOT_FOLLOW_SELF'
   | 'FOLLOW_RATE_LIMITED'
   | 'NETWORK_ERROR'
