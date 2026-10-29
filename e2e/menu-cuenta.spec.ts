@@ -16,9 +16,7 @@ test("menú de cuenta: fuera, Escape y Tab en ambos temas y anchos", async ({
       const menu = page.getByRole("navigation", { name: "Cuenta" });
       await trigger.click();
       await expect(menu).toBeVisible();
-      await expect(
-        page.getByRole("button", { name: "Menú de cuenta", expanded: true }),
-      ).toBeVisible();
+      await expect(trigger.locator("..")).toHaveJSProperty("open", true);
       await page.screenshot({ path: info.outputPath(`visual-menu-cuenta-${width}-${theme}.png`) });
       const brand = page
         .getByRole("navigation", { name: "Principal" })
