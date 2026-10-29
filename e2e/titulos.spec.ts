@@ -6,7 +6,9 @@ const SUFFIX = " · Opinión";
 
 test("rutas públicas: título propio y distinto", async ({ page }) => {
   const author = await createUser("autor", { isPrivate: true });
-  const pollId = await createPoll(author, `¿E2E título ${Date.now()}?`, ["Sí", "No"]);
+  // La encuesta es de una cuenta pública: la de una cuenta privada no existe para un visitante.
+  const publicAuthor = await createUser("publico");
+  const pollId = await createPoll(publicAuthor, `¿E2E título ${Date.now()}?`, ["Sí", "No"]);
 
   const expected: [string, string | RegExp][] = [
     ["/", "Opinión"],
