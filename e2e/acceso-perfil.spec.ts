@@ -46,7 +46,9 @@ test("Perfil sin usuario lleva al onboarding y vuelve al perfil elegido", async 
 
 test("el error de perfil ofrece reintento y nunca filtra errores internos", async ({ page }) => {
   await page.goto("/me/error");
-  await expect(page.getByRole("alert")).toContainText("No se ha podido abrir tu perfil");
+  await expect(page.getByRole("main").getByRole("alert")).toContainText(
+    "No se ha podido abrir tu perfil",
+  );
   await page.getByRole("link", { name: "Reintentar", exact: true }).click();
   await expect(page).toHaveURL(/\/login\?next=%2Fme$/);
 });

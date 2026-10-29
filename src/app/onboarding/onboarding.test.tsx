@@ -37,14 +37,30 @@ describe("OnboardingContent (/onboarding)", () => {
     expect(screen.getByRole("textbox", { name: "Usuario" })).toBeDefined();
   });
 
-  it("criterio 3: con perfil se redirige a /", async () => {
+  it("con perfil y sin destino se redirige a /", async () => {
     getMyProfile.mockResolvedValue({
       ok: true,
       data: { username: "ana_23", displayName: null, isPrivate: false },
     });
 
-    await expect(render_("/polls/1")).rejects.toThrow("REDIRECT:/");
+    await expect(render_()).rejects.toThrow(/^REDIRECT:\/$/);
   });
+
+  it.each(["/me", "/create", "/polls/1"])(
+    "con perfil recién creado conserva el retorno %s al refrescar onboarding",
+    async (next) => {
+      getMyProfile.mockResolvedValue({ ok: true, data: { username: "ana_23" } });
+      await expect(render_(next)).rejects.toThrow(`REDIRECT:${next}`);
+    },
+  );
+
+  it.each(["/onboarding", "/onboarding?next=%2Fme"])(
+    "un destino de onboarding %s no crea un bucle con perfil existente",
+    async (next) => {
+      getMyProfile.mockResolvedValue({ ok: true, data: { username: "ana_23" } });
+      await expect(render_(next)).rejects.toThrow(/^REDIRECT:\/$/);
+    },
+  );
 
   it("sin sesión se lleva al login y se vuelve al onboarding", async () => {
     getUser.mockResolvedValue({ data: { user: null }, error: null });
