@@ -84,7 +84,7 @@ for (const theme of ["light", "dark"] as const) {
       page
         .getByRole("navigation", { name: "Lista de encuestas" })
         .getByRole("link", { name: "Recientes", exact: true }),
-    ).toHaveCSS("background-color", "rgb(180, 200, 245)");
+    ).toHaveCSS("border-bottom-color", theme === "dark" ? "rgb(249, 249, 255)" : "rgb(22, 30, 46)");
     await page.goto("/create");
     await expect(page.getByRole("button", { name: "Publicar", exact: true })).toHaveCSS(
       "background-color",
