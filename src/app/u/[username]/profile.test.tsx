@@ -139,6 +139,24 @@ describe("/u/[username]", () => {
     expect(queries.map((q) => q.target)).not.toContain("rpc:get_profile_polls");
   });
 
+  it("PRIV-002: con el historial no compartido, la pestaña Votadas explica que es privado", async () => {
+    responses = {
+      "rpc:get_profile": { data: [header({ viewer_relation: "following" })], error: null },
+      "rpc:get_profile_votes": {
+        data: null,
+        error: { code: "P0001", message: "VOTES_PRIVATE" },
+      },
+    };
+
+    const html = await render("votadas");
+
+    expect(html).toContain("Este usuario no comparte su historial de votos contigo.");
+    expect(html).not.toContain("No se han podido cargar los votos");
+    expect(html).not.toContain("Reintentar");
+    expect(html).not.toContain('role="alert"');
+    expect(html).not.toContain("¿Tortilla con o sin cebolla?");
+  });
+
   it("criterio 2: una cuenta privada sin acceso sólo muestra cabecera y aviso, sin pedir encuestas ni votos", async () => {
     responses = {
       "rpc:get_profile": {

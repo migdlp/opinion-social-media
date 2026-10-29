@@ -4,11 +4,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useId } from "react";
 import { signOut } from "@/app/auth/actions";
-import { savePrivacy, saveProfile } from "@/app/profile-actions";
+import { savePrivacy, saveProfile, saveVoteVisibility } from "@/app/profile-actions";
 import { PrivacyToggle } from "@/components/privacy-toggle";
 import { ProfileForm } from "@/components/profile-form";
 import { ThemeSelector } from "@/components/theme-selector";
-import type { Profile } from "@/lib/data/types";
+import { VoteVisibilityPicker } from "@/components/vote-visibility-picker";
+import { ERROR_MESSAGES } from "@/lib/data/errors";
+import type { Profile, Result, VoteVisibility } from "@/lib/data/types";
 
 function Section({
   title,
@@ -37,7 +39,13 @@ function Section({
 }
 
 // Conecta los apartados de ajustes con las acciones de servidor (V2-008, SETTINGS-001).
-export function SettingsForm({ profile }: { profile: Profile }) {
+export function SettingsForm({
+  profile,
+  voteVisibility,
+}: {
+  profile: Profile;
+  voteVisibility: Result<VoteVisibility>;
+}) {
   const router = useRouter();
   return (
     <div className="flex flex-col gap-5">
@@ -62,6 +70,20 @@ export function SettingsForm({ profile }: { profile: Profile }) {
             return result;
           }}
         />
+        <hr className="border-border" />
+        {voteVisibility.ok ? (
+          <VoteVisibilityPicker value={voteVisibility.data} onChange={saveVoteVisibility} />
+        ) : (
+          <div role="alert" className="flex flex-col gap-2 text-sm">
+            <p className="text-danger">
+              No se ha podido cargar quién puede ver las encuestas que votas.{" "}
+              {ERROR_MESSAGES[voteVisibility.error]}
+            </p>
+            <Link href="/settings" className="self-start font-semibold underline">
+              Reintentar
+            </Link>
+          </div>
+        )}
       </Section>
       <Section title="Cuenta">
         <div className="flex flex-wrap items-center gap-3">

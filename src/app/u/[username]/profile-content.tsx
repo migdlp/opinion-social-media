@@ -125,6 +125,14 @@ async function CreatedTab({ username, signedIn }: { username: string; signedIn: 
 async function VotedTab({ username }: { username: string }) {
   const supabase = await createClient();
   const page = await getProfileVotes(supabase, username, null);
+  if (!page.ok && page.error === "VOTES_PRIVATE") {
+    // Estado esperado, no un fallo: sin «Reintentar» ni datos del historial (PRIV-002).
+    return (
+      <p className="rounded-2xl border border-border bg-surface p-5">
+        {ERROR_MESSAGES.VOTES_PRIVATE}
+      </p>
+    );
+  }
   if (!page.ok) {
     return (
       <div role="alert">
