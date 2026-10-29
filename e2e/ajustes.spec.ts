@@ -11,7 +11,7 @@ test("ajustes: apartados, tema compartido y guardado del nombre visible", async 
 
   await expect(page.getByRole("heading", { level: 1, name: "Ajustes" })).toBeVisible();
   for (const name of ["Perfil", "Apariencia", "Privacidad", "Cuenta"]) {
-    await expect(page.getByRole("region", { name })).toBeVisible();
+    await expect(page.getByRole("region", { name, exact: true })).toBeVisible();
   }
 
   const appearance = page.getByRole("region", { name: "Apariencia" });
@@ -28,7 +28,7 @@ test("ajustes: apartados, tema compartido y guardado del nombre visible", async 
   );
 
   await page
-    .getByRole("region", { name: "Cuenta" })
+    .getByRole("region", { name: "Cuenta", exact: true })
     .getByRole("link", { name: "Volver a mi perfil" })
     .click();
   await expect(page).toHaveURL(`${baseURL}/u/${user.username}`);
