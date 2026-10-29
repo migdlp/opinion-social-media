@@ -238,6 +238,8 @@ export function getProfileVotes(
         nextCursor: rows.length > PROFILE_VOTES_PAGE_SIZE ? page[page.length - 1].cursor : null,
       },
     };
+  });
+}
 
 // Pasa la cuenta a privada o pública. Al volver a pública, la base de datos acepta las
 // solicitudes de seguimiento pendientes. Errores: AUTH_REQUIRED, PROFILE_REQUIRED.

@@ -1145,6 +1145,11 @@ describe("getFeed (V2-031)", () => {
   it("un fallo de red es NETWORK_ERROR", async () => {
     const { supabase } = fakeSupabase({ "rpc:get_feed": networkThrow });
     expect(await getFeed(supabase, { mode: "recientes" }, { signedIn: false })).toEqual({
+      ok: false,
+      error: "NETWORK_ERROR",
+    });
+  });
+});
 
 describe("setProfilePrivacy (V2-008)", () => {
   it.each([true, false])("llama a set_profile_privacy con %s", async (value) => {
