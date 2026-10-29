@@ -35,3 +35,30 @@ Aplicarla no reanuda la implementación pausada ni modifica la prioridad de las 
 ### Relación con las reglas del proyecto
 
 Se aplica al trabajo de interfaz (E03 y la revisión de UX). No sustituye el brief ni el backlog: identidad visual sencilla, mobile-first, accesibilidad básica y los componentes y rutas definidos. Las instrucciones del propietario, `AGENTS.md` y karpathy-guidelines prevalecen. Las actualizaciones se harán fijando una nueva revisión, no con `npx impeccable update` automático.
+
+## graphify
+
+- **Solicitud:** un colaborador pidió instalarla en el proyecto («instala esta skill: https://github.com/Graphify-Labs/graphify», 29-10-2026).
+- **Qué es:** `/graphify` convierte el repositorio (código, docs, imágenes) en un grafo de conocimiento consultable (`graphify query`, `graphify path`, `graphify explain`) para que los agentes naveguen el código sin releer ficheros. El código se analiza en local con tree-sitter, sin LLM; el paso semántico sobre documentos usa el modelo del propio asistente (subagentes) y consume sus tokens.
+- **Origen:** https://github.com/Graphify-Labs/graphify · **Revisión fijada:** etiqueta `v0.9.97`, commit `0a8cd4e1e342235fe53e881fb5d591bf0460071f`; paquete PyPI `graphifyy==0.9.97` (doble «y»; los demás `graphify*` no son oficiales).
+- **Archivos locales**, generados con el instalador oficial (`graphify install --project` y `graphify install --project --platform agents`) y sin modificar; el `SKILL.md` de Claude es idéntico a `graphify/skill.md` del origen:
+  - [.claude/skills/graphify/SKILL.md](../.claude/skills/graphify/SKILL.md), para Claude Code (`/graphify`);
+  - [.agents/skills/graphify/SKILL.md](../.agents/skills/graphify/SKILL.md), para Codex y agentes que leen `.agents/skills` (`$graphify` en Codex).
+- **Huella de cada carpeta** (`find . -type f | sort | xargs sha256sum | sha256sum`): `.agents` → `7d5f5f0f84a1083a334aac002c498c8d766ed5275f424de91e48a0c10c90613e`; `.claude` → `da8b18f398f9ffacd64707165d8809a511835150caae9d81c9ddab3c1ecca311`.
+- **Licencia:** Apache 2.0 (partes anteriores bajo MIT); `LICENSE`, `LICENSE-MIT` y `NOTICE` del origen copiados junto a cada variante.
+
+### Uso y requisitos
+
+- La skill necesita la CLI `graphify` (Python 3.10+) en cada máquina o sesión de agente: `uv tool install graphifyy==0.9.97` (o `pipx install graphifyy==0.9.97`). Si falta, la propia skill la instala desde PyPI **sin fijar versión**; instalarla antes con la versión fijada evita esa deriva.
+- Uso: `/graphify .` para construir el grafo; `graphify update .` tras cambiar código (sólo AST, sin coste de API).
+- La salida `graphify-out/` se ignora en Git (`.gitignore`): cada agente la regenera en local; no se publica.
+
+### Revisión de seguridad y lo que no se instala
+
+- `SKILL.md` y `references/*.md` son texto. Indican ejecutar la CLI local y, para documentos, lanzar subagentes del asistente. No se configuró ninguna clave de API de terceros: sin ella, nada sale de la máquina salvo lo que ya procesa el propio asistente.
+- **No se instalan** los `PreToolUse` hooks que el instalador escribe en `.claude/settings.json` (`graphify hook-guard` antes de cada `Read`, `Grep`, `Glob` y `Bash`), ni las secciones que añade a `CLAUDE.md` y `.claude/CLAUDE.md` obligando a consultar el grafo antes de leer código. Fallarían en las sesiones sin la CLI y cambiarían el flujo de todos los agentes; activarlos requiere una decisión explícita del propietario.
+- Tampoco se instalan los hooks de Git (`graphify hook install`) ni el modo `--watch`.
+
+### Relación con las reglas del proyecto
+
+Es una ayuda opcional de navegación. No sustituye leer los documentos obligatorios de `AGENTS.md`, ni el protocolo de reserva, ni TDD; las instrucciones del propietario, `AGENTS.md` y karpathy-guidelines prevalecen. Actualizarla consiste en fijar una nueva versión y regenerar ambas carpetas con el instalador de esa versión, no en actualizaciones automáticas.

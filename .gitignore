@@ -47,3 +47,6 @@ next-env.d.ts
 .impeccable/questions/
 .impeccable/review/
 .impeccable/mocks/
+
+# graphify (grafo local regenerable, docs/skills.md)
+/graphify-out/
