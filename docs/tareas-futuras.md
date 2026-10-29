@@ -238,7 +238,7 @@ Cada tarea requiere evidencia de sus criterios de aceptación antes de pasar a c
 
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|
-| [PERF-001](https://github.com/migdlp/opinion-social-media/issues/262) | Diagnosticar y reducir el lag al navegar y cambiar de pestaña, con mediciones antes/después | P0 | Diagnóstico independiente; coordinar DESIGN-013 y V2-008 | En progreso | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
+| [PERF-001](https://github.com/migdlp/opinion-social-media/issues/262) | Diagnosticar y reducir el lag al navegar y cambiar de pestaña, con mediciones antes/después | P0 | Diagnóstico independiente; coordinar DESIGN-013 y V2-008 | En progreso (parcial): [PR #269](https://github.com/migdlp/opinion-social-media/pull/269), merge `527d130`, CI verde: consultas del feed en paralelo y diagnóstico en docs/rendimiento-perf-001.md. Pendiente: región de las funciones de Vercel (hipótesis iad1 frente a Supabase en Irlanda, a cargo de Codex), mediciones después y con sesión, estado activo de la barra móvil y feedback al pulsar | claude-code (session_01M3nCEPG7GSexAWHV5WEpwY) |
 
 Petición del propietario del 29-10-2026. Medir navegador/Next/Vercel/Supabase antes de atribuir la causa; incluir estado activo tardío de la barra móvil y avisos de prerender. Criterios, muestras, seguridad y TDD en el issue. Prioridad operativa tras cerrar la tarea actualmente reservada; no esperar a personalización de avatares.
 
