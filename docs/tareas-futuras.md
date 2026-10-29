@@ -177,7 +177,7 @@ Tareas de [backlog adicional](backlog-adicional.md), añadidas por la [auditorí
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|
 | [DESIGN-007](https://github.com/migdlp/opinion-social-media/issues/227) | Corregir capas, contraste y legibilidad del menú Denunciar sobre resultados | P0 | DESIGN-003, V2-020 (completadas) | En progreso | Codex /root (opinion_social_media) |
-| [DESIGN-008](https://github.com/migdlp/opinion-social-media/issues/228) | Categorías en una fila horizontal y jerarquía del feed (nuevo encargo claro) | P0 | DESIGN-003, V2-032 (completadas); independiente de DESIGN-007 | Pendiente | — |
+| [DESIGN-008](https://github.com/migdlp/opinion-social-media/issues/228) | Categorías en una fila horizontal y jerarquía del feed (nuevo encargo claro) | P0 | DESIGN-003, V2-032 (completadas); independiente de DESIGN-007 | En progreso | Codex /root (opinion_social_media) |
 
 ## Auditoría de la web en local — 29-10-2026
 
