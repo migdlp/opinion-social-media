@@ -103,7 +103,11 @@ export function FollowList({
                 href={`/u/${entry.username}`}
                 className="flex min-w-0 items-center gap-3 hover:underline"
               >
-                <Avatar username={entry.username} displayName={entry.displayName} />
+                <Avatar
+                  username={entry.username}
+                  displayName={entry.displayName}
+                  icon={entry.avatarIcon}
+                />
                 <span className="flex min-w-0 flex-col">
                   {entry.displayName && (
                     <span className="truncate font-semibold">{entry.displayName}</span>

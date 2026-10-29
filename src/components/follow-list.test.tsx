@@ -18,6 +18,22 @@ type Load = (cursor: string) => Promise<Result<FollowPage>>;
 type Act = (username: string) => Promise<Result<void>>;
 type Respond = (username: string, accept: boolean) => Promise<Result<void>>;
 
+describe("FollowList (AVATAR-001)", () => {
+  it("muestra el icono elegido por cada persona y las iniciales de quien no lo tiene", () => {
+    const { container } = render(
+      <FollowList
+        initialUsers={[{ ...user(1), avatarIcon: "luna" }, user(2)]}
+        initialCursor={null}
+        loadMore={vi.fn<Load>()}
+        emptyText="Nadie"
+      />,
+    );
+    expect(container.querySelectorAll("[data-avatar-icon]")).toHaveLength(1);
+    expect(container.querySelector('[data-avatar-icon="luna"]')).not.toBeNull();
+    expect(screen.getByText("US")).toBeTruthy();
+  });
+});
+
 describe("FollowList", () => {
   it("lista a cada persona con enlace a su perfil, sin acciones de gestión por defecto", () => {
     render(

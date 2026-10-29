@@ -2,6 +2,7 @@
 // pantallas usan estas funciones: reciben el cliente Supabase del contexto
 // (src/lib/supabase/server.ts o client.ts) y devuelven Result con AppErrorCode.
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { parseAvatarIcon, type AvatarIcon } from "@/lib/avatar-icons";
 import { isClosed } from "@/lib/utils/date";
 import { toAppError } from "./errors";
 import {
@@ -153,7 +154,12 @@ export function reportPoll(
   });
 }
 
-type ProfileRow = { username: string; display_name: string | null; is_private: boolean };
+type ProfileRow = {
+  username: string;
+  display_name: string | null;
+  is_private: boolean;
+  avatar_icon?: string | null;
+};
 
 const toProfile = (row: ProfileRow): Profile => ({
   username: row.username,
@@ -162,12 +168,39 @@ const toProfile = (row: ProfileRow): Profile => ({
 });
 
 // Perfil de la cuenta con sesión; null si aún no ha elegido @usuario (V2-002).
+// Iconos de perfil (AVATAR-001) de varios @usuario, leídos de la columna pública de `profiles`
+// (como username o display_name). Es decorativo: ante cualquier fallo o valor desconocido se
+// devuelve vacío y la interfaz usa las iniciales.
+async function fetchAvatarIcons(
+  supabase: SupabaseClient,
+  usernames: string[],
+): Promise<Map<string, AvatarIcon>> {
+  const icons = new Map<string, AvatarIcon>();
+  if (usernames.length === 0) return icons;
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("username, avatar_icon")
+      .in("username", usernames);
+    if (error) return icons;
+    for (const row of (data ?? []) as { username: string; avatar_icon: string | null }[]) {
+      const icon = parseAvatarIcon(row.avatar_icon);
+      if (icon) icons.set(row.username, icon);
+    }
+  } catch {
+    // Sin icono: iniciales.
+  }
+  return icons;
+}
+
 export function getMyProfile(supabase: SupabaseClient): Promise<Result<Profile | null>> {
   return guard(async () => {
     const { data, error } = await supabase.rpc("get_my_profile");
     if (error) return { ok: false, error: toAppError(error) };
     const row = ((data ?? []) as ProfileRow[])[0];
-    return { ok: true, data: row ? toProfile(row) : null };
+    if (!row) return { ok: true, data: null };
+    const icon = parseAvatarIcon(row.avatar_icon);
+    return { ok: true, data: icon ? { ...toProfile(row), avatarIcon: icon } : toProfile(row) };
   });
 }
 
@@ -495,10 +528,14 @@ export function getProfileView(
   username: string,
 ): Promise<Result<ProfileView>> {
   return guard(async () => {
-    const { data, error } = await supabase.rpc("get_profile", { p_username: username });
+    const [{ data, error }, icons] = await Promise.all([
+      supabase.rpc("get_profile", { p_username: username }),
+      fetchAvatarIcons(supabase, [username]),
+    ]);
     if (error) return { ok: false, error: toAppError(error) };
     const row = ((data ?? []) as ProfileViewRow[])[0];
     if (!row) return { ok: false, error: "USER_NOT_FOUND" };
+    const icon = icons.get(row.username);
     return {
       ok: true,
       data: {
@@ -510,6 +547,7 @@ export function getProfileView(
         pollsCount: row.polls_count,
         viewerRelation: row.viewer_relation,
         canViewContent: row.can_view_content,
+        ...(icon ? { avatarIcon: icon } : {}),
       },
     };
   });
@@ -573,13 +611,26 @@ export const FOLLOW_PAGE_SIZE = 30;
 type FollowRow = { username: string; display_name: string | null; cursor: string };
 
 // Páginas de 30 (V2-009): la RPC devuelve una fila más para saber si hay página siguiente.
-function toFollowPage(data: unknown): FollowPage {
+function toFollowPage(data: unknown, icons: Map<string, AvatarIcon>): FollowPage {
   const rows = (data ?? []) as FollowRow[];
   const page = rows.slice(0, FOLLOW_PAGE_SIZE);
   return {
-    users: page.map((row) => ({ username: row.username, displayName: row.display_name })),
+    users: page.map((row) => {
+      const icon = icons.get(row.username);
+      return {
+        username: row.username,
+        displayName: row.display_name,
+        ...(icon ? { avatarIcon: icon } : {}),
+      };
+    }),
     nextCursor: rows.length > FOLLOW_PAGE_SIZE ? page[page.length - 1].cursor : null,
   };
+}
+
+// Una sola consulta de iconos por página de la lista.
+async function followPageWithIcons(supabase: SupabaseClient, data: unknown): Promise<FollowPage> {
+  const names = ((data ?? []) as FollowRow[]).slice(0, FOLLOW_PAGE_SIZE).map((r) => r.username);
+  return toFollowPage(data, await fetchAvatarIcons(supabase, names));
 }
 
 // Seguidores aceptados de @username. Errores: USER_NOT_FOUND, PROFILE_PRIVATE.
@@ -594,7 +645,7 @@ export function listFollowers(
       p_cursor: cursor ?? null,
     });
     if (error) return { ok: false, error: toAppError(error) };
-    return { ok: true, data: toFollowPage(data) };
+    return { ok: true, data: await followPageWithIcons(supabase, data) };
   });
 }
 
@@ -610,7 +661,7 @@ export function listFollowing(
       p_cursor: cursor ?? null,
     });
     if (error) return { ok: false, error: toAppError(error) };
-    return { ok: true, data: toFollowPage(data) };
+    return { ok: true, data: await followPageWithIcons(supabase, data) };
   });
 }
 
@@ -624,7 +675,7 @@ export function listFollowRequests(
       p_cursor: cursor ?? null,
     });
     if (error) return { ok: false, error: toAppError(error) };
-    return { ok: true, data: toFollowPage(data) };
+    return { ok: true, data: await followPageWithIcons(supabase, data) };
   });
 }
 
@@ -788,6 +839,18 @@ export async function hasAcceptedFollows(
   } catch {
     return false;
   }
+}
+
+// Elige el icono de perfil propio (null = volver a las iniciales). Errores: AVATAR_INVALID,
+// AUTH_REQUIRED, PROFILE_REQUIRED. No cambia nombre ni @usuario.
+export function setProfileAvatar(
+  supabase: SupabaseClient,
+  icon: AvatarIcon | null,
+): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("set_profile_avatar", { p_icon: icon as string });
+    return error ? { ok: false, error: toAppError(error) } : { ok: true, data: undefined };
+  });
 }
 
 // Sólo preferencias propias: las RPC no aceptan un usuario objetivo.

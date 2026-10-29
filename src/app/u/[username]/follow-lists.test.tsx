@@ -94,7 +94,8 @@ describe("/u/[username]/seguidores y /siguiendo", () => {
     };
     const html = await renderList("siguiendo");
     expect(html).toContain("usuario_3");
-    expect(targets()).toEqual(["rpc:get_profile", "rpc:list_following"]);
+    // «profiles» es la lectura pública de iconos (AVATAR-001): cabecera y una vez por página.
+    expect(targets()).toEqual(["rpc:get_profile", "profiles", "rpc:list_following", "profiles"]);
   });
 
   it("criterio 1: una cuenta privada sin acceso muestra el aviso y no pide la lista", async () => {
@@ -110,7 +111,8 @@ describe("/u/[username]/seguidores y /siguiendo", () => {
       expect(html).toContain("Esta cuenta es privada");
       expect(html).not.toContain("usuario_1");
     }
-    expect(targets()).toEqual(["rpc:get_profile", "rpc:get_profile"]);
+    // Sólo la cabecera (y su icono público): ninguna lista llega a pedirse.
+    expect(targets()).toEqual(["rpc:get_profile", "profiles", "rpc:get_profile", "profiles"]);
   });
 
   it("en la lista de seguidores propia aparece «Eliminar»", async () => {

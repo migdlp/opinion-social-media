@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useId } from "react";
 import { signOut } from "@/app/auth/actions";
-import { savePrivacy, saveProfile, saveVoteVisibility } from "@/app/profile-actions";
+import { saveAvatar, savePrivacy, saveProfile, saveVoteVisibility } from "@/app/profile-actions";
+import { AvatarPicker } from "@/components/avatar-picker";
 import { PrivacyToggle } from "@/components/privacy-toggle";
 import { ProfileForm } from "@/components/profile-form";
 import { ThemeSelector } from "@/components/theme-selector";
@@ -50,6 +51,13 @@ export function SettingsForm({
   return (
     <div className="flex flex-col gap-5">
       <Section title="Perfil" description="Así apareces en tus encuestas y en tu perfil.">
+        <AvatarPicker
+          username={profile.username}
+          displayName={profile.displayName}
+          value={profile.avatarIcon ?? null}
+          onChange={saveAvatar}
+        />
+        <hr className="border-border" />
         <ProfileForm
           initial={{ username: profile.username, displayName: profile.displayName }}
           onSubmit={saveProfile}

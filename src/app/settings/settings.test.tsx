@@ -14,6 +14,7 @@ vi.mock("@/app/profile-actions", () => ({
   saveProfile: vi.fn(),
   savePrivacy: vi.fn(),
   saveVoteVisibility: vi.fn(),
+  saveAvatar: vi.fn(),
 }));
 vi.mock("next/navigation", () => ({
   redirect: (to: string) => {
@@ -127,5 +128,20 @@ describe("SettingsContent (/settings)", () => {
     expect(within(privacy).queryByRole("radiogroup")).toBeNull();
     expect(within(privacy).getByRole("alert")).toBeDefined();
     expect(within(privacy).getByRole("switch", { name: "Cuenta privada" })).toBeDefined();
+  });
+
+  it("Perfil ofrece elegir el icono de perfil y marca el guardado", async () => {
+    getMyProfile.mockResolvedValue({
+      ok: true,
+      data: { username: "ana_23", displayName: "Ana", isPrivate: false, avatarIcon: "luna" },
+    });
+    render(await SettingsContent());
+    const profile = screen.getByRole("region", { name: "Perfil" });
+    const group = within(profile).getByRole("radiogroup", { name: "Imagen de perfil" });
+
+    expect((within(group).getByRole("radio", { name: "Luna" }) as HTMLInputElement).checked).toBe(
+      true,
+    );
+    expect(within(group).getByRole("radio", { name: "Iniciales" })).toBeDefined();
   });
 });

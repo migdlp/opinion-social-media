@@ -1,4 +1,7 @@
-// Avatar de iniciales (S-3): sin imágenes ni foto de Google. El tono sale del @usuario, en una
+import { AVATAR_ICONS, parseAvatarIcon, type AvatarIcon } from "@/lib/avatar-icons";
+
+// Avatar de iniciales (S-3) o de un icono del catálogo propio (AVATAR-001): sin imágenes externas
+// ni foto de Google. El tono sale del @usuario, en una
 // escala de grises acorde con el diseño en blanco y negro (texto blanco: contraste ≥ 4,5:1).
 
 export function initialsOf(username: string, displayName?: string | null): string {
@@ -22,17 +25,53 @@ export function avatarTone(username: string): { background: string; color: strin
   return { background: `hsl(0 0% ${lightness}%)`, color: "#ffffff" };
 }
 
+// Trazo del icono (decorativo: el nombre accesible lo da el texto cercano o el selector).
+export function AvatarGlyph({ icon, className }: { icon: AvatarIcon; className?: string }) {
+  const paths = AVATAR_ICONS.find((item) => item.id === icon)?.paths ?? [];
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className ?? "h-3/5 w-3/5"}
+    >
+      {paths.map((d) => (
+        <path key={d} d={d} />
+      ))}
+    </svg>
+  );
+}
+
 const SIZES = { md: "h-11 w-11 text-[15px]", lg: "h-16 w-16 text-xl" } as const;
 
 export function Avatar({
   username,
   displayName,
   size = "md",
+  icon,
 }: {
   username: string;
   displayName?: string | null;
   size?: keyof typeof SIZES;
+  icon?: AvatarIcon | null;
 }) {
+  const known = parseAvatarIcon(icon);
+  if (known) {
+    return (
+      <span
+        aria-hidden="true"
+        data-avatar-icon={known}
+        style={avatarTone(username)}
+        className={`inline-flex shrink-0 items-center justify-center rounded-full select-none ${SIZES[size]}`}
+      >
+        <AvatarGlyph icon={known} />
+      </span>
+    );
+  }
   return (
     <span
       aria-hidden="true"

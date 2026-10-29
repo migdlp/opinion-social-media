@@ -30,6 +30,7 @@ export const ERROR_MESSAGES: Record<AppErrorCode, string> = {
   USER_NOT_FOUND: "No existe ese usuario.",
   VOTES_PRIVATE: "Este usuario no comparte su historial de votos contigo.",
   VOTE_VISIBILITY_INVALID: "Selecciona quién puede ver tus votos.",
+  AVATAR_INVALID: "Ese icono no está disponible. Elige otro.",
   PROFILE_PRIVATE: "Esta cuenta es privada.",
   CANNOT_FOLLOW_SELF: "No puedes seguirte a ti mismo.",
   FOLLOW_RATE_LIMITED: "Has seguido a demasiadas cuentas. Inténtalo más tarde.",
@@ -66,6 +67,7 @@ const RPC_CODES = new Set<string>([
   "PROFILE_PRIVATE",
   "VOTES_PRIVATE",
   "VOTE_VISIBILITY_INVALID",
+  "AVATAR_INVALID",
   "CANNOT_FOLLOW_SELF",
   "FOLLOW_RATE_LIMITED",
 ]);

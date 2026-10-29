@@ -170,6 +170,7 @@ export type Database = {
       };
       profiles: {
         Row: {
+          avatar_icon: string | null;
           created_at: string;
           display_name: string | null;
           is_private: boolean;
@@ -180,6 +181,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          avatar_icon?: string | null;
           created_at?: string;
           display_name?: string | null;
           is_private?: boolean;
@@ -189,6 +191,7 @@ export type Database = {
           vote_visibility?: string;
         };
         Update: {
+          avatar_icon?: string | null;
           created_at?: string;
           display_name?: string | null;
           is_private?: boolean;
@@ -307,6 +310,7 @@ export type Database = {
       get_my_profile: {
         Args: Record<PropertyKey, never>;
         Returns: {
+          avatar_icon: string;
           display_name: string;
           is_private: boolean;
           username: string;
@@ -403,6 +407,7 @@ export type Database = {
         Args: { p_accept: boolean; p_username: string };
         Returns: undefined;
       };
+      set_profile_avatar: { Args: { p_icon: string }; Returns: undefined };
       set_profile_privacy: { Args: { p_private: boolean }; Returns: undefined };
       set_vote_visibility: { Args: { p_visibility: string }; Returns: undefined };
       unfollow_user: { Args: { p_username: string }; Returns: undefined };
