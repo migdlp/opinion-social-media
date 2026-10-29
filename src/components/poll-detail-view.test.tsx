@@ -129,4 +129,51 @@ describe("PollDetailView", () => {
     render(<PollDetailView detail={DETAIL} castVote={castVote} now={NOW} />);
     expect(screen.getByRole("link", { name: "Guardar para luego" })).toBeDefined();
   });
+
+  describe("DESIGN-009: camino para seguir explorando", () => {
+    const RESULTS = {
+      pollId: DETAIL.poll.id,
+      totalVotes: 3,
+      myOptionId: "a",
+      options: [
+        { id: "a", text: "Con cebolla", position: 1, votes: 2, percentage: 66.7 },
+        { id: "b", text: "Sin cebolla", position: 2, votes: 1, percentage: 33.3 },
+      ],
+    };
+    const CLOSED_AT = "2026-10-27T18:00:00Z";
+    const cases: [string, PollDetail][] = [
+      ["visitante sin votar", DETAIL],
+      ["con sesión sin votar", { ...DETAIL, viewer: { kind: "not_voted" } }],
+      ["con voto emitido", { ...DETAIL, viewer: { kind: "voted", results: RESULTS } }],
+      [
+        "cerrada",
+        {
+          poll: { ...DETAIL.poll, closesAt: CLOSED_AT },
+          viewer: { kind: "closed", signedIn: false, results: RESULTS },
+        },
+      ],
+    ];
+
+    it.each(cases)("%s: hay un enlace «Ver más encuestas» que lleva al feed", (_name, detail) => {
+      render(<PollDetailView detail={detail} castVote={castVote} now={NOW} />);
+
+      const link = screen.getByRole("link", { name: "Ver más encuestas" });
+      expect(link.getAttribute("href")).toBe("/");
+      // Objetivo táctil de al menos 44 px de alto.
+      expect(link.className).toMatch(/min-h-11/);
+    });
+
+    it("antes de votar el enlace no añade cifras ni nada que dependa de los resultados", () => {
+      const { container } = render(
+        <PollDetailView
+          detail={{ ...DETAIL, viewer: { kind: "not_voted" } }}
+          castVote={castVote}
+          now={NOW}
+        />,
+      );
+
+      expect(screen.getByRole("link", { name: "Ver más encuestas" })).toBeDefined();
+      expect(container.textContent).not.toMatch(/\d\s?%|\bvotos?\b/i);
+    });
+  });
 });

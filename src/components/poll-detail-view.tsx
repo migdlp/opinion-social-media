@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { CopyLinkButton } from "@/components/copy-link-button";
 import { PollAuthor } from "@/components/poll-author";
 import { PollVoting } from "@/components/poll-voting";
@@ -63,7 +64,17 @@ export function PollDetailView({
           </>
         )}
       </p>
-      <CopyLinkButton path={`/polls/${poll.id}`} title={poll.question} />
+      <div className="flex flex-wrap items-start gap-x-4 gap-y-1">
+        <CopyLinkButton path={`/polls/${poll.id}`} title={poll.question} />
+        {/* Siempre presente y sin depender del voto ni de los resultados: cierra el ciclo
+            explorar → votar → descubrir → seguir explorando (DESIGN-009). */}
+        <Link
+          href="/"
+          className="inline-flex min-h-11 items-center text-sm font-semibold underline underline-offset-4 hover:text-muted"
+        >
+          Ver más encuestas
+        </Link>
+      </div>
     </article>
   );
 }
