@@ -38,7 +38,7 @@ async function account(role: string, isPrivate: boolean): Promise<Account> {
   const username = `${role}${id.replaceAll("-", "").slice(0, 8)}`;
   const profile = await admin
     .from("profiles")
-    .insert({ user_id: id, username, is_private: isPrivate });
+    .insert({ user_id: id, username, is_private: isPrivate, vote_visibility: "profile" });
   if (profile.error) throw profile.error;
   const client = createClient(URL_, PUBLISHABLE, opts);
   const { data, error } = await client.auth.signInWithPassword({ email, password: PASSWORD });

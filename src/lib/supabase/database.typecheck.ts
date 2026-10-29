@@ -88,6 +88,7 @@ export type DatabaseContractChecks = [
         is_private: boolean;
         created_at: string;
         updated_at: string;
+        vote_visibility: string;
       }
     >
   >,
@@ -168,4 +169,12 @@ export type DatabaseContractChecks = [
       { poll_id: string; created_at: string; cursor: string }[]
     >
   >,
+];
+
+// PRIV-001: preferencia propia, sin identificador de usuario objetivo.
+export type VoteVisibilityRpcChecks = [
+  Assert<Equal<Public["Functions"]["get_my_vote_visibility"]["Args"], Record<PropertyKey, never>>>,
+  Assert<Equal<Public["Functions"]["get_my_vote_visibility"]["Returns"], string>>,
+  Assert<Equal<Public["Functions"]["set_vote_visibility"]["Args"], { p_visibility: string }>>,
+  Assert<Equal<Public["Functions"]["set_vote_visibility"]["Returns"], undefined>>,
 ];
