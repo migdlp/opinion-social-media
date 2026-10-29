@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { hardenAuthCookies, isSecureRequest } from "@/lib/supabase/cookies";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 
 // Renueva la sesión de Supabase en cada petición de página: getClaims() refresca el token
@@ -9,6 +10,7 @@ import { getSupabaseEnv } from "@/lib/supabase/env";
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
   const { url, publishableKey } = getSupabaseEnv();
+  const secure = isSecureRequest(request.headers, request.nextUrl.href);
 
   const supabase = createServerClient(url, publishableKey, {
     cookies: {
@@ -18,7 +20,7 @@ export async function proxy(request: NextRequest) {
       setAll(cookiesToSet) {
         for (const { name, value } of cookiesToSet) request.cookies.set(name, value);
         response = NextResponse.next({ request });
-        for (const { name, value, options } of cookiesToSet) {
+        for (const { name, value, options } of hardenAuthCookies(cookiesToSet, secure)) {
           response.cookies.set(name, value, options);
         }
       },
