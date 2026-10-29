@@ -56,10 +56,7 @@ export function PollDetailView({
       <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-2 text-[13px] text-muted">
         <PollAuthor author={poll.author} />
         {poll.closesAt && (
-          <>
-            {" · "}
-            <time dateTime={poll.closesAt}>{formatCloseStatus(poll.closesAt, now)}</time>
-          </>
+          <time dateTime={poll.closesAt}>{formatCloseStatus(poll.closesAt, now)}</time>
         )}
         <SavePoll pollId={poll.id} signedIn={signedIn} initialSaved={detail.saved} />
       </div>

@@ -19,7 +19,7 @@ type PollCardProps = {
 // Tarjeta de una encuesta del feed (D-023, V2-033): pregunta, opciones, fecha y autor. Se vota
 // desde la propia tarjeta con el mismo componente y la misma acción que el detalle: elegir, confirmar
 // y ver los resultados. Sin voto propio no recibe ni muestra datos agregados; las votadas y las
-// cerradas (D-020) muestran los resultados desde la carga y las cerradas no admiten voto. Toda la
+// cerradas (D-020) muestran los resultados desde la carga y las cerradas no admiten voto. La
 // pregunta enlaza al detalle; los controles mantienen su propia acción.
 export function PollCard({ poll, viewer, saved, now = new Date() }: PollCardProps) {
   const closed = isClosed(poll.closesAt, now);
