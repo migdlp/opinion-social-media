@@ -195,6 +195,12 @@ Auditoría anónima de `release` `4e22089` construida en local contra Supabase d
 |---|---|---|---|---|---|
 | [DESIGN-012](https://github.com/migdlp/opinion-social-media/issues/235) | Implementar tarjetas/resultados/estados, movimiento P1 y refinado/entrega P2 | P0 | DESIGN-002/003 completadas; coordinar DESIGN-007/008/010 y reserva ajena DESIGN-009 | Completada · [PR #239](https://github.com/migdlp/opinion-social-media/pull/239), merge 9a812a0; CI 40878438795 verde, 106 E2E y 72 capturas revisadas; publicación autorizada por el propietario | Codex /root (opinion_social_media) |
 
+## Publicación autorizada del rediseño — 29-10-2026
+
+| ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
+|---|---|---|---|---|---|
+| [REL-001](https://github.com/migdlp/opinion-social-media/issues/241) | Publicar el rediseño After Sunset y correcciones integradas desde main a release; verificar Vercel y dominio | P0 | DESIGN-007/008/012 completadas; autorización explícita «continúa y publica los cambios» | En progreso | Codex /root (opinion_social_media) |
+
 ## Condición de cierre
 
 Cada tarea requiere evidencia de sus criterios de aceptación antes de pasar a completada. Crear documentos, escribir un borrador o disponer de acceso a un servicio no basta. MVP-051 permanece pendiente hasta verificar todas las condiciones obligatorias del checklist global del backlog.
