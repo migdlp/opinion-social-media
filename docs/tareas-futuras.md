@@ -170,7 +170,7 @@ Tareas de [backlog adicional](backlog-adicional.md), añadidas por la [auditorí
 |---|---|---|---|---|---|
 | [BUG-001](https://github.com/migdlp/opinion-social-media/issues/221) | Restaurar feed y alinear esquema productivo con release | P0 | Migraciones versionadas; coordinar MVP-049 | En progreso | Codex /root (opinion_social_media) |
 | [BUG-002](https://github.com/migdlp/opinion-social-media/issues/222) | Corregir publicación real de encuestas | P0 | BUG-001 para validación productiva | En progreso: esquema productivo reparado; validación del flujo | Codex /root (opinion_social_media) |
-| [BUG-003](https://github.com/migdlp/opinion-social-media/issues/223) | Corregir acceso al perfil desde móvil | P0 | BUG-001 para validación productiva | Pendiente | — |
+| [BUG-003](https://github.com/migdlp/opinion-social-media/issues/223) | Corregir acceso al perfil desde móvil | P0 | BUG-001 para validación productiva | En progreso: corregir fallo silencioso de /me y probar enlaces móviles | Codex /root (opinion_social_media) |
 
 ## Condición de cierre
 
