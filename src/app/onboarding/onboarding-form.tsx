@@ -1,18 +1,16 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { saveProfile } from "@/app/profile-actions";
 import { ProfileForm } from "@/components/profile-form";
 
-// Conecta el formulario con la acción de servidor y vuelve a la ruta de la que se venía.
+// /me puede haberse precargado sin perfil y redirigir al onboarding. Tras guardar,
+// navegar por documento evita reutilizar esa redirección y renueva también la cabecera.
 export function OnboardingForm({ next }: { next: string }) {
-  const router = useRouter();
   return (
     <ProfileForm
       onSubmit={saveProfile}
       onDone={() => {
-        router.push(next);
-        router.refresh();
+        window.location.assign(next);
       }}
     />
   );

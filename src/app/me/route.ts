@@ -11,9 +11,9 @@ export async function GET(request: Request) {
     const { data } = await supabase.auth.getUser();
     if (!data.user) return go("/login?next=%2Fme");
     const profile = await getMyProfile(supabase);
-    if (!profile.ok) return go("/");
+    if (!profile.ok) return go("/me/error");
     return go(profile.data ? `/u/${profile.data.username}` : "/onboarding?next=%2Fme");
   } catch {
-    return go("/");
+    return go("/me/error");
   }
 }
