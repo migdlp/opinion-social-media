@@ -13,7 +13,8 @@ for (const theme of ["light", "dark"] as const) {
         "background-color",
         theme === "dark" ? "rgb(22, 30, 46)" : "rgb(249, 249, 255)",
       );
-      for (const action of [google, create]) {
+      if (width < 640) await expect(create).toBeHidden();
+      for (const action of width < 640 ? [google] : [google, create]) {
         await expect(action).toHaveCSS("background-color", "rgb(255, 177, 107)");
         await expect(action).toHaveCSS("color", "rgb(22, 30, 46)");
       }
@@ -44,7 +45,7 @@ for (const theme of ["light", "dark"] as const) {
       });
       await expect(google).toHaveCSS(
         "background-color",
-        theme === "dark" ? "rgb(22, 30, 46)" : "rgb(249, 249, 255)",
+        theme === "dark" ? "rgb(36, 50, 70)" : "rgb(255, 223, 192)",
       );
       await expect(google).toHaveCSS(
         "color",

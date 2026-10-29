@@ -42,7 +42,7 @@ export function ProfileHeader({
       </div>
       <ul className="flex flex-wrap gap-x-6 gap-y-2 text-[15px]">
         <li>
-          <Link href={`${base}/seguidores`} className="hover:underline">
+          <Link href={`${base}/seguidores`} className="py-1.5 hover:underline">
             <span className="font-semibold tabular-nums">
               {number.format(profile.followersCount)}
             </span>{" "}
@@ -50,7 +50,7 @@ export function ProfileHeader({
           </Link>
         </li>
         <li>
-          <Link href={`${base}/siguiendo`} className="hover:underline">
+          <Link href={`${base}/siguiendo`} className="py-1.5 hover:underline">
             <span className="font-semibold tabular-nums">
               {number.format(profile.followingCount)}
             </span>{" "}

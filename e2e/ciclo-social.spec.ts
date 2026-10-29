@@ -88,7 +88,7 @@ test("ciclo social: onboarding, crear, solicitar seguir una cuenta privada, acep
   await expect(page).toHaveURL(`/polls/${privatePoll}`);
   await page.waitForLoadState("networkidle");
   await page.getByRole("radio", { name: "No", exact: true }).check();
-  await page.getByRole("button", { name: "Votar" }).click();
+  await page.getByRole("button", { name: "Votar y descubrir" }).click();
   await expect(page.getByText("Tu voto")).toBeVisible();
 
   // 7. En su propio perfil, la encuesta votada aparece en «Votadas» con la opción elegida.

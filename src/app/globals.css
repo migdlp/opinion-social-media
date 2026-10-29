@@ -7,10 +7,16 @@
   --surface: #ffffff;
   --foreground: #161e2e;
   --muted: #354861;
-  --border: #b4c8f5;
-  --track: #f9f9ff;
-  --bar-muted: #354861;
-  --bar-own: #161e2e;
+  --border: #e0e5ef;
+  --track: #e5eaf4;
+  --bar-muted: #b4c8f5;
+  --bar-own: #ffb16b;
+  --bar-outline: #354861;
+  --option-surface: #f9faff;
+  --option-selected: #fff1e4;
+  --option-selected-border: #995625;
+  --result-own: #fff6ed;
+  --disabled-bg: #ffdfc0;
   --field: #354861;
   --danger: #c4161c;
   --accent: #ffb16b;
@@ -26,10 +32,16 @@
     --surface: #354861;
     --foreground: #f9f9ff;
     --muted: #b4c8f5;
-    --border: #b4c8f5;
+    --border: #4d5f78;
     --track: #161e2e;
     --bar-muted: #b4c8f5;
     --bar-own: #ffb16b;
+    --bar-outline: #f9f9ff;
+    --option-surface: #2c3b50;
+    --option-selected: #494b4c;
+    --option-selected-border: #ffb16b;
+    --result-own: #3f4654;
+    --disabled-bg: #243246;
     --field: #b4c8f5;
     --danger: #ff9d9d;
     --accent: #ffb16b;
@@ -90,12 +102,32 @@ body {
   opacity: 1;
 }
 
+/* Una sola fila: el documento no se ensancha aunque haya ocho categorías. */
+.category-rail {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-padding-inline: 4px;
+  scrollbar-width: thin;
+  padding: 4px 2px 10px;
+}
+
 /* Base compartida de color para CTA. Cada componente conserva su tamaño y etiqueta. */
 @utility action-primary {
   background-color: var(--accent);
   color: var(--accent-foreground);
-  transition-property: background-color, color;
-  transition-duration: 150ms;
+  transition:
+    background-color 150ms,
+    color 150ms,
+    transform 100ms;
+
+  &:active:not(:disabled) {
+    transform: scale(0.985);
+  }
 
   @media (hover: hover) {
     &:hover:not(:disabled):not([aria-disabled="true"]) {
@@ -105,42 +137,106 @@ body {
 
   &:disabled,
   &[aria-disabled="true"] {
-    background-color: var(--track);
+    background-color: var(--disabled-bg);
     color: var(--muted);
-    cursor: wait;
+    cursor: not-allowed;
   }
 }
 
-/* Revelación de resultados: las barras crecen desde cero y las cifras aparecen. */
+/* La selección no envía votos. Sólo la confirmación autorizada revela resultados. */
+.poll-surface {
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: 0 6px 24px rgb(22 30 46 / 4%);
+}
+.poll-choice {
+  min-height: 48px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--option-surface);
+  transition:
+    background-color 160ms,
+    border-color 160ms,
+    transform 100ms;
+}
+.poll-choice:has(:checked) {
+  background: var(--option-selected);
+  border-color: var(--option-selected-border);
+}
+.poll-choice:active:not(:has(:disabled)) {
+  transform: scale(0.985);
+}
+.poll-choice:has(:disabled) {
+  cursor: wait;
+}
+.poll-radio {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--field);
+  border-radius: 50%;
+  background: var(--surface);
+  transition:
+    border-color 160ms,
+    box-shadow 160ms,
+    background-color 160ms;
+}
+.poll-radio:checked {
+  background: var(--accent-foreground);
+  border-color: var(--option-selected-border);
+  box-shadow: inset 0 0 0 4px var(--accent);
+}
+.result-option {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+  background: var(--option-surface);
+}
+.result-option[data-own="true"] {
+  border-color: var(--option-selected-border);
+  background: var(--result-own);
+}
+.result-fill {
+  box-shadow: inset 0 0 0 1px var(--bar-outline);
+}
 @keyframes reveal-bar {
   from {
     width: 0;
   }
 }
-
-@keyframes reveal-figure {
+@keyframes reveal-results {
   from {
     opacity: 0;
-    transform: translateY(0.25em);
-    filter: blur(2px);
+    transform: translateY(3px);
   }
 }
-
+@keyframes reveal-menu {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+}
 .reveal-bar {
-  animation: reveal-bar 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: reveal-bar 350ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
-
-.reveal-figure {
-  animation: reveal-figure 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+.reveal-results {
+  animation: reveal-results 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
-
+.poll-menu {
+  animation: reveal-menu 140ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
 @media (prefers-reduced-motion: reduce) {
-  .action-primary {
-    transition: none;
+  .poll-choice:active,
+  .action-primary:active {
+    transform: none !important;
   }
 
-  .reveal-bar,
-  .reveal-figure {
-    animation: none;
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
   }
 }

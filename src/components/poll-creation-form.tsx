@@ -327,7 +327,7 @@ export function PollCreationForm({
       <button
         type="submit"
         disabled={pending}
-        className="self-start action-primary rounded-full px-6 py-2.5 font-semibold"
+        className="self-start action-primary rounded-xl px-6 py-2.5 font-semibold"
       >
         {pending ? "Publicando…" : "Publicar"}
       </button>

@@ -31,11 +31,11 @@ test("con sesión: elige y confirma en la tarjeta, ve los resultados ahí y pers
   // Elegir no vota: hay que confirmar.
   await card.getByRole("radio", { name: "Azul" }).check();
   expect(await votesOf(pollId)).toHaveLength(0);
-  await card.getByRole("button", { name: "Votar" }).click();
+  await card.getByRole("button", { name: "Votar y descubrir" }).click();
 
   await expect(card.getByText("Tu voto")).toBeVisible();
   await expect(card.getByText("1 voto en total")).toBeVisible();
-  await expect(card.getByRole("button", { name: "Votar" })).toHaveCount(0);
+  await expect(card.getByRole("button", { name: "Votar y descubrir" })).toHaveCount(0);
   expect(await votesOf(pollId)).toEqual([expect.objectContaining({ user_id: voter.id })]);
 
   // Tras recargar, la tarjeta ya muestra los resultados y no ofrece votar de nuevo.
@@ -56,7 +56,7 @@ test("el doble clic en «Votar» emite un único voto", async ({ page, baseURL }
   await ready(page, "/");
   const card = page.locator("article", { hasText: question });
   await card.getByRole("radio", { name: "No", exact: true }).check();
-  await card.getByRole("button", { name: "Votar" }).dblclick();
+  await card.getByRole("button", { name: "Votar y descubrir" }).dblclick();
 
   await expect(card.getByText("Tu voto")).toBeVisible();
   expect(await votesOf(pollId)).toHaveLength(1);
@@ -72,7 +72,7 @@ test("visitante: al confirmar va al login con la encuesta y la opción, y no se 
   await ready(page, "/");
   const card = page.locator("article", { hasText: question });
   await card.getByRole("radio", { name: "Azul" }).check();
-  await card.getByRole("button", { name: "Votar" }).click();
+  await card.getByRole("button", { name: "Votar y descubrir" }).click();
 
   const login = card.getByRole("link", { name: "Iniciar sesión" });
   await expect(login).toBeVisible();

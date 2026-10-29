@@ -64,7 +64,7 @@ describe("PollCard", () => {
     expect(within(card).getByText("Anónimo")).toBeDefined();
 
     // Ninguna cifra real: ni porcentajes, ni recuentos, ni total.
-    expect(container.textContent).not.toMatch(/\d\s*%|\bvotos?\b|total/i);
+    expect(container.textContent).not.toMatch(/\d\s*%|\b\d[\d.,]*\s+votos?\b|total/i);
     expect(container.querySelector("[data-bar]")).toBeNull();
   });
 
@@ -72,10 +72,10 @@ describe("PollCard", () => {
     const { container } = render(<PollCard poll={POLL} viewer={{ kind: "not_voted" }} now={NOW} />);
 
     expect(screen.getAllByRole("radio")).toHaveLength(2);
-    expect((screen.getByRole("button", { name: "Votar" }) as HTMLButtonElement).disabled).toBe(
-      true,
-    );
-    expect(container.textContent).not.toMatch(/\d\s*%|\?\?\s*%|\bvotos?\b|total/i);
+    expect(
+      (screen.getByRole("button", { name: "Votar y descubrir" }) as HTMLButtonElement).disabled,
+    ).toBe(true);
+    expect(container.textContent).not.toMatch(/\d\s*%|\?\?\s*%|\b\d[\d.,]*\s+votos?\b|total/i);
     expect(container.querySelector("[data-bar]")).toBeNull();
   });
 
@@ -87,20 +87,20 @@ describe("PollCard", () => {
     render(<PollCard poll={POLL} viewer={{ kind: "not_voted" }} now={NOW} />);
 
     await userEvent.click(screen.getByRole("radio", { name: "Té" }));
-    await userEvent.click(screen.getByRole("button", { name: "Votar" }));
+    await userEvent.click(screen.getByRole("button", { name: "Votar y descubrir" }));
 
     expect(castVote).toHaveBeenCalledOnce();
     expect(castVote).toHaveBeenCalledWith(POLL.id, "o2");
     expect(await screen.findByText("Tu voto")).toBeDefined();
     expect(screen.getAllByText(/75,0\s*%/).length).toBeGreaterThan(0);
-    expect(screen.queryByRole("button", { name: "Votar" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Votar y descubrir" })).toBeNull();
   });
 
   it("V2-033: un visitante que confirma va al login con la encuesta y la opción, sin voto", async () => {
     render(<PollCard poll={POLL} viewer={{ kind: "anonymous" }} now={NOW} />);
 
     await userEvent.click(screen.getByRole("radio", { name: "Café" }));
-    await userEvent.click(screen.getByRole("button", { name: "Votar" }));
+    await userEvent.click(screen.getByRole("button", { name: "Votar y descubrir" }));
 
     expect(castVote).not.toHaveBeenCalled();
     expect(screen.getByRole("link", { name: "Iniciar sesión" }).getAttribute("href")).toBe(
@@ -125,7 +125,7 @@ describe("PollCard", () => {
       />,
     );
     expect(screen.queryByRole("radio")).toBeNull();
-    expect(screen.queryByRole("button", { name: "Votar" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Votar y descubrir" })).toBeNull();
     expect(screen.getByText(/75,0\s*%/)).toBeDefined();
   });
 
@@ -168,7 +168,7 @@ describe("PollCard", () => {
     (viewer) => {
       const { container } = render(<PollCard poll={POLL} viewer={viewer} now={NOW} />);
 
-      expect(container.textContent).not.toMatch(/\d\s*%|\bvotos?\b|total/i);
+      expect(container.textContent).not.toMatch(/\d\s*%|\b\d[\d.,]*\s+votos?\b|total/i);
       expect(screen.queryByText("?? %")).toBeNull();
     },
   );
@@ -226,8 +226,8 @@ describe("PollCard", () => {
     const poll = { ...POLL, closesAt: "2026-10-28T18:00:00Z" };
     const { container } = render(<PollCard poll={poll} viewer={{ kind: "not_voted" }} now={NOW} />);
 
-    expect(container.textContent).not.toMatch(/\d\s*%|\bvotos?\b|total/i);
-    expect(screen.getByRole("button", { name: "Votar" })).toBeDefined();
+    expect(container.textContent).not.toMatch(/\d\s*%|\b\d[\d.,]*\s+votos?\b|total/i);
+    expect(screen.getByRole("button", { name: "Votar y descubrir" })).toBeDefined();
   });
 
   it("muestra la etiqueta de la categoría, y ninguna si no tiene", () => {

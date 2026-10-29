@@ -14,7 +14,7 @@ const stamp = () => `${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
 async function chooseAsVisitor(page: Page, pollId: string, option: string) {
   await ready(page, `/polls/${pollId}`);
   await page.getByRole("radio", { name: option }).check();
-  await page.getByRole("button", { name: "Votar" }).click();
+  await page.getByRole("button", { name: "Votar y descubrir" }).click();
   const href =
     (await page
       .locator("#contenido")
@@ -42,7 +42,7 @@ test("visitante: elige, inicia sesión, vuelve con la opción marcada y al confi
   expect(await votesOf(pollId)).toHaveLength(0);
   expect(await page.evaluate(() => [localStorage.length, sessionStorage.length])).toEqual([0, 0]);
 
-  await page.getByRole("button", { name: "Votar" }).click();
+  await page.getByRole("button", { name: "Votar y descubrir" }).click();
   await expect(page.getByText("Tu voto")).toBeVisible();
   expect(await votesOf(pollId)).toEqual([expect.objectContaining({ user_id: voter.id })]);
 });
@@ -91,7 +91,7 @@ test("elige inválido, de otra encuesta o con voto previo se ignora sin error", 
   await signIn(page.context(), voter, baseURL!);
   await ready(page, `/polls/${a}`);
   await page.getByRole("radio", { name: "Rojo" }).check();
-  await page.getByRole("button", { name: "Votar" }).click();
+  await page.getByRole("button", { name: "Votar y descubrir" }).click();
   await expect(page.getByText("Tu voto")).toBeVisible();
   await ready(page, `/polls/${a}?elige=${"0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d"}`);
   await expect(page.getByText("Tu voto")).toBeVisible();

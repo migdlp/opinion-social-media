@@ -17,6 +17,8 @@ El propietario ha elegido provisionalmente el estilo **After Sunset de la lámin
 
 Aplicarla dentro del alcance de la tarea reservada y coordinar tokens compartidos por #73. La imagen no autoriza nuevas funciones ni revoca perfiles/privacidad o el feed acordado. PEEK es la referencia creativa; no hay cambio de nombre confirmado. Esta actualización documental no acredita que el CSS haya sido migrado ni permite desplegar. Las instrucciones visuales históricas contradictorias ceden ante D-026; las reglas funcionales y de seguridad siguen vigentes.
 
+El encargo claro del **29-10-2026 (D-027)** concreta esa dirección. Leer [la guía del rediseño y sus conflictos documentados](docs/redisenio-aftersunset-claro.md) y `DESIGN.md`: categorías en una fila, cabecera móvil compacta, tarjetas claras y resultados cálidos. Las fuentes originales están en `docs/fuentes/aftersunset-claro/`. Su HTML es ilustrativo: no usar sus votos ficticios ni incorporar funciones nuevas. Conservar las funciones V2 reales (2–6 opciones, perfiles/privacidad/Siguiendo y cerradas) y el nombre provisional Opinión.
+
 ## Contexto obligatorio de conexión a Supabase
 
 La organización de Supabase de este proyecto es **Los tres cerditos**, ID `drifadkhohwebqljdlvw`, región **Irlanda (`eu-west-1`)**. Estos proyectos ya existen: no crear otra organización ni otros proyectos para sustituirlos si falta acceso.
@@ -49,6 +51,8 @@ Leer y aplicar [karpathy-guidelines](.agents/skills/karpathy-guidelines/SKILL.md
 La copia local conserva las pautas originales y añade las reglas específicas de colaboración y TDD de este proyecto; su procedencia y revisión están en [docs/skills.md](docs/skills.md). No requiere instalar paquetes ni ejecutar scripts externos.
 
 Para trabajo de interfaz, aplicar además [impeccable](.agents/skills/impeccable/SKILL.md) (variante para Claude Code en `.claude/skills/impeccable/`) sin contradecir el brief: diseño sencillo, mobile-first y accesible. Sus hooks no están activados; procedencia, revisión fijada y alcance en [docs/skills.md](docs/skills.md).
+
+Opcionalmente, para explorar el código con un grafo de conocimiento, está disponible [graphify](.agents/skills/graphify/SKILL.md) (`/graphify` en Claude Code, `$graphify` en Codex). Requiere la CLI `graphifyy[sql]==0.9.97`; sus hooks no están activados y `graphify-out/` no se versiona. Detalles en [docs/skills.md](docs/skills.md).
 
 ## Canal de coordinación entre agentes
 

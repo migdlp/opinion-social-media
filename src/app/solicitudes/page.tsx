@@ -1,6 +1,10 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { LoadingState } from "@/components/loading-state";
 import { RequestsContent } from "./requests-content";
+import { pageTitle } from "@/lib/page-titles";
+
+export const metadata: Metadata = { title: pageTitle("Solicitudes de seguimiento") };
 
 export default function RequestsPage() {
   return (

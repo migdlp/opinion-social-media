@@ -13,7 +13,7 @@ export function MobileNavigationFallback() {
     <div
       role="status"
       aria-label="Cargando navegación"
-      className="fixed inset-x-0 bottom-0 z-20 flex h-18 items-center justify-around border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] sm:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 flex min-h-[calc(3.75rem+env(safe-area-inset-bottom))] items-center justify-around border-t border-border bg-background pb-[env(safe-area-inset-bottom)] sm:hidden"
     >
       <span className="sr-only">Cargando navegación…</span>
       {[0, 1, 2].map((key) => (

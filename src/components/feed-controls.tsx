@@ -1,17 +1,17 @@
 import Link from "next/link";
 import { loginPath } from "@/lib/auth/redirect";
 import type { Category, FeedMode } from "@/lib/data/types";
+import { CategoryRail } from "./category-rail";
 
 export function feedHref(mode: FeedMode, category: string | null): string {
   return `/?tab=${mode}${category ? `&categoria=${encodeURIComponent(category)}` : ""}`;
 }
 
-const TAB =
-  "inline-flex min-h-11 items-center rounded-full px-4 text-sm font-semibold transition-colors";
-const SELECTED = `${TAB} bg-accent-soft text-accent-foreground`;
-const UNSELECTED = `${TAB} border border-field hover:border-foreground`;
+const TAB = "inline-flex min-h-11 items-center border-b-2 px-1 text-[15px] transition-colors";
+const SELECTED = `${TAB} border-foreground font-semibold text-foreground`;
+const UNSELECTED = `${TAB} border-transparent text-muted hover:border-field`;
 const CHIP =
-  "inline-flex min-h-11 items-center rounded-full px-3.5 text-[13px] font-medium transition-colors";
+  "inline-flex min-h-11 shrink-0 items-center rounded-full border px-3.5 text-[13px] font-medium whitespace-nowrap transition-colors duration-150";
 
 // Pestañas Recientes/Siguiendo y filtro de categoría del feed (V2-032, D-022 y D-024). Son enlaces:
 // la selección vive en la URL, se puede copiar y recargar, y cambiarla descarta las filas y el
@@ -33,8 +33,8 @@ export function FeedControls({
     { id: "siguiendo", label: "Siguiendo" },
   ];
   return (
-    <div className="flex flex-col gap-3">
-      <nav aria-label="Lista de encuestas" className="flex gap-2">
+    <div className="flex min-w-0 flex-col gap-2">
+      <nav aria-label="Lista de encuestas" className="flex gap-6">
         {tabs.map(({ id, label }) => {
           const href = feedHref(id, category);
           const guest = id === "siguiendo" && !signedIn;
@@ -51,18 +51,18 @@ export function FeedControls({
         })}
       </nav>
       {categories.length > 0 && (
-        <nav aria-label="Categorías" className="flex flex-wrap gap-2">
+        <CategoryRail selected={category}>
           {[{ slug: null, name: "Todas" }, ...categories].map(({ slug, name }) => (
             <Link
               key={slug ?? "todas"}
               href={feedHref(mode, slug)}
               aria-current={category === slug ? "page" : undefined}
-              className={`${CHIP} ${category === slug ? "bg-accent-soft text-accent-foreground" : "border border-border hover:border-foreground"}`}
+              className={`${CHIP} ${category === slug ? "border-field bg-accent-soft font-semibold text-accent-foreground" : "border-border text-muted hover:border-field"}`}
             >
               {name}
             </Link>
           ))}
-        </nav>
+        </CategoryRail>
       )}
     </div>
   );

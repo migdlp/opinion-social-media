@@ -21,19 +21,31 @@ for (const theme of ["light", "dark"] as const) {
     await page.goto(`/polls/${id}`);
     const first = page.getByRole("radio", { name: "Un paseo", exact: true });
     await first.check();
-    await expect(first.locator("..")).toHaveCSS("background-color", "rgb(255, 177, 107)");
-    await expect(first.locator("..")).toHaveCSS("color", "rgb(22, 30, 46)");
+    await expect(first.locator("..")).toHaveCSS(
+      "background-color",
+      theme === "dark" ? "rgb(73, 75, 76)" : "rgb(255, 241, 228)",
+    );
+    await expect(first.locator("..")).toHaveCSS(
+      "color",
+      theme === "dark" ? "rgb(249, 249, 255)" : "rgb(22, 30, 46)",
+    );
     await first.focus();
     await page.keyboard.press("ArrowDown");
     const second = page.getByRole("radio", { name: "Una conversación", exact: true });
     await expect(second).toBeChecked();
-    await expect(second.locator("..")).toHaveCSS("background-color", "rgb(255, 177, 107)");
+    await expect(second.locator("..")).toHaveCSS(
+      "background-color",
+      theme === "dark" ? "rgb(73, 75, 76)" : "rgb(255, 241, 228)",
+    );
     await expect(first.locator("..")).toHaveCSS(
       "background-color",
-      theme === "dark" ? "rgb(53, 72, 97)" : "rgb(255, 255, 255)",
+      theme === "dark" ? "rgb(44, 59, 80)" : "rgb(249, 250, 255)",
     );
-    await expect(second).toHaveCSS("outline-color", "rgb(22, 30, 46)");
-    await expect(page.getByRole("button", { name: "Votar", exact: true })).toHaveCSS(
+    await expect(second).toHaveCSS(
+      "outline-color",
+      theme === "dark" ? "rgb(255, 177, 107)" : "rgb(22, 30, 46)",
+    );
+    await expect(page.getByRole("button", { name: "Votar y descubrir", exact: true })).toHaveCSS(
       "background-color",
       "rgb(255, 177, 107)",
     );
@@ -44,7 +56,7 @@ for (const theme of ["light", "dark"] as const) {
       body: await page.screenshot(),
       contentType: "image/png",
     });
-    await page.getByRole("button", { name: "Votar", exact: true }).click();
+    await page.getByRole("button", { name: "Votar y descubrir", exact: true }).click();
     await expect(page.getByText("Tu voto", { exact: true })).toBeVisible();
     await expect(page.locator("[data-bar]").first()).toHaveCSS("animation-name", "none");
 
@@ -72,7 +84,7 @@ for (const theme of ["light", "dark"] as const) {
       page
         .getByRole("navigation", { name: "Lista de encuestas" })
         .getByRole("link", { name: "Recientes", exact: true }),
-    ).toHaveCSS("background-color", "rgb(180, 200, 245)");
+    ).toHaveCSS("border-bottom-color", theme === "dark" ? "rgb(249, 249, 255)" : "rgb(22, 30, 46)");
     await page.goto("/create");
     await expect(page.getByRole("button", { name: "Publicar", exact: true })).toHaveCSS(
       "background-color",

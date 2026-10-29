@@ -91,7 +91,7 @@ describe("CopyLinkButton", () => {
       fireEvent.click(await screen.findByRole("button", { name: "Compartir" }));
 
       await waitFor(() => expect(navigator.share).toHaveBeenCalled());
-      expect(screen.getByRole("status").textContent).toBe("");
+      expect(screen.queryByRole("status")).toBeNull();
       expect(screen.queryByRole("alert")).toBeNull();
       expect(navigator.clipboard.writeText).not.toHaveBeenCalled();
     });

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { submitReport } from "@/app/report-actions";
 import { loginPath } from "@/lib/auth/redirect";
 import { ERROR_MESSAGES } from "@/lib/data/errors";
@@ -37,8 +37,39 @@ export function ReportPoll({ pollId, signedIn }: { pollId: string; signedIn: boo
   const [error, setError] = useState<AppErrorCode | null>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const root = useRef<HTMLDivElement>(null);
+  const menu = useRef<HTMLDivElement>(null);
   const dialog = useRef<HTMLDialogElement>(null);
   const sending = useRef(false);
+
+  useLayoutEffect(() => {
+    if (!menuOpen || !menu.current || !trigger.current || !root.current) return;
+    const place = () => {
+      if (!menu.current || !trigger.current || !root.current) return;
+      const anchor = trigger.current.getBoundingClientRect();
+      const nav = document
+        .querySelector('nav[aria-label="Navegación móvil"]')
+        ?.getBoundingClientRect();
+      const header = document
+        .querySelector('nav[aria-label="Principal"]')
+        ?.closest("header")
+        ?.getBoundingClientRect();
+      const topLimit = Math.max(8, header?.bottom ?? 0);
+      const bottomLimit = nav && nav.height > 0 ? nav.top - 8 : window.innerHeight - 8;
+      const height = menu.current.getBoundingClientRect().height;
+      const preferred =
+        anchor.bottom + 4 + height <= bottomLimit ? anchor.bottom + 4 : anchor.top - height - 4;
+      const top = Math.max(topLimit, Math.min(preferred, bottomLimit - height));
+      menu.current.style.top = `${top - root.current.getBoundingClientRect().top}px`;
+    };
+    place();
+    menu.current.querySelector<HTMLElement>('[role="menuitem"]')?.focus({ preventScroll: true });
+    window.addEventListener("resize", place);
+    window.addEventListener("scroll", place, true);
+    return () => {
+      window.removeEventListener("resize", place);
+      window.removeEventListener("scroll", place, true);
+    };
+  }, [menuOpen]);
 
   useEffect(() => {
     if (!dialogOpen || !dialog.current) return;
@@ -132,37 +163,58 @@ export function ReportPoll({ pollId, signedIn }: { pollId: string; signedIn: boo
   const loginHref = loginPath(`/polls/${pollId}`);
 
   return (
-    <div ref={root} className="relative z-10">
+    <div
+      ref={root}
+      className="relative z-10"
+      onBlur={(event) => {
+        if (menuOpen && !event.currentTarget.contains(event.relatedTarget)) setMenuOpen(false);
+      }}
+    >
       <button
         ref={trigger}
         type="button"
         aria-label="Más acciones"
         aria-haspopup="menu"
         aria-expanded={menuOpen}
+        aria-controls={menuOpen ? `${id}-menu` : undefined}
         onClick={() => setMenuOpen((open) => !open)}
-        onKeyDown={(event) => event.key === "Escape" && menuOpen && closeMenu()}
+        onKeyDown={(event) => {
+          if (event.key === "Escape" && menuOpen) closeMenu();
+          if (event.key === "ArrowDown") {
+            event.preventDefault();
+            setMenuOpen(true);
+          }
+        }}
         className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-xl leading-none text-muted transition-colors hover:text-foreground"
       >
-        <span aria-hidden="true">⋯</span>
+        <svg
+          aria-hidden="true"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+        >
+          <circle cx="5" cy="12" r="1" />
+          <circle cx="12" cy="12" r="1" />
+          <circle cx="19" cy="12" r="1" />
+        </svg>
       </button>
       {menuOpen && (
         <div
+          ref={menu}
+          id={`${id}-menu`}
           role="menu"
           onKeyDown={(event) => event.key === "Escape" && closeMenu()}
-          className="absolute right-0 z-20 mt-1 min-w-44 overflow-hidden rounded-xl border border-border bg-surface"
+          className="poll-menu absolute right-0 z-20 w-44 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-field bg-surface text-foreground shadow-md"
         >
           {signedIn ? (
-            <button
-              type="button"
-              role="menuitem"
-              onClick={openDialog}
-              autoFocus
-              className={menuItemClass}
-            >
+            <button type="button" role="menuitem" onClick={openDialog} className={menuItemClass}>
               Denunciar
             </button>
           ) : (
-            <Link role="menuitem" href={loginHref} autoFocus className={menuItemClass}>
+            <Link role="menuitem" href={loginHref} className={menuItemClass}>
               Denunciar
             </Link>
           )}
@@ -185,7 +237,7 @@ export function ReportPoll({ pollId, signedIn }: { pollId: string; signedIn: boo
               <button
                 type="button"
                 onClick={() => dialog.current?.close()}
-                className="min-h-11 self-start action-primary rounded-full px-5 text-sm font-semibold"
+                className="min-h-11 self-start action-primary rounded-xl px-5 text-sm font-semibold"
               >
                 Cerrar
               </button>
@@ -250,14 +302,14 @@ export function ReportPoll({ pollId, signedIn }: { pollId: string; signedIn: boo
                 <button
                   type="submit"
                   disabled={pending}
-                  className="min-h-11 action-primary rounded-full px-5 text-sm font-semibold"
+                  className="min-h-11 action-primary rounded-xl px-5 text-sm font-semibold"
                 >
                   {pending ? "Enviando…" : "Enviar denuncia"}
                 </button>
                 <button
                   type="button"
                   onClick={() => dialog.current?.close()}
-                  className="min-h-11 rounded-full border border-field px-5 text-sm font-semibold transition-colors hover:border-foreground"
+                  className="min-h-11 rounded-xl border border-field px-5 text-sm font-semibold transition-colors hover:border-foreground"
                 >
                   Cancelar
                 </button>

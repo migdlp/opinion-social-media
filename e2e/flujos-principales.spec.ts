@@ -28,7 +28,7 @@ test("visitante: navega por feed y detalle y sólo ve opciones, sin resultados",
   await expect(card).toContainText("Rojo");
   await expect(card).not.toContainText(AGGREGATES);
   // Se vota desde la propia tarjeta (V2-033): opciones para elegir y confirmar, sin cifras.
-  await expect(card.getByRole("button", { name: "Votar" })).toBeVisible();
+  await expect(card.getByRole("button", { name: "Votar y descubrir" })).toBeVisible();
 
   await card.getByRole("link", { name: question }).click();
   await expect(page).toHaveURL(`/polls/${pollId}`);
@@ -40,7 +40,7 @@ test("visitante: navega por feed y detalle y sólo ve opciones, sin resultados",
 
   // Votar sin sesión pide iniciar sesión y no registra nada.
   await page.getByRole("radio", { name: "Azul" }).check();
-  await page.getByRole("button", { name: "Votar" }).click();
+  await page.getByRole("button", { name: "Votar y descubrir" }).click();
   await expect(page.getByText("Inicia sesión para votar")).toBeVisible();
   expect(await votesOf(pollId)).toHaveLength(1);
 });
@@ -75,7 +75,7 @@ test("usuario de prueba crea una encuesta, aparece en el feed y otro usuario vot
     const voterPage = await voterContext.newPage();
     await ready(voterPage, `/polls/${pollId}`);
     await voterPage.getByRole("radio", { name: "No" }).check();
-    await voterPage.getByRole("button", { name: "Votar" }).click();
+    await voterPage.getByRole("button", { name: "Votar y descubrir" }).click();
     await expect(voterPage.getByText("Tu voto")).toBeVisible();
     await expect(voterPage.getByText("1 voto en total")).toBeVisible();
     await expect(voterPage.getByText(/^100,0\s%$/)).toBeVisible();
@@ -97,7 +97,7 @@ test("sesión persistente: tras recargar, la encuesta votada sigue con resultado
   await signIn(page.context(), voter, baseURL!);
   await ready(page, `/polls/${pollId}`);
   await page.getByRole("radio", { name: "Montaña" }).check();
-  await page.getByRole("button", { name: "Votar" }).click();
+  await page.getByRole("button", { name: "Votar y descubrir" }).click();
   await expect(page.getByText("Tu voto")).toBeVisible();
 
   await page.reload();
@@ -105,11 +105,11 @@ test("sesión persistente: tras recargar, la encuesta votada sigue con resultado
   await expect(page.getByText("Tu voto")).toBeVisible();
   await expect(page.getByText("1 voto en total")).toBeVisible();
   await expect(page.getByRole("radio")).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Votar" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Votar y descubrir" })).toHaveCount(0);
 
   // En el feed, su tarjeta también muestra el resultado.
   await ready(page, "/");
   const card = page.locator("article", { hasText: question });
   await expect(card.getByText("Tu voto")).toBeVisible();
-  await expect(card.getByRole("button", { name: "Votar" })).toHaveCount(0);
+  await expect(card.getByRole("button", { name: "Votar y descubrir" })).toHaveCount(0);
 });
