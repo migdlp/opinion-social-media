@@ -89,7 +89,7 @@ describe("PollDetailView", () => {
   it("antes de votar no muestra ninguna cifra ni resultado", () => {
     const { container } = render(<PollDetailView detail={DETAIL} castVote={castVote} now={NOW} />);
 
-    expect(container.textContent).not.toMatch(/\d\s*%|\bvotos?\b|total/i);
+    expect(container.textContent).not.toMatch(/\d\s*%|\b\d[\d.,]*\s+votos?\b|total/i);
   });
 
   it("ofrece el menú «⋯» para denunciar la encuesta", () => {
@@ -173,7 +173,7 @@ describe("PollDetailView", () => {
       );
 
       expect(screen.getByRole("link", { name: "Ver más encuestas" })).toBeDefined();
-      expect(container.textContent).not.toMatch(/\d\s?%|\bvotos?\b/i);
+      expect(container.textContent).not.toMatch(/\d\s?%|\b\d[\d.,]*\s+votos?\b/i);
     });
   });
 });

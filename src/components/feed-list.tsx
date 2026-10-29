@@ -40,7 +40,11 @@ export function FeedList({ page, loadMore, now, empty, retryHref = "/" }: FeedLi
   }
 
   return (
-    <div role="feed" aria-label="Encuestas" className="grid items-start gap-3 md:grid-cols-2">
+    <div
+      role="feed"
+      aria-label="Encuestas"
+      className="grid items-start gap-4 md:grid-cols-2 md:gap-5"
+    >
       {page.data.items.map(({ poll, viewer, saved }) => (
         <PollCard key={poll.id} poll={poll} viewer={viewer} saved={saved} now={now} />
       ))}

@@ -42,7 +42,7 @@ test("con sesión: tras votar siguen los resultados y el enlace lleva al feed", 
   await expect(page.getByRole("link", { name: "Ver más encuestas" })).toBeVisible();
 
   await page.getByRole("radio", { name: "Azul" }).check();
-  await page.getByRole("button", { name: "Votar" }).click();
+  await page.getByRole("button", { name: "Votar y descubrir" }).click();
   await expect(page.getByText("Tu voto")).toBeVisible();
   // Con un único voto la frase de V2-016 es «Eres el primero en votar».
   await expect(page.getByText("Eres el primero en votar")).toBeVisible();
@@ -63,6 +63,6 @@ test("una encuesta cerrada también ofrece el enlace", async ({ page }) => {
   await ready(page, `/polls/${pollId}`);
   // Un visitante ve una cerrada con sus resultados (D-020) y sin selector de voto.
   await expect(page.getByText(/^Cerrada/)).toBeVisible();
-  await expect(page.getByRole("button", { name: "Votar" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Votar y descubrir" })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Ver más encuestas" })).toBeVisible();
 });

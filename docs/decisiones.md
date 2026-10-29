@@ -39,6 +39,8 @@ D-005 conserva el historial de pausa. D-013 la levanta para el resto de tareas y
 
 | D-026 | Adoptar provisionalmente la dirección creativa After Sunset de la lámina PEEK: azul noche `#161E2E`, blanco frío `#F9F9FF`, melocotón `#FFB16B`, pizarra `#354861` y lavanda `#B4C8F5`; curiosidad y revelación. Sustituye la dirección monocroma anterior. Actualizar DESIGN.md, PRODUCT.md e instrucciones para agentes y comunicar a todas las IAs por #73. Referencia de estilo, sin cambio de nombre ni de alcance funcional; migración de código aún pendiente | Petición explícita del propietario con imagen adjunta, 28-10-2026: «de momento sigas ese estilo creativo», actualizar los .md y comunicarlo al resto de IAs |
 
+| D-027 | Implementar el rediseño After Sunset claro del encargo del 29-10-2026 y ZIP visual: cabecera compacta, categorías en una fila, tarjetas con pregunta protagonista, confirmación explícita «Votar y descubrir», resultados cálidos y movimiento reducido. Preservar oscuro y todas las funciones reales adicionales: 2–6 opciones, perfiles/privacidad/Siguiendo, cierre y permanencia de 24 h. El encargo permite documentar estos conflictos; no elimina contratos V2 ni autoriza rebranding o despliegue. Ver [guía y matriz](redisenio-aftersunset-claro.md) | Petición explícita del propietario con texto pegado y referencias visuales, 29-10-2026; DESIGN-007/008/012 |
+
 ## Reglas del producto recogidas del backlog
 
 Resultados sólo tras votar, voto único inmutable, feed público cronológico, Google Auth, validación 10–280/2–4/1–100, límite de cinco publicaciones por hora, moderación manual y separación de entornos. Ver [contexto](contexto-aplicacion.md) y [arquitectura](arquitectura.md).

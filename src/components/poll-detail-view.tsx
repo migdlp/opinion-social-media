@@ -29,22 +29,22 @@ export function PollDetailView({
   const signedIn =
     detail.viewer.kind === "closed" ? detail.viewer.signedIn : detail.viewer.kind !== "anonymous";
   return (
-    <article className="relative isolate mx-auto flex w-full max-w-content flex-col gap-4 rounded-2xl border border-border bg-surface p-5">
-      {poll.category && (
-        <p
-          data-category
-          className="self-start rounded-full border border-border px-2.5 py-0.5 text-[12px] font-medium text-muted"
-        >
-          {poll.category.name}
-        </p>
-      )}
-      <div className="flex items-start justify-between gap-2">
-        <h1 className="text-2xl leading-tight font-semibold tracking-[-0.02em]">{poll.question}</h1>
-        <div className="relative z-20 flex shrink-0 items-center">
-          <SavePoll pollId={poll.id} signedIn={signedIn} initialSaved={detail.saved} />
+    <article className="poll-surface relative isolate mx-auto flex w-full max-w-content flex-col gap-4 p-4 sm:p-6">
+      <div className="relative z-20 flex items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-x-2 text-[12px] text-muted">
+          {poll.category && (
+            <span data-category className="inline-flex items-center gap-1.5 font-medium">
+              <span aria-hidden="true" className="size-1.5 rounded-full bg-accent" />
+              {poll.category.name}
+            </span>
+          )}
+          <time dateTime={poll.createdAt}>{formatApproximateDate(poll.createdAt, now)}</time>
+        </div>
+        <div className="-my-2 -mr-2 shrink-0">
           <ReportPoll pollId={poll.id} signedIn={signedIn} />
         </div>
       </div>
+      <h1 className="text-2xl leading-tight font-bold tracking-[-0.03em]">{poll.question}</h1>
       <PollVoting
         poll={poll}
         viewer={detail.viewer}
@@ -53,18 +53,17 @@ export function PollDetailView({
         closed={isClosed(poll.closesAt, now)}
         initialSelected={initialSelected}
       />
-      <p className="text-[13px] text-muted">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-2 text-[13px] text-muted">
         <PollAuthor author={poll.author} />
-        {" · "}
-        <time dateTime={poll.createdAt}>{formatApproximateDate(poll.createdAt, now)}</time>
         {poll.closesAt && (
           <>
             {" · "}
             <time dateTime={poll.closesAt}>{formatCloseStatus(poll.closesAt, now)}</time>
           </>
         )}
-      </p>
-      <div className="flex flex-wrap items-start gap-x-4 gap-y-1">
+        <SavePoll pollId={poll.id} signedIn={signedIn} initialSaved={detail.saved} />
+      </div>
+      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
         <CopyLinkButton path={`/polls/${poll.id}`} title={poll.question} />
         {/* Siempre presente y sin depender del voto ni de los resultados: cierra el ciclo
             explorar → votar → descubrir → seguir explorando (DESIGN-009). */}

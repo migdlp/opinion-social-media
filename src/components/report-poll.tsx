@@ -187,7 +187,19 @@ export function ReportPoll({ pollId, signedIn }: { pollId: string; signedIn: boo
         }}
         className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-xl leading-none text-muted transition-colors hover:text-foreground"
       >
-        <span aria-hidden="true">⋯</span>
+        <svg
+          aria-hidden="true"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+        >
+          <circle cx="5" cy="12" r="1" />
+          <circle cx="12" cy="12" r="1" />
+          <circle cx="19" cy="12" r="1" />
+        </svg>
       </button>
       {menuOpen && (
         <div
@@ -225,7 +237,7 @@ export function ReportPoll({ pollId, signedIn }: { pollId: string; signedIn: boo
               <button
                 type="button"
                 onClick={() => dialog.current?.close()}
-                className="min-h-11 self-start action-primary rounded-full px-5 text-sm font-semibold"
+                className="min-h-11 self-start action-primary rounded-xl px-5 text-sm font-semibold"
               >
                 Cerrar
               </button>
@@ -290,14 +302,14 @@ export function ReportPoll({ pollId, signedIn }: { pollId: string; signedIn: boo
                 <button
                   type="submit"
                   disabled={pending}
-                  className="min-h-11 action-primary rounded-full px-5 text-sm font-semibold"
+                  className="min-h-11 action-primary rounded-xl px-5 text-sm font-semibold"
                 >
                   {pending ? "Enviando…" : "Enviar denuncia"}
                 </button>
                 <button
                   type="button"
                   onClick={() => dialog.current?.close()}
-                  className="min-h-11 rounded-full border border-field px-5 text-sm font-semibold transition-colors hover:border-foreground"
+                  className="min-h-11 rounded-xl border border-field px-5 text-sm font-semibold transition-colors hover:border-foreground"
                 >
                   Cancelar
                 </button>
