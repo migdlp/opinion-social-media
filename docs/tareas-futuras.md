@@ -179,6 +179,16 @@ Tareas de [backlog adicional](backlog-adicional.md), añadidas por la [auditorí
 | [DESIGN-007](https://github.com/migdlp/opinion-social-media/issues/227) | Corregir capas, contraste y legibilidad del menú Denunciar sobre resultados | P0 | DESIGN-003, V2-020 (completadas) | Pendiente | — |
 | [DESIGN-008](https://github.com/migdlp/opinion-social-media/issues/228) | Reorganizar categorías y jerarquía de controles del feed móvil | P1 | DESIGN-003, V2-032 (completadas); independiente de DESIGN-007 | Pendiente | — |
 
+## Auditoría de la web en local — 29-10-2026
+
+Auditoría anónima de `release` `4e22089` construida en local contra Supabase dev (escritorio y móvil de 320/390 px, ambos temas). No es una prueba de la web desplegada ni cubre lo que exige sesión. Hallazgos convertidos en tareas:
+
+| ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
+|---|---|---|---|---|---|
+| [DESIGN-009](https://github.com/migdlp/opinion-social-media/issues/229) | Ofrecer un camino para seguir explorando tras votar en el detalle | P1 | DESIGN-003, V2-016 (completadas); independiente de DESIGN-007/008 | Pendiente | — |
+| [DESIGN-010](https://github.com/migdlp/opinion-social-media/issues/230) | Ampliar los objetivos táctiles pequeños en móvil (@usuario de autoría, marca) | P1 | DESIGN-003 (completada); coordinar con DESIGN-008 | Pendiente | — |
+| [DESIGN-011](https://github.com/migdlp/opinion-social-media/issues/231) | Dar un título propio a cada página | P1 | — | Pendiente | — |
+
 ## Condición de cierre
 
 Cada tarea requiere evidencia de sus criterios de aceptación antes de pasar a completada. Crear documentos, escribir un borrador o disponer de acceso a un servicio no basta. MVP-051 permanece pendiente hasta verificar todas las condiciones obligatorias del checklist global del backlog.
