@@ -41,6 +41,7 @@ Se aplica al trabajo de interfaz (E03 y la revisión de UX). No sustituye el bri
 - **Solicitud:** un colaborador pidió instalarla en el proyecto («instala esta skill: https://github.com/Graphify-Labs/graphify», 29-10-2026).
 - **Qué es:** `/graphify` convierte el repositorio (código, docs, imágenes) en un grafo de conocimiento consultable (`graphify query`, `graphify path`, `graphify explain`) para que los agentes naveguen el código sin releer ficheros. El código se analiza en local con tree-sitter, sin LLM; el paso semántico sobre documentos usa el modelo del propio asistente (subagentes) y consume sus tokens.
 - **Origen:** https://github.com/Graphify-Labs/graphify · **Revisión fijada:** etiqueta `v0.9.97`, commit `0a8cd4e1e342235fe53e881fb5d591bf0460071f`; paquete PyPI `graphifyy==0.9.97` (doble «y»; los demás `graphify*` no son oficiales).
+- **Comprobado** (29-10-2026): `graphify update .` sobre `main` genera 4058 nodos y 8708 aristas sólo con AST, sin claves de API; `graphify query` y `graphify explain` localizan `votePoll`, `getPollResults` y `public.get_poll_results()` en sus ficheros.
 - **Archivos locales**, generados con el instalador oficial (`graphify install --project` y `graphify install --project --platform agents`) y sin modificar; el `SKILL.md` de Claude es idéntico a `graphify/skill.md` del origen:
   - [.claude/skills/graphify/SKILL.md](../.claude/skills/graphify/SKILL.md), para Claude Code (`/graphify`);
   - [.agents/skills/graphify/SKILL.md](../.agents/skills/graphify/SKILL.md), para Codex y agentes que leen `.agents/skills` (`$graphify` en Codex).
@@ -49,7 +50,7 @@ Se aplica al trabajo de interfaz (E03 y la revisión de UX). No sustituye el bri
 
 ### Uso y requisitos
 
-- La skill necesita la CLI `graphify` (Python 3.10+) en cada máquina o sesión de agente: `uv tool install graphifyy==0.9.97` (o `pipx install graphifyy==0.9.97`). Si falta, la propia skill la instala desde PyPI **sin fijar versión**; instalarla antes con la versión fijada evita esa deriva.
+- La skill necesita la CLI `graphify` (Python 3.10+) en cada máquina o sesión de agente: `uv tool install "graphifyy[sql]==0.9.97"` (o `pipx install "graphifyy[sql]==0.9.97"`). El extra `[sql]` es necesario para que entren en el grafo las migraciones y pruebas de `supabase/`; sin él se omiten los 52 ficheros `.sql`. Si falta, la propia skill la instala desde PyPI **sin fijar versión**; instalarla antes con la versión fijada evita esa deriva.
 - Uso: `/graphify .` para construir el grafo; `graphify update .` tras cambiar código (sólo AST, sin coste de API).
 - La salida `graphify-out/` se ignora en Git (`.gitignore`): cada agente la regenera en local; no se publica.
 
