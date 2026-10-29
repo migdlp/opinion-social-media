@@ -199,7 +199,7 @@ Auditoría anónima de `release` `4e22089` construida en local contra Supabase d
 
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|
-| [REL-001](https://github.com/migdlp/opinion-social-media/issues/241) | Publicar el rediseño After Sunset y correcciones integradas desde main a release; verificar Vercel y dominio | P0 | DESIGN-007/008/012 completadas; autorización explícita «continúa y publica los cambios» | En progreso | Codex /root (opinion_social_media) |
+| [REL-001](https://github.com/migdlp/opinion-social-media/issues/241) | Publicar el rediseño After Sunset y correcciones integradas desde main a release; verificar Vercel y dominio | P0 | DESIGN-007/008/012 completadas; autorización explícita «continúa y publica los cambios» | Completada · [PR #242](https://github.com/migdlp/opinion-social-media/pull/242), release 69f8a10, Vercel dpl_78nurnzhEzvttMSUwDAqgPVut3Cp READY/Production; CI 40892627642 y 40892420148 verdes; dominio/HTTP/CSS y encuesta abierta sin agregados verificados | Codex /root (opinion_social_media) |
 
 ## Condición de cierre
 
