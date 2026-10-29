@@ -139,7 +139,7 @@ Preparar textos acordes a la app y rutas públicas /legal, /privacy, /terms y /c
 - **Issue:** [#250](https://github.com/migdlp/opinion-social-media/issues/250) · **Prioridad:** P0 · **Estimación relativa:** M
 - **Etiquetas:** `backend`, `security`, `testing`
 - **Estado:** Pendiente · **Agente:** —
-- **Dependencias:** LEGAL-001 [#244](https://github.com/migdlp/opinion-social-media/issues/244)
+- **Dependencias:** LEGAL-001 [#244](https://github.com/migdlp/opinion-social-media/issues/244); canal y plazos validados por el responsable
 
 Convertir la política de privacidad en un procedimiento operativo: canal verificable para solicitudes, comprobación proporcionada de identidad, acceso/rectificación/supresión y demás derechos aplicables, conservación de cuentas/votos/denuncias/logs/fotos y tratamiento de proveedores/copias. Puede ser un procedimiento manual seguro en esta fase; no inventar un autoservicio que no existe.
 
@@ -156,7 +156,7 @@ Convertir la política de privacidad en un procedimiento operativo: canal verifi
 - **Issue:** [#253](https://github.com/migdlp/opinion-social-media/issues/253) · **Prioridad:** P0 · **Estimación relativa:** M
 - **Etiquetas:** `frontend`, `auth`, `security`, `testing`
 - **Estado:** Pendiente · **Agente:** —
-- **Dependencias:** LEGAL-001 [#244](https://github.com/migdlp/opinion-social-media/issues/244) (inventario); LEGAL-002 [#251](https://github.com/migdlp/opinion-social-media/issues/251) (enlace a política)
+- **Dependencias:** LEGAL-001 [#244](https://github.com/migdlp/opinion-social-media/issues/244) (inventario); LEGAL-002 [#251](https://github.com/migdlp/opinion-social-media/issues/251) (enlace a política); AUTH-001 [#258](https://github.com/migdlp/opinion-social-media/issues/258) para duración/clasificación real
 
 Revisar cookies y almacenamiento del navegador. Si sólo existen mecanismos necesarios de autenticación y preferencia de tema, documentarlos sin añadir un banner de aceptación inútil. Si se detectan elementos no esenciales, bloquearlos hasta elección válida e implementar preferencias; no instalar analítica como parte de esta tarea.
 

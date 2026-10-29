@@ -216,8 +216,8 @@ Detalle, criterios y orden: [backlog de cuenta y legales](backlog-cuenta-legales
 | [PRIV-002](https://github.com/migdlp/opinion-social-media/issues/254) | Elegir desde Ajustes quién puede ver las encuestas que voto | P0 | PRIV-001 #249; SETTINGS-001 #248; V2-008 #129 (respetar reserva) | Pendiente | — |
 | [LEGAL-001](https://github.com/migdlp/opinion-social-media/issues/244) | Inventariar tratamientos, cookies y datos necesarios para los textos legales | P0 | — | En progreso | Codex /root (opinion_social_media) |
 | [LEGAL-002](https://github.com/migdlp/opinion-social-media/issues/251) | Publicar aviso legal, privacidad, condiciones y política de cookies | P0 | LEGAL-001 #244 y datos reales/revisión del responsable | Pendiente | — |
-| [LEGAL-003](https://github.com/migdlp/opinion-social-media/issues/250) | Definir derechos de usuarios, conservación y procedimiento de borrado | P0 | LEGAL-001 #244 | Pendiente | — |
-| [LEGAL-004](https://github.com/migdlp/opinion-social-media/issues/253) | Aplicar información y consentimiento de cookies según el inventario | P0 | LEGAL-001 #244 (inventario); LEGAL-002 #251 (enlace a política) | Pendiente | — |
+| [LEGAL-003](https://github.com/migdlp/opinion-social-media/issues/250) | Definir derechos de usuarios, conservación y procedimiento de borrado | P0 | LEGAL-001 #244; canal y plazos validados por el responsable | Pendiente | — |
+| [LEGAL-004](https://github.com/migdlp/opinion-social-media/issues/253) | Aplicar información y consentimiento de cookies según el inventario | P0 | LEGAL-001 #244; LEGAL-002 #251; AUTH-001 #258 para clasificación/duración | Pendiente | — |
 | [BUG-004](https://github.com/migdlp/opinion-social-media/issues/246) | Cerrar el menú de cuenta al pulsar fuera | P1 | — | Pendiente | — |
 | [DESIGN-013](https://github.com/migdlp/opinion-social-media/issues/245) | Añadir selector visible Claro / Oscuro / Sistema | P1 | V2-017 #120 (completada) | Pendiente | — |
 | [AVATAR-001](https://github.com/migdlp/opinion-social-media/issues/247) | Elegir un icono predeterminado como imagen de perfil | P1 | V2-001 #115 (completada); V2-008 #129 (coordinación) | Pendiente | — |
