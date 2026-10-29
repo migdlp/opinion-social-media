@@ -241,6 +241,18 @@ export function getProfileVotes(
   });
 }
 
+// Pasa la cuenta a privada o pública. Al volver a pública, la base de datos acepta las
+// solicitudes de seguimiento pendientes. Errores: AUTH_REQUIRED, PROFILE_REQUIRED.
+export function setProfilePrivacy(
+  supabase: SupabaseClient,
+  isPrivate: boolean,
+): Promise<Result<null>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("set_profile_privacy", { p_private: isPrivate });
+    return error ? { ok: false, error: toAppError(error) } : { ok: true, data: null };
+  });
+}
+
 async function viewerFor(
   supabase: SupabaseClient,
   pollId: string,
