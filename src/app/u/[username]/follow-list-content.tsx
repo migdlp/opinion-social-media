@@ -33,7 +33,10 @@ export async function FollowListContent({
   return (
     <div className="mx-auto flex w-full max-w-content flex-col gap-4">
       <div className="flex flex-col gap-1">
-        <Link href={`/u/${view.username}`} className="text-sm text-muted hover:underline">
+        <Link
+          href={`/u/${view.username}`}
+          className="-my-1.5 py-1.5 text-sm text-muted hover:underline"
+        >
           ← Volver al perfil
         </Link>
         <h1 className="text-2xl font-semibold tracking-[-0.02em]">
