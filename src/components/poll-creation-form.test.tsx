@@ -419,74 +419,97 @@ describe("PollCreationForm", () => {
     });
   });
 
-  describe("plantilla Sí / No (V2-011)", () => {
+  // CREATE-001: sin botón de plantilla; Sí y No son ejemplos (placeholder) y valores de reserva.
+  describe("ejemplos Sí / No y valores de reserva (CREATE-001)", () => {
     const values = () => optionInputs().map((i) => (i as HTMLInputElement).value);
-    const template = () => screen.getByRole("button", { name: "Sí / No" });
+    const placeholders = () => optionInputs().map((i) => i.getAttribute("placeholder"));
 
-    it("con el formulario vacío deja exactamente dos opciones: Sí y No", async () => {
-      const user = userEvent.setup();
+    it("no hay botón de plantilla y los campos iniciales están vacíos con Sí y No de ejemplo", () => {
       render(<PollCreationForm {...props()} />);
 
-      await user.click(template());
-
-      expect(values()).toEqual(["Sí", "No"]);
+      expect(screen.queryByRole("button", { name: "Sí / No" })).toBeNull();
+      expect(values()).toEqual(["", ""]);
+      expect(placeholders()).toEqual(["Sí", "No"]);
+      expect(screen.getByLabelText("Opción 1")).toBeDefined();
+      expect(screen.getByLabelText("Opción 2")).toBeDefined();
     });
 
-    it("desde más opciones vacías vuelve a dos sin pedir confirmación", async () => {
+    it("al enfocar un campo el ejemplo desaparece y al salir vacío reaparece", async () => {
       const user = userEvent.setup();
-      const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
       render(<PollCreationForm {...props()} />);
-      await user.click(screen.getByRole("button", { name: "Añadir opción" }));
-      await user.click(screen.getByRole("button", { name: "Añadir opción" }));
+      const [first, second] = optionInputs();
 
-      await user.click(template());
+      await user.click(first);
+      expect(first.getAttribute("placeholder")).toBe("");
+      expect(second.getAttribute("placeholder")).toBe("No");
 
-      expect(values()).toEqual(["Sí", "No"]);
-      expect(confirm).not.toHaveBeenCalled();
-      confirm.mockRestore();
+      await user.click(second);
+      expect(first.getAttribute("placeholder")).toBe("Sí");
+      expect(second.getAttribute("placeholder")).toBe("");
+
+      await user.tab();
+      expect(placeholders()).toEqual(["Sí", "No"]);
     });
 
-    it("con opciones escritas pide confirmación y, si se cancela, no cambia nada", async () => {
-      const user = userEvent.setup();
-      const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
-      render(<PollCreationForm {...props()} />);
-      await fill(user, "¿Qué tomas por la mañana?", ["Café", "Té"]);
-
-      await user.click(template());
-
-      expect(confirm).toHaveBeenCalledOnce();
-      expect(values()).toEqual(["Café", "Té"]);
-      confirm.mockRestore();
-    });
-
-    it("si se acepta, sustituye las opciones y conserva la pregunta", async () => {
-      const user = userEvent.setup();
-      const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
-      render(<PollCreationForm {...props()} />);
-      await fill(user, "¿Qué tomas por la mañana?", ["Café", "Té"]);
-
-      await user.click(template());
-
-      expect(values()).toEqual(["Sí", "No"]);
-      expect((screen.getByRole("textbox", { name: "Pregunta" }) as HTMLTextAreaElement).value).toBe(
-        "¿Qué tomas por la mañana?",
-      );
-      confirm.mockRestore();
-    });
-
-    it("las opciones siguen siendo editables y se publican como cualquier otra", async () => {
+    it("con las dos opciones iniciales vacías o en blanco se publica Sí y No explícitos", async () => {
       const user = userEvent.setup();
       const p = props();
       render(<PollCreationForm {...p} />);
-      await user.click(template());
       await user.type(screen.getByRole("textbox", { name: "Pregunta" }), "¿Te gusta el café?");
-      await user.type(optionInputs()[1], " en absoluto");
+      await user.type(optionInputs()[0], "   ");
       await user.click(screen.getByRole("button", { name: "Publicar" }));
 
       expect(p.onSubmit).toHaveBeenCalledWith({
         question: "¿Te gusta el café?",
-        options: ["Sí", "No en absoluto"],
+        options: ["Sí", "No"],
       });
+    });
+
+    it("si se personalizan las dos, se respeta lo escrito", async () => {
+      const user = userEvent.setup();
+      const p = props();
+      render(<PollCreationForm {...p} />);
+      await fill(user, "¿Qué tomas por la mañana?", ["Café", "Té"]);
+      await user.click(screen.getByRole("button", { name: "Publicar" }));
+
+      expect(p.onSubmit).toHaveBeenCalledWith({
+        question: "¿Qué tomas por la mañana?",
+        options: ["Café", "Té"],
+      });
+    });
+
+    it("una opción escrita y la otra vacía da error y no inventa la que falta", async () => {
+      const user = userEvent.setup();
+      const p = props();
+      render(<PollCreationForm {...p} />);
+      await fill(user, "¿Qué tomas por la mañana?", ["Café", ""]);
+      await user.click(screen.getByRole("button", { name: "Publicar" }));
+
+      expect(p.onSubmit).not.toHaveBeenCalled();
+      expect(values()).toEqual(["Café", ""]);
+      expect(screen.getByLabelText("Opción 2").getAttribute("aria-invalid")).toBe("true");
+    });
+
+    it("con tres o más campos y alguno vacío no se rellena nada: hay errores", async () => {
+      const user = userEvent.setup();
+      const p = props();
+      render(<PollCreationForm {...p} />);
+      await user.click(screen.getByRole("button", { name: "Añadir opción" }));
+      await user.type(screen.getByRole("textbox", { name: "Pregunta" }), "¿Cuál prefieres?");
+      await user.click(screen.getByRole("button", { name: "Publicar" }));
+
+      expect(p.onSubmit).not.toHaveBeenCalled();
+      expect(values()).toEqual(["", "", ""]);
+      expect(placeholders()).toEqual(["Sí", "No", ""]);
+    });
+
+    it("sin pregunta sigue sin publicar aunque las opciones vayan vacías", async () => {
+      const user = userEvent.setup();
+      const p = props();
+      render(<PollCreationForm {...p} />);
+      await user.click(screen.getByRole("button", { name: "Publicar" }));
+
+      expect(p.onSubmit).not.toHaveBeenCalled();
     });
   });
 });
