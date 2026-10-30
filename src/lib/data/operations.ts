@@ -939,6 +939,25 @@ export function searchPolls(
   });
 }
 
+// ¿Tiene la encuesta el debate activado? Es un dato público de la encuesta (CMT-002); no hay
+// comentarios ni recuentos aquí. Una encuesta que no se puede ver es POLL_UNAVAILABLE.
+export function getPollCommentsEnabled(
+  supabase: SupabaseClient,
+  pollId: string,
+): Promise<Result<boolean>> {
+  return guard(async () => {
+    if (!UUID.test(pollId)) return { ok: false, error: "POLL_UNAVAILABLE" };
+    const { data, error } = await supabase
+      .from("polls")
+      .select("comments_enabled")
+      .eq("id", pollId)
+      .maybeSingle();
+    if (error) return { ok: false, error: toAppError(error) };
+    if (!data) return { ok: false, error: "POLL_UNAVAILABLE" };
+    return { ok: true, data: (data as { comments_enabled: boolean }).comments_enabled === true };
+  });
+}
+
 export const COMMENTS_PAGE_SIZE = 20;
 
 // Debate de una encuesta (CMT-001), de más reciente a más antiguo. Errores controlados:

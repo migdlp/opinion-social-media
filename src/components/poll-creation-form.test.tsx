@@ -513,3 +513,48 @@ describe("PollCreationForm", () => {
     });
   });
 });
+
+// CMT-002: interruptor «Comentarios» al crear; apagado por defecto.
+describe("interruptor de comentarios (CMT-002)", () => {
+  const toggle = () => screen.getByRole("checkbox", { name: /comentarios/i }) as HTMLInputElement;
+
+  it("viene apagado y explica que el debate exige haber votado", () => {
+    render(<PollCreationForm {...props()} />);
+    expect(toggle().checked).toBe(false);
+    expect(screen.getByText(/sólo quien haya votado/i)).toBeDefined();
+  });
+
+  it("apagado no manda nada: la entrada es la de siempre", async () => {
+    const user = userEvent.setup();
+    const p = props();
+    render(<PollCreationForm {...p} />);
+    await fill(user, "¿Qué tomas por la mañana?", ["Café", "Té"]);
+    await user.click(screen.getByRole("button", { name: "Publicar" }));
+    expect(p.onSubmit).toHaveBeenCalledWith({
+      question: "¿Qué tomas por la mañana?",
+      options: ["Café", "Té"],
+    });
+  });
+
+  it("activado manda commentsEnabled: true", async () => {
+    const user = userEvent.setup();
+    const p = props();
+    render(<PollCreationForm {...p} />);
+    await fill(user, "¿Qué tomas por la mañana?", ["Café", "Té"]);
+    await user.click(toggle());
+    await user.click(screen.getByRole("button", { name: "Publicar" }));
+    expect(p.onSubmit).toHaveBeenCalledWith({
+      question: "¿Qué tomas por la mañana?",
+      options: ["Café", "Té"],
+      commentsEnabled: true,
+    });
+  });
+
+  it("se puede activar con el teclado (Espacio)", async () => {
+    const user = userEvent.setup();
+    render(<PollCreationForm {...props()} />);
+    toggle().focus();
+    await user.keyboard(" ");
+    expect(toggle().checked).toBe(true);
+  });
+});

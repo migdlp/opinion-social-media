@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { ERROR_MESSAGES } from "./errors";
-import { addComment, createPoll, listComments, setPollComments } from "./operations";
+import {
+  addComment,
+  createPoll,
+  getPollCommentsEnabled,
+  listComments,
+  setPollComments,
+} from "./operations";
 import { fakeSupabase, networkThrow } from "./testing/fake-supabase";
 
 const POLL = "00000000-0000-4000-8000-000000000001";
@@ -123,5 +129,32 @@ describe("addComment y setPollComments (CMT-001)", () => {
     for (const code of ["COMMENTS_DISABLED", "VOTE_REQUIRED", "COMMENT_INVALID"] as const) {
       expect(ERROR_MESSAGES[code]).toBeTruthy();
     }
+  });
+});
+
+describe("getPollCommentsEnabled (CMT-002)", () => {
+  it("lee el flag público de la encuesta", async () => {
+    const { supabase, queries } = fakeSupabase({
+      polls: { data: { comments_enabled: true }, error: null },
+    });
+    expect(await getPollCommentsEnabled(supabase, POLL)).toEqual({ ok: true, data: true });
+    expect(queries[0].calls).toContainEqual(["select", "comments_enabled"]);
+    expect(queries[0].calls).toContainEqual(["eq", "id", POLL]);
+  });
+
+  it("encuesta no visible: POLL_UNAVAILABLE", async () => {
+    const { supabase } = fakeSupabase({ polls: { data: null, error: null } });
+    expect(await getPollCommentsEnabled(supabase, POLL)).toEqual({
+      ok: false,
+      error: "POLL_UNAVAILABLE",
+    });
+  });
+
+  it("un fallo de red no lanza", async () => {
+    const { supabase } = fakeSupabase({ polls: networkThrow });
+    expect(await getPollCommentsEnabled(supabase, POLL)).toEqual({
+      ok: false,
+      error: "NETWORK_ERROR",
+    });
   });
 });
