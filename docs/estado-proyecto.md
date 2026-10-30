@@ -10,6 +10,10 @@
 
 PERF-001 #262 sigue parcial/reservada a su agente; esta publicación no se presenta como arreglo del lag. AUTH-001 #258 conserva su reserva. Los textos legales públicos necesitan datos reales del responsable y revisión; Storage/subida de fotos siguen pendientes. MVP-049/050/051 conservan bloqueos de aceptación global pero quedan sin reserva de Codex (8ed54b8). El estado operativo de cada fila prevalece sobre el historial.
 
+## Revisión de desarrollo — 30-10-2026
+
+Separación Vercel/Supabase comprobada y workspace local conectado sólo a dev (health 200); producción sigue release60d841b y no se ha modificado. [OPS-003](ops-003-integracion-dev.md) verificó las 27 migraciones/suites y restauración con fixtures locales, pero no ha aplicado SQL alojado. La copia cifrada real solicitada fue rechazada por revisión automática al no considerar autorizado su contenido/destino local; se pidió autorización concreta al propietario. Dev y prod siguen en 25. No confundir esta preparación con integración completada ni tomar producción para desarrollar.
+
 ## Historial de revisión — 28-10-2026
 
 El estado vigente de cada tarea y su responsable está en [tareas-futuras.md](tareas-futuras.md) en `main`; este documento resume y distingue lo verificado de lo pendiente. Si hay discrepancia, prevalece el registro de tareas.

@@ -23,6 +23,10 @@ El encargo claro del **29-10-2026 (D-027)** concreta esa dirección. Leer [la gu
 
 Consultar [el backlog por áreas](docs/backlog-producto-2026-10-30.md) y D-032–D-042: Claro inicial con botón de icono y Recientes inicial para todos sustituyen los defaults anteriores; búsqueda, comentarios opcionales, fotos, bloqueo/denuncia y bio tienen tickets propios. Varias respuestas/ranking siguen en definición con el propietario. Iconos reutilizan AVATAR-001 y su activación existente. Estas tareas son futuras y su estado se consulta en main; no reabrir tickets históricos ni tomar reservas ajenas. Documentarlas no acredita implementación ni autoriza un despliegue.
 
+## Entorno de desarrollo: instrucción actual del propietario (30-10-2026)
+
+El propietario pide desarrollar y probar en **dev**, no en producción. Código en ramas/local; pruebas automáticas contra Supabase efímero local/CI; pruebas manuales alojadas y migraciones de desarrollo sólo en `ltlrujmqenhktiilsnis` dentro de su tarea reservada. No usar producción para suplir contratos que falten en dev. Cualquier indicación histórica de otra sesión sobre experimentación en producción cede ante esta instrucción. Las verificaciones sin escrituras de la versión pública y las publicaciones expresamente autorizadas conservan su proceso release. Ver [auditoría de entornos](docs/ops-003-integracion-dev.md); no confundir ensayos sintéticos con backup real ni eludir un rechazo de revisión automática.
+
 ## Contexto obligatorio de conexión a Supabase
 
 La organización de Supabase de este proyecto es **Los tres cerditos**, ID `drifadkhohwebqljdlvw`, región **Irlanda (`eu-west-1`)**. Estos proyectos ya existen: no crear otra organización ni otros proyectos para sustituirlos si falta acceso.
