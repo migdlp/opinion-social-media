@@ -40,3 +40,31 @@ test("con sesión: onboarding y solicitudes", async ({ page, baseURL }) => {
   await page.goto("/solicitudes");
   await expect(page).toHaveTitle(`Solicitudes de seguimiento${SUFFIX}`);
 });
+
+// META-001: tarjeta social. Las páginas sin metadatos propios heredan la de «Opinión»; el perfil
+// tiene la suya con sólo el @usuario de la URL (sin biografía, nombre visible ni recuentos).
+test("tarjeta social de la portada y del perfil", async ({ page }) => {
+  const author = await createUser("tarjeta", { isPrivate: true });
+  const og = (property: string) =>
+    page.locator(`meta[property="${property}"]`).getAttribute("content");
+
+  await page.goto("/");
+  expect(await og("og:title")).toBe("Opinión");
+  expect(await og("og:site_name")).toBe("Opinión");
+  expect(await og("og:type")).toBe("website");
+  await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute("content", "summary");
+
+  await page.goto("/login");
+  expect(await og("og:title")).toBe("Opinión");
+
+  // Una cuenta privada tiene la misma tarjeta que una pública: sólo el @usuario de la URL.
+  await page.goto(`/u/${author.username}`);
+  expect(await og("og:title")).toBe(`@${author.username}${SUFFIX}`);
+  expect(await og("og:description")).toBe(`Encuestas de @${author.username} en Opinión.`);
+  expect(await og("og:type")).toBe("profile");
+  // Los metadatos de la página sustituyen a los del layout (no se mezclan).
+  await expect(page.locator('meta[property="og:site_name"]')).toHaveCount(0);
+
+  await page.goto("/u/1mal");
+  expect(await og("og:description")).toBe("Esta página no está disponible.");
+});
