@@ -274,6 +274,7 @@ Main no equivale a producción. Ver [resultado REL-002 y relevo](rel-002-tema-cu
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|
 | [DOC-011](https://github.com/migdlp/opinion-social-media/issues/275) | Planificar experiencia, tipos de encuesta, búsqueda, comentarios, seguridad social y perfil; actualizar decisiones y cobertura | P0 | Revisar backlog y evitar duplicar iconos/activación ya registrados | Completada · [PR #298](https://github.com/migdlp/opinion-social-media/pull/298), merge a71eace; 22 issues reales (#276–297), 7 P0/15 P1, 7 áreas y épicas enlazadas; cobertura/grafo/JSON/CSV/enlaces/formato revisados; sólo planificación | Codex /root (opinion_social_media) |
+| [DOC-012](https://github.com/migdlp/opinion-social-media/issues/321) | Publicar diagrama visible del flujo de trabajo y entornos en README y docs | P1 | Contrastar AGENTS.md, CI, Vercel y reservas vigentes | En progreso | Codex /root (opinion_social_media) |
 
 Detalle y cobertura del nuevo encargo: [backlog de producto 30-10](backlog-producto-2026-10-30.md). Las filas siguientes registran tareas futuras nuevas; las completadas históricas no se reabren.
 
