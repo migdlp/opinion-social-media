@@ -247,3 +247,45 @@ body {
 :root[data-theme="dark"] {
   color-scheme: dark;
 }
+
+/* Cada pareja comparte cinco pistas: metadatos, pregunta, voto, cierre y pie.
+   Subgrid iguala zonas sin medir el DOM ni recortar opciones o resultados. */
+@media (min-width: 48rem) {
+  @supports (grid-template-rows: subgrid) {
+    .feed-grid > .poll-card {
+      display: grid;
+      grid-row: span 5;
+      grid-template-rows: subgrid;
+    }
+    .feed-grid > .poll-card > :first-child {
+      grid-row: 1;
+    }
+    .feed-grid > .poll-card > h2 {
+      grid-row: 2;
+    }
+    .feed-grid > .poll-card > .poll-card-voting {
+      grid-row: 3;
+      display: flex;
+      min-width: 0;
+    }
+    .feed-grid > .poll-card > .poll-card-voting > * {
+      width: 100%;
+    }
+    .feed-grid > .poll-card > .poll-card-voting > form {
+      height: 100%;
+    }
+    .feed-grid > .poll-card > .poll-card-voting > form > button[type="submit"] {
+      margin-top: auto;
+    }
+    .feed-grid > .poll-card > .poll-card-close {
+      grid-row: 4;
+    }
+    .feed-grid > .poll-card > .poll-card-footer {
+      grid-row: 5;
+      margin-top: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+    }
+  }
+}
