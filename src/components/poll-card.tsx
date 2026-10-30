@@ -26,7 +26,7 @@ export function PollCard({ poll, viewer, saved, now = new Date() }: PollCardProp
   const signedIn =
     !viewer || (viewer.kind === "closed" ? viewer.signedIn : viewer.kind !== "anonymous");
   return (
-    <article className="poll-surface relative isolate flex min-w-0 flex-col gap-4 p-4 sm:p-5">
+    <article className="poll-card poll-surface relative isolate flex min-w-0 flex-col gap-4 p-4 sm:p-5">
       <div className="relative z-20 flex min-h-6 items-center justify-between gap-2">
         <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted">
           {poll.category && (
@@ -47,7 +47,7 @@ export function PollCard({ poll, viewer, saved, now = new Date() }: PollCardProp
         </Link>
       </h2>
       {/* Acciones independientes: no hay un enlace superpuesto a los controles. */}
-      <div className="relative z-10">
+      <div className="poll-card-voting relative z-10">
         <PollVoting
           poll={poll}
           viewer={viewer ?? { kind: "anonymous" }}
@@ -57,11 +57,11 @@ export function PollCard({ poll, viewer, saved, now = new Date() }: PollCardProp
         />
       </div>
       {poll.closesAt && (
-        <p className="text-[12px] text-muted">
+        <p className="poll-card-close text-[12px] text-muted">
           <time dateTime={poll.closesAt}>{formatCloseStatus(poll.closesAt, now)}</time>
         </p>
       )}
-      <div className="flex flex-wrap items-center justify-between gap-x-2 border-t border-border pt-2 text-[12px] text-muted">
+      <div className="poll-card-footer mt-auto flex flex-wrap items-center justify-between gap-x-2 border-t border-border pt-2 text-[12px] text-muted">
         <PollAuthor author={poll.author} />
         <div className="flex items-center gap-1">
           <SavePoll pollId={poll.id} signedIn={signedIn} initialSaved={saved} />
