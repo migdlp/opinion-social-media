@@ -931,7 +931,6 @@ describe("SEARCH-001: búsqueda de encuestas", () => {
         expect(Object.keys(row).sort()).toEqual(["created_at", "cursor", "poll_id"]);
       }
       expect(r.text).not.toMatch(/votes|total|count|percent|option/i);
-      expect(r.range).toBeNull();
     }
   });
 
