@@ -368,6 +368,8 @@ public.report_user(p_username text, p_reason text, p_details text default null) 
 - No oculta, bloquea ni cambia la cuenta. Procedimiento de revisión y retención en `docs/moderacion.md`.
 - Adaptador: `reportUser(supabase, username, reason, details?)` → `Result<void>`; error nuevo `CANNOT_REPORT_SELF`. La acción en la interfaz es MOD-002.
 
+- **Interfaz (MOD-002)**: «Denunciar persona» en el perfil ajeno (visitante → login con retorno al perfil; con sesión, diálogo modal con motivo obligatorio y detalle opcional, que aclara que denuncia a la persona y no bloquea). `ALREADY_REPORTED` se muestra como «Ya has denunciado a esta persona.». Pendiente: acción en el menú contextual de autor de las tarjetas, junto con SOCIAL-002.
+
 ### 3.18. `report_comment` y moderación de comentarios (CMT-003)
 
 ```sql
