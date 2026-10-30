@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 import { signOut } from "@/app/auth/actions";
 import type { AvatarIcon } from "@/lib/avatar-icons";
 import { parseAvatarIcon } from "@/lib/avatar-icons";
-import { AvatarGlyph } from "./avatar";
+import { AvatarGlyph, avatarTone } from "./avatar";
 import { NavigationIcon } from "./navigation-icon";
 
 const ITEM = "block min-h-11 rounded-lg px-3 py-2.5 text-sm hover:bg-track focus-visible:bg-track";
@@ -28,11 +28,8 @@ export function AccountMenu({
     return () => document.removeEventListener("pointerdown", onPointerDown);
   }, []);
 
-  // Dos superficies de la paleta, elegidas de forma estable a partir de @usuario.
-  // El avatar no publica el nombre, email ni la foto proporcionados por Google.
-  const darkAvatar = username
-    ? Array.from(username).reduce((sum, char) => sum + char.charCodeAt(0), 0) % 2 === 0
-    : false;
+  // El avatar usa el mismo tono (estable, a partir de @usuario) que el del perfil y no publica el
+  // nombre, email ni la foto proporcionados por Google.
   return (
     <details
       ref={root}
@@ -59,7 +56,8 @@ export function AccountMenu({
       >
         <span
           aria-hidden="true"
-          className={`flex h-11 w-11 items-center justify-center rounded-full text-sm ${darkAvatar ? "bg-foreground text-background" : "bg-track text-foreground"}`}
+          style={username ? avatarTone(username) : undefined}
+          className={`flex h-11 w-11 items-center justify-center rounded-full text-sm ring-1 ring-border ${username ? "" : "bg-track text-foreground"}`}
         >
           {username ? (
             icon ? (

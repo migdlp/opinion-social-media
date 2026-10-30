@@ -26,6 +26,12 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
 
+// Pestañas subrayadas, las mismas que Recientes/Siguiendo en el feed (DESIGN-004).
+const TAB =
+  "inline-flex min-h-11 items-center border-b-2 px-1 text-[15px] transition-colors border-transparent text-muted hover:border-field";
+const TAB_SELECTED =
+  "inline-flex min-h-11 items-center border-b-2 px-1 text-[15px] transition-colors border-foreground font-semibold text-foreground";
+
 const TABS = [
   { id: "creadas", label: "Creadas" },
   { id: "votadas", label: "Votadas" },
@@ -82,13 +88,13 @@ export async function ProfileContent({
       />
       {view.canViewContent ? (
         <>
-          <nav aria-label="Contenido del perfil" className="flex gap-2">
+          <nav aria-label="Contenido del perfil" className="flex gap-6">
             {tabs.map(({ id, label }) => (
               <Link
                 key={id}
                 href={id === "creadas" ? `/u/${view.username}` : `/u/${view.username}?tab=${id}`}
                 aria-current={tab === id ? "page" : undefined}
-                className={`inline-flex min-h-11 items-center rounded-full px-4 text-sm font-semibold transition-colors ${tab === id ? "bg-foreground text-background" : "border border-field hover:border-foreground"}`}
+                className={tab === id ? TAB_SELECTED : TAB}
               >
                 {label}
               </Link>
@@ -99,7 +105,7 @@ export async function ProfileContent({
           {tab === "guardadas" && <SavedTab />}
         </>
       ) : (
-        <p className="rounded-2xl border border-border bg-surface p-5">
+        <p className="poll-surface p-5">
           Esta cuenta es privada. Síguela para ver sus encuestas y votos.
         </p>
       )}
@@ -127,11 +133,7 @@ async function VotedTab({ username }: { username: string }) {
   const page = await getProfileVotes(supabase, username, null);
   if (!page.ok && page.error === "VOTES_PRIVATE") {
     // Estado esperado, no un fallo: sin «Reintentar» ni datos del historial (PRIV-002).
-    return (
-      <p className="rounded-2xl border border-border bg-surface p-5">
-        {ERROR_MESSAGES.VOTES_PRIVATE}
-      </p>
-    );
+    return <p className="poll-surface p-5">{ERROR_MESSAGES.VOTES_PRIVATE}</p>;
   }
   if (!page.ok) {
     return (

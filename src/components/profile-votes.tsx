@@ -53,21 +53,14 @@ export function ProfileVotes({
   }
 
   if (votes.length === 0) {
-    return (
-      <p className="rounded-2xl border border-border bg-surface p-5 text-muted">
-        Todavía no hay votos que mostrar.
-      </p>
-    );
+    return <p className="poll-surface p-5 text-muted">Todavía no hay votos que mostrar.</p>;
   }
 
   return (
     <div className="flex flex-col gap-3">
       <ul className="flex flex-col gap-3">
         {votes.map((vote) => (
-          <li
-            key={vote.pollId}
-            className="flex flex-col gap-2 rounded-2xl border border-border bg-surface p-4"
-          >
+          <li key={vote.pollId} className="poll-surface flex flex-col gap-2 p-4">
             <h2 className="text-[17px] leading-snug font-semibold tracking-[-0.01em]">
               <Link href={`/polls/${vote.pollId}`} className="hover:underline">
                 {vote.question}

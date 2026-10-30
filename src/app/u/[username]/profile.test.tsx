@@ -108,6 +108,23 @@ describe("/u/[username]", () => {
     expect(html).not.toMatch(/user_id/);
   });
 
+  it("DESIGN-004: las pestañas del perfil van subrayadas como las del feed, sin píldoras oscuras", async () => {
+    responses = {
+      "rpc:get_profile": { data: [header()], error: null },
+      "rpc:get_profile_polls": { data: [], error: null },
+    };
+
+    const html = await render();
+
+    const selected = /<a[^>]*aria-current="page"[^>]*>Creadas/.exec(html)![0];
+    expect(selected).toContain("border-b-2");
+    expect(selected).toContain("border-foreground");
+    expect(selected).not.toContain("bg-foreground");
+    const other = /<a[^>]*>Votadas/.exec(html)![0];
+    expect(other).toContain("border-transparent");
+    expect(other).not.toContain("rounded-full");
+  });
+
   it("la pestaña ?tab=votadas lista los votos visibles (P-1) sin cifras", async () => {
     responses = {
       "rpc:get_profile": { data: [header()], error: null },

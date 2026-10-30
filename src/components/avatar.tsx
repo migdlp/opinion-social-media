@@ -1,8 +1,9 @@
 import { AVATAR_ICONS, parseAvatarIcon, type AvatarIcon } from "@/lib/avatar-icons";
 
 // Avatar de iniciales (S-3) o de un icono del catálogo propio (AVATAR-001): sin imágenes externas
-// ni foto de Google. El tono sale del @usuario, en una
-// escala de grises acorde con el diseño en blanco y negro (texto blanco: contraste ≥ 4,5:1).
+// ni foto de Google. El tono sale del @usuario y es uno de los cuatro de la paleta After Sunset
+// (DESIGN-004), todos con contraste de texto ≥ 4,5:1 sobre su fondo y distinguibles sobre la
+// tarjeta clara y la oscura.
 
 export function initialsOf(username: string, displayName?: string | null): string {
   const name = displayName?.trim();
@@ -18,11 +19,17 @@ export function initialsOf(username: string, displayName?: string | null): strin
   return [...username].slice(0, 2).join("").toLocaleUpperCase("es");
 }
 
+const TONES = [
+  { background: "#ffb16b", color: "#161e2e" }, // melocotón
+  { background: "#b4c8f5", color: "#161e2e" }, // lavanda
+  { background: "#161e2e", color: "#ffb16b" }, // azul noche
+  { background: "#ffdfc0", color: "#161e2e" }, // melocotón suave
+] as const;
+
 export function avatarTone(username: string): { background: string; color: string } {
   let hash = 0;
   for (const char of username) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
-  const lightness = 18 + (hash % 25); // 18–42 %
-  return { background: `hsl(0 0% ${lightness}%)`, color: "#ffffff" };
+  return { ...TONES[hash % TONES.length] };
 }
 
 // Trazo del icono (decorativo: el nombre accesible lo da el texto cercano o el selector).
@@ -66,7 +73,7 @@ export function Avatar({
         aria-hidden="true"
         data-avatar-icon={known}
         style={avatarTone(username)}
-        className={`inline-flex shrink-0 items-center justify-center rounded-full select-none ${SIZES[size]}`}
+        className={`inline-flex shrink-0 items-center justify-center rounded-full ring-1 ring-border select-none ${SIZES[size]}`}
       >
         <AvatarGlyph icon={known} />
       </span>
@@ -76,7 +83,7 @@ export function Avatar({
     <span
       aria-hidden="true"
       style={avatarTone(username)}
-      className={`inline-flex shrink-0 items-center justify-center rounded-full font-semibold tracking-wide select-none ${SIZES[size]}`}
+      className={`inline-flex shrink-0 items-center justify-center rounded-full font-semibold tracking-wide ring-1 ring-border select-none ${SIZES[size]}`}
     >
       {initialsOf(username, displayName)}
     </span>

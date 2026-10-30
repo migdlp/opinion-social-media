@@ -25,7 +25,7 @@ export function ProfileHeader({
 }: ProfileHeaderProps) {
   const base = `/u/${profile.username}`;
   return (
-    <header className="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-5">
+    <header className="poll-surface flex flex-col gap-4 p-5">
       <div className="flex items-center gap-4">
         <Avatar
           username={profile.username}
@@ -89,7 +89,7 @@ export function ProfileHeader({
             {pendingRequests > 0 && (
               <span
                 aria-hidden="true"
-                className="rounded-full bg-foreground px-2 text-[12px] leading-5 text-background tabular-nums"
+                className="rounded-full bg-accent px-2 text-[12px] leading-5 text-accent-foreground tabular-nums"
               >
                 {number.format(pendingRequests)}
               </span>

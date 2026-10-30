@@ -46,7 +46,7 @@ export async function FollowListContent({
       {view.canViewContent ? (
         <People kind={kind} username={view.username} isSelf={view.viewerRelation === "self"} />
       ) : (
-        <p className="rounded-2xl border border-border bg-surface p-5">
+        <p className="poll-surface p-5">
           Esta cuenta es privada. Síguela para ver sus seguidores y a quién sigue.
         </p>
       )}
@@ -71,7 +71,7 @@ async function People({
   if (!page.ok) {
     if (page.error === "PROFILE_PRIVATE") {
       return (
-        <p className="rounded-2xl border border-border bg-surface p-5">
+        <p className="poll-surface p-5">
           Esta cuenta es privada. Síguela para ver sus seguidores y a quién sigue.
         </p>
       );
