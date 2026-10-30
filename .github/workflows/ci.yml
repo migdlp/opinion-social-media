@@ -45,6 +45,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: bash scripts/db-test-local.sh
       - run: bash scripts/db-concurrency-local.sh
+      - run: bash scripts/check-vote-history-upgrade.sh
 
   db-reproducibility:
     name: Supabase real, migraciones reproducibles y tipos

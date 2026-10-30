@@ -26,6 +26,8 @@ export type AppErrorCode =
   | "PROFILE_REQUIRED"
   | "USER_NOT_FOUND"
   | "PROFILE_PRIVATE"
+  | "VOTES_PRIVATE"
+  | "VOTE_VISIBILITY_INVALID"
   | "CANNOT_FOLLOW_SELF"
   | "FOLLOW_RATE_LIMITED"
   | "NETWORK_ERROR"
@@ -157,3 +159,6 @@ export interface FeedQuery {
   category?: string | null;
   cursor?: string | null;
 }
+
+// PRIV-001: audiencia del historial; nunca amplía los permisos de la cuenta.
+export type VoteVisibility = "private" | "followers" | "profile";

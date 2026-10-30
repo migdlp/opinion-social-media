@@ -1,3 +1,4 @@
+import { ThemeSelector } from "./theme-selector";
 import Link from "next/link";
 import { Suspense } from "react";
 import { AuthButton, AuthButtonFallback } from "./auth-button";
@@ -18,6 +19,7 @@ export function Header() {
           Opinión
         </Link>
         <div className="flex items-center gap-2 whitespace-nowrap">
+          <ThemeSelector />
           <Suspense fallback={<AuthButtonFallback />}>
             <AuthButton />
           </Suspense>

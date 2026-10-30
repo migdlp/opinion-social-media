@@ -1,12 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 import { signOut } from "@/app/auth/actions";
 import { NavigationIcon } from "./navigation-icon";
 
 const ITEM = "block min-h-11 rounded-lg px-3 py-2.5 text-sm hover:bg-track focus-visible:bg-track";
 
 export function AccountMenu({ username }: { username: string | null }) {
+  const root = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    const onPointerDown = (event: PointerEvent) => {
+      const menu = root.current;
+      if (menu?.open && !menu.contains(event.target as Node)) menu.open = false;
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, []);
+
   // Dos superficies de la paleta, elegidas de forma estable a partir de @usuario.
   // El avatar no publica el nombre, email ni la foto proporcionados por Google.
   const darkAvatar = username
@@ -14,7 +25,17 @@ export function AccountMenu({ username }: { username: string | null }) {
     : false;
   return (
     <details
+      ref={root}
       className="relative"
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) event.currentTarget.open = false;
+      }}
+      onClick={(event) => {
+        if ((event.target as Element).closest("a")) event.currentTarget.open = false;
+      }}
+      onSubmit={(event) => {
+        event.currentTarget.open = false;
+      }}
       onKeyDown={(event) => {
         if (event.key === "Escape") {
           event.currentTarget.open = false;

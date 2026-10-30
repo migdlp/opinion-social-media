@@ -27,6 +27,7 @@ import type {
   PublicPoll,
   Result,
   ViewerRelation,
+  VoteVisibility,
 } from "./types";
 
 // signedIn lo decide quien llama a partir de la sesión; RLS sigue siendo la barrera.
@@ -202,7 +203,7 @@ type ProfileVoteRow = {
 
 export const PROFILE_VOTES_PAGE_SIZE = 20;
 
-// Votos visibles en el perfil de @username (V2-007). Errores: USER_NOT_FOUND, PROFILE_PRIVATE.
+// Votos visibles en el perfil de @username. Errores: USER_NOT_FOUND, PROFILE_PRIVATE, VOTES_PRIVATE.
 // La RPC devuelve hasta 21 filas (20 + 1 para saber si hay más).
 export function getProfileVotes(
   supabase: SupabaseClient,
@@ -237,6 +238,18 @@ export function getProfileVotes(
         nextCursor: rows.length > PROFILE_VOTES_PAGE_SIZE ? page[page.length - 1].cursor : null,
       },
     };
+  });
+}
+
+// Pasa la cuenta a privada o pública. Al volver a pública, la base de datos acepta las
+// solicitudes de seguimiento pendientes. Errores: AUTH_REQUIRED, PROFILE_REQUIRED.
+export function setProfilePrivacy(
+  supabase: SupabaseClient,
+  isPrivate: boolean,
+): Promise<Result<null>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("set_profile_privacy", { p_private: isPrivate });
+    return error ? { ok: false, error: toAppError(error) } : { ok: true, data: null };
   });
 }
 
@@ -758,4 +771,25 @@ export async function hasAcceptedFollows(
   } catch {
     return false;
   }
+}
+
+// Sólo preferencias propias: las RPC no aceptan un usuario objetivo.
+export function getMyVoteVisibility(supabase: SupabaseClient): Promise<Result<VoteVisibility>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("get_my_vote_visibility");
+    if (error) return { ok: false, error: toAppError(error) };
+    return data === "private" || data === "followers" || data === "profile"
+      ? { ok: true, data }
+      : { ok: false, error: "UNKNOWN" };
+  });
+}
+
+export function setVoteVisibility(
+  supabase: SupabaseClient,
+  visibility: VoteVisibility,
+): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("set_vote_visibility", { p_visibility: visibility });
+    return error ? { ok: false, error: toAppError(error) } : { ok: true, data: undefined };
+  });
 }

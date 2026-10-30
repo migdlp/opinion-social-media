@@ -103,3 +103,11 @@ Prioridad P0 para el nuevo feed; no cambia las condiciones del MVP original. Tra
 Consultar [backlog-adicional.md](backlog-adicional.md) y main antes de reservar. Las primeras disponibles son **DESIGN-002** (tokens After Sunset) y **SEC-001** (cuota persistente de follows), ambas P0. Luego se pueden preparar DESIGN-003/005 y, al existir las rutas sociales, DESIGN-004. DESIGN-006 verifica todo con feed y ciclo social integrados. OPS-001 aplica el esquema candidato sólo en dev; OPS-002 valida Google real y el conjunto en dev; DOC-009 consolida guías al resultado probado.
 
 V2-052 #169 ya existía, conserva P1 y se coordina con V2-033 para compartir el retorno de selección. Las propuestas V2-040–051 de #184 no son requisitos aprobados por esta auditoría. Producción y recuperación siguen en MVP-049–051; no se crean despliegues como parte de completar el backlog.
+
+## Cuenta, apariencia y requisitos legales — 29-10-2026
+
+Ver el [backlog específico](backlog-cuenta-legales.md) y las reservas actuales de main. P0: PRIV-001 (backend independiente), LEGAL-001 (inventario independiente) y completar la base V2-008 con su responsable; después SETTINGS-001/PRIV-002 y LEGAL-002/003/004 según sus datos y dependencias. P1: BUG-004 (cerrar menú fuera) y DESIGN-013 (tema manual), independientes; AVATAR-001 entrega iconos sin esperar a Storage, AVATAR-002 prepara fotos seguras y AVATAR-003 integra la subida. No hacer depender la estructura de Ajustes de todos sus controles futuros ni tomar V2-008, reservada a otra IA. Revisar y registrar valor inicial/migración de visibilidad de votos antes del SQL; no aplicar cambios de datos ni habilitar fotos durante esta planificación.
+
+## Rendimiento y publicación — actualización del propietario (29-10-2026)
+
+**PERF-001 [#262](https://github.com/migdlp/opinion-social-media/issues/262), P0**, diagnostica y corrige el lag de navegación con mediciones antes/después y sin atribuirlo a Vercel o Supabase por intuición. Puede diagnosticarse sin esperar a avatares o textos legales; coordinar archivos compartidos y respetar reservas. REL-002 [#265](https://github.com/migdlp/opinion-social-media/issues/265) publica únicamente la tanda validada por orden explícita del propietario. El [relevo](rel-002-tema-cuenta.md) distingue código, producción y migraciones aún no activadas.

@@ -1,6 +1,6 @@
 "use server";
 
-import { upsertMyProfile } from "@/lib/data/operations";
+import { setProfilePrivacy, upsertMyProfile } from "@/lib/data/operations";
 import { toAppError } from "@/lib/data/errors";
 import type { Profile, Result } from "@/lib/data/types";
 import { createClient } from "@/lib/supabase/server";
@@ -17,6 +17,19 @@ export async function saveProfile(
     const { data } = await supabase.auth.getUser();
     if (!data.user) return { ok: false, error: "AUTH_REQUIRED" };
     return await upsertMyProfile(supabase, username, displayName);
+  } catch (error) {
+    return { ok: false, error: toAppError(error) };
+  }
+}
+
+// Cambia la privacidad de la cuenta con sesión (V2-008). La base de datos decide; al pasar
+// a pública acepta las solicitudes pendientes.
+export async function savePrivacy(isPrivate: boolean): Promise<Result<null>> {
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getUser();
+    if (!data.user) return { ok: false, error: "AUTH_REQUIRED" };
+    return await setProfilePrivacy(supabase, isPrivate);
   } catch (error) {
     return { ok: false, error: toAppError(error) };
   }
