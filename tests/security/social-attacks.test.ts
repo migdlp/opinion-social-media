@@ -1120,3 +1120,86 @@ describe("CMT-001: comentarios", () => {
     expect(rows(await list(poll, bad.token)).map((c) => c.body)).toEqual(["del bloqueado"]);
   });
 });
+
+// MOD-001: denuncia de personas. La tabla no es de ningún cliente; el operador (clave de servicio)
+// es el único que la lee. Denunciar no altera la cuenta.
+describe("MOD-001: denuncia de personas", () => {
+  const report = (username: string, reason: string, token?: string, details?: string) =>
+    rpc(
+      "report_user",
+      { p_username: username, p_reason: reason, ...(details ? { p_details: details } : {}) },
+      token,
+    );
+
+  it("la tabla no se lee ni se escribe por REST con ningún rol; el operador sí la lee", async () => {
+    const [a, b] = await Promise.all([account("mrpa", false), account("mrpb", false)]);
+    expect((await report(b.username, "spam", a.token, "detalle privado")).status).toBeLessThan(300);
+    for (const token of [undefined, a.token, b.token]) {
+      expect(
+        (await http("/rest/v1/user_reports?select=*", { token })).status,
+      ).toBeGreaterThanOrEqual(400);
+      const write = await http("/rest/v1/user_reports", {
+        method: "POST",
+        token,
+        body: JSON.stringify({ reporter_id: b.id, reported_id: a.id, reason: "spam" }),
+      });
+      expect(write.status).toBeGreaterThanOrEqual(400);
+    }
+    const { data } = await admin
+      .from("user_reports")
+      .select("reporter_id, reported_id, reason, details")
+      .eq("reported_id", b.id);
+    expect(data).toEqual([
+      { reporter_id: a.id, reported_id: b.id, reason: "spam", details: "detalle privado" },
+    ]);
+  });
+
+  it("valida y evita duplicados y auto-denuncias; anon no ejecuta", async () => {
+    const [a, b] = await Promise.all([account("mrpc", false), account("mrpd", false)]);
+    expect((await report(b.username, "spam")).status).toBeGreaterThanOrEqual(400);
+    expect(message(await report(a.username, "spam", a.token))).toBe("CANNOT_REPORT_SELF");
+    expect(message(await report("no_existe_mrp", "spam", a.token))).toBe("USER_NOT_FOUND");
+    expect(message(await report(b.username, "inventado", a.token))).toBe("REPORT_INVALID");
+    expect(message(await report(b.username, "spam", a.token, "x".repeat(501)))).toBe(
+      "REPORT_INVALID",
+    );
+    expect((await report(b.username, "acoso", a.token)).status).toBeLessThan(300);
+    expect(message(await report(b.username, "spam", a.token))).toBe("ALREADY_REPORTED");
+  });
+
+  it("peticiones simultáneas de la misma pareja guardan una sola denuncia", async () => {
+    const [a, b] = await Promise.all([account("mrpe", false), account("mrpf", false)]);
+    const both = await Promise.all([
+      report(b.username, "spam", a.token),
+      report(b.username, "spam", a.token),
+      report(b.username, "spam", a.token),
+    ]);
+    expect(both.filter((r) => r.status < 300)).toHaveLength(1);
+    const { count } = await admin
+      .from("user_reports")
+      .select("*", { count: "exact", head: true })
+      .eq("reporter_id", a.id);
+    expect(count).toBe(1);
+  });
+
+  it("no oculta ni bloquea la cuenta denunciada ni altera sus relaciones", async () => {
+    const [a, b, c] = await Promise.all([
+      account("mrpg", false),
+      account("mrph", false),
+      account("mrpi", false),
+    ]);
+    await rpc("follow_user", { p_username: b.username }, c.token);
+    await report(b.username, "odio", a.token);
+    expect(rows(await rpc("get_profile", { p_username: b.username }, a.token))[0]).toMatchObject({
+      username: b.username,
+      can_view_content: true,
+    });
+    const { data } = await admin.from("follows").select("status").eq("followee_id", b.id);
+    expect(data).toEqual([{ status: "accepted" }]);
+    const { count } = await admin
+      .from("user_blocks")
+      .select("*", { count: "exact", head: true })
+      .in("blocker_id", [a.id, b.id]);
+    expect(count).toBe(0);
+  });
+});

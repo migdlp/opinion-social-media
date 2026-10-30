@@ -351,6 +351,17 @@ public.create_poll(p_question, p_options, p_closes_at default null, p_category d
 - Fuera de alcance: hilos, respuestas, likes, edición, borrado y denuncia de comentarios (CMT-003); la interfaz es CMT-002. `PublicPoll` aún no expone `comments_enabled` (CMT-002).
 - Adaptadores: `listComments(supabase, pollId, cursor)` → `Result<CommentPage>`, `addComment(supabase, pollId, body)` → `Result<{ id }>`, `setPollComments(supabase, pollId, enabled)` y `createPoll(..., commentsEnabled?)`. Errores nuevos: `COMMENTS_DISABLED`, `VOTE_REQUIRED`, `COMMENT_INVALID`.
 
+### 3.17. `report_user` (MOD-001)
+
+```sql
+public.report_user(p_username text, p_reason text, p_details text default null) returns void
+```
+
+- Sólo `authenticated` (sin perfil propio obligatorio). La cuenta se identifica por `@usuario` sin distinguir mayúsculas; entre cuentas bloqueadas o si no existe, `USER_NOT_FOUND`; a uno mismo, `CANNOT_REPORT_SELF`. Motivo `spam|odio|acoso|sexual|violencia|otro` y detalle de hasta 500 caracteres normalizados (`REPORT_INVALID`).
+- Tabla `user_reports` propia (no se mezcla con `poll_reports`), sin permisos para clientes: no se lee, escribe ni deduce quién denunció. Una por pareja (`ALREADY_REPORTED`), 10 por hora y cuenta con cerrojo por cuenta (`REPORT_RATE_LIMITED`). Borrado en cascada con la cuenta denunciante o la denunciada.
+- No oculta, bloquea ni cambia la cuenta. Procedimiento de revisión y retención en `docs/moderacion.md`.
+- Adaptador: `reportUser(supabase, username, reason, details?)` → `Result<void>`; error nuevo `CANNOT_REPORT_SELF`. La acción en la interfaz es MOD-002.
+
 ## 4. Lecturas directas (RLS)
 
 `categories` (V2-021) es de lectura pública (`slug, name, position`) y sin escrituras de clientes; el formulario de creación la lee con `getCategories`. Feed y detalle incluyen `category:categories(slug, name)`.
