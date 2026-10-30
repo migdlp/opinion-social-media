@@ -195,7 +195,7 @@ Auditoría anónima de `https://opinion-social-media.vercel.app` (rama `release`
 
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|
-| [SEC-002](https://github.com/migdlp/opinion-social-media/issues/307) | Enviar cabeceras de seguridad HTTP en todas las rutas | P1 | — ; coordinar AUTH-001 #258 (no tocar `proxy.ts`) y V2-051 #175 | Pendiente | — |
+| [SEC-002](https://github.com/migdlp/opinion-social-media/issues/307) | Enviar cabeceras de seguridad HTTP en todas las rutas | P1 | — ; coordinar AUTH-001 #258 (no tocar `proxy.ts`) y V2-051 #175 | En progreso | claude-code (session_01Dsh4bnE3jAdfg5WXXBh59U) |
 | [DESIGN-016](https://github.com/migdlp/opinion-social-media/issues/308) | Colocar Guardar junto a la autoría en el detalle de encuesta | P1 | V2-022 #139, DESIGN-009 #229 (completadas); coordinar DESIGN-015 #279 y DESIGN-006 #192 | Pendiente | — |
 | [META-001](https://github.com/migdlp/opinion-social-media/issues/309) | Tarjeta social al compartir la portada y los perfiles | P1 | MVP-053 #47, DESIGN-011 #231 (completadas); coordinar PROFILE-002 #295 | Pendiente | — |
 
