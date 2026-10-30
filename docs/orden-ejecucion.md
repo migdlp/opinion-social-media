@@ -111,3 +111,5 @@ Ver el [backlog específico](backlog-cuenta-legales.md) y las reservas actuales 
 ## Rendimiento y publicación — actualización del propietario (29-10-2026)
 
 **PERF-001 [#262](https://github.com/migdlp/opinion-social-media/issues/262), P0**, diagnostica y corrige el lag de navegación con mediciones antes/después y sin atribuirlo a Vercel o Supabase por intuición. Puede diagnosticarse sin esperar a avatares o textos legales; coordinar archivos compartidos y respetar reservas. REL-002 [#265](https://github.com/migdlp/opinion-social-media/issues/265) publica únicamente la tanda validada por orden explícita del propietario. El [relevo](rel-002-tema-cuenta.md) distingue código, producción y migraciones aún no activadas.
+
+Actualización 30-10-2026: REL-002 publicó el corte validado de tema/menú/ajustes básicos. Para el trabajo posterior ya integrado en main, seguir OPS-003 #272 → REL-003 #273: dev y prod aún tienen 25 migraciones y la nueva UI requiere 26/27. Respetar reservas de PERF-001 y AUTH-001. El [relevo actualizado](rel-002-tema-cuenta.md) distingue lo publicado y lo pendiente.

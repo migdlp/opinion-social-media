@@ -1,38 +1,37 @@
 # REL-002 — Publicación de tema y menú de cuenta
 
-Autorización del propietario (29-10-2026): «vete desplegando lo que tienes en forma». Ejecución en [#265](https://github.com/migdlp/opinion-social-media/issues/265). No crear previews: un único despliegue Git desde release, con candidato y CI registrados en la PR de publicación.
+**Publicada el 30-10-2026:** https://opinion-social-media.vercel.app. [PR #268](https://github.com/migdlp/opinion-social-media/pull/268), release `60d841b9218c0d7ad5c1d199ef54b1e89d625490`; deployment `dpl_AZyUak2vjYzubEMi7sf2kzQ7SG3v`, **READY / Production**, con el dominio asignado. [Tarea #265](https://github.com/migdlp/opinion-social-media/issues/265).
 
-## Versión preparada
+El propietario autorizó publicar lo validado el 29-10 y reiteró el 30-10 «revisa, y haz un deploy de lo que vayas teniendo». El intento anterior de merge no se ejecutó: la revisión automática no pudo completarse por límite de uso. La misma operación se reintentó el 30-10 y se ejecutó correctamente, sin vías alternativas que eludieran la revisión.
 
-- BUG-004, PR #260: cierre del menú al pulsar fuera, salir con Tab, Escape, navegar o cerrar sesión; conserva las acciones.
-- V2-008, PR #263 (badff9d): base de Ajustes ya completada por su agente e incluida antes de fijar el candidato; sin migraciones nuevas. SETTINGS-001 amplía esa base por separado.
-- DESIGN-013, PR #261: Claro / Oscuro / Sistema en cabecera para visitantes y cuentas, persistencia local y fallback si se bloquea almacenamiento. `ThemeSelector` se reutilizará en SETTINGS-001.
-- DOC-010 y LEGAL-001: backlog ejecutable e inventario legal. No se publican políticas con datos de responsable inventados.
-- PRIV-001 está integrado en código/SQL versionado, pero **no activo en hosted**. No se anuncia la nueva privacidad como función productiva.
+## Qué está publicado
 
-CI funcional de DESIGN-013: [40914648426](https://github.com/migdlp/opinion-social-media/actions/runs/40914648426), SHA `79d6dc5bddd93d8d8d527fefd4b604abdf18f32d`: 691 unitarias, 120 E2E, 89 ataques HTTP, SQL/concurrencia/upgrade, migraciones reproducibles/tipos, secretos y build correctos. Capturas reales de 320/390/1280 en ambos temas en su artefacto `aftersunset-capturas`. La CI exacta del candidato final y el resultado Vercel se enlazan en #265/PR de publicación.
+- **DESIGN-013 / PR #261:** Claro, Oscuro o Sistema desde el icono de la cabecera, para visitantes y cuentas. La elección persiste en el navegador; Sistema sigue el dispositivo; almacenamiento bloqueado no rompe la visita. Se aplica antes del body y afecta también a las variantes dark: de componentes.
+- **BUG-004 / PR #260:** el menú de cuenta cierra al pulsar fuera, salir con Tab, pulsar Escape, navegar o cerrar sesión; mantiene las acciones.
+- **V2-008 / PR #263:** base de Ajustes de perfil y Cuenta privada. La ampliación posterior por apartados y audiencia independiente no pertenece a este corte.
 
-Primera CI de tema: 117/120 E2E; corrigió un área nativa de 42 px a 44 px. El estado activo tardío de la barra en una transición cliente se registra en PERF-001; no se da por corregido en esta versión. Las capturas pueden recoger una transición breve de color; los tokens finales pasan contraste automatizado.
+Candidato exacto `e9a8c6380314ab687ead3fbdcf6b3ebfee20147b`, snapshot de main `704ec15` y documentación integrada en PR #266. El corte se congeló para que otros merges de main no añadieran funciones todavía sin activar en Supabase. No se creó ninguna preview ni se hizo un redeploy auxiliar: sólo el merge Git hacia release.
 
-## Preflight observado, sin cambios de datos
+## Evidencia
 
-- Destino: proyecto Vercel `prj_tUC8ZwzxHISZkmzMKd2z2UmVcN5E`, equipo `team_Iu3JavtCo0Kv8xW8ebnGukLb`, Next.js, dominio https://opinion-social-media.vercel.app.
-- Versión anterior: release `69f8a1022295105a782f6f2a1a38b1d7b47e8fb5`, deployment `dpl_78nurnzhEzvttMSUwDAqgPVut3Cp`, READY/Production, dominio asignado. Verificar de nuevo justo antes de publicar.
-- Supabase producción `qchpdrolulcgmiliysvr`: ledger leído con **25 migraciones**, última `20261028280000`. No repetirlas ni resetear. La 26 `20261029152251_vote_history_visibility.sql` no se aplica en esta publicación.
-- Los contratos productivos de create_poll, vote_poll, get_feed, get_poll_results, get_my_profile y get_profile_votes coinciden con las llamadas usadas por las pantallas. Los dos adaptadores nuevos de audiencia no tienen consumidores de UI: pueden permanecer sin activar hasta el rollout coordinado con PRIV-002.
-- Esta publicación es compatible con la versión anterior de datos y no incluye DDL ni borrado. La recuperación de datos y la activación de la migración 26 necesitan su plan específico; un rollback de frontend no sustituye un backup.
-- Se conserva la configuración de Auth y las variables separadas. No imprimir claves ni configurar nuevos proveedores para publicar el tema.
+- CI [40916736798](https://github.com/migdlp/opinion-social-media/actions/runs/40916736798) y [40916743118](https://github.com/migdlp/opinion-social-media/actions/runs/40916743118), del candidato exacto: **710 unitarias, 120 E2E y 89 HTTP** correctos; build, SQL/concurrencia/upgrade, reproducción real de migraciones/tipos y secretos verdes. TDD y correcciones de comportamiento documentados en sus PR.
+- Vercel confirmó SHA de release, rama release, destino Production y alias del dominio. Proyecto `prj_tUC8ZwzxHISZkmzMKd2z2UmVcN5E`, equipo `team_Iu3JavtCo0Kv8xW8ebnGukLb`; build aproximadamente 37 s según buildingAt/ready.
+- HTTP público: `/`, `/login`, `/settings` y detalle de una encuesta confirmada pública y abierta respondieron 200. CSS 200, reglas manuales de tema presentes y bootstrap de preferencia antes del body.
+- `/settings` sin sesión incluye el redirect de Next a `/login?next=%2Fsettings`. Al usar streaming responde 200 con meta refresh/redirect RSC; no confundirlo con una sesión autenticada ni exigir un 302 que ese render no emite.
+- No se serializó `total_votes` en el HTML anónimo del detalle abierto comprobado. No sustituye las pruebas de autorización completas de CI.
+- Consulta de logs del deployment, niveles error/fatal, ventana de 10 minutos después del smoke: **sin registros con esos criterios**. Es una observación acotada, no monitorización continua ni garantía de ausencia total de errores.
+- Google real y ajustes guardados con la cuenta del propietario no se probaron en esta sesión. La validación de navegador del candidato se ejecutó en CI con Supabase efímero y sesiones de prueba; no se afirma una prueba autenticada productiva nueva.
 
-## Relevo para otras IAs
+## Supabase y siguiente versión
 
-1. **PERF-001 #262, P0:** ya reservada por otra IA en main 704ec15; respetar su trabajo, medir lag y corregir causas. Pistas, sin causalidad demostrada: funciones Vercel declaradas en iad1 y Supabase en Irlanda; avisos Date.now/prerender y barra móvil que se actualiza tarde. Medir antes/después, sin caché pública de datos privados.
-2. **V2-008 #129 completada:** PR #263 integrada. SETTINGS-001 #248 está reservada a su agente; PRIV-002 y acabado visual DESIGN-004 siguen sus dependencias. Integrar el selector existente y la preferencia de audiencia; coordinar la migración 26 y su validación.
-3. **AUTH-001 #258:** reserva de otra IA, conservarla. Cookies/lifetime/atributos investigados en el inventario legal; no asumir resuelto hasta su PR y pruebas.
-4. **LEGAL-002/003/004:** responsable público, país, contacto, retención, canal de derechos y revisión pendientes. Inventario en docs/legal/; no inventarlos ni publicar textos ficticios.
-5. **AVATAR-001/002/003:** iconos primero, después Storage seguro y subida; dependencias en el backlog.
+Lectura del 30-10: dev `ltlrujmqenhktiilsnis` y prod `qchpdrolulcgmiliysvr` mantienen **25 migraciones**, última `20261028280000`. Esta publicación no cambió SQL, Auth, variables ni datos. Los contratos existentes, incluido `set_profile_privacy(p_private boolean)`, son compatibles con el corte publicado.
 
-MVP-049/050/051 conservan bloqueos de aceptación general, pero la reserva de Codex fue liberada en `8ed54b8` por orden del propietario. Sus issues están sincronizados. No declarar el MVP global terminado por esta publicación. Consultar main antes de reservar; conservar autores históricos de tareas completadas no implica que sigan reservadas.
+Main `aa6aa3d` ya incorpora trabajo posterior, aún sin publicar: SETTINGS-001 / PR #267, PRIV-002 / PR #270, AVATAR-001 / PR #271 y la corrección parcial de PERF-001 / PR #269. PRIV-001 añade la migración 26 `20261029152251_vote_history_visibility.sql`; AVATAR-001 añade la 27 `20261029190000_profile_avatar.sql`, que recrea get_my_profile con avatar_icon. No desplegar ese frontend sobre el esquema 25.
 
-Al terminar REL-002, publicar versión/estado HTTP/observabilidad y límites en #265, cerrar la tarea o liberarla con bloqueo concreto. No dejar reservas abiertas de esta sesión ni atribuirse PERF-001.
+1. **[OPS-003 #272](https://github.com/migdlp/opinion-social-media/issues/272), P0:** integrar 26/27 en dev, comparando ledger, preparando copia/recuperación y verificando conservación de datos, contratos y RLS. Pendiente, sin reserva de Codex.
+2. **[REL-003 #273](https://github.com/migdlp/opinion-social-media/issues/273), P0:** tras dev y recuperación revisados, activar sólo esas pendientes en prod y publicar el candidato verificado de ajustes ampliados, audiencia, iconos y primera optimización del feed. Pendiente, sin reserva de Codex.
+3. **PERF-001 #262:** sigue parcial y reservada a su agente. La versión actual aún declara funciones en **iad1**, mientras Supabase está en Irlanda. PR #269 reduce consultas en serie, pero no forma parte de REL-002. Medir después del próximo despliegue y coordinar la región sin atribuirle toda la causa por intuición.
+4. **AUTH-001 #258:** conserva su reserva y revisión pendiente; no incluirla sin resolver sus dependencias.
+5. **LEGAL-002/003/004:** faltan datos reales/revisión del responsable, retención y canal de derechos. AVATAR-002/003 preparan después Storage y fotos; no inventar textos ni prometer subida activa.
 
-El candidato se fija incluyendo main `704ec15` y este documento, tras integrar la base de Ajustes ya verificada. La PR de publicación usa ese snapshot de main para no incorporar después código de AUTH-001, PERF-001 o SETTINGS-001 aún en desarrollo. Registrar su SHA completo y CI antes de fusionar a release.
+MVP-049/050/051 mantienen aceptación global pendiente y sus reservas de Codex fueron liberadas en `8ed54b8`. REL-002 se cierra con esta evidencia; conservar autores históricos de tareas completadas no significa que sigan reservadas. Consultar siempre main y #73 antes de tomar una tarea.
