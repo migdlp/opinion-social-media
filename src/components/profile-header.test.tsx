@@ -120,3 +120,25 @@ describe("ProfileHeader: bloquear (SOCIAL-002)", () => {
     expect(screen.queryByRole("button", { name: "Bloquear" })).toBeNull();
   });
 });
+
+describe("ProfileHeader: descripción (PROFILE-002)", () => {
+  it("muestra la descripción como texto: conserva saltos y no interpreta HTML ni enlaces", () => {
+    render(
+      <ProfileHeader
+        profile={{ ...PROFILE, bio: "Línea 1\n<b>negrita</b> https://x.test" }}
+        {...props}
+      />,
+    );
+    const bio = screen.getByText(/Línea 1/);
+    expect(bio.textContent).toBe("Línea 1\n<b>negrita</b> https://x.test");
+    expect(bio.querySelector("b")).toBeNull();
+    expect(bio.querySelector("a")).toBeNull();
+    expect(bio.className).toMatch(/whitespace-pre-wrap/);
+    expect(bio.className).toMatch(/break-words|wrap-anywhere/);
+  });
+
+  it("sin descripción no reserva hueco", () => {
+    const { container } = render(<ProfileHeader profile={PROFILE} {...props} />);
+    expect(container.querySelector("[data-bio]")).toBeNull();
+  });
+});

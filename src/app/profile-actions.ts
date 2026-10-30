@@ -2,6 +2,7 @@
 
 import {
   setProfileAvatar,
+  setProfileBio,
   setProfilePrivacy,
   setVoteVisibility,
   upsertMyProfile,
@@ -62,6 +63,19 @@ export async function saveAvatar(icon: AvatarIcon | null): Promise<Result<void>>
     const { data } = await supabase.auth.getUser();
     if (!data.user) return { ok: false, error: "AUTH_REQUIRED" };
     return await setProfileAvatar(supabase, icon);
+  } catch (error) {
+    return { ok: false, error: toAppError(error) };
+  }
+}
+
+// Fija, cambia o quita (null) la descripción de la cuenta con sesión (PROFILE-002). El límite de
+// 280 caracteres y el texto plano los impone la base de datos; sin sesión no se llega a ella.
+export async function saveBio(bio: string | null): Promise<Result<void>> {
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getUser();
+    if (!data.user) return { ok: false, error: "AUTH_REQUIRED" };
+    return await setProfileBio(supabase, bio);
   } catch (error) {
     return { ok: false, error: toAppError(error) };
   }
