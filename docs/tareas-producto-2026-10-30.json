@@ -1,0 +1,719 @@
+{
+  "version": 1,
+  "source_issue": 275,
+  "estimates": "relativas; S≈0,5 día; M≈1 día; L≈2 días",
+  "tasks": [
+    {
+      "id": "DESIGN-014",
+      "title": "Claro por defecto y cambio de tema con un único icono",
+      "epic": 111,
+      "priority": "P0",
+      "size": "M",
+      "labels": [
+        "frontend",
+        "design",
+        "testing",
+        "area:apariencia"
+      ],
+      "deps": [
+        "#245",
+        "#248"
+      ],
+      "description": "Sustituir el desplegable por un botón de icono que alterne Claro ↔ Oscuro, en cabecera y donde se reutilice en Ajustes. Sin preferencia manual, usar Claro independientemente del dispositivo. Conservar una elección Oscuro explícita; las preferencias heredadas Sistema/ausentes pasan al default Claro. No duplicar estado ni claves.",
+      "ac": [
+        "Dado un navegador nuevo con sistema oscuro, al abrir cualquier ruta aparece Claro desde el primer pintado, sin errores de hidratación.",
+        "Dado el botón, un clic o Enter/Espacio alterna Claro/Oscuro, sin desplegable; etiqueta accesible indica la acción siguiente, foco y área mínima 44×44.",
+        "Dada elección explícita, persiste al recargar/navegar y se sincroniza entre cabecera/Ajustes/pestañas; almacenamiento bloqueado funciona durante la visita.",
+        "Dado ambos temas a 320/390/1280, controles, resultados y menús mantienen contraste y no desbordan. TDD y E2E de defaults/herencia/persistencia."
+      ],
+      "issue_number": 276,
+      "url": "https://github.com/migdlp/opinion-social-media/issues/276",
+      "state": "Pendiente",
+      "agent": null,
+      "dependency_issues": [
+        245,
+        248
+      ]
+    },
+    {
+      "id": "FEED-001",
+      "title": "Entrar por defecto en Recientes para todas las cuentas",
+      "epic": 113,
+      "priority": "P0",
+      "size": "S",
+      "labels": [
+        "frontend",
+        "testing",
+        "area:feed"
+      ],
+      "deps": [
+        "#179"
+      ],
+      "description": "Sustituir únicamente el default de D-022: al entrar sin pestaña explícita, tanto visitantes como usuarios con seguimientos abren Recientes. Mantener Siguiendo, filtros, navegación y privacidad; no redirigir una elección explícita a Recientes.",
+      "ac": [
+        "Dado visitante o usuario con/sin seguidos, al abrir / sin tab se selecciona Recientes.",
+        "Dado tab=siguiendo elegido o enlace explícito, se respeta Siguiendo y el estado vacío/autenticación vigente.",
+        "Dado cambiar pestaña/categoría, atrás/adelante y retorno del login, URL y pestaña activa son coherentes; no se mezclan lotes del feed.",
+        "TDD cubre los tres tipos de usuario y E2E confirma el default sin alterar seguridad ni orden cronológico."
+      ],
+      "issue_number": 277,
+      "url": "https://github.com/migdlp/opinion-social-media/issues/277",
+      "state": "Pendiente",
+      "agent": null,
+      "dependency_issues": [
+        179
+      ]
+    },
+    {
+      "id": "CREATE-001",
+      "title": "Opciones Sí/No como ejemplo y valores de reserva, sin botón de plantilla",
+      "epic": 110,
+      "priority": "P0",
+      "size": "M",
+      "labels": [
+        "frontend",
+        "backend",
+        "testing",
+        "area:encuestas"
+      ],
+      "deps": [
+        "#116",
+        "#117"
+      ],
+      "description": "Eliminar el botón que rellena Sí/No. Los dos campos iniciales están vacíos, con placeholders Sí y No que se ocultan al enfocar y reaparecen al salir vacíos. Si los dos siguen vacíos al publicar, guardar Sí/No reales. Si se personalizan, respetar lo escrito; no sustituir silenciosamente opciones incompletas.",
+      "ac": [
+        "Dado formulario inicial, se ven ejemplos con estilo de placeholder y etiquetas Opción 1/2; al enfocar desaparece el ejemplo y no hay texto real que borrar.",
+        "Dadas exactamente dos opciones iniciales vacías/espacios, publicar genera Sí y No explícitos y válidos; no se envían strings vacíos a create_poll.",
+        "Dada una opción escrita y otra vacía, o tres o más campos incompletos, se muestran errores y no se inventan respuestas.",
+        "Dado texto personalizado, trim/duplicados/2–6 opciones se validan también por el camino de servidor; la RPC sigue rechazando inserciones vacías directas.",
+        "TDD/E2E cubren foco/blur, envío sin editar, ambas personalizadas, parcial inválida y ausencia del botón anterior."
+      ],
+      "issue_number": 278,
+      "url": "https://github.com/migdlp/opinion-social-media/issues/278",
+      "state": "Pendiente",
+      "agent": null,
+      "dependency_issues": [
+        116,
+        117
+      ]
+    },
+    {
+      "id": "DESIGN-015",
+      "title": "Alinear tarjetas y controles del feed en escritorio con alturas de contenido distintas",
+      "epic": 111,
+      "priority": "P0",
+      "size": "M",
+      "labels": [
+        "frontend",
+        "design",
+        "testing",
+        "area:feed"
+      ],
+      "deps": [
+        "#239"
+      ],
+      "description": "Revisar la cuadrícula de escritorio para que las tarjetas de cada fila y sus zonas comunes estén alineadas aunque tengan 2, 3 o 6 respuestas, preguntas largas o resultados. Igualar la estructura de fila al contenido mayor, conservando todas las opciones y una lectura natural; no recortar contenido ni inventar votos.",
+      "ac": [
+        "Dadas tarjetas mixtas en una fila, sus bordes superior/inferior y acciones/pies comunes quedan alineados; pregunta y bloque de respuestas tienen anclajes coherentes.",
+        "Dadas opciones/preguntas largas, todas siguen visibles y votables; no hay solapamientos, alturas rígidas que corten texto ni saltos al mostrar resultados.",
+        "Dado móvil, conserva una columna y orden semántico/teclado. Capturas reales a 320/390/1024/1280, ambos temas y antes/después de votar.",
+        "TDD o regresión visual de las cajas/posiciones con contenido real variable; definir tolerancia de 1 px para alineaciones de una misma fila."
+      ],
+      "issue_number": 279,
+      "url": "https://github.com/migdlp/opinion-social-media/issues/279",
+      "state": "Pendiente",
+      "agent": null,
+      "dependency_issues": [
+        239
+      ]
+    },
+    {
+      "id": "BUG-005",
+      "title": "Verificar seguir directamente cuentas públicas y solicitar acceso a las privadas",
+      "epic": 109,
+      "priority": "P0",
+      "size": "M",
+      "labels": [
+        "frontend",
+        "backend",
+        "security",
+        "testing",
+        "area:perfil"
+      ],
+      "deps": [
+        "#126",
+        "#138",
+        "#129"
+      ],
+      "description": "Revisar la incidencia comunicada, sin dar por bug el seguimiento inmediato de una cuenta pública. Mantener D-017: pública → accepted; privada → pending hasta aceptación. Revisar toggle persistido, bandeja de solicitudes y permisos reales mediante llamadas directas.",
+      "ac": [
+        "Dada cuenta pública, seguir se acepta directamente y no crea solicitud pendiente.",
+        "Dada cuenta privada, seguir crea una sola pending incluso con doble petición; solicitante no ve encuestas/historial protegido hasta aceptación.",
+        "Dado el titular, la bandeja muestra sólo sus solicitudes entrantes pendientes; aceptar/rechazar actualiza UI, contadores y permisos.",
+        "Dado cambio de privacidad, conservar contratos vigentes para seguidores ya aceptados; leer el valor persistido y probar recarga/dispositivos.",
+        "TDD y E2E con dos cuentas, REST/RPC directos y comparación dev/prod permiten documentar si el fallo era configuración, UI o backend. No modificar SQL productivo en una simple auditoría."
+      ],
+      "issue_number": 280,
+      "url": "https://github.com/migdlp/opinion-social-media/issues/280",
+      "state": "Pendiente",
+      "agent": null,
+      "dependency_issues": [
+        126,
+        138,
+        129
+      ]
+    },
+    {
+      "id": "POLL-001",
+      "title": "Definir el catálogo de nuevos tipos y evaluar respuesta múltiple y ranking",
+      "epic": 110,
+      "priority": "P1",
+      "size": "M",
+      "labels": [
+        "design",
+        "frontend",
+        "backend",
+        "testing",
+        "area:encuestas"
+      ],
+      "deps": [],
+      "description": "El propietario propone permitir varias respuestas y ordenar de mayor a menor, pero pide pensar mejor los formatos. Comparar estos candidatos con elección única y comparación de fotos (esta última ya solicitada explícitamente). Entregar flujos/prototipos y una decisión por formato, sin implantar tipos tentativos como requisitos cerrados.",
+      "ac": [
+        "Para respuesta múltiple, definir mínimo/máximo seleccionable, confirmación, participación única/inmutable y denominador de porcentajes (pueden sumar más de 100%).",
+        "Para ranking, definir qué significa mayor/menor, lista completa o parcial, empates, orden accesible sin arrastre obligatorio y cálculo de resultados; no asumir puntuación Borda ni otra sin decisión.",
+        "Para fotos, cerrar contrato de comparación 2–6 alternativas, rótulos/alt y cómo convive con el voto único actual; no bloquearla por tipos descartados.",
+        "Cada candidato termina como aprobado/pospuesto/con preguntas concretas, con ejemplos de entrada/resultados y regla de ocultación antes de votar.",
+        "Los tipos aprobados adicionales generan tickets pequeños de esquema/RPC, UI y seguridad/E2E con dependencias; no crear un motor genérico ni implementar ranking/multirespuesta sólo por esta exploración."
+      ],
+      "issue_number": 281,
+      "url": "https://github.com/migdlp/opinion-social-media/issues/281",
+      "state": "Pendiente",
+      "agent": null,
+      "dependency_issues": []
+    },
+    {
+      "id": "SOCIAL-001",
+      "title": "Bloqueo de personas impuesto en base de datos y consultas",
+      "epic": 109,
+      "priority": "P1",
+      "size": "L",
+      "labels": [
+        "backend",
+        "database",
+        "security",
+        "testing",
+        "area:moderacion"
+      ],
+      "deps": [
+        "#128",
+        "#249"
+      ],
+      "description": "Crear relación privada de bloqueo y operaciones propias para bloquear/desbloquear. Para cuentas autenticadas, el bloqueo entre A y B impide visibilidad e interacción en ambos sentidos; cancela seguimientos/solicitudes entre ambos. Integrarlo en feed, perfil/historial, búsqueda y futuras lecturas de comentarios, conservando votos existentes y agregados.",
+      "ac": [
+        "Dado A bloquea B, ninguno puede seguir/solicitar, ver contenido protegido del otro o interactuar mediante APIs directas; un bloqueo activo en cualquier sentido basta.",
+        "Dado bloqueo, eliminar relaciones/pendientes entre ambos de forma atómica; desbloquear no restaura seguimientos automáticamente.",
+        "No borrar ni cambiar votos previos, ni recalcular agregados excluyéndolos. No exponer listados de quién bloqueó al solicitante ni permitir gestionar bloqueos ajenos.",
+        "RLS, permisos y RPC controladas para la lista propia; no filtrar contenido por endpoints alternativos, cursores, recomendaciones o caches compartidas.",
+        "El contenido público puede seguir visible sin sesión: documentar este límite real, sin prometer anonimato ni protección frente a otra cuenta. SQL/HTTP y concurrencia con matrices de actores."
+      ],
+      "issue_number": 282,
+      "url": "https://github.com/migdlp/opinion-social-media/issues/282",
+      "state": "Pendiente",
+      "agent": null,
+      "dependency_issues": [
+        128,
+        249
+      ]
+    },
+    {
+      "id": "SEARCH-001",
+      "title": "Búsqueda de encuestas por pregunta con paginación y permisos",
+      "epic": 113,
+      "priority": "P1",
+      "size": "M",
+      "labels": [
+        "backend",
+        "database",
+        "security",
+        "testing",
+        "area:busqueda"
+      ],
+      "deps": [
+        "SOCIAL-001"
+      ],
+      "description": "Añadir búsqueda sencilla sobre preguntas con índice de PostgreSQL y consultas parametrizadas; sin servicio externo ni búsqueda semántica. Búsqueda de 2–100 caracteres normalizados, página de hasta 20 y orden/cursor estable. Encuestas cerradas accesibles pueden encontrarse aunque ya no estén en el feed de 24 h.",
+      "ac": [
+        "Dada consulta válida, devuelve sólo encuestas publicadas que ese actor puede ver, respetando cuenta privada y bloqueos; ocultas no aparecen.",
+        "Dado anónimo o usuario sin voto, las abiertas no incluyen recuentos, porcentajes, votos ajenos ni datos de resultados en HTML/RPC.",
+        "Dada consulta vacía/corta/larga o caracteres especiales, devuelve validación controlada, sin SQL interno ni interpolación insegura.",
+        "Dadas páginas sucesivas con la misma consulta, no hay duplicados ni mezcla con otra búsqueda; no se devuelven totales globales que revelen contenido privado.",
+        "Migración/índice, contrato y tipos versionados; SQL/HTTP/TDD y plan de consulta con un volumen de prueba representativo, sin añadir Redis."
+      ],
+      "issue_number": 283,
+      "url": "https://github.com/migdlp/opinion-social-media/issues/283",
+      "state": "Pendiente",
+      "agent": null,
+      "dependency_issues": [
+        282
+      ]
+    },
+    {
+      "id": "SEARCH-002",
+      "title": "Pantalla de búsqueda y lupa en la navegación móvil",
+      "epic": 113,
+      "priority": "P1",
+      "size": "M",
+      "labels": [
+        "frontend",
+        "design",
+        "testing",
+        "area:busqueda"
+      ],
+      "deps": [
+        "SEARCH-001"
+      ],
+      "description": "Crear /search con query en URL, formulario accesible y estados de inicio, cargando, vacío, error y más resultados. Añadir Buscar con lupa abajo en móvil y acceso equivalente en escritorio. Reutilizar tarjetas/voto/login y navegación existente.",
+      "ac": [
+        "Dada lupa móvil, abre búsqueda real; barra Feed/Buscar/Crear/Perfil no desborda a 320 px, respeta safe-area y objetivos de 44 px.",
+        "Dada consulta enviada, URL mantiene q y atrás/adelante/restauración conservan consulta; no hay búsqueda vacía automática del catálogo entero.",
+        "Dado resultado, se puede abrir/votar con los mismos permisos y retorno del login; la selección no revela resultados prematuramente.",
+        "Dado teclado/lector de pantalla, formulario, foco, estado de búsqueda y botón cargar más son utilizables; claro/oscuro consistentes.",
+        "TDD/E2E anónimo y con sesión, permisos de búsqueda, consulta sin resultados y errores de red. No introducir analítica ni autocomplete no pedido."
+      ],
+      "issue_number": 284,
+      "url": "https://github.com/migdlp/opinion-social-media/issues/284",
+      "state": "Pendiente",
+      "agent": null,
+      "dependency_issues": [
+        283
+      ]
+    },
+    {
+      "id": "CMT-001",
+      "title": "Backend de comentarios y habilitación por encuesta",
+      "epic": 112,
+      "priority": "P1",
+      "size": "L",
+      "labels": [
+        "backend",
+        "database",
+        "security",
+        "testing",
+        "area:comentarios"
+      ],
+      "deps": [
+        "SOCIAL-001"
+      ],
+      "description": "Debate plano, sin hilos ni likes. Añadir comments_enabled (false por defecto) configurable al crear y por el autor después mediante operación controlada. Comentarios de texto plano 1–1000 caracteres, paginados; publicar exige sesión, perfil y acceso. En abiertas, leer/escribir debate exige haber votado; cerradas respetan visibilidad de la encuesta.",
+      "ac": [
+        "Dada encuesta con comentarios apagados, nadie los obtiene ni publica por API normal, tampoco el autor; no devolver recuento oculto. Apagar conserva filas para reactivación, no las borra.",
+        "Dado autor autenticado, sólo él cambia el flag; no puede editar pregunta, opciones, cierre o votos por esta capacidad.",
+        "Dada abierta sin voto, el debate se deniega también al creador; tras votar se habilita, y en cerradas sigue la autorización de cuenta/bloqueos.",
+        "Comentarios de personas bloqueadas por el lector o por el autor de la encuesta no se muestran; no aceptar nuevos comentarios incompatibles con bloqueo.",
+        "Texto normalizado sin HTML, límite backend de 10 publicaciones/minuto por cuenta aplicado concurrentemente, permisos/RLS/índices y tipos; SQL/HTTP y errores controlados."
+      ],
+      "issue_number": 285,
+      "url": "https://github.com/migdlp/opinion-social-media/issues/285",
+      "state": "Pendiente",
+      "agent": null,
+      "dependency_issues": [
+        282
+      ]
+    },
+    {
+      "id": "CMT-003",
+      "title": "Denuncia y moderación mínima de comentarios",
+      "epic": 112,
+      "priority": "P1",
+      "size": "M",
+      "labels": [
+        "backend",
+        "frontend",
+        "database",
+        "security",
+        "testing",
+        "area:comentarios"
+      ],
+      "deps": [
+        "CMT-001"
+      ],
+      "description": "Permitir denunciar comentarios visibles y ocultarlos desde operación administrativa de Supabase; sin panel de administración completo. Reutilizar motivos de denuncia y controles existentes donde encajen. El autor de una encuesta puede apagar debate, pero no obtiene permisos arbitrarios para leer comentarios inaccesibles.",
+      "ac": [
+        "Dado comentario autorizado, usuario con sesión puede denunciar con motivo; duplicados se controlan y no exponen denunciante ni denuncias ajenas.",
+        "Dado comentario oculto por moderación, desaparece de todas las lecturas normales y de enlaces directos; no reaparece al reactivar comentarios.",
+        "Dado comentarios deshabilitados, encuesta oculta, privada sin permiso o bloqueo, APIs de denuncia/listado no permiten inferir contenido ni saltar autorización.",
+        "Procedimiento de revisión manual, permisos administrativos y tratamiento/retención de denuncias documentados para revisión legal.",
+        "Tests SQL/HTTP de acceso/abuso y E2E de envío, error/duplicado y contenido moderado; incluir antes de activar públicamente comentarios."
+      ],
+      "issue_number": 286,
+      "url": "https://github.com/migdlp/opinion-social-media/issues/286",
+      "state": "Pendiente",
+      "agent": null,
+      "dependency_issues": [
+        285
+      ]
+    },
+    {
+      "id": "CMT-002",
+      "title": "Controles de comentarios y debate en el detalle",
+      "epic": 112,
+      "priority": "P1",
+      "size": "L",
+      "labels": [
+        "frontend",
+        "design",
+        "testing",
+        "area:comentarios"
+      ],
+      "deps": [
+        "CMT-001",
+        "CMT-003"
+      ],
+      "description": "Añadir interruptor Comentarios en creación y control del autor en el detalle. Mostrar debate paginado bajo la encuesta cuando esté autorizado, con formulario de texto, autor y fecha. Mantener los resultados de la encuesta como elemento principal y explicar acceso tras votar.",
+      "ac": [
+        "Dado crear, Comentarios viene apagado; el autor puede activarlo/desactivarlo en el detalle sin editar el resto de la encuesta.",
+        "Dado sin voto en abierta, mostrar explicación sin textos/recuentos de comentarios en payload; tras votar aparece el debate habilitado.",
+        "Dado escribir, hay validación/carga/error y recuperación sin duplicar publicaciones; la identidad pública del comentario se muestra de forma consciente.",
+        "Indicar que ocultar historial de votos no oculta comentarios que se publiquen voluntariamente; no revelar la opción elegida automáticamente.",
+        "TDD/E2E de activar/apagar/reactivar, sesión, voto previo, cerrado, bloqueo y denuncia; móvil/teclado/ambos temas, sin añadir hilos o likes."
+      ],
+      "issue_number": 287,
+      "url": "https://github.com/migdlp/opinion-social-media/issues/287",
+      "state": "Pendiente",
+      "agent": null,
+      "dependency_issues": [
+        285,
+        286
+      ]
+    },
+    {
+      "id": "MEDIA-001",
+      "title": "Contrato y esquema de encuestas para comparar fotos",
+      "epic": 110,
+      "priority": "P1",
+      "size": "M",
+      "labels": [
+        "backend",
+        "database",
+        "security",
+        "testing",
+        "area:encuestas"
+      ],
+      "deps": [
+        "POLL-001",
+        "SOCIAL-001"
+      ],
+      "description": "Añadir un formato imagen de elección única con 2–6 alternativas, cada una con foto y descripción alternativa. Conservar encuestas de texto existentes y un único voto inmutable por cuenta. Versionar modelo/contrato sin introducir un motor extensible de tipos no decididos.",
+      "ac": [
+        "Dadas encuestas antiguas, conservan tipo texto y comportamiento; migración no borra preguntas, opciones ni votos.",
+        "Dada encuesta de imágenes, publicación valida 2–6 opciones completas y ordenadas, cada archivo pertenece al autor y al borrador de carga autorizado; no se puede enlazar un objeto ajeno.",
+        "Publicación atómica: no aparecen encuestas incompletas; el contrato de upload/publicación y de limpieza de fallos queda fijado.",
+        "Resultados siguen protegidos en abiertas, con la excepción de cierre vigente; firmar opciones/archivos no filtra votos ni agregados.",
+        "SQL/tipos/RPC, FK/restricciones y pruebas de compatibilidad/propiedad/privacidad. Sólo el contrato de fotos necesita POLL-001; no esperar a aprobar ranking o respuesta múltiple."
+      ],
+      "issue_number": 288,
+      "url": "https://github.com/migdlp/opinion-social-media/issues/288",
+      "state": "Pendiente",
+      "agent": null,
+      "dependency_issues": [
+        281,
+        282
+      ]
+    },
+    {
+      "id": "MEDIA-002",
+      "title": "Subida y lectura segura de fotos de encuestas",
+      "epic": 110,
+      "priority": "P1",
+      "size": "L",
+      "labels": [
+        "backend",
+        "database",
+        "security",
+        "testing",
+        "area:encuestas"
+      ],
+      "deps": [
+        "MEDIA-001"
+      ],
+      "description": "Configurar almacenamiento de adjuntos de encuestas con políticas de propietario, visibilidad y bloqueo, separado del avatar. Admitir JPEG/PNG/WebP, máximo 5 MiB por archivo, verificar contenido real y eliminar metadatos sensibles (incluida geolocalización) al procesar; no SVG/HTML ni URLs externas arbitrarias.",
+      "ac": [
+        "Dado archivo inválido, sobredimensionado o MIME falso, backend lo rechaza; sólo se sirve una imagen procesada segura, sin EXIF/ubicación ni el original sin revisar.",
+        "Dada encuesta privada/oculta o bloqueo, conocer el object path no permite leer por API sin permiso; bucket privado y entrega autenticada/RLS o ruta autorizada, sin caché pública de medios privados.",
+        "Dada carga temporal, sólo el propietario puede usarla; URLs/objetos de otra cuenta no se pueden asociar. Documentar cuota inicial de 40 cargas/hora por cuenta y probar concurrencia.",
+        "Dado fallo o abandono, objetos temporales sin asociación se limpian a las 24 h mediante mecanismo de Supabase; no borrar adjuntos publicados por error ni añadir colas/servicios externos.",
+        "Pruebas de archivos reales, RLS/HTTP, recuperación de errores y limpieza; costes/límites y conservación de imágenes documentados para revisión legal."
+      ],
+      "issue_number": 289,
+      "url": "https://github.com/migdlp/opinion-social-media/issues/289",
+      "state": "Pendiente",
+      "agent": null,
+      "dependency_issues": [
+        288
+      ]
+    },
+    {
+      "id": "MEDIA-003",
+      "title": "Crear, comparar y votar encuestas con fotos",
+      "epic": 110,
+      "priority": "P1",
+      "size": "L",
+      "labels": [
+        "frontend",
+        "design",
+        "testing",
+        "area:encuestas"
+      ],
+      "deps": [
+        "MEDIA-001",
+        "MEDIA-002"
+      ],
+      "description": "Selector de formato Texto/Fotos, previsualización y reemplazo de imágenes antes de publicar; detalle y tarjetas muestran comparaciones utilizables en móvil/escritorio. Reutilizar voto/resultados, sin publicar automáticamente al terminar una carga.",
+      "ac": [
+        "Dado formato Fotos, se pueden preparar 2–6 alternativas con descripción accesible, progreso y errores; no se ofrece el fallback Sí/No de texto para imágenes vacías.",
+        "Dado fallo en una carga o publicación, se puede corregir/reintentar sin publicar encuestas incompletas ni perder el resto del formulario.",
+        "Dado antes de votar, sólo muestra pregunta/alternativas; después y al cierre muestra resultados autorizados sin alterar reglas de voto.",
+        "Imágenes con relación de aspecto/espacio reservados no descuadran la cuadrícula; no recortar la comparación esencial, texto alternativo y navegación por teclado correctos.",
+        "TDD/E2E de crear/votar/recargar, privado/bloqueado/oculto y archivos fallidos, capturas reales de 320/390/1280; no descargas privilegiadas ni URLs públicas para adjuntos privados."
+      ],
+      "issue_number": 290,
+      "url": "https://github.com/migdlp/opinion-social-media/issues/290",
+      "state": "Pendiente",
+      "agent": null,
+      "dependency_issues": [
+        288,
+        289
+      ]
+    },
+    {
+      "id": "SOCIAL-002",
+      "title": "Bloquear, desbloquear y gestionar la lista propia desde la interfaz",
+      "epic": 109,
+      "priority": "P1",
+      "size": "M",
+      "labels": [
+        "frontend",
+        "design",
+        "testing",
+        "area:moderacion"
+      ],
+      "deps": [
+        "SOCIAL-001"
+      ],
+      "description": "Acción Bloquear persona en perfil y menú contextual de autor; confirmación comprensible, opción de desbloquear y lista propia en Ajustes. No ofrecer la acción sobre uno mismo ni mostrar quién ha bloqueado al usuario.",
+      "ac": [
+        "Dado bloquear, la confirmación explica pérdida de seguimiento/interacciones; al completarse desaparece contenido y se refleja estado sin necesitar otra sesión.",
+        "Dado Ajustes, sólo muestra bloqueos propios y permite desbloquear; no recupera relaciones antiguas automáticamente.",
+        "Dado fallo de red/operación concurrente, feedback recuperable sin estado optimista definitivo incorrecto.",
+        "Las rutas directas siguen protegidas por backend; explicar que contenido público puede ser accesible sin sesión sin prometer protección absoluta.",
+        "TDD/E2E con dos cuentas, menús/foco/cierre exterior, móvil/escritorio, y casos seguir/solicitud/bloqueo/desbloqueo."
+      ],
+      "issue_number": 291,
+      "url": "https://github.com/migdlp/opinion-social-media/issues/291",
+      "state": "Pendiente",
+      "agent": null,
+      "dependency_issues": [
+        282
+      ]
+    },
+    {
+      "id": "MOD-001",
+      "title": "Backend para denunciar personas y revisión administrativa mínima",
+      "epic": 112,
+      "priority": "P1",
+      "size": "M",
+      "labels": [
+        "backend",
+        "database",
+        "security",
+        "testing",
+        "area:moderacion"
+      ],
+      "deps": [
+        "#122"
+      ],
+      "description": "Ampliar denuncias a cuentas sin mezclar su target con poll_reports. Registrar denunciante autenticado, cuenta denunciada, motivo y texto opcional; evitar abuso/duplicados y permitir revisión por operador autorizado, sin panel completo.",
+      "ac": [
+        "Dado perfil visible/autorizado, una cuenta con sesión denuncia con motivo y detalle opcional acotado; rechazar auto-denuncia y target inválido con errores controlados.",
+        "Dado denunciante, sólo puede enviar su propia denuncia; nadie consulta denuncias/identidades ajenas mediante API ni deduce quién le denunció.",
+        "Dado repetición/concurrencia, existe control de duplicados y cuota backend; no se publican detalles de moderación ni datos personales.",
+        "Denunciar no oculta ni bloquea automáticamente la cuenta ni altera votos; moderación manual y bloqueo son capacidades independientes.",
+        "RLS/GRANT/migraciones/tipos y SQL/HTTP con roles anónimo/autenticado/admin, procedimiento de revisión y retención para revisión legal."
+      ],
+      "issue_number": 292,
+      "url": "https://github.com/migdlp/opinion-social-media/issues/292",
+      "state": "Pendiente",
+      "agent": null,
+      "dependency_issues": [
+        122
+      ]
+    },
+    {
+      "id": "MOD-002",
+      "title": "Acción Denunciar persona en perfiles y menús",
+      "epic": 112,
+      "priority": "P1",
+      "size": "M",
+      "labels": [
+        "frontend",
+        "design",
+        "testing",
+        "area:moderacion"
+      ],
+      "deps": [
+        "MOD-001",
+        "SOCIAL-002"
+      ],
+      "description": "Añadir Denunciar persona junto a Bloquear en las superficies adecuadas, reutilizando el patrón de diálogo de denuncia corregido. Distinguir claramente persona y encuesta para que el usuario sepa qué se reporta.",
+      "ac": [
+        "Dado perfil/autor, se identifica la cuenta denunciada y se elige motivo; no enviar sin confirmación explícita.",
+        "Dado éxito, error, límite o denuncia repetida, se muestran mensajes comprensibles sin datos SQL/privados.",
+        "Denunciar persona y denunciar encuesta son acciones distintas y accesibles; no bloquea por defecto ni cambia perfil/votos.",
+        "Diálogo permite cerrar fuera/Escape, gestiona foco y queda por encima de tarjetas/barra móvil sin superposición; 44 px y contraste.",
+        "TDD/E2E anónimo/login/retorno, éxito/error/duplicado y pruebas con cuentas privadas o no disponibles. Coordinar integración del mismo menú con SOCIAL-002."
+      ],
+      "issue_number": 293,
+      "url": "https://github.com/migdlp/opinion-social-media/issues/293",
+      "state": "Pendiente",
+      "agent": null,
+      "dependency_issues": [
+        292,
+        291
+      ]
+    },
+    {
+      "id": "PROFILE-001",
+      "title": "Descripción de perfil opcional con validación y permisos",
+      "epic": 109,
+      "priority": "P1",
+      "size": "M",
+      "labels": [
+        "backend",
+        "database",
+        "security",
+        "testing",
+        "area:perfil"
+      ],
+      "deps": [
+        "#247"
+      ],
+      "description": "Añadir biografía/descripción opcional de 0–280 caracteres Unicode como texto plano. Integrar RPC propia de edición y contratos de perfil manteniendo avatar/@usuario/nombre; no añadir ubicación, teléfono, enlaces o datos personales no pedidos.",
+      "ac": [
+        "Dado titular autenticado, puede establecer, cambiar o vaciar su bio; otro actor no puede modificarla por tabla/RPC.",
+        "Texto recortado y validado en backend, sin HTML ejecutable; rechazar sobrelongitud y errores controlados.",
+        "En cuenta privada, sólo titular y seguidores aceptados ven la bio; no incluirla en cabecera pública, metadatos OG o respuestas alternativas no autorizadas; bloqueos respetados.",
+        "Las funciones de perfil mantienen campos previos incluido avatar_icon; evitar que la migración reemplace y pierda cambios de AVATAR-001.",
+        "SQL/HTTP/TDD y tipos reproducibles para bio vacía/larga, privacidad, bloqueo y compatibilidad; no publicar email/datos de Google."
+      ],
+      "issue_number": 294,
+      "url": "https://github.com/migdlp/opinion-social-media/issues/294",
+      "state": "Pendiente",
+      "agent": null,
+      "dependency_issues": [
+        247
+      ]
+    },
+    {
+      "id": "PROFILE-002",
+      "title": "Editar y mostrar descripción del perfil desde Ajustes",
+      "epic": 109,
+      "priority": "P1",
+      "size": "M",
+      "labels": [
+        "frontend",
+        "design",
+        "testing",
+        "area:perfil"
+      ],
+      "deps": [
+        "PROFILE-001",
+        "#248"
+      ],
+      "description": "Añadir campo Descripción en Ajustes → Perfil, contador accesible y vista del texto autorizado en el perfil. Conservar cambios introducidos ante error y no obligar a rellenarlo para crear/votar.",
+      "ac": [
+        "Dada bio opcional, se puede añadir, guardar, modificar y quitar; vista de perfil refleja el cambio tras recargar.",
+        "Dado límite 280 o error, se informa junto al campo y se conserva texto para corregir; no se guarda otro perfil accidentalmente.",
+        "Dada cuenta privada/bloqueo, el frontend no recibe la bio sin permiso; explicar su audiencia al editarla.",
+        "Texto largo se ajusta sin romper el diseño; no hay interpretación HTML ni enlaces automáticos peligrosos.",
+        "TDD/E2E propio/otro/privado, vacío/guardado/error, 320/390/1280, teclado y ambos temas."
+      ],
+      "issue_number": 295,
+      "url": "https://github.com/migdlp/opinion-social-media/issues/295",
+      "state": "Pendiente",
+      "agent": null,
+      "dependency_issues": [
+        294,
+        248
+      ]
+    },
+    {
+      "id": "QA-001",
+      "title": "Regresión de privacidad y convivencia para los nuevos módulos",
+      "epic": 114,
+      "priority": "P0",
+      "size": "L",
+      "labels": [
+        "testing",
+        "security",
+        "backend",
+        "frontend"
+      ],
+      "deps": [
+        "SOCIAL-001",
+        "SEARCH-001",
+        "CMT-001",
+        "MEDIA-002",
+        "PROFILE-001"
+      ],
+      "description": "Preparar desde sus contratos una matriz compartida y completar pruebas SQL/HTTP/E2E a medida que se integren módulos. Actor anónimo, titular, votante/no votante, seguidor aceptado/pendiente y bloqueo; encuestas abiertas/cerradas/ocultas, contenido activo/desactivado. No sustituir las pruebas exigidas en cada ticket.",
+      "ac": [
+        "Para cada módulo integrado, matriz prueba accesos directos y UI, SSR/RSC y URLs de Storage: ninguna ruta revela datos antes de autorización.",
+        "Agregar casos combinados de búsqueda + privado/bloqueo, debate + voto, fotos + privacidad y perfil + historial con audiencias independientes.",
+        "Concurrencia y fallos de red no duplican votos/comentarios/reportes/cargas ni aceptan solicitudes privadas automáticamente.",
+        "Mantener accesibilidad/navegación, contraste y cuadrícula con tamaños mixtos, ambos temas y móviles; adjuntar capturas reales por módulo.",
+        "Registrar runner/comandos reales y CI aplicable; se puede preparar en paralelo y validar por lotes. Su cierre global espera los módulos, pero las primeras mejoras no esperan toda esta épica si su regresión aplicable ya pasa."
+      ],
+      "issue_number": 296,
+      "url": "https://github.com/migdlp/opinion-social-media/issues/296",
+      "state": "Pendiente",
+      "agent": null,
+      "dependency_issues": [
+        282,
+        283,
+        285,
+        289,
+        294
+      ]
+    },
+    {
+      "id": "REL-004",
+      "title": "Publicar los nuevos módulos por lotes con esquema y checklist compatibles",
+      "epic": 5,
+      "priority": "P0",
+      "size": "M",
+      "labels": [
+        "devops",
+        "testing",
+        "security"
+      ],
+      "deps": [
+        "#273"
+      ],
+      "description": "Preparar publicaciones incrementales de las tareas nuevas, empezando por defaults/UX. Cada corte incluye únicamente tickets terminados, migraciones validadas y regresión aplicable. Separar comentarios/fotos/bloqueo/búsqueda si no están listos; no esperar a todo el backlog ni activar funcionalidades sin backend.",
+      "ac": [
+        "Dado cada lote, fijar SHA y lista de tareas, comprobar dependencias operativas y CI exacta verde con E2E de sus cambios antes de PR a release.",
+        "Dado SQL/Storage nuevo, ensayo en dev y recuperación/conservación de datos revisados antes de prod; permisos y objetos nuevos sin acceso público indebido.",
+        "Dado deploy, verificar READY/Production, SHA/alias, smoke con sesión y sin sesión según módulo y escaneo de errores; registrar límites reales de pruebas.",
+        "Actualizar información legal de comentarios, reportes, bloqueos, bio e imágenes antes de activar tratamientos nuevos; no inventar responsable/consentimiento.",
+        "Cada lote sigue la autorización de publicación del propietario y reglas de Vercel; planificación actual no autoriza desplegar. Tras cerrar o pausar, sincronizar docs/issues/#73 y liberar reservas."
+      ],
+      "issue_number": 297,
+      "url": "https://github.com/migdlp/opinion-social-media/issues/297",
+      "state": "Pendiente",
+      "agent": null,
+      "dependency_issues": [
+        273
+      ]
+    }
+  ]
+}

@@ -15,6 +15,7 @@ Leer [AGENTS.md](../AGENTS.md), el [contexto de la aplicación](contexto-aplicac
 | [Contratos de datos y RPC](contratos-api.md) | Argumentos, respuestas, tipos y códigos de error (MVP-013) |
 | [Brief consolidado](brief-producto.md) | Contexto adicional del propietario y requisitos obligatorios |
 | [Backlog vigente v1.1](backlog.md) | 53 tareas revisadas, dependencias y aceptación |
+| [Peticiones de producto 30-10](backlog-producto-2026-10-30.md) | 22 tickets por área, prioridades, dependencias, cobertura y exportación JSON/CSV; defaults nuevos y ampliaciones |
 | [Backlog fase 2](backlog-v2.md) | Perfiles, seguidores, tipos de encuesta, diseño y contenido (D-015 a D-021); mapa de dependencias |
 | [Feed por definir](feed-por-definir.md) | Estado, restricciones, propuesta y preguntas abiertas del feed (V2-030) |
 | [Fuente histórica v1](fuentes/backlog-v1.md) | Documento original conservado sin modificaciones |
