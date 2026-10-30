@@ -32,6 +32,7 @@ export type AppErrorCode =
   | "AVATAR_INVALID"
   | "BIO_INVALID"
   | "CANNOT_FOLLOW_SELF"
+  | "CANNOT_BLOCK_SELF"
   | "FOLLOW_RATE_LIMITED"
   | "NETWORK_ERROR"
   | "UNKNOWN";

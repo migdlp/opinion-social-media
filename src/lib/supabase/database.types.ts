@@ -232,6 +232,25 @@ export type Database = {
           },
         ];
       };
+      user_blocks: {
+        Row: {
+          blocked_id: string;
+          blocker_id: string;
+          created_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          blocked_id: string;
+          blocker_id: string;
+          created_at?: string;
+        };
+        Update: {
+          blocked_id?: string;
+          blocker_id?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       votes: {
         Row: {
           created_at: string;
@@ -277,6 +296,7 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      block_user: { Args: { p_username: string }; Returns: undefined };
       can_view_author: { Args: { p_author: string }; Returns: boolean };
       count_follow_requests: { Args: Record<PropertyKey, never>; Returns: number };
       create_poll: {
@@ -379,6 +399,14 @@ export type Database = {
           voted_at: string;
         }[];
       };
+      list_blocked_users: {
+        Args: { p_cursor?: string };
+        Returns: {
+          cursor: string;
+          display_name: string;
+          username: string;
+        }[];
+      };
       list_follow_requests: {
         Args: { p_cursor?: string };
         Returns: {
@@ -416,6 +444,7 @@ export type Database = {
       set_profile_bio: { Args: { p_bio: string }; Returns: undefined };
       set_profile_privacy: { Args: { p_private: boolean }; Returns: undefined };
       set_vote_visibility: { Args: { p_visibility: string }; Returns: undefined };
+      unblock_user: { Args: { p_username: string }; Returns: undefined };
       unfollow_user: { Args: { p_username: string }; Returns: undefined };
       upsert_my_profile: {
         Args: { p_display_name: string; p_username: string };

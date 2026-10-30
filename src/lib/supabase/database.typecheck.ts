@@ -19,6 +19,7 @@ export type DatabaseContractChecks = [
       | "categories"
       | "saved_polls"
       | "follow_quota_events"
+      | "user_blocks"
     >
   >,
   Assert<
@@ -206,4 +207,21 @@ export type ProfileBioRpcChecks = [
   Assert<Equal<Public["Functions"]["set_profile_bio"]["Returns"], undefined>>,
   Assert<Equal<Public["Tables"]["profiles"]["Row"]["bio"], string | null>>,
   Assert<Equal<Public["Functions"]["get_profile"]["Returns"][number]["bio"], string>>,
+];
+
+// SOCIAL-001: bloqueo de personas; la tabla sólo se gestiona con las RPC de la lista propia.
+export type UserBlocksRpcChecks = [
+  Assert<Equal<Public["Functions"]["block_user"]["Args"], { p_username: string }>>,
+  Assert<Equal<Public["Functions"]["block_user"]["Returns"], undefined>>,
+  Assert<Equal<Public["Functions"]["unblock_user"]["Args"], { p_username: string }>>,
+  Assert<Equal<Public["Functions"]["list_blocked_users"]["Args"], { p_cursor?: string }>>,
+  Assert<
+    Equal<
+      Public["Functions"]["list_blocked_users"]["Returns"][number],
+      { cursor: string; display_name: string; username: string }
+    >
+  >,
+  Assert<
+    Equal<keyof Public["Tables"]["user_blocks"]["Row"], "blocked_id" | "blocker_id" | "created_at">
+  >,
 ];

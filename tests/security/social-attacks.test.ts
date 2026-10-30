@@ -796,3 +796,108 @@ describe("PROFILE-001: biografía de perfil", () => {
     expect(authors.text).not.toContain(BIO);
   });
 });
+
+// SOCIAL-001: bloqueo entre cuentas. Matriz de actores por HTTP real: bloqueante, bloqueada,
+// tercera y visitante. El contenido público sigue visible sin sesión (límite documentado).
+describe("SOCIAL-001: bloqueo de personas", () => {
+  const visible = async (poll: string, token?: string) =>
+    rows(await http(`/rest/v1/polls?select=id&id=eq.${poll}`, { token })).length === 1;
+
+  it("el bloqueo oculta a las dos cuentas entre sí, no a terceros ni a visitantes, y cancela seguimientos", async () => {
+    const [a, b, c] = await Promise.all([
+      account("kblk", false),
+      account("kblo", false),
+      account("ktrc", false),
+    ]);
+    const [pa, pb] = [
+      await createPoll(a, `¿Bloqueo A ${Date.now()}?`),
+      await createPoll(b, `¿Bloqueo B ${Date.now()}?`),
+    ];
+    await rpc("follow_user", { p_username: a.username }, b.token);
+    await rpc("follow_user", { p_username: b.username }, a.token);
+    await vote(b, pa, 0);
+
+    expect((await rpc("block_user", { p_username: b.username }, a.token)).status).toBeLessThan(300);
+
+    expect(await visible(pb, a.token)).toBe(false);
+    expect(await visible(pa, b.token)).toBe(false);
+    expect(await visible(pa, a.token)).toBe(true);
+    expect(await visible(pa, c.token)).toBe(true);
+    expect(await visible(pa, undefined)).toBe(true);
+    // Cada una "no existe" para la otra; la tercera sí las ve.
+    expect(message(await rpc("get_profile", { p_username: b.username }, a.token))).toBe(
+      "USER_NOT_FOUND",
+    );
+    expect(message(await rpc("get_profile", { p_username: a.username }, b.token))).toBe(
+      "USER_NOT_FOUND",
+    );
+    expect(rows(await rpc("get_profile", { p_username: a.username }, c.token))).toHaveLength(1);
+    // Seguimientos cancelados y no se pueden recrear en ningún sentido.
+    for (const [who, target] of [
+      [a, b],
+      [b, a],
+    ] as const) {
+      expect(message(await rpc("follow_user", { p_username: target.username }, who.token))).toBe(
+        "USER_NOT_FOUND",
+      );
+    }
+    const { data: rel } = await admin
+      .from("follows")
+      .select("follower_id")
+      .in("follower_id", [a.id, b.id])
+      .in("followee_id", [a.id, b.id]);
+    expect(rel).toEqual([]);
+    // El voto previo de b sigue en la encuesta de a.
+    const { data: votes } = await admin.from("votes").select("user_id").eq("poll_id", pa);
+    expect(votes).toEqual([{ user_id: b.id }]);
+    // El feed de b no incluye a la encuesta de a.
+    const feed = await rpc("get_feed", { p_mode: "recientes" }, b.token);
+    expect(rows(feed).map((r) => r.poll_id)).not.toContain(pa);
+  });
+
+  it("nadie lee ni escribe user_blocks, ni ve quién lo ha bloqueado, ni levanta bloqueos ajenos", async () => {
+    const [a, b] = await Promise.all([account("klst", false), account("klsb", false)]);
+    await rpc("block_user", { p_username: b.username }, a.token);
+
+    for (const token of [undefined, a.token, b.token]) {
+      expect(
+        (await http("/rest/v1/user_blocks?select=*", { token })).status,
+      ).toBeGreaterThanOrEqual(400);
+      const write = await http("/rest/v1/user_blocks", {
+        method: "POST",
+        token,
+        body: JSON.stringify({ blocker_id: b.id, blocked_id: a.id }),
+      });
+      expect(write.status).toBeGreaterThanOrEqual(400);
+    }
+    expect(rows(await rpc("list_blocked_users", {}, a.token)).map((r) => r.username)).toEqual([
+      b.username,
+    ]);
+    expect(rows(await rpc("list_blocked_users", {}, b.token))).toEqual([]);
+    expect((await rpc("list_blocked_users", {})).status).toBeGreaterThanOrEqual(400);
+    // b no puede levantar el bloqueo de a.
+    await rpc("unblock_user", { p_username: a.username }, b.token);
+    const { data } = await admin.from("user_blocks").select("blocker_id").eq("blocked_id", b.id);
+    expect(data).toEqual([{ blocker_id: a.id }]);
+    expect(message(await rpc("block_user", { p_username: a.username }, a.token))).toBe(
+      "CANNOT_BLOCK_SELF",
+    );
+  });
+
+  it("concurrencia: un seguimiento simultáneo a un bloqueo nunca deja una relación viva", async () => {
+    for (let i = 0; i < 5; i++) {
+      const [a, b] = await Promise.all([account("kcca", false), account("kccb", false)]);
+      await Promise.all([
+        rpc("block_user", { p_username: b.username }, a.token),
+        rpc("follow_user", { p_username: a.username }, b.token),
+        rpc("follow_user", { p_username: b.username }, a.token),
+      ]);
+      const { data } = await admin
+        .from("follows")
+        .select("follower_id")
+        .in("follower_id", [a.id, b.id])
+        .in("followee_id", [a.id, b.id]);
+      expect(data, `iteración ${i}`).toEqual([]);
+    }
+  });
+});
