@@ -197,7 +197,7 @@ Auditoría anónima de `https://opinion-social-media.vercel.app` (rama `release`
 |---|---|---|---|---|---|
 | [SEC-002](https://github.com/migdlp/opinion-social-media/issues/307) | Enviar cabeceras de seguridad HTTP en todas las rutas | P1 | — ; coordinar AUTH-001 #258 (no tocar `proxy.ts`) y V2-051 #175 | Completada: [PR #311](https://github.com/migdlp/opinion-social-media/pull/311), merge `1b1c697`; CI verde (12 checks, incl. E2E de cabeceras en `/`, `/login` y 404); TDD RED (5/5 fallan) → GREEN; `npm run check` exit 0; 0 violaciones de CSP en navegador (local y sobre producción en solo lectura). CSP solo en modo informe; sin desplegar (llega por `release`) | claude-code (session_01Dsh4bnE3jAdfg5WXXBh59U) |
 | [DESIGN-016](https://github.com/migdlp/opinion-social-media/issues/308) | Colocar Guardar junto a la autoría en el detalle de encuesta | P1 | V2-022 #139, DESIGN-009 #229 (completadas); coordinar DESIGN-015 #279 y DESIGN-006 #192 | En progreso | claude-code (session_01Dsh4bnE3jAdfg5WXXBh59U) |
-| [META-001](https://github.com/migdlp/opinion-social-media/issues/309) | Tarjeta social al compartir la portada y los perfiles | P1 | MVP-053 #47, DESIGN-011 #231 (completadas); coordinar PROFILE-002 #295 | Pendiente | — |
+| [META-001](https://github.com/migdlp/opinion-social-media/issues/309) | Tarjeta social al compartir la portada y los perfiles | P1 | MVP-053 #47, DESIGN-011 #231 (completadas); coordinar PROFILE-002 #295 | En progreso | claude-code (session_01Dsh4bnE3jAdfg5WXXBh59U) |
 
 No se crean tareas para: el tema «Sistema» por defecto (ya resuelto en `main` por DESIGN-014 #276, pendiente de publicar con REL-003 #273) ni el contenido de prueba inadecuado del feed (decisión del propietario; la denuncia de encuestas ya existe, V2-020 #122).
 
