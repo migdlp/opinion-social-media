@@ -78,18 +78,6 @@ describe("Feed (página /)", () => {
     expect(events.indexOf("inicio:votes")).toBeLessThan(events.indexOf("fin:polls"));
   });
 
-  it("pide a la vez las categorías y los seguimientos, antes de que cualquiera responda", async () => {
-    user = { id: "u1" };
-    responses = { ...base(), follows: { data: [{ followee_id: "x" }], error: null } };
-    await render_();
-
-    const started = (t: string) => events.indexOf(`inicio:${t}`);
-    const finished = (t: string) => events.indexOf(`fin:${t}`);
-    expect(started("follows")).toBeGreaterThanOrEqual(0);
-    expect(started("follows")).toBeLessThan(finished("categories"));
-    expect(started("categories")).toBeLessThan(finished("follows"));
-  });
-
   it("un visitante sin selección ve Recientes, con las encuestas en el orden de la RPC", async () => {
     responses = base();
     await render_();
@@ -126,30 +114,26 @@ describe("Feed (página /)", () => {
     expect(targets()).not.toContain("rpc:get_feed");
   });
 
-  it("con un seguimiento aceptado la entrada por defecto es Siguiendo", async () => {
+  // FEED-001 (sustituye el default de D-022): sin pestaña explícita todas las cuentas abren Recientes.
+  it("una cuenta con un seguimiento aceptado también entra en Recientes, sin consultar seguimientos", async () => {
     user = { id: "u1" };
     responses = { ...base(), follows: { data: [{ followee_id: "x" }], error: null } };
-    await render_();
-
-    expect(feedCall()).toMatchObject({ p_mode: "siguiendo" });
-    expect(screen.getByRole("link", { name: "Siguiendo" }).getAttribute("aria-current")).toBe(
-      "page",
-    );
-    // Sólo cuentan los seguimientos ACEPTADOS del propio usuario.
-    const follows = callsOf("follows")[0].calls;
-    expect(follows).toContainEqual(["eq", "follower_id", "u1"]);
-    expect(follows).toContainEqual(["eq", "status", "accepted"]);
-  });
-
-  it("sin seguimientos aceptados (o sólo solicitudes pendientes) la entrada es Recientes", async () => {
-    user = { id: "u1" };
-    responses = { ...base(), follows: { data: [], error: null } };
     await render_();
 
     expect(feedCall()).toMatchObject({ p_mode: "recientes" });
     expect(screen.getByRole("link", { name: "Recientes" }).getAttribute("aria-current")).toBe(
       "page",
     );
+    expect(targets()).not.toContain("follows");
+  });
+
+  it("una cuenta sin seguimientos entra en Recientes", async () => {
+    user = { id: "u1" };
+    responses = { ...base(), follows: { data: [], error: null } };
+    await render_();
+
+    expect(feedCall()).toMatchObject({ p_mode: "recientes" });
+    expect(screen.getByRole("link", { name: "Siguiendo" }).getAttribute("aria-current")).toBeNull();
   });
 
   it("una selección explícita gana a la entrada por defecto y no consulta seguimientos", async () => {
@@ -159,13 +143,6 @@ describe("Feed (página /)", () => {
 
     expect(feedCall()).toMatchObject({ p_mode: "recientes" });
     expect(targets()).not.toContain("follows");
-  });
-
-  it("si falla la lectura de seguimientos, entra en Recientes en lugar de romper", async () => {
-    user = { id: "u1" };
-    responses = { ...base(), follows: networkThrow };
-    await render_();
-    expect(feedCall()).toMatchObject({ p_mode: "recientes" });
   });
 
   it("una pestaña desconocida en la URL se ignora", async () => {

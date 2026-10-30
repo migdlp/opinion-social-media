@@ -26,7 +26,7 @@
 ## 3. Diseño acordado el 28-10-2026
 
 - Dos pestañas: **Recientes** y **Siguiendo**, ordenadas por `created_at DESC, id DESC`. No hay «Para ti» ni ranking por popularidad. F-4/F-5 no aplican al elegir estas dos pestañas cronológicas.
-- Sin sesión se entra en Recientes. Con sesión se entra en Siguiendo; si no hay ningún seguimiento aceptado, se entra en Recientes. Las solicitudes pendientes no cuentan como seguimientos aceptados. Si ya sigue a alguien pero el feed está vacío, se mantiene Siguiendo con un enlace a Recientes.
+- **Desde FEED-001 (D-033)** se entra siempre en Recientes, con o sin sesión y siga o no a alguien; Siguiendo es una elección explícita (`?tab=siguiendo`). Antes (D-022) una cuenta con seguimientos aceptados entraba en Siguiendo. Las solicitudes pendientes no cuentan como seguimientos aceptados. Si ya sigue a alguien pero el feed está vacío, se mantiene Siguiendo con un enlace a Recientes.
 - La selección explícita de pestaña/categoría se conserva en la URL y tiene prioridad sobre el valor inicial. «Siguiendo» sin sesión solicita login; nunca se consulta el feed de otra cuenta.
 - Las encuestas votadas se muestran normalmente con sus resultados. No se añade filtro «Sin votar».
 - Se puede seleccionar y votar desde la tarjeta. Antes de votar una encuesta abierta no se envían agregados al navegador. Tras login se recupera la intención, sin emitir automáticamente el voto.
