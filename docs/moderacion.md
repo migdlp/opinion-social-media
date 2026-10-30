@@ -92,6 +92,28 @@ where lower(pr.username) = lower('<usuario>') order by r.created_at;
 
 Las medidas disponibles hoy son las manuales sobre contenido (ocultar encuestas, arriba); no hay suspensión de cuentas ni panel. **Retención**: las denuncias se conservan mientras existan la cuenta denunciante y la denunciada; se borran en cascada si se elimina cualquiera de las dos. El plazo de conservación, el acceso de la persona denunciada a los datos y la base legal son una decisión de la revisión legal (LEGAL-003); hasta entonces no se borran por antigüedad.
 
+## Comentarios (CMT-003)
+
+`public.report_comment(p_comment_id, p_reason, p_details)` guarda la denuncia en `public.comment_reports` (sin ningún permiso para clientes; una por comentario y cuenta; 20 por hora y cuenta). Sólo se puede denunciar un comentario que quien llama podría ver en ese momento: encuesta visible, debate activo, voto previo si la encuesta está abierta y sin bloqueos. **Cualquier otro caso responde `COMMENT_UNAVAILABLE`**, igual que un comentario inexistente u oculto, para no dar pistas. No se puede denunciar el propio comentario (`CANNOT_REPORT_SELF`).
+
+**Ocultar un comentario** lo hace un operador con la clave de servicio; los clientes no tienen `update`:
+
+```sql
+-- Comentarios más denunciados.
+select c.id, pr.username as autor, left(c.body, 80) as texto, count(r.*) as denuncias, array_agg(distinct r.reason) as motivos
+from public.comment_reports r
+join public.comments c on c.id = r.comment_id
+join public.profiles pr on pr.user_id = c.user_id
+where c.status = 'published'
+group by c.id, pr.username, c.body order by denuncias desc;
+
+-- Ocultar y restaurar.
+update public.comments set status = 'hidden' where id = '<id>';
+update public.comments set status = 'published' where id = '<id>';
+```
+
+Un comentario oculto desaparece de `list_comments` y de las denuncias nuevas, y **no reaparece al apagar y reactivar el debate** (el estado es independiente de `polls.comments_enabled`). Las denuncias se conservan al ocultar o restaurar y se borran en cascada con el comentario o con la cuenta denunciante. El plazo de conservación y la base legal quedan para la revisión legal (LEGAL-003).
+
 ## No hacer
 
 - No borrar filas de `polls`, `poll_options` ni `votes` para moderar: borrar una encuesta elimina en cascada sus opciones y votos y no se puede deshacer.

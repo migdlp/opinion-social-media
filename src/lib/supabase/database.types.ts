@@ -22,12 +22,49 @@ export type Database = {
         };
         Relationships: [];
       };
+      comment_reports: {
+        Row: {
+          comment_id: string;
+          created_at: string;
+          details: string | null;
+          id: string;
+          reason: string;
+          reporter_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          comment_id: string;
+          created_at?: string;
+          details?: string | null;
+          id?: string;
+          reason: string;
+          reporter_id: string;
+        };
+        Update: {
+          comment_id?: string;
+          created_at?: string;
+          details?: string | null;
+          id?: string;
+          reason?: string;
+          reporter_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "comment_reports_comment_id_fkey";
+            columns: ["comment_id"];
+            isOneToOne: false;
+            referencedRelation: "comments";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       comments: {
         Row: {
           body: string;
           created_at: string;
           id: string;
           poll_id: string;
+          status: string;
           user_id: string;
         };
         ComputedFields: never;
@@ -36,6 +73,7 @@ export type Database = {
           created_at?: string;
           id?: string;
           poll_id: string;
+          status?: string;
           user_id: string;
         };
         Update: {
@@ -43,6 +81,7 @@ export type Database = {
           created_at?: string;
           id?: string;
           poll_id?: string;
+          status?: string;
           user_id?: string;
         };
         Relationships: [
@@ -509,6 +548,10 @@ export type Database = {
         }[];
       };
       remove_follower: { Args: { p_username: string }; Returns: undefined };
+      report_comment: {
+        Args: { p_comment_id: string; p_details?: string; p_reason: string };
+        Returns: undefined;
+      };
       report_poll: {
         Args: { p_details?: string; p_poll_id: string; p_reason: string };
         Returns: undefined;

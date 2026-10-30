@@ -177,6 +177,26 @@ export function reportUser(
   });
 }
 
+// Denuncia un comentario que quien llama puede ver ahora mismo (CMT-003). Cualquier otro caso
+// (inexistente, oculto, debate apagado, sin acceso o con bloqueo) es COMMENT_UNAVAILABLE. Errores
+// además: CANNOT_REPORT_SELF, REPORT_INVALID, ALREADY_REPORTED, REPORT_RATE_LIMITED, AUTH_REQUIRED.
+export function reportComment(
+  supabase: SupabaseClient,
+  commentId: string,
+  reason: ReportReason,
+  details?: string | null,
+): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("report_comment", {
+      p_comment_id: commentId,
+      p_reason: reason,
+      p_details: details ?? null,
+    });
+    if (error) return { ok: false, error: toAppError(error) };
+    return { ok: true, data: undefined };
+  });
+}
+
 type ProfileRow = {
   username: string;
   display_name: string | null;
