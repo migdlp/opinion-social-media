@@ -1,0 +1,267 @@
+<title>Mapa de entornos de Opinión</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Mapa de carriles: dónde se ejecuta → qué código → qué base de datos. Paleta After Sunset del propio proyecto. */
+:root {
+  --bg: #f9f9ff;
+  --surface: #ffffff;
+  --fg: #161e2e;
+  --muted: #4a5b74;
+  --line: #dfe4ee;
+  --dev: #3f63c4;      /* Supabase dev */
+  --dev-soft: #e6edfd;
+  --prod: #b5571b;     /* Supabase prod */
+  --prod-soft: #fff0e2;
+  --tmp: #2f7d63;      /* Supabase efímero (CI) */
+  --tmp-soft: #e2f3ec;
+  --off: #8a94a6;      /* desactivado */
+  --off-soft: #eef0f4;
+  --code-bg: #eef2fb;
+  --display: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #161e2e; --surface: #1f2a3e; --fg: #f3f5fb; --muted: #b4c3df; --line: #34435c;
+    --dev: #9db8f7; --dev-soft: #26365a; --prod: #ffb16b; --prod-soft: #3d2c20;
+    --tmp: #7fd3b2; --tmp-soft: #1f3a33; --off: #8e99ad; --off-soft: #283245; --code-bg: #26324a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #161e2e; --surface: #1f2a3e; --fg: #f3f5fb; --muted: #b4c3df; --line: #34435c;
+  --dev: #9db8f7; --dev-soft: #26365a; --prod: #ffb16b; --prod-soft: #3d2c20;
+  --tmp: #7fd3b2; --tmp-soft: #1f3a33; --off: #8e99ad; --off-soft: #283245; --code-bg: #26324a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--display); font-size: 15px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+}
+.wrap { max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 48px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; letter-spacing: -0.02em; }
+h1 { font-size: clamp(28px, 5vw, 40px); line-height: 1.1; font-weight: 700; }
+h2 { font-size: 22px; font-weight: 650; }
+h3 { font-size: 15px; font-weight: 650; }
+p { margin: 0; max-width: 68ch; }
+code, .mono { font-family: var(--mono); font-size: 0.86em; }
+code { background: var(--code-bg); padding: 1px 6px; border-radius: 5px; white-space: nowrap; }
+.muted { color: var(--muted); }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+header { display: flex; flex-direction: column; gap: 12px; }
+section { display: flex; flex-direction: column; gap: 16px; }
+
+/* Respuesta corta */
+.answer { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+.answer div { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.answer strong { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+
+/* Mapa de carriles */
+.map { display: flex; flex-direction: column; gap: 10px; }
+.map-head, .lane { display: grid; grid-template-columns: minmax(0, 1.15fr) 28px minmax(0, 1fr) 28px minmax(0, 1fr); align-items: stretch; gap: 0; }
+.map-head span { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 0 4px 2px; }
+.cell { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.cell .t { font-weight: 650; }
+.cell .s { color: var(--muted); font-size: 13.5px; }
+.arrow { display: flex; align-items: center; justify-content: center; color: var(--muted); }
+.arrow svg { width: 22px; height: 22px; }
+.db { border-width: 2px; }
+.db .t { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.dev { border-color: var(--dev); background: var(--dev-soft); }
+.prod { border-color: var(--prod); background: var(--prod-soft); }
+.tmp { border-color: var(--tmp); background: var(--tmp-soft); }
+.off { border-style: dashed; border-color: var(--off); background: var(--off-soft); }
+.off .t, .off .s { color: var(--off); }
+.tag { font-family: var(--mono); font-size: 11.5px; font-weight: 500; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
+.dev .tag { color: var(--dev); } .prod .tag { color: var(--prod); } .tmp .tag { color: var(--tmp); } .off .tag { color: var(--off); }
+.lane.is-off .cell:not(.db) { opacity: .75; }
+
+/* Flujo de una tarea */
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; }
+.step { flex: 1 1 150px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.step .n { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.step.gate { border: 2px solid var(--prod); background: var(--prod-soft); }
+.flow .joint { display: flex; align-items: center; color: var(--muted); }
+.flow .joint svg { width: 18px; height: 18px; }
+
+/* Tablas */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 620px; font-size: 14px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+tr:last-child td { border-bottom: 0; }
+td.num { font-variant-numeric: tabular-nums; font-weight: 650; white-space: nowrap; }
+.pill { display: inline-block; font-family: var(--mono); font-size: 11.5px; padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
+.pill.ok { background: var(--tmp-soft); color: var(--tmp); }
+.pill.warn { background: var(--prod-soft); color: var(--prod); }
+.pill.info { background: var(--dev-soft); color: var(--dev); }
+.pill.gray { background: var(--off-soft); color: var(--off); }
+
+/* Migraciones */
+.bars { display: flex; flex-direction: column; gap: 10px; }
+.bar { display: grid; grid-template-columns: 170px minmax(0, 1fr) 54px; gap: 12px; align-items: center; }
+.bar .track { height: 14px; background: var(--off-soft); border-radius: 999px; overflow: hidden; }
+.bar .fill { height: 100%; border-radius: 999px; }
+.bar .v { font-variant-numeric: tabular-nums; font-weight: 650; text-align: right; }
+
+.note { border-left: 3px solid var(--prod); padding: 4px 0 4px 14px; display: flex; flex-direction: column; gap: 6px; }
+.note.blue { border-left-color: var(--dev); }
+footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 16px; }
+
+@media (max-width: 760px) {
+  .map-head { display: none; }
+  .lane { grid-template-columns: 1fr; gap: 6px; }
+  .lane .arrow { transform: rotate(90deg); height: 18px; }
+  .lane { padding-bottom: 14px; border-bottom: 1px dashed var(--line); }
+  .bar { grid-template-columns: 1fr 48px; }
+  .bar .label { grid-column: 1 / -1; }
+  .flow .joint { display: none; }
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Opinión · comprobado el 30-10-2026</span>
+    <h1>Mapa de entornos de Opinión</h1>
+    <p class="muted">Dónde se ejecuta la app, qué rama lleva cada sitio y qué base de datos de Supabase usa. Si solo vas a leer una cosa, que sea la tabla de abajo.</p>
+  </header>
+
+  <section aria-labelledby="corto">
+    <h2 id="corto">La respuesta corta</h2>
+    <div class="answer">
+      <div><span class="eyebrow">Proyectos Supabase</span><strong>2</strong><span class="muted"><b>dev</b> para trabajar y probar; <b>prod</b> solo para la web pública.</span></div>
+      <div><span class="eyebrow">Web pública</span><strong>1</strong><span class="muted">opinion-social-media.vercel.app, que sale de la rama <code>release</code> y usa <b>prod</b>.</span></div>
+      <div><span class="eyebrow">Ramas que importan</span><strong>2</strong><span class="muted"><code>main</code> (lo integrado) y <code>release</code> (lo publicado). El resto son ramas de tareas.</span></div>
+      <div><span class="eyebrow">Previews de Vercel</span><strong>0</strong><span class="muted">Desactivadas desde el 28-10 para no gastar el plan gratuito.</span></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="mapa">
+    <h2 id="mapa">Quién usa qué</h2>
+    <div class="map" role="table" aria-label="Entorno, código y base de datos">
+      <div class="map-head" role="row"><span role="columnheader">Dónde se ejecuta</span><span></span><span role="columnheader">Qué código</span><span></span><span role="columnheader">Qué Supabase</span></div>
+
+      <div class="lane" role="row">
+        <div class="cell" role="cell"><span class="t">Tu ordenador</span><span class="s"><code>npm run dev</code> o <code>npm run start</code>, con tu <code>.env.local</code></span></div>
+        <div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h15M13 6l6 6-6 6"/></svg></div>
+        <div class="cell" role="cell"><span class="t">La rama que tengas</span><span class="s">Normalmente <code>main</code> o la de tu tarea</span></div>
+        <div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h15M13 6l6 6-6 6"/></svg></div>
+        <div class="cell db dev" role="cell"><span class="t">dev <span class="tag">ltlrujmqenhktiilsnis</span></span><span class="s">Datos de prueba. La app se niega a arrancar contra prod fuera de producción.</span></div>
+      </div>
+
+      <div class="lane" role="row">
+        <div class="cell" role="cell"><span class="t">CI de GitHub</span><span class="s">Cada push y cada PR: lint, tests, SQL, ataques RLS y E2E</span></div>
+        <div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h15M13 6l6 6-6 6"/></svg></div>
+        <div class="cell" role="cell"><span class="t">La rama de la PR</span><span class="s">Todas las migraciones de esa rama, desde cero</span></div>
+        <div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h15M13 6l6 6-6 6"/></svg></div>
+        <div class="cell db tmp" role="cell"><span class="t">Supabase local de usar y tirar <span class="tag">efímero</span></span><span class="s">Se crea en cada ejecución y se borra al acabar. No toca ni dev ni prod.</span></div>
+      </div>
+
+      <div class="lane is-off" role="row">
+        <div class="cell" role="cell"><span class="t">Vercel Preview</span><span class="s">Antes, una URL por PR</span></div>
+        <div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h15M13 6l6 6-6 6"/></svg></div>
+        <div class="cell" role="cell"><span class="t">Ninguna</span><span class="s"><code>vercel.json</code> solo deja desplegar <code>release</code></span></div>
+        <div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h15M13 6l6 6-6 6"/></svg></div>
+        <div class="cell db off" role="cell"><span class="t">dev, si se reactiva <span class="tag">desactivado</span></span><span class="s">Las variables de Preview siguen apuntando a dev.</span></div>
+      </div>
+
+      <div class="lane" role="row">
+        <div class="cell" role="cell"><span class="t">Vercel Production</span><span class="s">opinion-social-media.vercel.app, la web que usan tus amigos</span></div>
+        <div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h15M13 6l6 6-6 6"/></svg></div>
+        <div class="cell" role="cell"><span class="t"><code>release</code> y nada más</span><span class="s">Hoy en el commit <code>60d841b</code></span></div>
+        <div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h15M13 6l6 6-6 6"/></svg></div>
+        <div class="cell db prod" role="cell"><span class="t">prod <span class="tag">qchpdrolulcgmiliysvr</span></span><span class="s">Usuarios y votos reales. Solo se toca en tareas de producción autorizadas.</span></div>
+      </div>
+
+      <div class="lane" role="row">
+        <div class="cell" role="cell"><span class="t">Agentes de IA (Claude, Codex)</span><span class="s">Conector MCP de Supabase y su propia copia local</span></div>
+        <div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h15M13 6l6 6-6 6"/></svg></div>
+        <div class="cell" role="cell"><span class="t">Una rama por tarea</span><span class="s"><code>claude/TAREA-…</code> o <code>codex/TAREA-…</code></span></div>
+        <div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h15M13 6l6 6-6 6"/></svg></div>
+        <div class="cell db dev" role="cell"><span class="t">dev, en solo lectura <span class="tag">por defecto</span></span><span class="s">Escriben en dev solo si su tarea lo pide y alguien lo confirma.</span></div>
+      </div>
+    </div>
+    <div class="note blue">
+      <h3>¿Cómo sé a cuál estoy conectado?</h3>
+      <p>Mira la URL de Supabase: si contiene <code>ltlrujmqenhktiilsnis</code> es <b>dev</b>; si contiene <code>qchpdrolulcgmiliysvr</code> es <b>prod</b>. En tu ordenador, <code>npm run check:env</code> te lo dice. En el panel de Supabase, el nombre del proyecto termina en <code>-dev</code> o en <code>-prod</code>.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="flujo">
+    <h2 id="flujo">Cómo viaja un cambio hasta la web</h2>
+    <div class="flow">
+      <div class="step"><span class="n">1 · rama de tarea</span><b>Se trabaja en una rama</b><span class="muted">Se reserva la tarea en <code>main</code> y se crea <code>claude/…</code> o <code>codex/…</code>.</span></div>
+      <div class="joint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h15M13 6l6 6-6 6"/></svg></div>
+      <div class="step"><span class="n">2 · pull request</span><b>La CI lo prueba</b><span class="muted">Con el Supabase efímero. Si algo falla, no se fusiona.</span></div>
+      <div class="joint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h15M13 6l6 6-6 6"/></svg></div>
+      <div class="step"><span class="n">3 · main</span><b>Queda integrado</b><span class="muted">Ya está en el código, pero la web pública <b>todavía no lo tiene</b>.</span></div>
+      <div class="joint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h15M13 6l6 6-6 6"/></svg></div>
+      <div class="step gate"><span class="n">4 · orden del propietario</span><b>Se pasa a <code>release</code></b><span class="muted">Solo con una PR de <code>main</code> a <code>release</code> que aprueba el propietario.</span></div>
+      <div class="joint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h15M13 6l6 6-6 6"/></svg></div>
+      <div class="step"><span class="n">5 · producción</span><b>Vercel despliega</b><span class="muted">Contra Supabase prod. Antes hay que aplicar allí las migraciones nuevas.</span></div>
+    </div>
+    <p class="muted">Hoy <code>main</code> va <b>99 commits por delante</b> de <code>release</code>: cosas como la búsqueda, los comentarios, los bloqueos o el nuevo diseño de perfiles están hechas, pero aún no se ven en la web.</p>
+  </section>
+
+  <section aria-labelledby="migraciones">
+    <h2 id="migraciones">El esquema de la base de datos va por detrás</h2>
+    <p>Cada cambio de tablas o permisos es un fichero de migración. Que el fichero exista en una rama no significa que esté aplicado en una base de datos.</p>
+    <div class="bars" role="list">
+      <div class="bar" role="listitem"><span class="label">Ficheros en <code>main</code></span><span class="track"><span class="fill" style="width:100%;background:var(--dev)"></span></span><span class="v">33</span></div>
+      <div class="bar" role="listitem"><span class="label">Ficheros en <code>release</code></span><span class="track"><span class="fill" style="width:78.8%;background:var(--muted)"></span></span><span class="v">26</span></div>
+      <div class="bar" role="listitem"><span class="label">Aplicadas en <b>dev</b></span><span class="track"><span class="fill" style="width:75.8%;background:var(--dev)"></span></span><span class="v">25</span></div>
+      <div class="bar" role="listitem"><span class="label">Aplicadas en <b>prod</b></span><span class="track"><span class="fill" style="width:75.8%;background:var(--prod)"></span></span><span class="v">25</span></div>
+    </div>
+    <div class="note">
+      <h3>Qué significa en la práctica</h3>
+      <p>Lo que depende de las 8 migraciones nuevas (iconos y privacidad del historial, biografía, bloqueos, búsqueda, comentarios y denuncias) <b>no funciona contra dev</b> hasta que se apliquen. La CI sí lo prueba porque monta su base desde cero. Aplicarlas en dev es la tarea OPS-003, que está bloqueada esperando permiso para hacer antes una copia de seguridad de los datos de dev.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="ramas">
+    <h2 id="ramas">Las 150 ramas, ordenadas</h2>
+    <p>De las 150 ramas del repositorio, <b>134 ya están fusionadas en <code>main</code></b>: son restos de tareas terminadas y se pueden borrar sin perder nada. Las que importan son estas:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Rama o grupo</th><th>Cuántas</th><th>Para qué es</th><th>Qué hacer</th></tr></thead>
+        <tbody>
+          <tr><td><code>main</code></td><td class="num">1</td><td>Todo lo integrado. Aquí está la tabla de tareas y aquí se reservan.</td><td><span class="pill info">principal</span></td></tr>
+          <tr><td><code>release</code></td><td class="num">1</td><td>Lo que está publicado en la web. Solo cambia con orden del propietario.</td><td><span class="pill warn">no tocar</span></td></tr>
+          <tr><td><code>claude/TAREA-…</code></td><td class="num">110</td><td>Una por tarea hecha por agentes Claude.</td><td><span class="pill gray">borrar las fusionadas</span></td></tr>
+          <tr><td><code>codex/TAREA-…</code></td><td class="num">34</td><td>Una por tarea hecha por el agente Codex (Vercel y diseño).</td><td><span class="pill gray">borrar las fusionadas</span></td></tr>
+          <tr><td><code>claude/CMT-002-debate</code>, <code>claude/SEARCH-002-pantalla</code></td><td class="num">2</td><td>Trabajo en curso hoy de otro agente.</td><td><span class="pill ok">activas</span></td></tr>
+          <tr><td><code>claude/AUTH-001-cookies</code></td><td class="num">1</td><td>PR #264 abierta: duración de las cookies de sesión.</td><td><span class="pill ok">activa</span></td></tr>
+          <tr><td><code>claude/backlog-v2-correcciones</code>, <code>claude/amazing-mayer-cep59p</code></td><td class="num">2</td><td>PR #141 y #184: propuestas de documentación pendientes de que las revise el propietario.</td><td><span class="pill info">decidir</span></td></tr>
+          <tr><td><code>ccr-12f17a85-tr11gw</code></td><td class="num">1</td><td>Añade la skill <code>project-planner</code> para planificar tareas. No tiene PR.</td><td><span class="pill info">decidir</span></td></tr>
+          <tr><td><code>…-mutaciones-temporales</code>, <code>…-mutacion-temporal</code></td><td class="num">3</td><td>Rompen la seguridad a propósito para comprobar que los tests lo detectan.</td><td><span class="pill warn">nunca fusionar</span></td></tr>
+          <tr><td><code>claude/MVP-007-demo-fallo</code>, <code>claude/V2-001-profiles-respaldo…</code>, <code>claude/V2-008-ajustes</code>, <code>codex/V2-011-si-no</code>, <code>claude/friendly-goldberg-d86sl3</code></td><td class="num">5</td><td>Antiguas sin fusionar (27–28 oct). Sus tareas se cerraron con otras ramas.</td><td><span class="pill gray">revisar y borrar</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="glosario">
+    <h2 id="glosario">Palabras que salen todo el rato</h2>
+    <div class="table-wrap">
+      <table>
+        <tbody>
+          <tr><td><b>dev</b></td><td>El Supabase de pruebas. Si se rompe algo aquí, no pasa nada grave.</td></tr>
+          <tr><td><b>prod</b></td><td>El Supabase de verdad, con los usuarios de la web. Cualquier cambio aquí se ve en la web.</td></tr>
+          <tr><td><b>efímero</b></td><td>La base de datos temporal que monta la CI para cada prueba y luego borra.</td></tr>
+          <tr><td><b>migración</b></td><td>Un fichero SQL que cambia tablas o permisos. Hay que aplicarlo en cada base de datos por separado.</td></tr>
+          <tr><td><b>release</b></td><td>La rama que Vercel publica. Pasar algo a <code>release</code> es «sacar una versión».</td></tr>
+          <tr><td><b>reservar</b></td><td>Marcar una tarea «En progreso» con tu nombre en <code>docs/tareas-futuras.md</code> de <code>main</code>, para que nadie más la coja.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    Datos sacados del repositorio (<code>vercel.json</code>, <code>.env.example</code>, ramas de GitHub) y de <code>docs/vercel-operacion.md</code> y <code>docs/ops-003-integracion-dev.md</code> el 30-10-2026. Los números de ramas, commits y migraciones cambian cada día.
+  </footer>
+</div>

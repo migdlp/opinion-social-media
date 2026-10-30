@@ -11,6 +11,7 @@ Leer [AGENTS.md](../AGENTS.md), el [contexto de la aplicación](contexto-aplicac
 | Documento | Contenido |
 |---|---|
 | [Contexto](contexto-aplicacion.md) | Objetivo, usuarios, flujos y reglas del producto |
+| [Mapa de entornos](mapa-entornos.html) | Qué entorno usa cada código y cada base de datos (dev/prod), qué rama publica la web y para qué sirve cada rama. Se abre en el navegador (30-10-2026) |
 | [Arquitectura](arquitectura.md) | Stack previsto, contratos, seguridad y entornos |
 | [Contratos de datos y RPC](contratos-api.md) | Argumentos, respuestas, tipos y códigos de error (MVP-013) |
 | [Brief consolidado](brief-producto.md) | Contexto adicional del propietario y requisitos obligatorios |
