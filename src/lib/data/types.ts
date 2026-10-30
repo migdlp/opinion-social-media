@@ -20,6 +20,9 @@ export type AppErrorCode =
   | "INVALID_CATEGORY"
   | "INVALID_CURSOR"
   | "INVALID_QUERY"
+  | "COMMENTS_DISABLED"
+  | "VOTE_REQUIRED"
+  | "COMMENT_INVALID"
   | "INVALID_FEED_MODE"
   | "USERNAME_INVALID"
   | "USERNAME_TAKEN"
@@ -141,6 +144,20 @@ export interface FollowEntry {
 
 export interface FollowPage {
   users: FollowEntry[];
+  nextCursor: string | null;
+}
+
+// Comentario del debate de una encuesta (CMT-001). Nunca incluye user_id.
+export interface PollComment {
+  id: string;
+  username: string;
+  displayName: string | null;
+  body: string;
+  createdAt: string;
+}
+
+export interface CommentPage {
+  items: PollComment[];
   nextCursor: string | null;
 }
 

@@ -17,6 +17,7 @@ import {
 import type {
   AppErrorCode,
   Category,
+  CommentPage,
   FeedPage,
   FeedQuery,
   FollowPage,
@@ -108,6 +109,7 @@ export function createPoll(
   options: string[],
   closesAt?: string | null,
   category?: string | null,
+  commentsEnabled?: boolean,
 ): Promise<Result<{ id: string }>> {
   return guard(async () => {
     const { data, error } = await supabase.rpc("create_poll", {
@@ -115,6 +117,7 @@ export function createPoll(
       p_options: options,
       ...(closesAt ? { p_closes_at: closesAt } : {}),
       ...(category ? { p_category: category } : {}),
+      ...(commentsEnabled ? { p_comments_enabled: true } : {}),
     });
     if (error) return { ok: false, error: toAppError(error) };
     return { ok: true, data: { id: data as string } };
@@ -893,6 +896,76 @@ export function searchPolls(
     ]);
     if (!polls.ok) return polls;
     return withOwnVotes(supabase, polls.data, nextCursor, viewer, votes);
+  });
+}
+
+export const COMMENTS_PAGE_SIZE = 20;
+
+// Debate de una encuesta (CMT-001), de más reciente a más antiguo. Errores controlados:
+// POLL_UNAVAILABLE, COMMENTS_DISABLED, VOTE_REQUIRED (abiertas sin voto), INVALID_CURSOR. El
+// backend omite los comentarios de cuentas bloqueadas; nunca se recibe user_id.
+export function listComments(
+  supabase: SupabaseClient,
+  pollId: string,
+  cursor: string | null | undefined,
+): Promise<Result<CommentPage>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("list_comments", {
+      p_poll_id: pollId,
+      p_cursor: cursor ?? null,
+    });
+    if (error) return { ok: false, error: toAppError(error) };
+    const rows = (data ?? []) as {
+      comment_id: string;
+      username: string;
+      display_name: string | null;
+      body: string;
+      created_at: string;
+      cursor: string;
+    }[];
+    const page = rows.slice(0, COMMENTS_PAGE_SIZE);
+    return {
+      ok: true,
+      data: {
+        items: page.map((row) => ({
+          id: row.comment_id,
+          username: row.username,
+          displayName: row.display_name,
+          body: row.body,
+          createdAt: row.created_at,
+        })),
+        nextCursor: rows.length > COMMENTS_PAGE_SIZE ? page[page.length - 1].cursor : null,
+      },
+    };
+  });
+}
+
+// Publica un comentario de 1 a 1000 caracteres de texto plano. Errores: COMMENT_INVALID,
+// COMMENTS_DISABLED, VOTE_REQUIRED, POLL_UNAVAILABLE, RATE_LIMITED, AUTH_REQUIRED, PROFILE_REQUIRED.
+export function addComment(
+  supabase: SupabaseClient,
+  pollId: string,
+  body: string,
+): Promise<Result<{ id: string }>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("add_comment", { p_poll_id: pollId, p_body: body });
+    if (error) return { ok: false, error: toAppError(error) };
+    return { ok: true, data: { id: data as string } };
+  });
+}
+
+// Activa o apaga el debate; sólo la autora (para otra cuenta, POLL_UNAVAILABLE). No borra comentarios.
+export function setPollComments(
+  supabase: SupabaseClient,
+  pollId: string,
+  enabled: boolean,
+): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("set_poll_comments", {
+      p_poll_id: pollId,
+      p_enabled: enabled,
+    });
+    return error ? { ok: false, error: toAppError(error) } : { ok: true, data: undefined };
   });
 }
 

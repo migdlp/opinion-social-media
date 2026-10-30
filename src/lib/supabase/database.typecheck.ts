@@ -20,6 +20,7 @@ export type DatabaseContractChecks = [
       | "saved_polls"
       | "follow_quota_events"
       | "user_blocks"
+      | "comments"
     >
   >,
   Assert<
@@ -33,6 +34,7 @@ export type DatabaseContractChecks = [
         created_at: string;
         closes_at: string | null;
         category_slug: string | null;
+        comments_enabled: boolean;
       }
     >
   >,
@@ -51,7 +53,13 @@ export type DatabaseContractChecks = [
   Assert<
     Equal<
       Public["Functions"]["create_poll"]["Args"],
-      { p_question: string; p_options: string[]; p_closes_at?: string; p_category?: string }
+      {
+        p_question: string;
+        p_options: string[];
+        p_closes_at?: string;
+        p_category?: string;
+        p_comments_enabled?: boolean;
+      }
     >
   >,
   Assert<Equal<Public["Functions"]["create_poll"]["Returns"], string>>,
@@ -235,6 +243,34 @@ export type SearchPollsRpcChecks = [
     Equal<
       Public["Functions"]["search_polls"]["Returns"][number],
       { created_at: string; cursor: string; poll_id: string }
+    >
+  >,
+];
+
+// CMT-001: debate plano por encuesta; la tabla sólo se usa mediante las RPC.
+export type CommentsRpcChecks = [
+  Assert<Equal<Public["Functions"]["add_comment"]["Args"], { p_body: string; p_poll_id: string }>>,
+  Assert<Equal<Public["Functions"]["add_comment"]["Returns"], string>>,
+  Assert<
+    Equal<
+      Public["Functions"]["set_poll_comments"]["Args"],
+      { p_enabled: boolean; p_poll_id: string }
+    >
+  >,
+  Assert<
+    Equal<Public["Functions"]["list_comments"]["Args"], { p_cursor?: string; p_poll_id: string }>
+  >,
+  Assert<
+    Equal<
+      Public["Functions"]["list_comments"]["Returns"][number],
+      {
+        body: string;
+        comment_id: string;
+        created_at: string;
+        cursor: string;
+        display_name: string;
+        username: string;
+      }
     >
   >,
 ];

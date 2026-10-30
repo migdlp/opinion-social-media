@@ -6,7 +6,7 @@ declare cols text;
 begin
   select string_agg(column_name || ':' || data_type, ',' order by ordinal_position) into cols
   from information_schema.columns where table_schema = 'public' and table_name = 'polls';
-  assert cols = 'id:uuid,user_id:uuid,question:text,status:text,created_at:timestamp with time zone,closes_at:timestamp with time zone,category_slug:text',
+  assert cols = 'id:uuid,user_id:uuid,question:text,status:text,created_at:timestamp with time zone,closes_at:timestamp with time zone,category_slug:text,comments_enabled:boolean',
     'columnas de polls: ' || cols;
 
   select string_agg(column_name || ':' || data_type, ',' order by ordinal_position) into cols
@@ -14,7 +14,7 @@ begin
   assert cols = 'id:uuid,poll_id:uuid,text:text,position:smallint', 'columnas de poll_options: ' || cols;
 
   assert not exists (select 1 from information_schema.tables where table_schema = 'public'
-    and table_name not in ('polls', 'poll_options', 'votes', 'poll_reports', 'profiles', 'follows', 'categories', 'saved_polls', 'follow_quota_events', 'user_blocks')), 'hay tablas propias no previstas';
+    and table_name not in ('polls', 'poll_options', 'votes', 'poll_reports', 'profiles', 'follows', 'categories', 'saved_polls', 'follow_quota_events', 'user_blocks', 'comments')), 'hay tablas propias no previstas';
 end $$;
 
 -- FK: polls.user_id -> auth.users, poll_options.poll_id -> polls.

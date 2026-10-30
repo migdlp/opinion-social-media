@@ -970,3 +970,153 @@ describe("SEARCH-001: búsqueda de encuestas", () => {
     expect(ids(await search(marca, undefined))).toEqual(expect.arrayContaining([pa, pb]));
   });
 });
+
+// CMT-001: debate plano. Apagado por defecto, voto previo en abiertas, visibilidad de la encuesta
+// en cerradas, bloqueos y límite concurrente de 10 comentarios por minuto.
+describe("CMT-001: comentarios", () => {
+  const list = (poll: string, token?: string, cursor?: string) =>
+    rpc("list_comments", { p_poll_id: poll, ...(cursor ? { p_cursor: cursor } : {}) }, token);
+  const comment = (poll: string, body: string, token?: string) =>
+    rpc("add_comment", { p_poll_id: poll, p_body: body }, token);
+  const enable = (poll: string, token: string, enabled = true) =>
+    rpc("set_poll_comments", { p_poll_id: poll, p_enabled: enabled }, token);
+
+  it("la tabla no se lee ni se escribe por REST, con ningún rol", async () => {
+    const owner = await account("cmtt", false);
+    for (const token of [undefined, owner.token, STR.token]) {
+      expect((await http("/rest/v1/comments?select=*", { token })).status).toBeGreaterThanOrEqual(
+        400,
+      );
+      const write = await http("/rest/v1/comments", {
+        method: "POST",
+        token,
+        body: JSON.stringify({ poll_id: pubOpen, user_id: owner.id, body: "x" }),
+      });
+      expect(write.status).toBeGreaterThanOrEqual(400);
+    }
+  });
+
+  it("apagado por defecto: nadie comenta ni lee, tampoco la autora; sólo ella lo cambia", async () => {
+    const [author, other] = await Promise.all([account("cmta", false), account("cmto", false)]);
+    const poll = await createPoll(author, `¿Debate apagado ${Date.now()}?`);
+    await vote(author, poll, 0);
+    await vote(other, poll, 0);
+    for (const who of [author, other]) {
+      expect(message(await comment(poll, "hola", who.token))).toBe("COMMENTS_DISABLED");
+      expect(message(await list(poll, who.token))).toBe("COMMENTS_DISABLED");
+    }
+    expect(message(await enable(poll, other.token))).toBe("POLL_UNAVAILABLE");
+    const direct = await http(`/rest/v1/polls?id=eq.${poll}`, {
+      method: "PATCH",
+      token: author.token,
+      body: JSON.stringify({ comments_enabled: true }),
+    });
+    expect(direct.status).toBeGreaterThanOrEqual(400);
+    expect((await enable(poll, author.token)).status).toBeLessThan(300);
+    expect((await comment(poll, "hola", other.token)).status).toBeLessThan(300);
+  });
+
+  it("en una abierta hace falta haber votado, también la autora; sin voto no se obtiene ni un comentario", async () => {
+    const [author, voter, lurker] = await Promise.all([
+      account("cmtb", false),
+      account("cmtv", false),
+      account("cmtl", false),
+    ]);
+    const poll = await createPoll(author, `¿Debate abierto ${Date.now()}?`);
+    await enable(poll, author.token);
+    await vote(voter, poll, 0);
+    expect((await comment(poll, "Secreto del debate", voter.token)).status).toBeLessThan(300);
+
+    for (const [name, token] of [
+      ["autora sin voto", author.token],
+      ["extraño sin voto", lurker.token],
+      ["visitante", undefined],
+    ] as const) {
+      const r = await list(poll, token);
+      expect(message(r), name).toBe("VOTE_REQUIRED");
+      expect(r.text, name).not.toContain("Secreto del debate");
+    }
+    expect(message(await comment(poll, "intruso", lurker.token))).toBe("VOTE_REQUIRED");
+    await vote(author, poll, 1);
+    expect(rows(await list(poll, author.token)).map((c) => c.body)).toEqual(["Secreto del debate"]);
+  });
+
+  it("límite de 10 por minuto y cuenta, aplicado a peticiones simultáneas", async () => {
+    const [author, spammer] = await Promise.all([account("cmtr", false), account("cmts", false)]);
+    const poll = await createPoll(author, `¿Debate con ráfaga ${Date.now()}?`);
+    await enable(poll, author.token);
+    await vote(spammer, poll, 0);
+    const burst = await Promise.all(
+      Array.from({ length: 14 }, (_, i) => comment(poll, `ráfaga ${i}`, spammer.token)),
+    );
+    expect(burst.filter((r) => r.status < 300)).toHaveLength(10);
+    expect(burst.filter((r) => message(r) === "RATE_LIMITED")).toHaveLength(4);
+    const { count } = await admin
+      .from("comments")
+      .select("*", { count: "exact", head: true })
+      .eq("poll_id", poll);
+    expect(count).toBe(10);
+  });
+
+  it("validación del texto y cerradas privadas: sólo con acceso a la cuenta", async () => {
+    const [author, follower, stranger] = await Promise.all([
+      account("cmtp", true),
+      account("cmtf", false),
+      account("cmtx", false),
+    ]);
+    const poll = await createPoll(author, `¿Debate privado cerrado ${Date.now()}?`);
+    await enable(poll, author.token);
+    await rpc("follow_user", { p_username: author.username }, follower.token);
+    await rpc(
+      "respond_follow_request",
+      { p_username: follower.username, p_accept: true },
+      author.token,
+    );
+    await vote(follower, poll, 0);
+    for (const bad of ["", "   ", "a".repeat(1001), "hola\u0007"]) {
+      expect(message(await comment(poll, bad, follower.token)), JSON.stringify(bad)).toBe(
+        "COMMENT_INVALID",
+      );
+    }
+    expect((await comment(poll, "<script>alert(1)</script>", follower.token)).status).toBeLessThan(
+      300,
+    );
+    expect(rows(await list(poll, follower.token))[0]).toMatchObject({
+      body: "<script>alert(1)</script>",
+    });
+    expect(Object.keys(rows(await list(poll, follower.token))[0]).sort()).toEqual([
+      "body",
+      "comment_id",
+      "created_at",
+      "cursor",
+      "display_name",
+      "username",
+    ]);
+    for (const token of [stranger.token, undefined]) {
+      expect(message(await list(poll, token))).toBe("POLL_UNAVAILABLE");
+      expect(message(await comment(poll, "intruso", token))).not.toBeNull();
+    }
+  });
+
+  it("los comentarios de cuentas bloqueadas por la autora desaparecen para todos y no pueden comentar más", async () => {
+    const [author, bad, reader] = await Promise.all([
+      account("cmtq", false),
+      account("cmtz", false),
+      account("cmtw", false),
+    ]);
+    const poll = await createPoll(author, `¿Debate con bloqueo ${Date.now()}?`);
+    await enable(poll, author.token);
+    for (const who of [bad, reader, author]) await vote(who, poll, 0);
+    await comment(poll, "del bloqueado", bad.token);
+    await comment(poll, "del lector", reader.token);
+    expect(rows(await list(poll, reader.token))).toHaveLength(2);
+
+    await rpc("block_user", { p_username: bad.username }, author.token);
+    expect(rows(await list(poll, reader.token)).map((c) => c.body)).toEqual(["del lector"]);
+    expect(message(await comment(poll, "sigo aquí", bad.token))).toBe("POLL_UNAVAILABLE");
+    // El lector que bloquea a otra cuenta tampoco ve sus comentarios.
+    await rpc("block_user", { p_username: reader.username }, author.token);
+    await rpc("unblock_user", { p_username: bad.username }, author.token);
+    expect(rows(await list(poll, bad.token)).map((c) => c.body)).toEqual(["del bloqueado"]);
+  });
+});
