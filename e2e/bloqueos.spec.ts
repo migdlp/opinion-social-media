@@ -44,8 +44,10 @@ test("bloquear: confirma, cancela sin efecto, rompe el seguimiento y lista en Aj
   expect(follows.count).toBe(0);
 
   // Para quien bloqueó, el perfil ya no existe.
-  const response = await page.goto(`/u/${other.username}`);
-  expect(response?.status()).toBe(404);
+  await ready(page, `/u/${other.username}`);
+  await expect(
+    page.getByText("La página que buscas no existe o no está disponible."),
+  ).toBeVisible();
 });
 
 test("la cuenta bloqueada no ve nada que revele el bloqueo y tampoco puede abrir el perfil", async ({
@@ -60,8 +62,10 @@ test("la cuenta bloqueada no ve nada que revele el bloqueo y tampoco puede abrir
   if (error) throw error;
 
   await signIn(page.context(), other, baseURL!);
-  const response = await page.goto(`/u/${me.username}`);
-  expect(response?.status()).toBe(404);
+  await ready(page, `/u/${me.username}`);
+  await expect(
+    page.getByText("La página que buscas no existe o no está disponible."),
+  ).toBeVisible();
   await ready(page, "/settings");
   await expect(blockedSection(page).getByText(`@${me.username}`)).toHaveCount(0);
   await expect(blockedSection(page).getByText("No has bloqueado a nadie.")).toBeVisible();
