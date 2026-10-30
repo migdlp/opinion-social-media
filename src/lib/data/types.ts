@@ -30,6 +30,7 @@ export type AppErrorCode =
   | "VOTES_PRIVATE"
   | "VOTE_VISIBILITY_INVALID"
   | "AVATAR_INVALID"
+  | "BIO_INVALID"
   | "CANNOT_FOLLOW_SELF"
   | "FOLLOW_RATE_LIMITED"
   | "NETWORK_ERROR"
@@ -50,6 +51,8 @@ export interface Profile {
   isPrivate: boolean;
   // Icono elegido (AVATAR-001); ausente = iniciales.
   avatarIcon?: AvatarIcon | null;
+  // Biografía propia (PROFILE-001); ausente = sin bio.
+  bio?: string;
 }
 
 // Autor con perfil (V2-003). Sin perfil, PublicPoll.author es null y se muestra «Anónimo».
@@ -111,6 +114,8 @@ export interface ProfileView {
   viewerRelation: ViewerRelation;
   canViewContent: boolean;
   avatarIcon?: AvatarIcon | null;
+  // Sólo si el backend la entrega (cuenta visible para quien mira); ausente = sin bio u oculta.
+  bio?: string;
 }
 
 // Voto visible en un perfil (V2-007). choice es null cuando la opción elegida no se puede revelar

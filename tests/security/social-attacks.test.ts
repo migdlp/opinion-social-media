@@ -723,3 +723,76 @@ describe("BUG-005: seguir cuentas públicas y privadas", () => {
     });
   });
 });
+
+// PROFILE-001: la biografía no es una columna pública; sólo el titular la escribe y en cuentas
+// privadas sólo la ven el titular y los seguidores aceptados.
+describe("PROFILE-001: biografía de perfil", () => {
+  const BIO = "Sólo para quien me sigue";
+
+  it("no se lee ni se escribe por la tabla, con ningún rol", async () => {
+    const owner = await account("bbio", true);
+    for (const token of [undefined, owner.token, STR.token]) {
+      const read = await http("/rest/v1/profiles?select=bio", { token });
+      expect(read.status, "lectura").toBeGreaterThanOrEqual(400);
+      const write = await http(`/rest/v1/profiles?user_id=eq.${owner.id}`, {
+        method: "PATCH",
+        token,
+        body: JSON.stringify({ bio: "x" }),
+      });
+      expect(write.status, "escritura").toBeGreaterThanOrEqual(400);
+    }
+  });
+
+  it("anon no ejecuta set_profile_bio y un extraño sin perfil no escribe nada", async () => {
+    const anon = await rpc("set_profile_bio", { p_bio: "hola" });
+    expect(anon.status).toBeGreaterThanOrEqual(400);
+    const stranger = await account("bsinperfil", false);
+    await admin.from("profiles").delete().eq("user_id", stranger.id);
+    const r = await rpc("set_profile_bio", { p_bio: "hola" }, stranger.token);
+    expect(message(r)).toBe("PROFILE_REQUIRED");
+  });
+
+  it("sobrelongitud y caracteres de control se rechazan; el HTML es texto literal", async () => {
+    const owner = await account("bval", false);
+    expect(message(await rpc("set_profile_bio", { p_bio: "a".repeat(281) }, owner.token))).toBe(
+      "BIO_INVALID",
+    );
+    expect(message(await rpc("set_profile_bio", { p_bio: "hola\u0007" }, owner.token))).toBe(
+      "BIO_INVALID",
+    );
+    const ok = await rpc("set_profile_bio", { p_bio: "<b>negrita</b>" }, owner.token);
+    expect(ok.status, ok.text).toBeLessThan(300);
+    const mine = await rpc("get_my_profile", {}, owner.token);
+    expect(rows(mine)[0]).toMatchObject({ bio: "<b>negrita</b>" });
+  });
+
+  it("en una cuenta privada sólo titular y seguidor aceptado la ven, también por get_profile directo", async () => {
+    const [owner, follower, pending, stranger] = await Promise.all([
+      account("bpriv2", true),
+      account("bfol", false),
+      account("bpend", false),
+      account("bext", false),
+    ]);
+    await rpc("set_profile_bio", { p_bio: BIO }, owner.token);
+    await rpc("follow_user", { p_username: owner.username }, follower.token);
+    await rpc(
+      "respond_follow_request",
+      { p_username: follower.username, p_accept: true },
+      owner.token,
+    );
+    await rpc("follow_user", { p_username: owner.username }, pending.token);
+
+    const bioFor = async (token?: string) =>
+      rows(await rpc("get_profile", { p_username: owner.username }, token))[0]?.bio ?? null;
+    expect(await bioFor(owner.token)).toBe(BIO);
+    expect(await bioFor(follower.token)).toBe(BIO);
+    expect(await bioFor(pending.token)).toBeNull();
+    expect(await bioFor(stranger.token)).toBeNull();
+    expect(await bioFor(undefined)).toBeNull();
+    // Ni la cabecera pública ni ningún otro endpoint la filtran.
+    const hidden = await rpc("get_profile", { p_username: owner.username }, stranger.token);
+    expect(hidden.text).not.toContain(BIO);
+    const authors = await rpc("get_poll_authors", { p_poll_ids: [] }, stranger.token);
+    expect(authors.text).not.toContain(BIO);
+  });
+});
