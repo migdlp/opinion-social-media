@@ -252,7 +252,7 @@ Petición del propietario del 29-10-2026. Medir navegador/Next/Vercel/Supabase a
 
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|
-| [OPS-003](https://github.com/migdlp/opinion-social-media/issues/272) | Integrar migraciones 26/27 en Supabase dev con recuperación y conservación de datos verificadas | P0 | PRIV-001 #249 y AVATAR-001 #247 completadas; ledger real y recuperación revisados | Pendiente | — |
+| [OPS-003](https://github.com/migdlp/opinion-social-media/issues/272) | Integrar migraciones 26/27 en Supabase dev con recuperación y conservación de datos verificadas | P0 | PRIV-001 #249 y AVATAR-001 #247 completadas; ledger real y recuperación revisados | En progreso | Codex /root (opinion_social_media) |
 | [REL-003](https://github.com/migdlp/opinion-social-media/issues/273) | Activar y publicar ajustes ampliados, privacidad, iconos y primera optimización del feed | P0 | OPS-003 #272; recuperación productiva y CI del candidato; SETTINGS-001/PRIV-002/AVATAR-001; coordinar PERF-001 | Pendiente | — |
 
 Main no equivale a producción. Ver [resultado REL-002 y relevo](rel-002-tema-cuenta.md); no reaplicar las 25 migraciones existentes ni desplegar la nueva UI sin 26/27.
