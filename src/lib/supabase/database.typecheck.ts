@@ -225,3 +225,16 @@ export type UserBlocksRpcChecks = [
     Equal<keyof Public["Tables"]["user_blocks"]["Row"], "blocked_id" | "blocker_id" | "created_at">
   >,
 ];
+
+// SEARCH-001: búsqueda por pregunta; sólo ids, fecha y cursor (sin recuentos).
+export type SearchPollsRpcChecks = [
+  Assert<
+    Equal<Public["Functions"]["search_polls"]["Args"], { p_cursor?: string; p_query: string }>
+  >,
+  Assert<
+    Equal<
+      Public["Functions"]["search_polls"]["Returns"][number],
+      { created_at: string; cursor: string; poll_id: string }
+    >
+  >,
+];

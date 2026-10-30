@@ -320,6 +320,19 @@ public.get_feed(p_mode text default 'recientes', p_category text default null, p
 - Orden `created_at DESC, id DESC`; hasta **21 filas** (20 + 1). `p_cursor` es el `cursor` de la última fila entregada (`<created_at UTC>|<id>`, opaco); uno ilegible es `INVALID_CURSOR` (a diferencia de las listas de perfil, que lo ignoran).
 - Adaptador: `getFeed(supabase, { mode, category, cursor }, viewer)` → `FeedPage` con el mismo estado de voto, resultados y «guardada» que el resto de listas. `getFeedPage` (la lectura anterior, sin modos) sigue existiendo hasta que V2-032 integre la interfaz.
 
+### 3.15. `search_polls` (SEARCH-001)
+
+```sql
+public.search_polls(p_query text, p_cursor text default null) returns table (poll_id uuid, created_at timestamptz, cursor text)
+```
+
+- Ejecutable por `anon` y `authenticated` (la búsqueda sobre contenido público no exige sesión). Como `get_feed`, devuelve **sólo ids, fecha y cursor**: los datos de cada encuesta salen por la RLS de `polls` y los resultados por la ruta autorizada del resto de listas. **Nunca** devuelve recuentos, porcentajes, totales ni `user_id`.
+- Consulta: 2–100 caracteres tras recortar y colapsar espacios; si no, `INVALID_QUERY`. Coincidencia de subcadena sin distinguir mayúsculas (`ILIKE`), con `%`, `_` y `\` escapados (son texto, nunca comodines). No distingue acentos: «cafe» no encuentra «café». Sin servicio externo ni búsqueda semántica.
+- Alcance: encuestas `published` que quien llama puede ver (`can_view_author`: cuentas privadas y bloqueos); las cerradas se encuentran aunque ya hayan salido del feed de 24 h. Las ocultas no aparecen.
+- Orden `created_at DESC, id DESC`; 21 filas (20 + 1). Cursor `<created_at UTC>|<id>|<md5 de la consulta>`: el de otra búsqueda o uno ilegible es `INVALID_CURSOR`. No hay total de resultados.
+- Índice: `polls_question_trgm_idx` (GIN `pg_trgm`, parcial `status = 'published'`), en el esquema `extensions`. A 5000 filas el planificador puede preferir recorrer `polls_feed_idx` con el `LIMIT`; el trigram gana al crecer la tabla o ser selectiva la coincidencia (comprobado en `030_search_polls`). Sin Redis.
+- Adaptador: `searchPolls(supabase, query, cursor, viewer)` → `Result<FeedPage>`; error nuevo `INVALID_QUERY`. La pantalla de búsqueda es SEARCH-002.
+
 ## 4. Lecturas directas (RLS)
 
 `categories` (V2-021) es de lectura pública (`slug, name, position`) y sin escrituras de clientes; el formulario de creación la lee con `getCategories`. Feed y detalle incluyen `category:categories(slug, name)`.

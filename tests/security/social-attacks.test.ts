@@ -901,3 +901,73 @@ describe("SOCIAL-001: bloqueo de personas", () => {
     }
   });
 });
+
+// SEARCH-001: búsqueda por pregunta. Devuelve sólo ids, fecha y cursor, respeta cuentas privadas y
+// bloqueos y no revela recuentos de encuestas abiertas. Reutiliza las encuestas «V2-024» ya creadas.
+describe("SEARCH-001: búsqueda de encuestas", () => {
+  const search = (q: string, token?: string, cursor?: string) =>
+    rpc("search_polls", { p_query: q, ...(cursor ? { p_cursor: cursor } : {}) }, token);
+  const ids = (r: Reply) => rows(r).map((x) => x.poll_id);
+
+  it("el visitante y los extraños sólo encuentran lo público; los privados, sólo quien puede verlos", async () => {
+    for (const token of [undefined, STR.token, PEN.token]) {
+      const found = ids(await search("V2-024", token));
+      expect(found).toContain(pubOpen);
+      expect(found).toContain(pubClosed);
+      expect(found).not.toContain(privOpen);
+      expect(found).not.toContain(privClosed);
+    }
+    for (const token of [PRIV.token, FOL.token]) {
+      const found = ids(await search("V2-024", token));
+      expect(found).toEqual(expect.arrayContaining([pubOpen, pubClosed, privOpen, privClosed]));
+    }
+  });
+
+  it("no devuelve recuentos, totales ni datos de resultados: solo id, fecha y cursor", async () => {
+    for (const token of [undefined, STR.token, FOL.token]) {
+      const r = await search("V2-024", token);
+      expect(r.status).toBe(200);
+      for (const row of rows(r)) {
+        expect(Object.keys(row).sort()).toEqual(["created_at", "cursor", "poll_id"]);
+      }
+      expect(r.text).not.toMatch(/votes|total|count|percent|option/i);
+      expect(r.range).toBeNull();
+    }
+  });
+
+  it("valida la consulta y trata los caracteres especiales como texto", async () => {
+    for (const bad of ["", " ", "a", "x".repeat(101)]) {
+      expect(message(await search(bad))).toBe("INVALID_QUERY");
+    }
+    for (const odd of ["%%", "__", "'; drop table polls; --", "\\\\", '"', "V2_024"]) {
+      const r = await search(odd);
+      expect(r.status, odd).toBe(200);
+      expect(ids(r), odd).not.toContain(privOpen);
+    }
+    expect(ids(await search("V2_024"))).toEqual([]);
+    expect(rows(await http("/rest/v1/polls?select=id&limit=1")).length).toBe(1);
+  });
+
+  it("un cursor de otra búsqueda o ilegible se rechaza", async () => {
+    const first = rows(await search("V2-024"));
+    expect(first.length).toBeGreaterThan(0);
+    const cursor = first[0].cursor as string;
+    expect(message(await search("otra cosa", undefined, cursor))).toBe("INVALID_CURSOR");
+    expect(message(await search("V2-024", undefined, "no-es-un-cursor"))).toBe("INVALID_CURSOR");
+  });
+
+  it("el bloqueo oculta las encuestas del otro en la búsqueda, en los dos sentidos", async () => {
+    const [a, b] = await Promise.all([account("sbla", false), account("sblb", false)]);
+    const marca = `zanahoria${Date.now()}`;
+    const [pa, pb] = [
+      await createPoll(a, `¿${marca} de A?`),
+      await createPoll(b, `¿${marca} de B?`),
+    ];
+    expect(ids(await search(marca, a.token))).toEqual(expect.arrayContaining([pa, pb]));
+
+    await rpc("block_user", { p_username: b.username }, a.token);
+    expect(ids(await search(marca, a.token))).toEqual([pa]);
+    expect(ids(await search(marca, b.token))).toEqual([pb]);
+    expect(ids(await search(marca, undefined))).toEqual(expect.arrayContaining([pa, pb]));
+  });
+});

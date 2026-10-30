@@ -865,6 +865,37 @@ export function setProfileBio(supabase: SupabaseClient, bio: string | null): Pro
   });
 }
 
+// Búsqueda de encuestas por pregunta (SEARCH-001). La RPC decide qué ids ve quien pregunta
+// (cuentas privadas, bloqueos, publicadas; las cerradas también) y devuelve sólo ids y cursor; las
+// encuestas salen por la RLS y los resultados por la misma ruta autorizada que el feed. El cursor
+// está ligado a la consulta. Errores controlados: INVALID_QUERY e INVALID_CURSOR.
+export function searchPolls(
+  supabase: SupabaseClient,
+  query: string,
+  cursor: string | null | undefined,
+  viewer: Viewer,
+): Promise<Result<FeedPage>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("search_polls", {
+      p_query: query,
+      p_cursor: cursor ?? null,
+    });
+    if (error) return { ok: false, error: toAppError(error) };
+    const rows = (data ?? []) as { poll_id: string; cursor: string }[];
+    const page = rows.slice(0, FEED_PAGE_SIZE);
+    if (page.length === 0) return { ok: true, data: { items: [], nextCursor: null } };
+    const nextCursor = rows.length > FEED_PAGE_SIZE ? page[page.length - 1].cursor : null;
+
+    const ids = page.map((row) => row.poll_id);
+    const [polls, votes] = await Promise.all([
+      getPublicPollsByIds(supabase, ids),
+      viewer.signedIn ? fetchOwnVotes(supabase, ids) : Promise.resolve(undefined),
+    ]);
+    if (!polls.ok) return polls;
+    return withOwnVotes(supabase, polls.data, nextCursor, viewer, votes);
+  });
+}
+
 // Sólo preferencias propias: las RPC no aceptan un usuario objetivo.
 export function getMyVoteVisibility(supabase: SupabaseClient): Promise<Result<VoteVisibility>> {
   return guard(async () => {
