@@ -201,7 +201,8 @@ test("Siguiendo sin encuestas visibles sigue seleccionado y ofrece ir a Reciente
   await addFollow(viewer, silent, "accepted");
 
   await signIn(page.context(), viewer, baseURL!);
-  await ready(page, "/");
+  // Siguiendo es una elección explícita (FEED-001): ya no es la entrada por defecto.
+  await ready(page, "/?tab=siguiendo");
   await expect(tabs(page).getByRole("link", { name: "Siguiendo" })).toHaveAttribute(
     "aria-current",
     "page",
