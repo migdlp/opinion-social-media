@@ -189,6 +189,18 @@ Auditoría anónima de `release` `4e22089` construida en local contra Supabase d
 | [DESIGN-010](https://github.com/migdlp/opinion-social-media/issues/230) | Ampliar los objetivos táctiles pequeños en móvil (@usuario de autoría, marca) | P1 | DESIGN-003 (completada); coordinar con DESIGN-008 | Completada · [PR #236](https://github.com/migdlp/opinion-social-media/pull/236), merge 2eacfaf (CI verde, 0 incumplimientos a 320/390/1280 px) | claude-code (session_01Dsh4bnE3jAdfg5WXXBh59U) |
 | [DESIGN-011](https://github.com/migdlp/opinion-social-media/issues/231) | Dar un título propio a cada página | P1 | — | Completada: [PR #233](https://github.com/migdlp/opinion-social-media/pull/233), merge `386f700`; título propio en login, crear, onboarding, solicitudes, perfil y listas (`@usuario` sin consultar datos) y 404; `/polls/[id]` sin cambios; 643 pruebas unitarias, `npm run check` y E2E de escritorio y móvil verdes | claude-code (session_01Dsh4bnE3jAdfg5WXXBh59U) |
 
+## Auditoría de la web en producción — 30-10-2026
+
+Auditoría anónima de `https://opinion-social-media.vercel.app` (rama `release`) con navegador a 320/390/1280 px y ambos temas, sin crear datos. Funciona bien: rutas públicas, 404, títulos, sin desbordes y regla crítica (abiertas sin porcentajes, cerradas con resultados). No cubre lo que exige sesión. Hallazgos convertidos en tareas, tras comprobar que no los cubre ninguna tarea abierta:
+
+| ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
+|---|---|---|---|---|---|
+| [SEC-002](https://github.com/migdlp/opinion-social-media/issues/307) | Enviar cabeceras de seguridad HTTP en todas las rutas | P1 | — ; coordinar AUTH-001 #258 (no tocar `proxy.ts`) y V2-051 #175 | Pendiente | — |
+| [DESIGN-016](https://github.com/migdlp/opinion-social-media/issues/308) | Colocar Guardar junto a la autoría en el detalle de encuesta | P1 | V2-022 #139, DESIGN-009 #229 (completadas); coordinar DESIGN-015 #279 y DESIGN-006 #192 | Pendiente | — |
+| [META-001](https://github.com/migdlp/opinion-social-media/issues/309) | Tarjeta social al compartir la portada y los perfiles | P1 | MVP-053 #47, DESIGN-011 #231 (completadas); coordinar PROFILE-002 #295 | Pendiente | — |
+
+No se crean tareas para: el tema «Sistema» por defecto (ya resuelto en `main` por DESIGN-014 #276, pendiente de publicar con REL-003 #273) ni el contenido de prueba inadecuado del feed (decisión del propietario; la denuncia de encuestas ya existe, V2-020 #122).
+
 ## Rediseño After Sunset claro — nuevo encargo 29-10-2026
 
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
