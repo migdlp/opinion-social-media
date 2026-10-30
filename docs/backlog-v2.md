@@ -37,7 +37,7 @@ Las peticiones del **29-10-2026**, D-028 a D-031, amplían este backlog con [cue
 
 ### Supuestos tomados por el planificador (corregibles por el propietario)
 
-- **S-1 `@usuario`:** obligatorio. Se elige tras el primer login y hace falta tenerlo para crear, votar o seguir; explorar no lo requiere. Formato: 3–20 caracteres `[a-z0-9_]`, empieza por letra, único sin distinguir mayúsculas, con lista de nombres reservados. Se puede cambiar; los enlaces antiguos dejan de funcionar.
+- **S-1 `@usuario`:** obligatorio. Se elige tras el primer login y hace falta tenerlo para crear, votar o seguir; explorar no lo requiere. Formato: 3–20 caracteres `[a-z0-9_]`, empieza por letra, único sin distinguir mayúsculas, con lista de nombres reservados. Se puede cambiar como máximo una vez cada 30 días; los enlaces antiguos dejan de funcionar y el nombre liberado queda reservado 30 días para que nadie lo ocupe y suplante a su antiguo dueño.
 - **S-2 Nombre visible:** opcional, de 1 a 50 caracteres. No se usa el nombre de Google por defecto, para no publicar datos personales sin que el usuario lo decida.
 - **S-3 Avatar:** iniciales sobre un color derivado del `@usuario`. No hay subida de imágenes ni foto de Google.
 - **S-4 Contadores:** seguidores, seguidos y encuestas creadas son visibles también en cuentas privadas, como en Instagram.
@@ -50,6 +50,8 @@ Las peticiones del **29-10-2026**, D-028 a D-031, amplían este backlog con [cue
 ### Preguntas abiertas
 
 - **P-1 Votos públicos frente a la regla crítica.** Si en un perfil se ve la opción elegida en encuestas que el visitante todavía no ha votado, recorriendo perfiles se puede intuir qué opción va ganando antes de votar. **Propuesta:** en el perfil ajeno, mostrar la opción elegida sólo en encuestas que el visitante ya ha votado o que están cerradas; en el resto, «Votó · vota para ver su elección». V2-007 implementa la propuesta salvo que el propietario indique lo contrario.
+- **P-2 P-1 como segunda excepción a la regla crítica.** Aun con la propuesta de P-1, la presencia de votos en encuestas abiertas, sumada recorriendo perfiles, da una cota del total de votos, que también es un agregado. Si el propietario aprueba P-1, `AGENTS.md` debe citar D-018/P-1 junto a D-020 como excepciones; si no, «Votadas» ocultará también la presencia del voto en encuestas abiertas que el visitante no ha votado.
+- **P-3 Votos públicos por defecto y RGPD.** Con cuenta pública por defecto (D-016) y votos visibles en el perfil (D-018), las opiniones —incluidas las políticas, si existe la categoría `politica` de V2-021— quedan públicas por defecto. Las opiniones políticas son categoría especial (RGPD, art. 9). Decidir si los votos son privados por defecto o requieren aceptación expresa, con texto claro en `/onboarding` y `/settings`.
 
 ## 3. Catálogo
 
@@ -212,7 +214,7 @@ graph LR
   - Tabla `public.profiles`: `user_id uuid PK references auth.users on delete cascade`, `username text not null`, `display_name text null`, `is_private boolean not null default false`, `created_at timestamptz not null default now()`, `updated_at timestamptz not null default now()`.
   - `username`: `CHECK (username ~ '^[a-z][a-z0-9_]{2,19}$')` e índice único sobre `lower(username)`. `display_name`: entre 1 y 50 caracteres tras normalizar, o nulo.
   - Nombres reservados (rechazados con `USERNAME_RESERVED`): `admin`, `me`, `settings`, `login`, `logout`, `create`, `polls`, `u`, `api`, `auth`, `onboarding`, `opinion`, `soporte`, `support`, `moderacion`. Guardarlos en la propia función, no en una tabla.
-  - RPC `upsert_my_profile(p_username text, p_display_name text)` → fila del perfil. Errores nuevos: `USERNAME_INVALID`, `USERNAME_TAKEN`, `USERNAME_RESERVED`, `DISPLAY_NAME_INVALID`. Normaliza el `username` a minúsculas.
+  - RPC `upsert_my_profile(p_username text, p_display_name text)` → fila del perfil. Errores nuevos: `USERNAME_INVALID`, `USERNAME_TAKEN`, `USERNAME_RESERVED`, `DISPLAY_NAME_INVALID` y `USERNAME_CHANGE_TOO_SOON`. Normaliza el `username` a minúsculas. Aplica S-1: un cambio cada 30 días y nombre antiguo reservado 30 días (guardar el nombre anterior y la fecha del cambio).
   - RPC `set_profile_privacy(p_private boolean)`. Al pasar a pública, acepta las solicitudes pendientes (cuando exista V2-004, dejar el hueco documentado).
   - RLS: `select` de `username`, `display_name`, `is_private` y `created_at` para `anon` y `authenticated`. Sin escrituras directas. `user_id` sólo se concede si hace falta para joins internos de RPC, nunca a clientes.
   - Añadir los códigos nuevos a `src/lib/data/errors.ts` con mensajes en español y a `contratos-api.md` §2.
@@ -230,6 +232,7 @@ graph LR
 - **Requisitos:**
   - El callback de OAuth (`src/app/auth/callback/route.ts`) redirige a `/onboarding?next=<ruta>` si el usuario no tiene perfil, conservando `next` con la validación de `src/lib/auth/redirect.ts`.
   - Las server actions de crear y votar (y las de seguir de V2-004) devuelven un código `PROFILE_REQUIRED` si falta el perfil. La interfaz lo convierte en un enlace a `/onboarding?next=…`. Imponerlo también en la base de datos con triggers `BEFORE INSERT` en `polls` y `votes` que lancen `PROFILE_REQUIRED` (así no se reescriben `create_poll` ni `vote_poll`, que tocan otras tareas).
+  - Actualizar los fixtures de E2E (`e2e/support/supabase.ts`) y de los tests SQL que crean usuarios, para que tengan perfil antes de crear o votar; si no, MVP-045/046 dejan de pasar.
   - El formulario valida en cliente con las mismas reglas que V2-001 (nuevo `src/lib/validation/profile.ts`) y muestra en vivo `@usuario` y sus errores. Comprueba la disponibilidad al enviar, no en cada tecla.
   - Mobile-first, accesible y con los mismos estados que el resto (carga, error de red, nombre ocupado).
 - **Criterios de aceptación:**
@@ -243,7 +246,8 @@ graph LR
 - **Prioridad:** P0 · **Tamaño:** M · **Dependencias:** V2-001 · **Bloquea a:** V2-006
 - **Descripción:** Sustituir «Anónimo» por `@usuario` enlazado a `/u/[username]` en la tarjeta y el detalle.
 - **Requisitos:**
-  - Exponer el autor sin dar `polls.user_id` a los clientes. Opción recomendada: vista `public.polls_with_author` (`security_invoker = true`) o una columna calculada vía RPC que devuelva `author_username` y `author_display_name`. Documentar la elegida en `contratos-api.md` §4.
+  - Exponer el autor sin dar `polls.user_id` a los clientes mediante una RPC `security definer` (`search_path = ''`) que devuelva cada encuesta con `author_username` y `author_display_name`, aplicando la misma visibilidad que `polls` (`status = 'published'` y, cuando exista, `can_view_author`). Documentarla en `contratos-api.md` §4 y añadirla a `008_privileges.test.sql`.
+  - **No usar una vista** ni un embed de PostgREST `polls → profiles`: `008_privileges.test.sql` falla si hay vistas en `public`, y con `security_invoker` el join necesita `SELECT` sobre `polls.user_id`, que los clientes no tienen a propósito (`polls_public_read`).
   - Ampliar `PublicPoll` en `src/lib/data/types.ts` con `author: { username: string; displayName: string | null } | null` (`null` = sin perfil, que se muestra como «Anónimo», S-5).
   - Actualizar `getFeedPolls` y `getPublicPoll` (`src/lib/data/polls.ts`), `PollCard` y `PollDetailView`.
 - **Criterios de aceptación:**
@@ -264,7 +268,7 @@ graph LR
     - `remove_follower(p_username)`.
     - Completar en `set_profile_privacy(false)` la aceptación de las pendientes (S-6).
   - Límite anti-abuso: como máximo 200 `follow_user` por hora y cuenta (código nuevo `FOLLOW_RATE_LIMITED`; `RATE_LIMITED` tiene un mensaje específico de encuestas).
-  - RLS: cada usuario lee las filas donde es `follower_id` o `followee_id`. Los contadores públicos se obtienen por RPC (V2-006), no por lectura directa.
+  - RLS activada **sin `SELECT` para clientes**: las filas contienen `user_id` de terceros. Todo se consulta por RPC que devuelven `username` (listas de V2-009, `viewer_relation` y contadores de V2-006). Si un cliente necesita saber si sigue a alguien, se añade a esas RPC, no lectura directa.
   - Códigos nuevos: `USER_NOT_FOUND`, `CANNOT_FOLLOW_SELF`.
 - **Criterios de aceptación:**
   1. Dado `@b` público, cuando `@a` lo sigue, entonces la fila queda `accepted`.
@@ -278,8 +282,9 @@ graph LR
 - **Prioridad:** P0 · **Tamaño:** L · **Dependencias:** V2-001, V2-004 · **Bloquea a:** V2-006, V2-007, V2-014, V2-019, V2-024
 - **Descripción:** Imponer en la base de datos que las encuestas de una cuenta privada sólo las vean su autor y sus seguidores aceptados (D-017). Es la tarea de seguridad más delicada de la fase.
 - **Requisitos:**
-  - Función `public.can_view_author(p_author uuid) returns boolean` (`stable`, `security definer`, `search_path = ''`): verdadera si el autor no tiene perfil o lo tiene público, si `auth.uid() = p_author` o si existe un `follows` aceptado de `auth.uid()` hacia `p_author`. Sin `EXECUTE` para clientes si no lo necesitan.
-  - Sustituir la política `polls_select_published` por `status = 'published' AND can_view_author(user_id)`. `poll_options` ya hereda la visibilidad por su subconsulta: verificarlo con un test.
+  - Función `private.can_view_author(p_author uuid) returns boolean` (`stable`, `security definer`, `search_path = ''`): verdadera si el autor no tiene perfil o lo tiene público, si `auth.uid() = p_author` o si existe un `follows` aceptado de `auth.uid()` hacia `p_author`.
+  - **Ubicación y permisos:** una función usada en una política RLS se ejecuta con los privilegios de quien consulta, así que `anon` y `authenticated` **necesitan `EXECUTE`** (aunque sea `security definer`); sin él, todo `select` sobre `polls` falla con `permission denied`. Para no exponerla como `/rest/v1/rpc/can_view_author` (oráculo de privacidad y seguimiento), crearla en un esquema no expuesto por PostgREST (p. ej. `private`), con `USAGE` y `EXECUTE` sólo ahí, y citarla como `private.can_view_author`. Añadir el caso a `008_privileges.test.sql`.
+  - Sustituir la política `polls_select_published` por `status = 'published' AND private.can_view_author(user_id)`. `poll_options` ya hereda la visibilidad por su subconsulta: verificarlo con un test.
   - Votar: trigger `BEFORE INSERT` en `votes` que lance `POLL_UNAVAILABLE` si `can_view_author` es falsa (S-7), sin reescribir `vote_poll`. Resultados: añadir la misma comprobación en `get_poll_results`. Así, una encuesta privada es indistinguible de una inexistente.
   - Los metadatos de `/polls/[id]` (`src/app/polls/[id]/metadata.ts`) y la futura imagen OG no deben revelar la pregunta de una encuesta privada a quien no pueda verla.
   - Medir el plan de consulta del feed con `explain analyze` en dev con datos de prueba (≥ 1.000 encuestas y 50 relaciones) y añadir índices si hace falta. Registrar el resultado en la PR.
@@ -316,7 +321,7 @@ graph LR
 - **Descripción:** Listar las encuestas votadas por un usuario y su opción, respetando su privacidad y P-1.
 - **Requisitos:**
   - RPC `get_profile_votes(p_username, p_cursor)` (`security definer`), páginas de 20 por `votes.created_at DESC, votes.id DESC`.
-  - Devuelve sólo las encuestas que el visitante puede ver (`can_view_author` del autor de cada encuesta) y sólo si puede ver el perfil del votante (`self`, cuenta pública o seguidor aceptado). Si no, `PROFILE_PRIVATE`.
+  - Devuelve sólo las encuestas publicadas (`status = 'published'`) que el visitante puede ver (`can_view_author` del autor de cada encuesta) y sólo si puede ver el perfil del votante (`self`, cuenta pública o seguidor aceptado). Si no, `PROFILE_PRIVATE`.
   - Por cada fila: datos públicos de la encuesta y del autor, `voted_at` y `option_id`. Según P-1, `option_id` sólo viene relleno si el visitante es el propio usuario, si ya votó esa encuesta o si está cerrada (V2-014). En otro caso llega `null` con `choice_hidden = true`.
   - Nunca devuelve recuentos ni porcentajes: los resultados se piden aparte con `get_poll_results`, que mantiene la regla crítica.
 - **Criterios de aceptación:**
@@ -324,7 +329,8 @@ graph LR
   2. Dado `@a` que no votó P (abierta), entonces ve P con `choice_hidden = true` y sin `option_id`.
   3. Dado `@b` privado y `@c` no seguidor, entonces recibe `PROFILE_PRIVATE`.
   4. Dado que P es de una cuenta privada que el visitante no puede ver, entonces P no aparece aunque `@b` sea público.
-  5. Ninguna respuesta incluye agregados.
+  5. Dado que P está oculta por moderación (`status <> 'published'`), entonces P no aparece en «Votadas».
+  6. Ninguna respuesta incluye agregados.
 
 #### V2-008 — Ajustes de perfil y privacidad (`/settings`)
 
