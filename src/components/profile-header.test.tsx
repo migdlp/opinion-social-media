@@ -4,6 +4,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { ProfileView } from "@/lib/data/types";
 import { ProfileHeader } from "./profile-header";
 
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
+
 afterEach(cleanup);
 
 const PROFILE: ProfileView = {
@@ -87,5 +89,34 @@ describe("ProfileHeader", () => {
     rerender(<ProfileHeader profile={PROFILE} {...props} />);
     expect(container.querySelector("[data-avatar-icon]")).toBeNull();
     expect(screen.getByText("BE")).toBeDefined();
+  });
+});
+
+describe("ProfileHeader: bloquear (SOCIAL-002)", () => {
+  const onBlock = vi.fn();
+
+  it.each(["none", "pending", "following"] as const)(
+    "con sesión y relación %s ofrece Bloquear",
+    (viewerRelation) => {
+      render(
+        <ProfileHeader profile={{ ...PROFILE, viewerRelation }} {...props} onBlock={onBlock} />,
+      );
+      expect(screen.getByRole("button", { name: "Bloquear" })).toBeDefined();
+    },
+  );
+
+  it("no se ofrece sobre uno mismo, sin sesión ni sin acción de bloqueo", () => {
+    const { rerender } = render(
+      <ProfileHeader
+        profile={{ ...PROFILE, viewerRelation: "self" }}
+        {...props}
+        onBlock={onBlock}
+      />,
+    );
+    expect(screen.queryByRole("button", { name: "Bloquear" })).toBeNull();
+    rerender(<ProfileHeader profile={PROFILE} {...props} signedIn={false} onBlock={onBlock} />);
+    expect(screen.queryByRole("button", { name: "Bloquear" })).toBeNull();
+    rerender(<ProfileHeader profile={PROFILE} {...props} />);
+    expect(screen.queryByRole("button", { name: "Bloquear" })).toBeNull();
   });
 });

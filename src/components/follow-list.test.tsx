@@ -186,3 +186,42 @@ describe("FollowList", () => {
     expect(screen.queryAllByRole("listitem")).toHaveLength(0);
   });
 });
+
+describe("FollowList: cuentas bloqueadas (SOCIAL-002)", () => {
+  const blocked = (onUnblock: Act) => (
+    <FollowList
+      initialUsers={[user(1), user(2)]}
+      initialCursor={null}
+      loadMore={vi.fn<Load>()}
+      emptyText="No has bloqueado a nadie."
+      onUnblock={onUnblock}
+    />
+  );
+
+  it("no enlaza al perfil (un perfil bloqueado no se abre) y ofrece Desbloquear", () => {
+    render(blocked(vi.fn<Act>()));
+    expect(screen.queryAllByRole("link")).toHaveLength(0);
+    expect(screen.getAllByRole("button", { name: "Desbloquear" })).toHaveLength(2);
+  });
+
+  it("Desbloquear pide confirmación, avisa de que no restaura seguimientos y quita la fila", async () => {
+    const onUnblock = vi.fn<Act>(async () => ({ ok: true, data: undefined }));
+    render(blocked(onUnblock));
+    const first = screen.getAllByRole("listitem")[0];
+    await userEvent.click(within(first).getByRole("button", { name: "Desbloquear" }));
+    expect(onUnblock).not.toHaveBeenCalled();
+    expect(within(first).getByText(/no restaura los seguimientos/i)).toBeTruthy();
+    await userEvent.click(within(first).getByRole("button", { name: "Confirmar" }));
+    expect(onUnblock).toHaveBeenCalledWith("usuario_1");
+    expect(screen.getAllByRole("listitem")).toHaveLength(1);
+  });
+
+  it("si falla conserva la fila y explica el motivo", async () => {
+    render(blocked(vi.fn<Act>(async () => ({ ok: false, error: "NETWORK_ERROR" }))));
+    const first = screen.getAllByRole("listitem")[0];
+    await userEvent.click(within(first).getByRole("button", { name: "Desbloquear" }));
+    await userEvent.click(within(first).getByRole("button", { name: "Confirmar" }));
+    expect(await within(first).findByRole("alert")).toBeTruthy();
+    expect(screen.getAllByRole("listitem")).toHaveLength(2);
+  });
+});
