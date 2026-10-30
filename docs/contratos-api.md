@@ -333,6 +333,24 @@ public.search_polls(p_query text, p_cursor text default null) returns table (pol
 - Índice: `polls_question_trgm_idx` (GIN `pg_trgm`, parcial `status = 'published'`), en el esquema `extensions`. A 5000 filas el planificador puede preferir recorrer `polls_feed_idx` con el `LIMIT`; el trigram gana al crecer la tabla o ser selectiva la coincidencia (comprobado en `030_search_polls`). Sin Redis.
 - Adaptador: `searchPolls(supabase, query, cursor, viewer)` → `Result<FeedPage>`; error nuevo `INVALID_QUERY`. La pantalla de búsqueda es SEARCH-002.
 
+### 3.16. Comentarios (CMT-001)
+
+```sql
+public.set_poll_comments(p_poll_id uuid, p_enabled boolean) returns void
+public.add_comment(p_poll_id uuid, p_body text) returns uuid
+public.list_comments(p_poll_id uuid, p_cursor text default null)
+  returns table (comment_id uuid, username text, display_name text, body text, created_at timestamptz, cursor text)
+public.create_poll(p_question, p_options, p_closes_at default null, p_category default null, p_comments_enabled boolean default false) returns uuid
+```
+
+- `polls.comments_enabled` (false por defecto) es **público** como `closes_at` (`grant select`); sólo lo escribe quien crea la encuesta (`create_poll`) y después la autora con `set_poll_comments` (para otra cuenta, `POLL_UNAVAILABLE`; no hay `update` directo). Apagarlo **no borra** comentarios; reactivarlo los devuelve. `create_poll` se recrea con un parámetro final opcional; la firma anterior de cuatro argumentos desaparece.
+- `comments` no es de ningún cliente (RLS sin permisos). Se escribe con `add_comment` y se lee con `list_comments`; nunca se devuelve `user_id`.
+- **Acceso** (mismo orden de errores en lectura y escritura): encuesta oculta, inexistente o de una cuenta que quien llama no puede ver (privada o bloqueo) → `POLL_UNAVAILABLE`; debate apagado → `COMMENTS_DISABLED` (también para la autora); **abierta** sin voto de quien llama → `VOTE_REQUIRED` (también la autora y los visitantes); **cerrada** → rige la visibilidad de la encuesta y no hace falta voto. La comprobación vive en `private.comments_check_access` (esquema sin permisos para clientes).
+- `add_comment`: sesión y perfil (`AUTH_REQUIRED`, `PROFILE_REQUIRED`). Texto plano de 1–1000 caracteres tras recortar; sin caracteres de control salvo salto de línea y tabulación (`COMMENT_INVALID`); el HTML se guarda como texto literal y la interfaz lo muestra escapado. **10 comentarios por minuto y cuenta** (`RATE_LIMITED`), con cerrojo por cuenta para que las peticiones simultáneas no lo superen. Un bloqueo con la autora devuelve `POLL_UNAVAILABLE`.
+- `list_comments`: ejecutable por `anon` (cerradas públicas). Más recientes primero, cursor opaco `<created_at UTC>|<id>` (`INVALID_CURSOR`), 21 filas (20 + 1). **Se omiten** los comentarios de cuentas con bloqueo con quien lee o con la autora de la encuesta, en cualquier sentido.
+- Fuera de alcance: hilos, respuestas, likes, edición, borrado y denuncia de comentarios (CMT-003); la interfaz es CMT-002. `PublicPoll` aún no expone `comments_enabled` (CMT-002).
+- Adaptadores: `listComments(supabase, pollId, cursor)` → `Result<CommentPage>`, `addComment(supabase, pollId, body)` → `Result<{ id }>`, `setPollComments(supabase, pollId, enabled)` y `createPoll(..., commentsEnabled?)`. Errores nuevos: `COMMENTS_DISABLED`, `VOTE_REQUIRED`, `COMMENT_INVALID`.
+
 ## 4. Lecturas directas (RLS)
 
 `categories` (V2-021) es de lectura pública (`slug, name, position`) y sin escrituras de clientes; el formulario de creación la lee con `getCategories`. Feed y detalle incluyen `category:categories(slug, name)`.

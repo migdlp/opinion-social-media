@@ -22,6 +22,39 @@ export type Database = {
         };
         Relationships: [];
       };
+      comments: {
+        Row: {
+          body: string;
+          created_at: string;
+          id: string;
+          poll_id: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          body: string;
+          created_at?: string;
+          id?: string;
+          poll_id: string;
+          user_id: string;
+        };
+        Update: {
+          body?: string;
+          created_at?: string;
+          id?: string;
+          poll_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "comments_poll_id_fkey";
+            columns: ["poll_id"];
+            isOneToOne: false;
+            referencedRelation: "polls";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       follow_quota_events: {
         Row: {
           created_at: string;
@@ -133,6 +166,7 @@ export type Database = {
         Row: {
           category_slug: string | null;
           closes_at: string | null;
+          comments_enabled: boolean;
           created_at: string;
           id: string;
           question: string;
@@ -143,6 +177,7 @@ export type Database = {
         Insert: {
           category_slug?: string | null;
           closes_at?: string | null;
+          comments_enabled?: boolean;
           created_at?: string;
           id?: string;
           question: string;
@@ -152,6 +187,7 @@ export type Database = {
         Update: {
           category_slug?: string | null;
           closes_at?: string | null;
+          comments_enabled?: boolean;
           created_at?: string;
           id?: string;
           question?: string;
@@ -296,6 +332,7 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      add_comment: { Args: { p_body: string; p_poll_id: string }; Returns: string };
       block_user: { Args: { p_username: string }; Returns: undefined };
       can_view_author: { Args: { p_author: string }; Returns: boolean };
       count_follow_requests: { Args: Record<PropertyKey, never>; Returns: number };
@@ -303,6 +340,7 @@ export type Database = {
         Args: {
           p_category?: string;
           p_closes_at?: string;
+          p_comments_enabled?: boolean;
           p_options: string[];
           p_question: string;
         };
@@ -407,6 +445,17 @@ export type Database = {
           username: string;
         }[];
       };
+      list_comments: {
+        Args: { p_cursor?: string; p_poll_id: string };
+        Returns: {
+          body: string;
+          comment_id: string;
+          created_at: string;
+          cursor: string;
+          display_name: string;
+          username: string;
+        }[];
+      };
       list_follow_requests: {
         Args: { p_cursor?: string };
         Returns: {
@@ -448,6 +497,7 @@ export type Database = {
           poll_id: string;
         }[];
       };
+      set_poll_comments: { Args: { p_enabled: boolean; p_poll_id: string }; Returns: undefined };
       set_profile_avatar: { Args: { p_icon: string }; Returns: undefined };
       set_profile_bio: { Args: { p_bio: string }; Returns: undefined };
       set_profile_privacy: { Args: { p_private: boolean }; Returns: undefined };
