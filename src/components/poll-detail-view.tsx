@@ -53,12 +53,18 @@ export function PollDetailView({
         closed={isClosed(poll.closesAt, now)}
         initialSelected={initialSelected}
       />
-      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-2 text-[13px] text-muted">
-        <PollAuthor author={poll.author} />
-        {poll.closesAt && (
+      {/* El cierre va en su línea, como en la tarjeta del feed: con tres hijos en la fila,
+          Guardar saltaba solo a una segunda línea en móvil (DESIGN-016). */}
+      {poll.closesAt && (
+        <p className="text-[13px] text-muted">
           <time dateTime={poll.closesAt}>{formatCloseStatus(poll.closesAt, now)}</time>
-        )}
-        <SavePoll pollId={poll.id} signedIn={signedIn} initialSaved={detail.saved} />
+        </p>
+      )}
+      <div className="flex flex-wrap items-center justify-between gap-x-2 border-t border-border pt-2 text-[13px] text-muted">
+        <PollAuthor author={poll.author} />
+        <div className="flex items-center gap-1">
+          <SavePoll pollId={poll.id} signedIn={signedIn} initialSaved={detail.saved} />
+        </div>
       </div>
       <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
         <CopyLinkButton path={`/polls/${poll.id}`} title={poll.question} />
