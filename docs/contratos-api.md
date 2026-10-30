@@ -331,7 +331,8 @@ public.search_polls(p_query text, p_cursor text default null) returns table (pol
 - Alcance: encuestas `published` que quien llama puede ver (`can_view_author`: cuentas privadas y bloqueos); las cerradas se encuentran aunque ya hayan salido del feed de 24 h. Las ocultas no aparecen.
 - Orden `created_at DESC, id DESC`; 21 filas (20 + 1). Cursor `<created_at UTC>|<id>|<md5 de la consulta>`: el de otra búsqueda o uno ilegible es `INVALID_CURSOR`. No hay total de resultados.
 - Índice: `polls_question_trgm_idx` (GIN `pg_trgm`, parcial `status = 'published'`), en el esquema `extensions`. A 5000 filas el planificador puede preferir recorrer `polls_feed_idx` con el `LIMIT`; el trigram gana al crecer la tabla o ser selectiva la coincidencia (comprobado en `030_search_polls`). Sin Redis.
-- Adaptador: `searchPolls(supabase, query, cursor, viewer)` → `Result<FeedPage>`; error nuevo `INVALID_QUERY`. La pantalla de búsqueda es SEARCH-002.
+- Adaptador: `searchPolls(supabase, query, cursor, viewer)` → `Result<FeedPage>`; error nuevo `INVALID_QUERY`.
+- Interfaz (SEARCH-002): `/search?q=` (GET, la consulta vive en la URL; sin consulta o de menos de 2 caracteres no se busca nada), acción de servidor `loadMoreSearch(query, cursor)` para «Cargar más», tarjetas y voto del feed, pestaña «Buscar» (lupa) en la barra móvil y enlace «Buscar» en la cabecera de escritorio. Sin autocompletado ni analítica.
 
 ### 3.16. Comentarios (CMT-001)
 
