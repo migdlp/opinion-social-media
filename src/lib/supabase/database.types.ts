@@ -287,6 +287,34 @@ export type Database = {
         };
         Relationships: [];
       };
+      user_reports: {
+        Row: {
+          created_at: string;
+          details: string | null;
+          id: string;
+          reason: string;
+          reported_id: string;
+          reporter_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          details?: string | null;
+          id?: string;
+          reason: string;
+          reported_id: string;
+          reporter_id: string;
+        };
+        Update: {
+          created_at?: string;
+          details?: string | null;
+          id?: string;
+          reason?: string;
+          reported_id?: string;
+          reporter_id?: string;
+        };
+        Relationships: [];
+      };
       votes: {
         Row: {
           created_at: string;
@@ -483,6 +511,10 @@ export type Database = {
       remove_follower: { Args: { p_username: string }; Returns: undefined };
       report_poll: {
         Args: { p_details?: string; p_poll_id: string; p_reason: string };
+        Returns: undefined;
+      };
+      report_user: {
+        Args: { p_details?: string; p_reason: string; p_username: string };
         Returns: undefined;
       };
       respond_follow_request: {

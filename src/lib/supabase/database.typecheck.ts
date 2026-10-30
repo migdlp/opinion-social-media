@@ -21,6 +21,7 @@ export type DatabaseContractChecks = [
       | "follow_quota_events"
       | "user_blocks"
       | "comments"
+      | "user_reports"
     >
   >,
   Assert<
@@ -273,4 +274,15 @@ export type CommentsRpcChecks = [
       }
     >
   >,
+];
+
+// MOD-001: denuncia de personas; la tabla sólo se usa mediante la RPC y no es legible por clientes.
+export type ReportUserRpcChecks = [
+  Assert<
+    Equal<
+      Public["Functions"]["report_user"]["Args"],
+      { p_details?: string; p_reason: string; p_username: string }
+    >
+  >,
+  Assert<Equal<Public["Functions"]["report_user"]["Returns"], undefined>>,
 ];

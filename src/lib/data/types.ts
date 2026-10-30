@@ -37,6 +37,7 @@ export type AppErrorCode =
   | "BIO_INVALID"
   | "CANNOT_FOLLOW_SELF"
   | "CANNOT_BLOCK_SELF"
+  | "CANNOT_REPORT_SELF"
   | "FOLLOW_RATE_LIMITED"
   | "NETWORK_ERROR"
   | "UNKNOWN";
