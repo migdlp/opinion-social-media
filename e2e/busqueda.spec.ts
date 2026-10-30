@@ -154,7 +154,7 @@ test("error de red al cargar más: la lista se conserva y se puede continuar", a
       : route.continue(),
   );
   await page.getByRole("button", { name: "Cargar más" }).click();
-  await expect(page.getByRole("alert")).toBeVisible();
+  await expect(page.getByText(/no hay conexión/i)).toBeVisible();
   await expect(results(page)).toHaveCount(20);
   await page.unroute("**/*");
   await page.getByRole("button", { name: "Cargar más" }).click();
