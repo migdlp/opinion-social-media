@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { ProfileView } from "@/lib/data/types";
 import { ProfileHeader } from "./profile-header";
 
+vi.mock("@/app/report-actions", () => ({ submitUserReport: vi.fn() }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
 
 afterEach(cleanup);
@@ -118,5 +119,25 @@ describe("ProfileHeader: bloquear (SOCIAL-002)", () => {
     expect(screen.queryByRole("button", { name: "Bloquear" })).toBeNull();
     rerender(<ProfileHeader profile={PROFILE} {...props} />);
     expect(screen.queryByRole("button", { name: "Bloquear" })).toBeNull();
+  });
+});
+
+describe("ProfileHeader: denunciar persona (MOD-002)", () => {
+  it("aparece en perfiles ajenos, también para visitantes (que van al login), y no en el propio", () => {
+    const { rerender } = render(<ProfileHeader profile={PROFILE} {...props} />);
+    expect(screen.getByRole("button", { name: "Denunciar persona" })).toBeDefined();
+    rerender(<ProfileHeader profile={PROFILE} {...props} signedIn={false} />);
+    expect(screen.getByRole("link", { name: "Denunciar persona" }).getAttribute("href")).toBe(
+      `/login?next=${encodeURIComponent("/u/perfil_b")}`,
+    );
+    rerender(<ProfileHeader profile={{ ...PROFILE, viewerRelation: "self" }} {...props} />);
+    expect(screen.queryByText("Denunciar persona")).toBeNull();
+  });
+
+  it("es una acción distinta de Bloquear y de Denunciar encuesta", () => {
+    render(<ProfileHeader profile={PROFILE} {...props} onBlock={vi.fn()} />);
+    expect(screen.getByRole("button", { name: "Bloquear" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Denunciar persona" })).toBeDefined();
+    expect(screen.queryByRole("button", { name: /denunciar encuesta/i })).toBeNull();
   });
 });

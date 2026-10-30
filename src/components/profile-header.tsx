@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Avatar } from "@/components/avatar";
 import { BlockButton } from "@/components/block-button";
 import { FollowButton } from "@/components/follow-button";
+import { ReportUser } from "@/components/report-user";
 import type { ProfileView, Result } from "@/lib/data/types";
 
 const number = new Intl.NumberFormat("es-ES", { useGrouping: "always" });
@@ -81,6 +82,9 @@ export function ProfileHeader({
         />
         {onBlock && signedIn && profile.viewerRelation !== "self" && (
           <BlockButton username={profile.username} onBlock={onBlock} />
+        )}
+        {profile.viewerRelation !== "self" && (
+          <ReportUser username={profile.username} signedIn={signedIn} />
         )}
         {profile.viewerRelation === "self" && (
           <Link
