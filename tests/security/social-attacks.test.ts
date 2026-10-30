@@ -938,7 +938,7 @@ describe("SEARCH-001: búsqueda de encuestas", () => {
     for (const bad of ["", " ", "a", "x".repeat(101)]) {
       expect(message(await search(bad))).toBe("INVALID_QUERY");
     }
-    for (const odd of ["%%", "__", "'; drop table polls; --", "\\\\", '"', "V2_024"]) {
+    for (const odd of ["%%", "__", "'; drop table polls; --", "\\\\", '""', "V2_024"]) {
       const r = await search(odd);
       expect(r.status, odd).toBe(200);
       expect(ids(r), odd).not.toContain(privOpen);
