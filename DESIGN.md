@@ -95,6 +95,8 @@ La apariencia será amable y expresiva: azul noche, blanco frío, melocotón y l
 
 ## Color, temas y contraste
 
+D-032 / DESIGN-014: modo inicial Claro independientemente del dispositivo; icono que alterna Claro/Oscuro, sin desplegable ni Sistema. Mantener una elección Oscuro explícita anterior. Una clave ausente, inválida o Sistema heredado significa Claro. Ver implementación/estado en tareas-futuras.md.
+
 - **Claro:** fondo blanco frío, tarjetas blancas, texto azul noche y meta azul pizarra. Melocotón para CTA/selección; lavanda para apoyo visual.
 - **Oscuro:** fondo azul noche, tarjetas azul pizarra, texto blanco frío y meta lavanda. Acentos melocotón conservados; los temas no se obtienen invirtiendo colores automáticamente.
 - **Texto de CTA:** azul noche sobre melocotón (≈9,33:1), también en oscuro. Evitar texto blanco sobre melocotón (≈1,79:1).

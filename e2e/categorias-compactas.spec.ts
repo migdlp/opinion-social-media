@@ -1,3 +1,4 @@
+import { chooseTheme } from "./support/theme";
 import { expect, test } from "@playwright/test";
 
 test("categorías es una fila desplazable y accesible sin ensanchar la página", async ({ page }) => {
@@ -6,6 +7,7 @@ test("categorías es una fila desplazable y accesible sin ensanchar la página",
     for (const theme of ["light", "dark"] as const) {
       await page.emulateMedia({ colorScheme: theme });
       await page.goto("/?tab=recientes");
+      await chooseTheme(page, theme);
       const rail = page.getByRole("navigation", { name: "Categorías" });
       const links = rail.getByRole("link");
       await expect(links).toHaveCount(8);

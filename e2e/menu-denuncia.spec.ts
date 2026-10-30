@@ -1,3 +1,4 @@
+import { chooseTheme } from "./support/theme";
 import { expect, test } from "@playwright/test";
 import { createPoll, createUser, signIn, vote } from "./support/supabase";
 
@@ -13,6 +14,7 @@ test("Denunciar queda por encima de porcentajes y barras en ambos temas", async 
   for (const theme of ["light", "dark"] as const) {
     await page.emulateMedia({ colorScheme: theme });
     await page.goto("/");
+    await chooseTheme(page, theme);
     const card = page.locator("article", { hasText: question });
     const trigger = card.getByRole("button", { name: "Más acciones" });
     await trigger.click();

@@ -1,3 +1,4 @@
+import { chooseTheme } from "./support/theme";
 import { expect, test } from "@playwright/test";
 
 for (const theme of ["light", "dark"] as const) {
@@ -6,6 +7,7 @@ for (const theme of ["light", "dark"] as const) {
     for (const width of [320, 1280]) {
       await page.setViewportSize({ width, height: 850 });
       await page.goto("/login");
+      await chooseTheme(page, theme);
       const google = page.getByRole("button", { name: "Continuar con Google" });
       const create = page.getByRole("link", { name: "Crear encuesta", exact: true });
       await expect(google).toBeVisible();
