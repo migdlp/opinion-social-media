@@ -440,6 +440,14 @@ export type Database = {
         Args: { p_accept: boolean; p_username: string };
         Returns: undefined;
       };
+      search_polls: {
+        Args: { p_cursor?: string; p_query: string };
+        Returns: {
+          created_at: string;
+          cursor: string;
+          poll_id: string;
+        }[];
+      };
       set_profile_avatar: { Args: { p_icon: string }; Returns: undefined };
       set_profile_bio: { Args: { p_bio: string }; Returns: undefined };
       set_profile_privacy: { Args: { p_private: boolean }; Returns: undefined };
