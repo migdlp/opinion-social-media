@@ -613,3 +613,113 @@ describe("denuncias", () => {
     expect(message(again)).toBe("ALREADY_REPORTED");
   });
 });
+
+// BUG-005: seguir una cuenta pública se acepta al instante (sin solicitud) y una privada deja una
+// sola solicitud pendiente aunque se pida dos veces a la vez (D-017). Cuentas propias de este bloque
+// para no alterar las relaciones que comprueban las demás pruebas.
+describe("BUG-005: seguir cuentas públicas y privadas", () => {
+  const relationsOf = async (followee: Account) => {
+    const { data, error } = await admin
+      .from("follows")
+      .select("follower_id, status")
+      .eq("followee_id", followee.id)
+      .order("follower_id");
+    if (error) throw error;
+    return data;
+  };
+
+  it("seguir una cuenta pública es accepted directo y no crea ninguna solicitud", async () => {
+    const [target, follower] = await Promise.all([account("bpub", false), account("bseg", false)]);
+
+    const first = await rpc("follow_user", { p_username: target.username }, follower.token);
+    expect(first.status).toBe(200);
+    expect(first.json).toBe("accepted");
+    // Repetir es idempotente.
+    expect((await rpc("follow_user", { p_username: target.username }, follower.token)).json).toBe(
+      "accepted",
+    );
+
+    expect(await relationsOf(target)).toEqual([{ follower_id: follower.id, status: "accepted" }]);
+    // La bandeja de la cuenta pública no recibe nada.
+    const inbox = await rpc("list_follow_requests", {}, target.token);
+    expect(rows(inbox)).toEqual([]);
+  });
+
+  it("una privada deja una sola solicitud pendiente aunque se pida dos veces a la vez", async () => {
+    const [target, follower] = await Promise.all([account("bpriv", true), account("bsol", false)]);
+
+    const both = await Promise.all([
+      rpc("follow_user", { p_username: target.username }, follower.token),
+      rpc("follow_user", { p_username: target.username }, follower.token),
+    ]);
+    for (const r of both) {
+      expect(r.status, r.text).toBe(200);
+      expect(r.json).toBe("pending");
+    }
+    expect(await relationsOf(target)).toEqual([{ follower_id: follower.id, status: "pending" }]);
+    expect(rows(await rpc("list_follow_requests", {}, target.token))).toHaveLength(1);
+    expect((await rpc("count_follow_requests", {}, target.token)).json).toBe(1);
+  });
+
+  it("mientras está pendiente el solicitante no ve las encuestas de la cuenta privada; al aceptar, sí", async () => {
+    const [target, follower] = await Promise.all([account("bpriv", true), account("bpen", false)]);
+    const poll = await createPoll(target, `¿BUG-005 ${Date.now()}?`);
+    await rpc("follow_user", { p_username: target.username }, follower.token);
+
+    const hidden = await http(`/rest/v1/polls?select=id&id=eq.${poll}`, { token: follower.token });
+    expect(rows(hidden)).toEqual([]);
+    const profileHidden = await rpc("get_profile", { p_username: target.username }, follower.token);
+    expect(rows(profileHidden)[0]).toMatchObject({ can_view_content: false });
+
+    const accepted = await rpc(
+      "respond_follow_request",
+      { p_username: follower.username, p_accept: true },
+      target.token,
+    );
+    expect(accepted.status, accepted.text).toBeLessThan(400);
+
+    const visible = await http(`/rest/v1/polls?select=id&id=eq.${poll}`, { token: follower.token });
+    expect(rows(visible)).toEqual([{ id: poll }]);
+    expect(rows(await rpc("list_follow_requests", {}, target.token))).toEqual([]);
+    expect((await rpc("count_follow_requests", {}, target.token)).json).toBe(0);
+  });
+
+  it("el cambio de privacidad se persiste y respeta a quien ya sigue", async () => {
+    const [target, accepted, pending] = await Promise.all([
+      account("bcambio", false),
+      account("bacep", false),
+      account("bsoli", false),
+    ]);
+    await rpc("follow_user", { p_username: target.username }, accepted.token);
+    expect(
+      (await rpc("set_profile_privacy", { p_private: true }, target.token)).status,
+    ).toBeLessThan(300);
+    // Ya privada: el que seguía conserva el acceso y uno nuevo queda pendiente.
+    expect((await rpc("follow_user", { p_username: target.username }, pending.token)).json).toBe(
+      "pending",
+    );
+    expect(await relationsOf(target)).toEqual(
+      expect.arrayContaining([
+        { follower_id: accepted.id, status: "accepted" },
+        { follower_id: pending.id, status: "pending" },
+      ]),
+    );
+    // El valor persistido es el que lee cualquier cliente después.
+    const persisted = await rpc("get_profile", { p_username: target.username });
+    expect(rows(persisted)[0]).toMatchObject({ is_private: true });
+
+    // Al hacerse pública, la solicitud pendiente pasa a aceptada.
+    expect(
+      (await rpc("set_profile_privacy", { p_private: false }, target.token)).status,
+    ).toBeLessThan(300);
+    expect(await relationsOf(target)).toEqual(
+      expect.arrayContaining([
+        { follower_id: accepted.id, status: "accepted" },
+        { follower_id: pending.id, status: "accepted" },
+      ]),
+    );
+    expect(rows(await rpc("get_profile", { p_username: target.username }))[0]).toMatchObject({
+      is_private: false,
+    });
+  });
+});
