@@ -1,4 +1,4 @@
-export function NavigationIcon({ name }: { name: "feed" | "create" | "profile" }) {
+export function NavigationIcon({ name }: { name: "feed" | "search" | "create" | "profile" }) {
   return (
     <svg
       width="24"
@@ -13,6 +13,12 @@ export function NavigationIcon({ name }: { name: "feed" | "create" | "profile" }
       focusable="false"
     >
       {name === "feed" && <path d="m3 10 9-7 9 7v10H3V10Zm6 10v-7h6v7" />}
+      {name === "search" && (
+        <>
+          <circle cx="11" cy="11" r="7" />
+          <path d="m20 20-3.5-3.5" />
+        </>
+      )}
       {name === "create" && <path d="M12 4v16M4 12h16" />}
       {name === "profile" && (
         <>

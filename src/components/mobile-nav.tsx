@@ -16,6 +16,7 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
     pathname === "/onboarding";
   const links = [
     { href: "/", label: "Feed", icon: "feed" as const, active: pathname === "/" },
+    { href: "/search", label: "Buscar", icon: "search" as const, active: pathname === "/search" },
     { href: "/create", label: "Crear", icon: "create" as const, active: pathname === "/create" },
     {
       href: signedIn ? "/me" : loginPath("/me"),
@@ -28,7 +29,7 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
   return (
     <nav
       aria-label="Navegación móvil"
-      className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-3 border-t border-border bg-background px-2 pt-1 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-border bg-background px-2 pt-1 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:hidden"
     >
       {links.map(({ href, label, icon, active }) => (
         <Link
