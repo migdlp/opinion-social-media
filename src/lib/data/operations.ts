@@ -822,25 +822,6 @@ export function getFeed(
   });
 }
 
-// ¿Sigue la cuenta a alguien con relación ACEPTADA? Decide la pestaña por defecto del feed (D-022):
-// las solicitudes pendientes no cuentan. Un fallo se trata como «no» para no romper la página.
-export async function hasAcceptedFollows(
-  supabase: SupabaseClient,
-  userId: string,
-): Promise<boolean> {
-  try {
-    const { data, error } = await supabase
-      .from("follows")
-      .select("followee_id")
-      .eq("follower_id", userId)
-      .eq("status", "accepted")
-      .limit(1);
-    return !error && ((data ?? []) as unknown[]).length > 0;
-  } catch {
-    return false;
-  }
-}
-
 // Elige el icono de perfil propio (null = volver a las iniciales). Errores: AVATAR_INVALID,
 // AUTH_REQUIRED, PROFILE_REQUIRED. No cambia nombre ni @usuario.
 export function setProfileAvatar(

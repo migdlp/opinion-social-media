@@ -134,7 +134,7 @@ test("sin IntersectionObserver el botón «Cargar más» recorre todas las pági
   }
 });
 
-test("usuario sin seguimientos o con solicitudes pendientes entra en Recientes; con uno aceptado, en Siguiendo", async ({
+test("toda cuenta entra en Recientes por defecto, también con un seguimiento aceptado; Siguiendo se elige", async ({
   page,
   baseURL,
 }) => {
@@ -162,9 +162,16 @@ test("usuario sin seguimientos o con solicitudes pendientes entra en Recientes; 
     "page",
   );
 
-  // Aceptada: la entrada es Siguiendo, sólo con las encuestas de quien sigue.
+  // Aceptada: la entrada sigue siendo Recientes (FEED-001); Siguiendo es una elección explícita.
   await addFollow(viewer, followed, "accepted");
   await ready(page, "/");
+  await expect(tabs(page).getByRole("link", { name: "Recientes" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  await expect(page.locator("article", { hasText: otherQuestion })).toBeVisible();
+  await tabs(page).getByRole("link", { name: "Siguiendo" }).click();
+  await expect(page).toHaveURL(/tab=siguiendo/);
   await expect(tabs(page).getByRole("link", { name: "Siguiendo" })).toHaveAttribute(
     "aria-current",
     "page",
