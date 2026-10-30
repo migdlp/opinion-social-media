@@ -76,7 +76,7 @@ export function VoteVisibilityPicker({ value, onChange }: VoteVisibilityPickerPr
         {OPTIONS.map((option) => (
           <label
             key={option.value}
-            className="flex min-h-11 cursor-pointer items-start gap-3 rounded-xl border border-border p-3 transition-colors hover:border-foreground has-[:checked]:border-foreground"
+            className="flex min-h-11 cursor-pointer items-start gap-3 rounded-xl border border-border p-3 transition-colors hover:border-foreground has-[:checked]:border-(--option-selected-border) has-[:checked]:bg-(--option-selected)"
           >
             <input
               type="radio"

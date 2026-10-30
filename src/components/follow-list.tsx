@@ -19,7 +19,7 @@ type FollowListProps = {
 
 const SMALL =
   "inline-flex min-h-11 items-center justify-center rounded-full px-4 text-sm font-semibold whitespace-nowrap transition-colors disabled:opacity-50";
-const PRIMARY = `${SMALL} bg-foreground text-background hover:opacity-85`;
+const PRIMARY = `${SMALL} action-primary`;
 const SECONDARY = `${SMALL} border border-field hover:border-foreground`;
 
 // Lista paginada de personas (V2-009): seguidores, seguidos o solicitudes. Cada fila enlaza a su
@@ -85,19 +85,14 @@ export function FollowList({
   }
 
   if (users.length === 0 && !cursor) {
-    return (
-      <p className="rounded-2xl border border-border bg-surface p-5 text-muted">{emptyText}</p>
-    );
+    return <p className="poll-surface p-5 text-muted">{emptyText}</p>;
   }
 
   return (
     <div className="flex flex-col gap-3">
       <ul className="flex flex-col gap-3">
         {users.map((entry) => (
-          <li
-            key={entry.username}
-            className="flex flex-col gap-2 rounded-2xl border border-border bg-surface p-4"
-          >
+          <li key={entry.username} className="poll-surface flex flex-col gap-2 p-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <Link
                 href={`/u/${entry.username}`}

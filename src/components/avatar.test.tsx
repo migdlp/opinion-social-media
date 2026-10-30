@@ -26,13 +26,11 @@ describe("avatarTone", () => {
     expect(tones.size).toBeGreaterThan(2);
   });
 
-  it("siempre deja contraste suficiente entre fondo y texto (grises)", () => {
+  it("devuelve siempre un par fondo/texto de la paleta After Sunset (el contraste se comprueba en after-sunset-social.test.tsx)", () => {
     for (const u of ["a", "bb", "ccc", "ana_23", "zzzz", "moderacion"]) {
       const { background, color } = avatarTone(u);
-      const lightness = Number(/hsl\(0 0% (\d+)%\)/.exec(background)![1]);
-      expect(lightness).toBeGreaterThanOrEqual(18);
-      expect(lightness).toBeLessThanOrEqual(42);
-      expect(color).toBe("#ffffff");
+      expect(background).toMatch(/^#[0-9a-f]{6}$/);
+      expect(color).toMatch(/^#[0-9a-f]{6}$/);
     }
   });
 });

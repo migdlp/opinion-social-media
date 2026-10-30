@@ -24,10 +24,7 @@ function Section({
 }) {
   const id = useId();
   return (
-    <section
-      aria-labelledby={id}
-      className="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-5"
-    >
+    <section aria-labelledby={id} className="poll-surface flex flex-col gap-4 p-5">
       <div className="flex flex-col gap-1">
         <h2 id={id} className="text-lg font-semibold tracking-[-0.01em]">
           {title}
