@@ -87,7 +87,7 @@ describe("SettingsContent (/settings)", () => {
   it("Apariencia reutiliza el selector de tema compartido", async () => {
     render(await SettingsContent());
     const appearance = screen.getByRole("region", { name: "Apariencia" });
-    expect(within(appearance).getByRole("combobox", { name: "Tema" })).toBeDefined();
+    expect(within(appearance).getByRole("button", { name: "Activar modo oscuro" })).toBeDefined();
   });
 
   it("la privacidad de cuenta vive en su apartado", async () => {

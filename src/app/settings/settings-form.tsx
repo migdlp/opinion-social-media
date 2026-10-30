@@ -64,7 +64,10 @@ export function SettingsForm({
           onDone={() => router.refresh()}
         />
       </Section>
-      <Section title="Apariencia" description="Elige entre el tema del sistema, claro u oscuro.">
+      <Section
+        title="Apariencia"
+        description="Pulsa el icono para alternar entre claro y oscuro. Claro es el modo inicial."
+      >
         <div>
           <ThemeSelector />
         </div>

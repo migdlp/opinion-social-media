@@ -10,12 +10,11 @@ function snapshot(): ThemePreference {
   try {
     return parseTheme(localStorage.getItem(THEME_KEY));
   } catch {
-    return "system";
+    return "light";
   }
 }
 function apply(theme: ThemePreference) {
-  if (theme === "system") delete document.documentElement.dataset.theme;
-  else document.documentElement.dataset.theme = theme;
+  document.documentElement.dataset.theme = theme;
 }
 function subscribe(notify: () => void) {
   const change = () => notify();
@@ -36,20 +35,25 @@ function setTheme(theme: ThemePreference) {
   memory = theme;
   apply(theme);
   try {
-    if (theme === "system") localStorage.removeItem(THEME_KEY);
-    else localStorage.setItem(THEME_KEY, theme);
+    localStorage.setItem(THEME_KEY, theme);
   } catch {
     // La elección sigue activa durante esta visita aunque el navegador no la guarde.
   }
   window.dispatchEvent(new Event(EVENT));
 }
-const serverSnapshot = (): ThemePreference => "system";
+const serverSnapshot = (): ThemePreference => "light";
 
 export function ThemeSelector() {
   const theme = useSyncExternalStore(subscribe, snapshot, serverSnapshot);
+  const action = theme === "light" ? "Activar modo oscuro" : "Activar modo claro";
   return (
-    <label className="theme-picker relative inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-surface text-foreground">
-      <span className="sr-only">Tema</span>
+    <button
+      type="button"
+      aria-label={action}
+      title={action}
+      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+      className="theme-picker inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-surface text-foreground cursor-pointer transition-colors hover:border-field"
+    >
       <svg
         aria-hidden="true"
         width="20"
@@ -66,26 +70,10 @@ export function ThemeSelector() {
             <circle cx="12" cy="12" r="4" />
             <path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5" />
           </>
-        ) : theme === "dark" ? (
-          <path d="M20.5 13A9 9 0 0 1 11 3.5 9 9 0 1 0 20.5 13Z" />
         ) : (
-          <>
-            <rect x="3" y="4" width="18" height="13" rx="2" />
-            <path d="M8 21h8m-4-4v4" />
-          </>
+          <path d="M20.5 13A9 9 0 0 1 11 3.5 9 9 0 1 0 20.5 13Z" />
         )}
       </svg>
-      <select
-        aria-label="Tema"
-        title="Elegir tema: Sistema, Claro u Oscuro"
-        value={theme}
-        onChange={(event) => setTheme(parseTheme(event.target.value))}
-        className="absolute -inset-px h-11 w-11 cursor-pointer opacity-0"
-      >
-        <option value="system">Sistema</option>
-        <option value="light">Claro</option>
-        <option value="dark">Oscuro</option>
-      </select>
-    </label>
+    </button>
   );
 }

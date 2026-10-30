@@ -15,8 +15,9 @@ test("ajustes: apartados, tema compartido y guardado del nombre visible", async 
   }
 
   const appearance = page.getByRole("region", { name: "Apariencia" });
-  await appearance.getByRole("combobox", { name: "Tema" }).selectOption("dark");
+  await appearance.getByRole("button", { name: "Activar modo oscuro" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(page.getByRole("button", { name: "Activar modo claro" })).toHaveCount(2);
 
   await page.getByRole("textbox", { name: /Nombre visible/ }).fill("Nombre de prueba");
   await page.getByRole("button", { name: "Guardar" }).click();

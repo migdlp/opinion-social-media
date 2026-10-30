@@ -1,3 +1,4 @@
+import { chooseTheme } from "./support/theme";
 import { expect, test } from "@playwright/test";
 import { createUser, seedPoll, signIn, vote, votesOf } from "./support/supabase";
 
@@ -26,6 +27,7 @@ test("After Sunset: explorar, elegir y descubrir en seis anchos y ambos temas", 
       await page.setViewportSize({ width, height: width < 768 ? 960 : 1000 });
       await signIn(page.context(), await createUser("lectura"), baseURL!);
       await page.goto("/?tab=recientes");
+      await chooseTheme(page, theme);
       const card = page
         .getByRole("article")
         .filter({ has: page.locator(`a[href="/polls/${id}"]`) });
