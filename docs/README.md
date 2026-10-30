@@ -1,6 +1,8 @@
 # Documentación de la aplicación
 
-Esta carpeta reúne el contexto que debe conocer cualquier persona que trabaje en el proyecto. Se actualizará con la información adicional del propietario antes de comenzar el desarrollo.
+Esta carpeta reúne el contexto que debe conocer cualquier persona que trabaje en el proyecto. Se actualiza con las decisiones del propietario y los resultados verificados del desarrollo.
+
+**[Ver el diagrama del flujo de trabajo →](flujo-trabajo.md)**: desde la reserva de una tarea hasta la publicación autorizada, con desarrollo, CI y producción separados.
 
 ## Lectura inicial para cualquier agente
 
@@ -10,6 +12,7 @@ Leer [AGENTS.md](../AGENTS.md), el [contexto de la aplicación](contexto-aplicac
 
 | Documento | Contenido |
 |---|---|
+| [Flujo de trabajo visual](flujo-trabajo.md) | Diagramas de tareas/agentes, entornos y publicación; fuentes de verdad y bloqueos |
 | [Contexto](contexto-aplicacion.md) | Objetivo, usuarios, flujos y reglas del producto |
 | [Arquitectura](arquitectura.md) | Stack previsto, contratos, seguridad y entornos |
 | [Contratos de datos y RPC](contratos-api.md) | Argumentos, respuestas, tipos y códigos de error (MVP-013) |

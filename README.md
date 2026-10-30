@@ -2,8 +2,41 @@
 
 Repositorio del MVP. **El desarrollo se reanudó el 26-10-2026 (D-013)** y se avanza tarea a tarea según `docs/orden-ejecucion.md`; **Codex /root (opinion_social_media) se encarga de Vercel** (D-VERCEL-001). Las tareas se coordinan desde el estado actualizado de `main`; sus dependencias y las reservas de otros agentes siguen vigentes.
 
+## Cómo trabajamos
+
+**[Ver el flujo de trabajo completo: tareas, agentes, entornos y publicación →](docs/flujo-trabajo.md)**
+
+```mermaid
+flowchart TB
+    accTitle: Flujo de trabajo de Opinión
+    accDescr: Las tareas se reservan antes de desarrollar. Las PR verificadas se integran en main. Sólo una versión autorizada pasa a release y se publica en Vercel.
+    subgraph DEV["Desarrollo e integración"]
+        direction LR
+        A["Issue y reserva<br/>en main"] --> B["Rama de tarea<br/>TDD"]
+        B --> C["PR a main<br/>revisión y CI"]
+        C --> D["Integrar en main<br/>cerrar tarea e issue"]
+    end
+    subgraph PUB["Publicación"]
+        direction LR
+        E{"Versión validada<br/>y autorizada"} --> F["PR a release<br/>merge autorizado"]
+        F --> G["Vercel<br/>producción"]
+    end
+    DEV --> PUB
+    classDef work fill:#F9F9FF,stroke:#354861,color:#161E2E;
+    classDef gate fill:#FFE1C2,stroke:#A64B00,color:#161E2E;
+    classDef production fill:#161E2E,stroke:#B4C8F5,color:#F9F9FF;
+    class A,B,C,D work;
+    class E,F gate;
+    class G production;
+    style DEV fill:#F9F9FF,stroke:#B4C8F5,color:#161E2E;
+    style PUB fill:#F9F9FF,stroke:#B4C8F5,color:#161E2E;
+```
+
+**Desarrollo en dev; pruebas automáticas en Supabase/PostgreSQL efímeros locales o de CI. `main` no despliega la web.** Vercel sólo publica `release`; las previews están desactivadas. El [registro de tareas](docs/tareas-futuras.md) y el [canal de agentes #73](https://github.com/migdlp/opinion-social-media/issues/73) muestran el trabajo y los bloqueos actuales.
+
 ## Documentación
 
+- [Diagrama y flujo de trabajo](docs/flujo-trabajo.md)
 - [Índice y forma de trabajar](docs/README.md)
 - [Contexto de producto](docs/contexto-aplicacion.md)
 - [Dirección creativa vigente: After Sunset](docs/direccion-creativa.md) · [Sistema de diseño](DESIGN.md)
@@ -51,7 +84,7 @@ Sólo hay dos, ambas públicas por diseño (la seguridad la imponen RLS y las RP
 | `NEXT_PUBLIC_SUPABASE_URL` | URL del proyecto Supabase del entorno |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Publishable key (`sb_publishable_…`) del mismo proyecto |
 
-Desarrollo, previews y CI usan el proyecto `opinion-social-media-dev`; producción, el `-prod`. Nunca se guardan en Git claves secretas, `service_role` ni contraseñas: ver [entornos](docs/entornos.md) y [acceso a Supabase](docs/supabase-acceso.md).
+Desarrollo local y pruebas manuales alojadas usan `opinion-social-media-dev`; las suites automáticas usan Supabase/PostgreSQL efímeros en localhost, también en CI. Producción usa `opinion-social-media-prod`. Preview conserva configuración de dev, pero los despliegues de preview están desactivados. Nunca se guardan en Git claves secretas, `service_role` ni contraseñas: ver [entornos](docs/entornos.md) y [acceso a Supabase](docs/supabase-acceso.md).
 
 ### Scripts
 
@@ -65,12 +98,12 @@ Desarrollo, previews y CI usan el proyecto `opinion-social-media-dev`; producci�
 | `npm run build` | Compilación de producción |
 | `npm run test:db` | Aplica `supabase/migrations` a un PostgreSQL local vacío y ejecuta `supabase/tests` (necesita `psql` y `PGHOST`/`PGPORT`/`PGUSER`; no toca Supabase) |
 | `npm run test:db:concurrency` | Tras `test:db`: 10 peticiones simultáneas de la misma cuenta a `create_poll` (cuota) y `vote_poll` (voto único) |
-| `npm run test:security` | 14 ataques HTTP a RLS, Auth y GraphQL contra una pila Supabase **local** (necesita Docker; la CI lo ejecuta sola) |
+| `npm run test:security` | Ataques HTTP a RLS, Auth y GraphQL contra una pila Supabase **local** (necesita Docker; la CI lo ejecuta sola) |
 | `npm run test:e2e` | E2E con Playwright (escritorio y móvil) sobre la app compilada y una pila Supabase **local**: visitante, creación, voto y recarga; cortes de red tras escribir, envíos duplicados, pestañas simultáneas y recorrido accesible de rutas (MVP-045/046). Sin Google: crea usuarios de prueba con la clave local (necesita Docker y el Chromium de Playwright: `npx playwright install chromium`; la CI lo ejecuta sola) |
 | `npm run check:env` | Comprueba que `.env.local` apunta al Supabase de desarrollo |
 | `npm run check:secrets` | Busca secretos o `.env` en Git |
 
-Todos terminan con código distinto de cero si fallan. La CI (`.github/workflows/ci.yml`) ejecuta cinco trabajos: formato/lint/tipos/tests/build, migraciones y tests SQL, reproducibilidad de migraciones y tipos con Supabase real, ataques a RLS y secretos.
+Todos terminan con código distinto de cero si fallan. La CI (`.github/workflows/ci.yml`) ejecuta seis trabajos: formato/lint/tipos/tests/build, migraciones y tests SQL, reproducibilidad de migraciones y tipos con Supabase local real, ataques a RLS por HTTP, E2E con Playwright y secretos. Los cambios sólo documentales se verifican con revisión de contenido, enlaces, formato y render cuando corresponde; no se presentan como pruebas de aplicación.
 
 ### Base de datos: migraciones y tipos
 
@@ -96,7 +129,7 @@ No hay panel: una encuesta se oculta cambiando su `status` a `hidden` desde el S
 
 ## Despliegue
 
-Vercel despliega `main` y genera previews por rama; las variables se separan por entorno (Production → proyecto prod; Preview/Development → proyecto dev). Responsable, runbook de producción y rollback en [vercel-operacion](docs/vercel-operacion.md).
+Vercel sólo despliega `release`; `main` y las ramas de tarea no generan previews (D-VERCEL-002). Una PR verificada integra el trabajo en `main`; publicar requiere una versión validada, autorización explícita del propietario y su PR de `main` a `release`. Las variables se separan por entorno (Production → proyecto prod; Preview/Development → proyecto dev). [Diagrama de publicación](docs/flujo-trabajo.md#publicar-una-versión), [runbook y recuperación](docs/vercel-operacion.md).
 
 ## Estructura de `src/`
 
