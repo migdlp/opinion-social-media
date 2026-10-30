@@ -256,3 +256,9 @@ Petición del propietario del 29-10-2026. Medir navegador/Next/Vercel/Supabase a
 | [REL-003](https://github.com/migdlp/opinion-social-media/issues/273) | Activar y publicar ajustes ampliados, privacidad, iconos y primera optimización del feed | P0 | OPS-003 #272; recuperación productiva y CI del candidato; SETTINGS-001/PRIV-002/AVATAR-001; coordinar PERF-001 | Pendiente | — |
 
 Main no equivale a producción. Ver [resultado REL-002 y relevo](rel-002-tema-cuenta.md); no reaplicar las 25 migraciones existentes ni desplegar la nueva UI sin 26/27.
+
+## Planificación de peticiones del 30-10-2026
+
+| ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
+|---|---|---|---|---|---|
+| [DOC-011](https://github.com/migdlp/opinion-social-media/issues/275) | Planificar experiencia, tipos de encuesta, búsqueda, comentarios, seguridad social y perfil; actualizar decisiones y cobertura | P0 | Revisar backlog y evitar duplicar iconos/activación ya registrados | En progreso | Codex /root (opinion_social_media) |
