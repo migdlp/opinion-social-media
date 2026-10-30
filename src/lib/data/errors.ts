@@ -33,6 +33,7 @@ export const ERROR_MESSAGES: Record<AppErrorCode, string> = {
   AVATAR_INVALID: "Ese icono no está disponible. Elige otro.",
   BIO_INVALID: "La descripción admite hasta 280 caracteres de texto sin caracteres especiales.",
   PROFILE_PRIVATE: "Esta cuenta es privada.",
+  CANNOT_BLOCK_SELF: "No puedes bloquearte a ti mismo.",
   CANNOT_FOLLOW_SELF: "No puedes seguirte a ti mismo.",
   FOLLOW_RATE_LIMITED: "Has seguido a demasiadas cuentas. Inténtalo más tarde.",
   NETWORK_ERROR: "No hay conexión. Comprueba tu red y vuelve a intentarlo.",
@@ -71,6 +72,7 @@ const RPC_CODES = new Set<string>([
   "AVATAR_INVALID",
   "BIO_INVALID",
   "CANNOT_FOLLOW_SELF",
+  "CANNOT_BLOCK_SELF",
   "FOLLOW_RATE_LIMITED",
 ]);
 

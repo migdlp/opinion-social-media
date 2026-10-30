@@ -219,6 +219,22 @@ public.get_my_profile() returns table (username text, display_name text, is_priv
 - El resto del contrato no cambia: `get_profile` y las listas de seguidores no devuelven el icono; los adaptadores `getProfileView`, `listFollowers`, `listFollowing` y `listFollowRequests` lo leen de la columna pública con una consulta aparte (cabecera en paralelo; una por página de lista). Un fallo de esa lectura sólo hace que se vean las iniciales.
 - Adaptadores: `setProfileAvatar(supabase, icon | null)` → `Result<void>`; `Profile.avatarIcon`, `ProfileView.avatarIcon` y `FollowEntry.avatarIcon` son opcionales. Detalle de catálogo y procedencia: [avatares.md](avatares.md).
 
+#### Bloqueo de personas (SOCIAL-001)
+
+```sql
+public.block_user(p_username text) returns void
+public.unblock_user(p_username text) returns void
+public.list_blocked_users(p_cursor text default null) returns table (username text, display_name text, cursor text)
+```
+
+- Tabla `user_blocks (blocker_id, blocked_id, created_at)`, con RLS y **sin ningún permiso para clientes**: sólo se gestiona con las tres RPC, todas `authenticated`. La lista es la propia (31 filas por página, cursor opaco `<created_at UTC>|<usuario en minúsculas>`); nunca devuelve `user_id` ni muestra quién ha bloqueado a quien llama.
+- `block_user`: con sesión y perfil. `@usuario` propio → `CANNOT_BLOCK_SELF`; inexistente → `USER_NOT_FOUND`. Idempotente. **En la misma transacción** borra los seguimientos y solicitudes pendientes entre ambos, en los dos sentidos. Toma un cerrojo por pareja de cuentas.
+- `unblock_user`: borra sólo el bloqueo propio (quien fue bloqueado no puede levantarlo); idempotente; **no restaura seguimientos**.
+- **Efecto**: un bloqueo activo en cualquier sentido hace que `can_view_author` sea falso para el par, lo que oculta el contenido, el historial, los resultados y las denuncias del otro en polls, feed, listas y votos (todo el contrato de visibilidad ya pasa por esa función). `get_profile` responde `USER_NOT_FOUND`. Un trigger `BEFORE INSERT` en `follows` rechaza (`USER_NOT_FOUND`) cualquier seguimiento entre bloqueados, también por inserción directa, y comparte el cerrojo con `block_user` para que un seguimiento simultáneo no sobreviva al bloqueo.
+- **No cambia** ningún voto ni agregado: no se borran ni se recalculan.
+- **Límites**: sin sesión (anon) el contenido público sigue siendo visible; el bloqueo no es anonimato ni protege frente a otra cuenta. Las listas de seguidores y el historial de una cuenta bloqueada responden como "privada" (`PROFILE_PRIVATE`), no como inexistente.
+- Adaptadores: `blockUser(supabase, username)` y `unblockUser(supabase, username)` → `Result<void>`; error nuevo `CANNOT_BLOCK_SELF`. La lista y la interfaz son SOCIAL-002.
+
 #### Biografía de perfil (PROFILE-001)
 
 ```sql
@@ -231,7 +247,7 @@ public.get_profile(p_username text) returns table (..., can_view_content boolean
 - `set_profile_bio`: sólo `authenticated`, con perfil. Recorta espacios, tabulaciones y saltos de línea de los extremos; vacío o `null` la borra. Rechaza más de 280 caracteres y caracteres de control (salvo salto de línea y tabulación). El HTML se guarda como texto literal: la interfaz lo muestra siempre escapado. Errores: `AUTH_REQUIRED`, `PROFILE_REQUIRED`, `BIO_INVALID`. Actúa siempre sobre `auth.uid()`.
 - `get_my_profile` devuelve la bio propia. `get_profile` la devuelve **sólo si `can_view_author`** (cuenta pública, titular o seguidor aceptado); a solicitantes pendientes, extraños y `anon` de una cuenta privada les llega `null`. La cabecera pública, los metadatos OG y el resto de RPC no la incluyen.
 - Ambas funciones se recrean con `drop function` + `create function` conservando columnas anteriores (`avatar_icon`, contadores, relación, `can_view_content`) y permisos.
-- Pendiente de SOCIAL-001: respetar los bloqueos entre cuentas cuando existan.
+- Bloqueos (SOCIAL-001): entre cuentas bloqueadas `get_profile` responde `USER_NOT_FOUND`, así que tampoco se entrega la bio.
 - Adaptadores: `setProfileBio(supabase, bio | null)` → `Result<void>`; `Profile.bio` y `ProfileView.bio` son opcionales (ausentes si no hay bio o no se puede ver).
 
 ### 3.10. `get_profile` y `get_profile_polls` (V2-006)

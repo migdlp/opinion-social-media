@@ -838,6 +838,24 @@ export function setProfileAvatar(
   });
 }
 
+// Bloquea a @username (SOCIAL-001): cancela seguimientos y solicitudes entre ambos y deja de verse
+// su contenido protegido en los dos sentidos. Idempotente. Errores: CANNOT_BLOCK_SELF,
+// USER_NOT_FOUND, AUTH_REQUIRED, PROFILE_REQUIRED.
+export function blockUser(supabase: SupabaseClient, username: string): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("block_user", { p_username: username });
+    return error ? { ok: false, error: toAppError(error) } : { ok: true, data: undefined };
+  });
+}
+
+// Quita sólo el bloqueo propio hacia @username; no restaura seguimientos. Idempotente.
+export function unblockUser(supabase: SupabaseClient, username: string): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("unblock_user", { p_username: username });
+    return error ? { ok: false, error: toAppError(error) } : { ok: true, data: undefined };
+  });
+}
+
 // Fija, cambia o vacía (null o vacío) la biografía propia, de 0 a 280 caracteres de texto plano.
 // Errores: BIO_INVALID, AUTH_REQUIRED, PROFILE_REQUIRED. La recorta y valida el backend.
 export function setProfileBio(supabase: SupabaseClient, bio: string | null): Promise<Result<void>> {
