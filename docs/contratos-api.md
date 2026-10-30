@@ -219,6 +219,21 @@ public.get_my_profile() returns table (username text, display_name text, is_priv
 - El resto del contrato no cambia: `get_profile` y las listas de seguidores no devuelven el icono; los adaptadores `getProfileView`, `listFollowers`, `listFollowing` y `listFollowRequests` lo leen de la columna pública con una consulta aparte (cabecera en paralelo; una por página de lista). Un fallo de esa lectura sólo hace que se vean las iniciales.
 - Adaptadores: `setProfileAvatar(supabase, icon | null)` → `Result<void>`; `Profile.avatarIcon`, `ProfileView.avatarIcon` y `FollowEntry.avatarIcon` son opcionales. Detalle de catálogo y procedencia: [avatares.md](avatares.md).
 
+#### Biografía de perfil (PROFILE-001)
+
+```sql
+public.set_profile_bio(p_bio text) returns void
+public.get_my_profile() returns table (username text, display_name text, is_private boolean, avatar_icon text, bio text)
+public.get_profile(p_username text) returns table (..., can_view_content boolean, bio text)
+```
+
+- `profiles.bio`: texto plano de 0 a 280 caracteres Unicode (no bytes), con `check` en la tabla. **No es una columna pública**: no hay `grant select` ni `update` sobre ella para ningún rol; no hay escritura directa.
+- `set_profile_bio`: sólo `authenticated`, con perfil. Recorta espacios, tabulaciones y saltos de línea de los extremos; vacío o `null` la borra. Rechaza más de 280 caracteres y caracteres de control (salvo salto de línea y tabulación). El HTML se guarda como texto literal: la interfaz lo muestra siempre escapado. Errores: `AUTH_REQUIRED`, `PROFILE_REQUIRED`, `BIO_INVALID`. Actúa siempre sobre `auth.uid()`.
+- `get_my_profile` devuelve la bio propia. `get_profile` la devuelve **sólo si `can_view_author`** (cuenta pública, titular o seguidor aceptado); a solicitantes pendientes, extraños y `anon` de una cuenta privada les llega `null`. La cabecera pública, los metadatos OG y el resto de RPC no la incluyen.
+- Ambas funciones se recrean con `drop function` + `create function` conservando columnas anteriores (`avatar_icon`, contadores, relación, `can_view_content`) y permisos.
+- Pendiente de SOCIAL-001: respetar los bloqueos entre cuentas cuando existan.
+- Adaptadores: `setProfileBio(supabase, bio | null)` → `Result<void>`; `Profile.bio` y `ProfileView.bio` son opcionales (ausentes si no hay bio o no se puede ver).
+
 ### 3.10. `get_profile` y `get_profile_polls` (V2-006)
 
 ```sql

@@ -90,6 +90,7 @@ export type DatabaseContractChecks = [
         updated_at: string;
         vote_visibility: string;
         avatar_icon: string | null;
+        bio: string | null;
       }
     >
   >,
@@ -188,7 +189,21 @@ export type ProfileAvatarRpcChecks = [
   Assert<
     Equal<
       Public["Functions"]["get_my_profile"]["Returns"],
-      { avatar_icon: string; display_name: string; is_private: boolean; username: string }[]
+      {
+        avatar_icon: string;
+        bio: string;
+        display_name: string;
+        is_private: boolean;
+        username: string;
+      }[]
     >
   >,
+];
+
+// PROFILE-001: biografía opcional; sólo el titular la escribe y no es una columna pública.
+export type ProfileBioRpcChecks = [
+  Assert<Equal<Public["Functions"]["set_profile_bio"]["Args"], { p_bio: string }>>,
+  Assert<Equal<Public["Functions"]["set_profile_bio"]["Returns"], undefined>>,
+  Assert<Equal<Public["Tables"]["profiles"]["Row"]["bio"], string | null>>,
+  Assert<Equal<Public["Functions"]["get_profile"]["Returns"][number]["bio"], string>>,
 ];

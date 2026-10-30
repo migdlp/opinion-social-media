@@ -159,12 +159,14 @@ type ProfileRow = {
   display_name: string | null;
   is_private: boolean;
   avatar_icon?: string | null;
+  bio?: string | null;
 };
 
 const toProfile = (row: ProfileRow): Profile => ({
   username: row.username,
   displayName: row.display_name,
   isPrivate: row.is_private,
+  ...(row.bio ? { bio: row.bio } : {}),
 });
 
 // Perfil de la cuenta con sesión; null si aún no ha elegido @usuario (V2-002).
@@ -520,6 +522,7 @@ type ProfileViewRow = {
   polls_count: number;
   viewer_relation: ViewerRelation;
   can_view_content: boolean;
+  bio?: string | null;
 };
 
 // Cabecera de un perfil (V2-006). Errores: USER_NOT_FOUND.
@@ -548,6 +551,7 @@ export function getProfileView(
         viewerRelation: row.viewer_relation,
         canViewContent: row.can_view_content,
         ...(icon ? { avatarIcon: icon } : {}),
+        ...(row.bio ? { bio: row.bio } : {}),
       },
     };
   });
@@ -830,6 +834,15 @@ export function setProfileAvatar(
 ): Promise<Result<void>> {
   return guard(async () => {
     const { error } = await supabase.rpc("set_profile_avatar", { p_icon: icon as string });
+    return error ? { ok: false, error: toAppError(error) } : { ok: true, data: undefined };
+  });
+}
+
+// Fija, cambia o vacía (null o vacío) la biografía propia, de 0 a 280 caracteres de texto plano.
+// Errores: BIO_INVALID, AUTH_REQUIRED, PROFILE_REQUIRED. La recorta y valida el backend.
+export function setProfileBio(supabase: SupabaseClient, bio: string | null): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("set_profile_bio", { p_bio: bio as string });
     return error ? { ok: false, error: toAppError(error) } : { ok: true, data: undefined };
   });
 }
