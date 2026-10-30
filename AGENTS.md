@@ -19,6 +19,10 @@ Aplicarla dentro del alcance de la tarea reservada y coordinar tokens compartido
 
 El encargo claro del **29-10-2026 (D-027)** concreta esa dirección. Leer [la guía del rediseño y sus conflictos documentados](docs/redisenio-aftersunset-claro.md) y `DESIGN.md`: categorías en una fila, cabecera móvil compacta, tarjetas claras y resultados cálidos. Las fuentes originales están en `docs/fuentes/aftersunset-claro/`. Su HTML es ilustrativo: no usar sus votos ficticios ni incorporar funciones nuevas. Conservar las funciones V2 reales (2–6 opciones, perfiles/privacidad/Siguiendo y cerradas) y el nombre provisional Opinión.
 
+## Nuevas peticiones de producto (30-10-2026)
+
+Consultar [el backlog por áreas](docs/backlog-producto-2026-10-30.md) y D-032–D-042: Claro inicial con botón de icono y Recientes inicial para todos sustituyen los defaults anteriores; búsqueda, comentarios opcionales, fotos, bloqueo/denuncia y bio tienen tickets propios. Varias respuestas/ranking siguen en definición con el propietario. Iconos reutilizan AVATAR-001 y su activación existente. Estas tareas son futuras y su estado se consulta en main; no reabrir tickets históricos ni tomar reservas ajenas. Documentarlas no acredita implementación ni autoriza un despliegue.
+
 ## Contexto obligatorio de conexión a Supabase
 
 La organización de Supabase de este proyecto es **Los tres cerditos**, ID `drifadkhohwebqljdlvw`, región **Irlanda (`eu-west-1`)**. Estos proyectos ya existen: no crear otra organización ni otros proyectos para sustituirlos si falta acceso.

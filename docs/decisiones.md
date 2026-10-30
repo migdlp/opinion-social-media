@@ -46,6 +46,27 @@ D-005 conserva el historial de pausa. D-013 la levanta para el resto de tareas y
 | D-030 | Añadir privacidad independiente del historial de votos, para poder ocultarlo incluso a amigos. Amigos conserva el significado de seguidores aceptados (D-017). Restringe D-018 cuando se elija una audiencia menor, sin modificar votos ni agregados ni ampliar visibilidad de cuenta/encuesta; valor inicial/migración se revisan en PRIV-001. Usar la base V2-008 existente, sin tomar su reserva | Petición del propietario del 29-10-2026; SETTINGS-001 #248 y PRIV-001/002 #249/#254, pendientes |
 | D-031 | Incorporar inventario de datos/cookies, textos legales revisados del responsable, derechos/conservación/borrado y consentimiento sólo para elementos no esenciales cuando corresponda. Registrar los datos faltantes; no inventar información del titular ni presentar los tickets como cumplimiento probado | Petición del propietario del 29-10-2026; LEGAL-001 a LEGAL-004 #244/#251/#250/#253, pendientes |
 
+
+## Nuevas peticiones de producto — 30-10-2026
+
+Prevalecen sobre los defaults históricos que contradigan; el estado de implementación está en tareas-futuras.md, no en esta tabla. Detalle: [backlog de producto](backlog-producto-2026-10-30.md).
+
+| ID | Decisión | Fuente / tareas |
+|---|---|---|
+| D-032 | Claro por defecto aun con sistema oscuro. Un botón de icono alterna Claro ↔ Oscuro; sin desplegable ni Sistema en la interfaz. Conservar Oscuro manual previo; ausencia o Sistema heredado pasan a Claro. Sustituye el default/control de D-028, sin borrar el historial de DESIGN-013 | Petición del propietario; DESIGN-014 #276 |
+| D-033 | Entrada por defecto en Recientes para visitantes y usuarios, tengan o no seguidos. Mantener Siguiendo al elegirlo y respetar URL/atrás/adelante. Sustituye sólo el default de D-022 | Petición del propietario; FEED-001 #277 |
+| D-034 | Sin botón Sí/No: ejemplos en placeholders de dos inputs vacíos, ocultos al enfocar. Si ambos campos iniciales permanecen vacíos al enviar, publicar Sí/No reales; datos parcialmente personalizados o más campos incompletos siguen siendo inválidos. Reemplaza la plantilla de D-019/V2-011 | Petición del propietario; CREATE-001 #278 |
+| D-035 | Evaluar nuevos formatos; el propietario propone varias respuestas y ordenar de mayor a menor, y pide pensarlos mejor. No se aprueban aún semántica de ranking, agregación ni límites de selección. Comparación de fotos sí solicitada explícitamente | Respuesta del propietario a la pregunta de formatos; POLL-001 #281 |
+| D-036 | Permitir debate por encuesta con un flag que el autor activa/desactiva al crear o después, sin editar pregunta/opciones. Plan inicial: apagado, comentarios planos de texto, en abiertas acceso tras votar, en cerradas según visibilidad. Apagar conserva comentarios ocultos. Moderación y límites backend antes de activarlo públicamente | Petición del propietario; CMT-001/002/003 #285/#287/#286; defaults técnicos conservadores documentados |
+| D-037 | Encuestas de comparación de fotos, inicialmente voto único y 2–6 alternativas con imágenes y alt/rótulo accesible. Imágenes privadas/autorizadas, archivo seguro y metadatos minimizados. Amplía la exclusión previa de medios; no autoriza vídeos | Petición del propietario; MEDIA-001/002/003 #288/#289/#290 |
+| D-038 | Bloquear y denunciar personas, además de denunciar encuestas. Plan: bloqueo bilateral de interacción/contenido para cuentas autenticadas, sin borrar votos; se cancelan relaciones/solicitudes, desbloquear no las restaura. Denuncia independiente con revisión manual, sin bloqueo automático | Petición del propietario; SOCIAL-001/002 #282/#291 y MOD-001/002 #292/#293 |
+| D-039 | Personalización del perfil con descripción opcional; primera entrega hasta 280 caracteres de texto plano. En privadas sólo titular/seguidores aceptados; no añadir datos personales no pedidos | Petición del propietario; PROFILE-001/002 #294/#295 |
+| D-040 | En escritorio, alinear tarjetas y sus zonas comunes por fila con diferente número de respuestas, sin recortar contenido ni opciones. Móvil conserva orden y una columna | Petición del propietario; DESIGN-015 #279 |
+| D-041 | Seguir una cuenta pública directamente es correcto. Solicitudes sólo para cuentas privadas, con aceptación antes de acceder. Confirmación de D-017 y petición de revisión del funcionamiento, sin asumir que el seguimiento público sea un bug | Petición del propietario; BUG-005 #280 |
+| D-042 | Añadir buscador de encuestas por pregunta y acceso mediante lupa en la barra móvil, con acceso equivalente en escritorio. Sin ranking personalizado, búsqueda semántica ni servicios externos nuevos | Petición del propietario; SEARCH-001/002 #283/#284 |
+
+Crear estos tickets no implementa ni despliega sus funciones. Los supuestos técnicos menores (debate apagado, límites, bio) son visibles y corregibles; respetar autorización, reservas y contratos vigentes hasta su implementación.
+
 ## Reglas del producto recogidas del backlog
 
 Resultados sólo tras votar, voto único inmutable, feed público cronológico, Google Auth, validación 10–280/2–4/1–100, límite de cinco publicaciones por hora, moderación manual y separación de entornos. Ver [contexto](contexto-aplicacion.md) y [arquitectura](arquitectura.md).

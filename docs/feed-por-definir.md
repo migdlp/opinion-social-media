@@ -1,5 +1,8 @@
 # Feed — definición aprobada
 
+**Actualización de entrada — 30-10-2026:** D-033 / [FEED-001 #277](https://github.com/migdlp/opinion-social-media/issues/277) sustituye el default histórico: **Recientes para todos**, incluso con seguidos. Siguiendo sigue accesible al elegirlo; las respuestas y tareas originales siguientes se conservan como historial. Búsqueda/lupa y alineación en [el backlog nuevo](backlog-producto-2026-10-30.md).
+
+
 **Estado:** Definido · **Tarea:** [V2-030](backlog-v2.md#v2-030--definir-el-feed-con-el-propietario) · **Última actualización:** 28-10-2026
 
 > Definición aprobada en conversación con el propietario el 28-10-2026 (D-022 a D-025). La implementación se realiza en V2-031–036, con sus dependencias, reservas y pruebas. Este documento no declara terminadas esas tareas.

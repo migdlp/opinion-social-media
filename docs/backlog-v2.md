@@ -6,6 +6,8 @@
 >
 > **El feed (épica E10) está definido en D-022 a D-025.** Ver [feed-por-definir.md](feed-por-definir.md). Las tareas V2-031–036 se reservan según sus dependencias al completar V2-030.
 
+> **Actualización 30-10-2026:** [backlog de nuevas peticiones](backlog-producto-2026-10-30.md), D-032–D-042: Claro y Recientes por defecto, cambio de tema por icono, nuevo Sí/No de reserva, búsqueda, debate, fotos y seguridad social/perfil. Las tareas completadas de fase 2 se conservan como historial: las nuevas sustituciones tienen tickets propios. Respuesta múltiple/ranking requieren todavía definición; no se implementan como aprobadas.
+
 ## 1. Cómo usar este documento
 
 - Cada tarea tiene ID `V2-NNN`, prioridad, tamaño, dependencias, descripción, requisitos y criterios de aceptación. Quien la coja no necesita más contexto que este documento, [contratos-api.md](contratos-api.md) y el código que se cita.
