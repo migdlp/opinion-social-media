@@ -22,6 +22,7 @@ export type DatabaseContractChecks = [
       | "user_blocks"
       | "comments"
       | "user_reports"
+      | "comment_reports"
     >
   >,
   Assert<
@@ -285,4 +286,16 @@ export type ReportUserRpcChecks = [
     >
   >,
   Assert<Equal<Public["Functions"]["report_user"]["Returns"], undefined>>,
+];
+
+// CMT-003: denuncia de comentarios; la tabla sólo se usa mediante la RPC y no es legible por clientes.
+export type ReportCommentRpcChecks = [
+  Assert<
+    Equal<
+      Public["Functions"]["report_comment"]["Args"],
+      { p_comment_id: string; p_details?: string; p_reason: string }
+    >
+  >,
+  Assert<Equal<Public["Functions"]["report_comment"]["Returns"], undefined>>,
+  Assert<Equal<Public["Tables"]["comments"]["Row"]["status"], string>>,
 ];

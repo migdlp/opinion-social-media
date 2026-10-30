@@ -1203,3 +1203,95 @@ describe("MOD-001: denuncia de personas", () => {
     expect(count).toBe(0);
   });
 });
+
+// CMT-003: denuncia y moderación mínima de comentarios. La tabla no es de ningún cliente; sólo el
+// operador oculta comentarios. Todo fallo de acceso responde igual que un comentario inexistente.
+describe("CMT-003: denuncia de comentarios", () => {
+  const reportC = (id: string, reason: string, token?: string, details?: string) =>
+    rpc(
+      "report_comment",
+      { p_comment_id: id, p_reason: reason, ...(details ? { p_details: details } : {}) },
+      token,
+    );
+  const listC = (poll: string, token?: string) => rpc("list_comments", { p_poll_id: poll }, token);
+
+  async function scenario() {
+    const [author, writer, reader, lurker] = await Promise.all([
+      account("cmra", false),
+      account("cmrw", false),
+      account("cmrr", false),
+      account("cmrl", false),
+    ]);
+    const poll = await createPoll(author, `¿Debate con denuncias ${Date.now()}?`);
+    await rpc("set_poll_comments", { p_poll_id: poll, p_enabled: true }, author.token);
+    for (const who of [writer, reader]) await vote(who, poll, 0);
+    await rpc("add_comment", { p_poll_id: poll, p_body: "Comentario denunciable" }, writer.token);
+    const comment = String(rows(await listC(poll, reader.token))[0].comment_id);
+    return { author, writer, reader, lurker, poll, comment };
+  }
+
+  it("la tabla no se lee ni se escribe por REST; el operador oculta y restaura; el estado no se cambia desde fuera", async () => {
+    const { writer, reader, poll, comment } = await scenario();
+    expect((await reportC(comment, "spam", reader.token, "detalle privado")).status).toBeLessThan(
+      300,
+    );
+    for (const token of [undefined, reader.token, writer.token]) {
+      expect(
+        (await http("/rest/v1/comment_reports?select=*", { token })).status,
+      ).toBeGreaterThanOrEqual(400);
+      const hide = await http(`/rest/v1/comments?id=eq.${comment}`, {
+        method: "PATCH",
+        token,
+        body: JSON.stringify({ status: "hidden" }),
+      });
+      expect(hide.status).toBeGreaterThanOrEqual(400);
+    }
+    const { data } = await admin
+      .from("comment_reports")
+      .select("reporter_id, reason, details")
+      .eq("comment_id", comment);
+    expect(data).toEqual([{ reporter_id: reader.id, reason: "spam", details: "detalle privado" }]);
+
+    await admin.from("comments").update({ status: "hidden" }).eq("id", comment);
+    expect(rows(await listC(poll, reader.token))).toEqual([]);
+    expect(message(await reportC(comment, "otro", reader.token))).toBe("COMMENT_UNAVAILABLE");
+    // Apagar y reactivar el debate no lo devuelve.
+    await admin.from("polls").update({ comments_enabled: false }).eq("id", poll);
+    await admin.from("polls").update({ comments_enabled: true }).eq("id", poll);
+    expect(rows(await listC(poll, reader.token))).toEqual([]);
+    await admin.from("comments").update({ status: "published" }).eq("id", comment);
+    expect(rows(await listC(poll, reader.token))).toHaveLength(1);
+  });
+
+  it("valida, evita duplicados y auto-denuncias y limita a una por cuenta aun en simultáneo", async () => {
+    const { writer, reader, comment } = await scenario();
+    expect(message(await reportC(comment, "inventado", reader.token))).toBe("REPORT_INVALID");
+    expect(message(await reportC(comment, "spam", reader.token, "x".repeat(501)))).toBe(
+      "REPORT_INVALID",
+    );
+    expect(message(await reportC(comment, "spam", writer.token))).toBe("CANNOT_REPORT_SELF");
+    expect((await reportC(comment, "spam")).status).toBeGreaterThanOrEqual(400);
+    const both = await Promise.all([
+      reportC(comment, "acoso", reader.token),
+      reportC(comment, "acoso", reader.token),
+      reportC(comment, "acoso", reader.token),
+    ]);
+    expect(both.filter((r) => r.status < 300)).toHaveLength(1);
+    expect(message(await reportC(comment, "spam", reader.token))).toBe("ALREADY_REPORTED");
+  });
+
+  it("quien no puede ver el debate no obtiene pistas: siempre COMMENT_UNAVAILABLE", async () => {
+    const { author, reader, lurker, poll, comment } = await scenario();
+    expect(message(await reportC(comment, "spam", lurker.token))).toBe("COMMENT_UNAVAILABLE");
+    expect(
+      message(await reportC("00000000-0000-4000-8000-000000000999", "spam", reader.token)),
+    ).toBe("COMMENT_UNAVAILABLE");
+    await rpc("set_poll_comments", { p_poll_id: poll, p_enabled: false }, author.token);
+    expect(message(await reportC(comment, "spam", reader.token))).toBe("COMMENT_UNAVAILABLE");
+    await rpc("set_poll_comments", { p_poll_id: poll, p_enabled: true }, author.token);
+    // Un bloqueo entre la autora y quien comentó también lo hace inaccesible.
+    const writerName = String(rows(await listC(poll, reader.token))[0].username);
+    await rpc("block_user", { p_username: writerName }, author.token);
+    expect(message(await reportC(comment, "spam", reader.token))).toBe("COMMENT_UNAVAILABLE");
+  });
+});

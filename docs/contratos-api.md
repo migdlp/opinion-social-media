@@ -348,7 +348,7 @@ public.create_poll(p_question, p_options, p_closes_at default null, p_category d
 - **Acceso** (mismo orden de errores en lectura y escritura): encuesta oculta, inexistente o de una cuenta que quien llama no puede ver (privada o bloqueo) → `POLL_UNAVAILABLE`; debate apagado → `COMMENTS_DISABLED` (también para la autora); **abierta** sin voto de quien llama → `VOTE_REQUIRED` (también la autora y los visitantes); **cerrada** → rige la visibilidad de la encuesta y no hace falta voto. La comprobación vive en `private.comments_check_access` (esquema sin permisos para clientes).
 - `add_comment`: sesión y perfil (`AUTH_REQUIRED`, `PROFILE_REQUIRED`). Texto plano de 1–1000 caracteres tras recortar; sin caracteres de control salvo salto de línea y tabulación (`COMMENT_INVALID`); el HTML se guarda como texto literal y la interfaz lo muestra escapado. **10 comentarios por minuto y cuenta** (`RATE_LIMITED`), con cerrojo por cuenta para que las peticiones simultáneas no lo superen. Un bloqueo con la autora devuelve `POLL_UNAVAILABLE`.
 - `list_comments`: ejecutable por `anon` (cerradas públicas). Más recientes primero, cursor opaco `<created_at UTC>|<id>` (`INVALID_CURSOR`), 21 filas (20 + 1). **Se omiten** los comentarios de cuentas con bloqueo con quien lee o con la autora de la encuesta, en cualquier sentido.
-- Fuera de alcance: hilos, respuestas, likes, edición, borrado y denuncia de comentarios (CMT-003); la interfaz es CMT-002. `PublicPoll` aún no expone `comments_enabled` (CMT-002).
+- Fuera de alcance: hilos, respuestas, likes, edición y borrado; la interfaz es CMT-002. La denuncia y la moderación (`comments.status`) están en §3.18. `PublicPoll` aún no expone `comments_enabled` (CMT-002).
 - Adaptadores: `listComments(supabase, pollId, cursor)` → `Result<CommentPage>`, `addComment(supabase, pollId, body)` → `Result<{ id }>`, `setPollComments(supabase, pollId, enabled)` y `createPoll(..., commentsEnabled?)`. Errores nuevos: `COMMENTS_DISABLED`, `VOTE_REQUIRED`, `COMMENT_INVALID`.
 
 ### 3.17. `report_user` (MOD-001)
@@ -361,6 +361,16 @@ public.report_user(p_username text, p_reason text, p_details text default null) 
 - Tabla `user_reports` propia (no se mezcla con `poll_reports`), sin permisos para clientes: no se lee, escribe ni deduce quién denunció. Una por pareja (`ALREADY_REPORTED`), 10 por hora y cuenta con cerrojo por cuenta (`REPORT_RATE_LIMITED`). Borrado en cascada con la cuenta denunciante o la denunciada.
 - No oculta, bloquea ni cambia la cuenta. Procedimiento de revisión y retención en `docs/moderacion.md`.
 - Adaptador: `reportUser(supabase, username, reason, details?)` → `Result<void>`; error nuevo `CANNOT_REPORT_SELF`. La acción en la interfaz es MOD-002.
+
+### 3.18. `report_comment` y moderación de comentarios (CMT-003)
+
+```sql
+public.report_comment(p_comment_id uuid, p_reason text, p_details text default null) returns void
+```
+
+- Sólo `authenticated`. Sólo se denuncia un comentario que quien llama podría ver ahora (misma comprobación que `list_comments`, bloqueos incluidos); cualquier otro caso —inexistente, oculto, debate apagado, encuesta no visible, sin voto en una abierta, bloqueo— es `COMMENT_UNAVAILABLE`, sin pistas. Propio → `CANNOT_REPORT_SELF`. Motivo y detalle como en `report_poll` (`REPORT_INVALID`); una por comentario y cuenta (`ALREADY_REPORTED`); 20 por hora y cuenta (`REPORT_RATE_LIMITED`).
+- `comment_reports` no tiene permisos para clientes. `comments.status` (`published` | `hidden`) lo cambia sólo un operador con la clave de servicio; `list_comments` omite los ocultos y un comentario oculto no reaparece al reactivar el debate.
+- Adaptador: `reportComment(supabase, commentId, reason, details?)` → `Result<void>`; error nuevo `COMMENT_UNAVAILABLE`. Procedimiento de revisión en `docs/moderacion.md`. Los controles en la interfaz y el E2E son CMT-002.
 
 ## 4. Lecturas directas (RLS)
 

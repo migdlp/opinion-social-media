@@ -14,7 +14,7 @@ begin
   assert cols = 'id:uuid,poll_id:uuid,text:text,position:smallint', 'columnas de poll_options: ' || cols;
 
   assert not exists (select 1 from information_schema.tables where table_schema = 'public'
-    and table_name not in ('polls', 'poll_options', 'votes', 'poll_reports', 'profiles', 'follows', 'categories', 'saved_polls', 'follow_quota_events', 'user_blocks', 'comments', 'user_reports')), 'hay tablas propias no previstas';
+    and table_name not in ('polls', 'poll_options', 'votes', 'poll_reports', 'profiles', 'follows', 'categories', 'saved_polls', 'follow_quota_events', 'user_blocks', 'comments', 'user_reports', 'comment_reports')), 'hay tablas propias no previstas';
 end $$;
 
 -- FK: polls.user_id -> auth.users, poll_options.poll_id -> polls.

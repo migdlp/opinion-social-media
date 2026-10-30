@@ -21,6 +21,7 @@ export const ERROR_MESSAGES: Record<AppErrorCode, string> = {
   INVALID_CATEGORY: "Elige una categoría válida.",
   COMMENTS_DISABLED: "El autor no ha activado los comentarios en esta encuesta.",
   VOTE_REQUIRED: "Vota primero para ver y escribir comentarios.",
+  COMMENT_UNAVAILABLE: "Este comentario ya no está disponible.",
   COMMENT_INVALID:
     "El comentario debe tener entre 1 y 1000 caracteres de texto sin caracteres especiales.",
   INVALID_QUERY: "Escribe entre 2 y 100 caracteres para buscar.",
@@ -69,6 +70,7 @@ const RPC_CODES = new Set<string>([
   "COMMENTS_DISABLED",
   "VOTE_REQUIRED",
   "COMMENT_INVALID",
+  "COMMENT_UNAVAILABLE",
   "INVALID_FEED_MODE",
   "USERNAME_INVALID",
   "USERNAME_TAKEN",
