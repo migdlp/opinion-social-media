@@ -19,6 +19,7 @@ vi.mock("next/navigation", () => ({
   notFound: () => {
     throw new Error("NEXT_NOT_FOUND");
   },
+  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
 
 const { ProfileContent } = await import("./profile-content");

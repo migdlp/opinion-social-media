@@ -15,6 +15,9 @@ type FollowListProps = {
   onRemove?: (username: string) => Promise<Result<void>>;
   // Sólo en la bandeja de solicitudes: «Aceptar» y «Rechazar».
   onRespond?: (username: string, accept: boolean) => Promise<Result<void>>;
+  // Sólo en la lista de cuentas bloqueadas (SOCIAL-002): «Desbloquear» con confirmación. Sus filas
+  // no enlazan al perfil, que para quien bloqueó no existe.
+  onUnblock?: (username: string) => Promise<Result<void>>;
 };
 
 const SMALL =
@@ -33,6 +36,7 @@ export function FollowList({
   emptyText,
   onRemove,
   onRespond,
+  onUnblock,
 }: FollowListProps) {
   const [users, setUsers] = useState(initialUsers);
   const [cursor, setCursor] = useState(initialCursor);
@@ -94,26 +98,46 @@ export function FollowList({
         {users.map((entry) => (
           <li key={entry.username} className="poll-surface flex flex-col gap-2 p-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <Link
-                href={`/u/${entry.username}`}
-                className="flex min-w-0 items-center gap-3 hover:underline"
-              >
-                <Avatar
-                  username={entry.username}
-                  displayName={entry.displayName}
-                  icon={entry.avatarIcon}
-                />
-                <span className="flex min-w-0 flex-col">
-                  {entry.displayName && (
-                    <span className="truncate font-semibold">{entry.displayName}</span>
-                  )}
-                  <span
-                    className={`truncate ${entry.displayName ? "text-muted" : "font-semibold"}`}
-                  >
-                    @{entry.username}
+              {onUnblock ? (
+                <span className="flex min-w-0 items-center gap-3">
+                  <Avatar
+                    username={entry.username}
+                    displayName={entry.displayName}
+                    icon={entry.avatarIcon}
+                  />
+                  <span className="flex min-w-0 flex-col">
+                    {entry.displayName && (
+                      <span className="truncate font-semibold">{entry.displayName}</span>
+                    )}
+                    <span
+                      className={`truncate ${entry.displayName ? "text-muted" : "font-semibold"}`}
+                    >
+                      @{entry.username}
+                    </span>
                   </span>
                 </span>
-              </Link>
+              ) : (
+                <Link
+                  href={`/u/${entry.username}`}
+                  className="flex min-w-0 items-center gap-3 hover:underline"
+                >
+                  <Avatar
+                    username={entry.username}
+                    displayName={entry.displayName}
+                    icon={entry.avatarIcon}
+                  />
+                  <span className="flex min-w-0 flex-col">
+                    {entry.displayName && (
+                      <span className="truncate font-semibold">{entry.displayName}</span>
+                    )}
+                    <span
+                      className={`truncate ${entry.displayName ? "text-muted" : "font-semibold"}`}
+                    >
+                      @{entry.username}
+                    </span>
+                  </span>
+                </Link>
+              )}
               {onRespond && (
                 <div className="flex gap-2">
                   <button
@@ -138,14 +162,16 @@ export function FollowList({
                   </button>
                 </div>
               )}
-              {onRemove &&
+              {(onRemove ?? onUnblock) &&
                 (confirming === entry.username ? (
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       className={PRIMARY}
                       disabled={busy === entry.username}
-                      onClick={() => run(entry.username, () => onRemove(entry.username))}
+                      onClick={() =>
+                        run(entry.username, () => (onRemove ?? onUnblock)!(entry.username))
+                      }
                     >
                       Confirmar
                     </button>
@@ -167,10 +193,15 @@ export function FollowList({
                       setConfirming(entry.username);
                     }}
                   >
-                    Eliminar
+                    {onUnblock ? "Desbloquear" : "Eliminar"}
                   </button>
                 ))}
             </div>
+            {onUnblock && confirming === entry.username && (
+              <p className="text-sm text-muted">
+                Desbloquear no restaura los seguimientos anteriores: tendréis que volver a seguiros.
+              </p>
+            )}
             {rowError?.username === entry.username && (
               <p role="alert" className="text-sm text-danger">
                 {ERROR_MESSAGES[rowError.error]}

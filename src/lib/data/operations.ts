@@ -899,6 +899,20 @@ export function unblockUser(supabase: SupabaseClient, username: string): Promise
   });
 }
 
+// Cuentas que la sesión ha bloqueado, de más reciente a más antigua (SOCIAL-002). Sólo la lista
+// propia: nunca quién ha bloqueado a quien mira. Sin iconos: un perfil bloqueado no se consulta.
+// Errores: AUTH_REQUIRED.
+export function listBlockedUsers(
+  supabase: SupabaseClient,
+  cursor?: string | null,
+): Promise<Result<FollowPage>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("list_blocked_users", { p_cursor: cursor ?? null });
+    if (error) return { ok: false, error: toAppError(error) };
+    return { ok: true, data: toFollowPage(data, new Map()) };
+  });
+}
+
 // Fija, cambia o vacía (null o vacío) la biografía propia, de 0 a 280 caracteres de texto plano.
 // Errores: BIO_INVALID, AUTH_REQUIRED, PROFILE_REQUIRED. La recorta y valida el backend.
 export function setProfileBio(supabase: SupabaseClient, bio: string | null): Promise<Result<void>> {

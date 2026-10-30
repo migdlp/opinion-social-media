@@ -6,6 +6,7 @@ import {
   loadMoreProfileVotes,
   unfollowAction,
 } from "@/app/follow-actions";
+import { blockAction } from "@/app/block-actions";
 import { loadMoreSaved } from "@/app/save-actions";
 import { EmptyState } from "@/components/empty-state";
 import { FeedList } from "@/components/feed-list";
@@ -85,6 +86,7 @@ export async function ProfileContent({
         signedIn={signedIn}
         onFollow={followAction}
         onUnfollow={unfollowAction}
+        onBlock={blockAction}
       />
       {view.canViewContent ? (
         <>

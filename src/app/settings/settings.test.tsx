@@ -5,10 +5,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const getUser = vi.fn();
 const getMyProfile = vi.fn();
 const getMyVoteVisibility = vi.fn();
+const listBlockedUsers = vi.fn();
 vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({ auth: { getUser } }),
 }));
-vi.mock("@/lib/data/operations", () => ({ getMyProfile, getMyVoteVisibility }));
+vi.mock("@/lib/data/operations", () => ({ getMyProfile, getMyVoteVisibility, listBlockedUsers }));
+vi.mock("@/app/block-actions", () => ({ unblockAction: vi.fn(), loadMoreBlocked: vi.fn() }));
 vi.mock("@/app/auth/actions", () => ({ signOut: vi.fn() }));
 vi.mock("@/app/profile-actions", () => ({
   saveProfile: vi.fn(),
@@ -29,6 +31,8 @@ beforeEach(() => {
   getUser.mockReset();
   getMyProfile.mockReset();
   getMyVoteVisibility.mockReset();
+  listBlockedUsers.mockReset();
+  listBlockedUsers.mockResolvedValue({ ok: true, data: { users: [], nextCursor: null } });
   getMyVoteVisibility.mockResolvedValue({ ok: true, data: "private" });
   getUser.mockResolvedValue({ data: { user: { id: "u1" } }, error: null });
   getMyProfile.mockResolvedValue({
@@ -74,11 +78,11 @@ describe("SettingsContent (/settings)", () => {
     expect(screen.getByRole("link", { name: "Reintentar" }).getAttribute("href")).toBe("/settings");
   });
 
-  it("organiza los controles en Perfil, Apariencia, Privacidad y Cuenta", async () => {
+  it("organiza los controles en Perfil, Apariencia, Privacidad, Cuenta y Cuentas bloqueadas", async () => {
     render(await SettingsContent());
 
     const names = screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent);
-    expect(names).toEqual(["Perfil", "Apariencia", "Privacidad", "Cuenta"]);
+    expect(names).toEqual(["Perfil", "Apariencia", "Privacidad", "Cuenta", "Cuentas bloqueadas"]);
     for (const name of names) {
       expect(screen.getByRole("region", { name: name! })).toBeDefined();
     }
@@ -143,5 +147,36 @@ describe("SettingsContent (/settings)", () => {
       true,
     );
     expect(within(group).getByRole("radio", { name: "Iniciales" })).toBeDefined();
+  });
+});
+
+describe("SettingsContent: cuentas bloqueadas (SOCIAL-002)", () => {
+  it("muestra el apartado vacío con su explicación", async () => {
+    render(await SettingsContent());
+    const section = screen.getByRole("region", { name: "Cuentas bloqueadas" });
+    expect(section.id || section.getAttribute("aria-labelledby")).toBeTruthy();
+    expect(within(section).getByText("No has bloqueado a nadie.")).toBeDefined();
+  });
+
+  it("lista sólo los bloqueos propios con Desbloquear", async () => {
+    listBlockedUsers.mockResolvedValue({
+      ok: true,
+      data: { users: [{ username: "beto", displayName: "Beto" }], nextCursor: null },
+    });
+    render(await SettingsContent());
+    const section = screen.getByRole("region", { name: "Cuentas bloqueadas" });
+    expect(within(section).getByText("@beto")).toBeDefined();
+    expect(within(section).getByRole("button", { name: "Desbloquear" })).toBeDefined();
+  });
+
+  it("si la lista falla, el resto de ajustes sigue disponible y se explica con opción de reintento", async () => {
+    listBlockedUsers.mockResolvedValue({ ok: false, error: "NETWORK_ERROR" });
+    render(await SettingsContent());
+    expect(screen.getByRole("heading", { level: 1, name: "Ajustes" })).toBeDefined();
+    const section = screen.getByRole("region", { name: "Cuentas bloqueadas" });
+    expect(within(section).getByRole("alert")).toBeDefined();
+    expect(within(section).getByRole("link", { name: "Reintentar" }).getAttribute("href")).toBe(
+      "/settings#bloqueados",
+    );
   });
 });

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Avatar } from "@/components/avatar";
+import { BlockButton } from "@/components/block-button";
 import { FollowButton } from "@/components/follow-button";
 import type { ProfileView, Result } from "@/lib/data/types";
 
@@ -12,6 +13,8 @@ type ProfileHeaderProps = {
   signedIn: boolean;
   onFollow: (username: string) => Promise<Result<"accepted" | "pending">>;
   onUnfollow: (username: string) => Promise<Result<void>>;
+  // Bloquear (SOCIAL-002): sólo con sesión y sobre otra cuenta.
+  onBlock?: (username: string) => Promise<Result<void>>;
 };
 
 // Cabecera del perfil (V2-006): avatar de iniciales, nombre visible, @usuario, contadores (que
@@ -22,6 +25,7 @@ export function ProfileHeader({
   signedIn,
   onFollow,
   onUnfollow,
+  onBlock,
 }: ProfileHeaderProps) {
   const base = `/u/${profile.username}`;
   return (
@@ -75,6 +79,9 @@ export function ProfileHeader({
           onFollow={onFollow}
           onUnfollow={onUnfollow}
         />
+        {onBlock && signedIn && profile.viewerRelation !== "self" && (
+          <BlockButton username={profile.username} onBlock={onBlock} />
+        )}
         {profile.viewerRelation === "self" && (
           <Link
             href="/solicitudes"
