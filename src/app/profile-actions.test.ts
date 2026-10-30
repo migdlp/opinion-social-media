@@ -4,6 +4,7 @@ const getUser = vi.fn();
 const setVoteVisibility = vi.fn();
 const setProfilePrivacy = vi.fn();
 const setProfileAvatar = vi.fn();
+const setProfileBio = vi.fn();
 vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({ auth: { getUser } }),
 }));
@@ -11,16 +12,19 @@ vi.mock("@/lib/data/operations", () => ({
   setVoteVisibility,
   setProfilePrivacy,
   setProfileAvatar,
+  setProfileBio,
   upsertMyProfile: vi.fn(),
 }));
 
-const { saveVoteVisibility, savePrivacy, saveAvatar } = await import("./profile-actions");
+const { saveVoteVisibility, savePrivacy, saveAvatar, saveBio } = await import("./profile-actions");
 
 beforeEach(() => {
   getUser.mockReset();
   setVoteVisibility.mockReset();
   setProfilePrivacy.mockReset();
   setProfileAvatar.mockReset();
+  setProfileBio.mockReset();
+  setProfileBio.mockResolvedValue({ ok: true, data: undefined });
   getUser.mockResolvedValue({ data: { user: { id: "u1" } } });
 });
 
@@ -81,5 +85,28 @@ describe("saveAvatar (AVATAR-001)", () => {
     expect(await saveAvatar("sol")).toEqual({ ok: false, error: "AVATAR_INVALID" });
     setProfileAvatar.mockRejectedValue(new TypeError("fetch failed"));
     expect((await saveAvatar("sol")).ok).toBe(false);
+  });
+});
+
+describe("saveBio (PROFILE-002)", () => {
+  it("con sesión guarda la descripción una vez; null la quita", async () => {
+    expect(await saveBio("Hola")).toEqual({ ok: true, data: undefined });
+    expect(setProfileBio).toHaveBeenCalledOnce();
+    expect(setProfileBio.mock.calls[0][1]).toBe("Hola");
+    await saveBio(null);
+    expect(setProfileBio.mock.calls[1][1]).toBeNull();
+  });
+
+  it("sin sesión no llega a la base de datos", async () => {
+    getUser.mockResolvedValue({ data: { user: null } });
+    expect(await saveBio("Hola")).toEqual({ ok: false, error: "AUTH_REQUIRED" });
+    expect(setProfileBio).not.toHaveBeenCalled();
+  });
+
+  it("propaga BIO_INVALID y un fallo de red no lanza", async () => {
+    setProfileBio.mockResolvedValue({ ok: false, error: "BIO_INVALID" });
+    expect(await saveBio("x")).toEqual({ ok: false, error: "BIO_INVALID" });
+    getUser.mockRejectedValue(new TypeError("fetch failed"));
+    expect(await saveBio("x")).toEqual({ ok: false, error: "NETWORK_ERROR" });
   });
 });

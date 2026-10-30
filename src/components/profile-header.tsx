@@ -50,6 +50,14 @@ export function ProfileHeader({
           )}
         </div>
       </div>
+      {profile.bio && (
+        <p
+          data-bio
+          className="text-[15px] leading-relaxed break-words whitespace-pre-wrap [overflow-wrap:anywhere]"
+        >
+          {profile.bio}
+        </p>
+      )}
       <ul className="flex flex-wrap gap-x-6 gap-y-2 text-[15px]">
         <li>
           <Link href={`${base}/seguidores`} className="py-1.5 hover:underline">

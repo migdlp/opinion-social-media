@@ -251,6 +251,8 @@ public.get_profile(p_username text) returns table (..., can_view_content boolean
 - Bloqueos (SOCIAL-001): entre cuentas bloqueadas `get_profile` responde `USER_NOT_FOUND`, así que tampoco se entrega la bio.
 - Adaptadores: `setProfileBio(supabase, bio | null)` → `Result<void>`; `Profile.bio` y `ProfileView.bio` son opcionales (ausentes si no hay bio o no se puede ver).
 
+- **Interfaz (PROFILE-002)**: Ajustes → Perfil tiene un formulario propio «Descripción» (no toca nombre ni @usuario): opcional, contador en puntos de código `n / 280`, error junto al campo y texto conservado; vaciarlo envía `null`. `/u/[username]` la muestra como texto plano (`whitespace-pre-wrap`, sin HTML ni enlaces automáticos) sólo si el backend la entrega.
+
 ### 3.10. `get_profile` y `get_profile_polls` (V2-006)
 
 ```sql

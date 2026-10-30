@@ -20,7 +20,7 @@ test("ajustes: apartados, tema compartido y guardado del nombre visible", async 
   await expect(page.getByRole("button", { name: "Activar modo claro" })).toHaveCount(2);
 
   await page.getByRole("textbox", { name: /Nombre visible/ }).fill("Nombre de prueba");
-  await page.getByRole("button", { name: "Guardar" }).click();
+  await page.getByRole("button", { name: "Guardar", exact: true }).click();
   await expect(page.getByText("Cambios guardados.")).toBeVisible();
 
   await page.reload();

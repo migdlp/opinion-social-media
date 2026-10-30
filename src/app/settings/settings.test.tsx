@@ -17,6 +17,7 @@ vi.mock("@/app/profile-actions", () => ({
   savePrivacy: vi.fn(),
   saveVoteVisibility: vi.fn(),
   saveAvatar: vi.fn(),
+  saveBio: vi.fn(),
 }));
 vi.mock("next/navigation", () => ({
   redirect: (to: string) => {
@@ -178,5 +179,20 @@ describe("SettingsContent: cuentas bloqueadas (SOCIAL-002)", () => {
     expect(within(section).getByRole("link", { name: "Reintentar" }).getAttribute("href")).toBe(
       "/settings#bloqueados",
     );
+  });
+});
+
+describe("SettingsContent: descripción (PROFILE-002)", () => {
+  it("el apartado Perfil incluye el campo Descripción con la descripción actual", async () => {
+    getMyProfile.mockResolvedValue({
+      ok: true,
+      data: { username: "ana_23", displayName: "Ana", isPrivate: false, bio: "Mi bio" },
+    });
+    render(await SettingsContent());
+    const profile = screen.getByRole("region", { name: "Perfil" });
+    const box = within(profile).getByRole("textbox", {
+      name: "Descripción",
+    }) as HTMLTextAreaElement;
+    expect(box.value).toBe("Mi bio");
   });
 });

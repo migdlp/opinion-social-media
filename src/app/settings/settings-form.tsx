@@ -4,8 +4,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useId } from "react";
 import { signOut } from "@/app/auth/actions";
-import { saveAvatar, savePrivacy, saveProfile, saveVoteVisibility } from "@/app/profile-actions";
+import {
+  saveAvatar,
+  saveBio,
+  savePrivacy,
+  saveProfile,
+  saveVoteVisibility,
+} from "@/app/profile-actions";
 import { AvatarPicker } from "@/components/avatar-picker";
+import { BioForm } from "@/components/bio-form";
 import { PrivacyToggle } from "@/components/privacy-toggle";
 import { ProfileForm } from "@/components/profile-form";
 import { ThemeSelector } from "@/components/theme-selector";
@@ -60,6 +67,8 @@ export function SettingsForm({
           onSubmit={saveProfile}
           onDone={() => router.refresh()}
         />
+        <hr className="border-border" />
+        <BioForm initial={profile.bio ?? ""} onSave={saveBio} onDone={() => router.refresh()} />
       </Section>
       <Section
         title="Apariencia"
