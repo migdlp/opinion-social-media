@@ -28,6 +28,7 @@ describe("publishPoll", () => {
       ["Café", "Té"],
       undefined,
       undefined,
+      undefined,
     ]);
     expect(res).toEqual({ ok: true, data: { id: "p1" } });
   });
@@ -40,6 +41,7 @@ describe("publishPoll", () => {
       ["Café", "Té"],
       "2026-10-28T10:00:00.000Z",
       undefined,
+      undefined,
     ]);
   });
 
@@ -51,7 +53,13 @@ describe("publishPoll", () => {
       ["Café", "Té"],
       undefined,
       "ciencia",
+      undefined,
     ]);
+  });
+
+  it("pasa el interruptor de comentarios sólo si se activa (CMT-002)", async () => {
+    await publishPoll("¿Qué tomas por la mañana?", ["Café", "Té"], undefined, undefined, true);
+    expect(createPoll.mock.calls[0][5]).toBe(true);
   });
 
   it("sin sesión no llega a la base de datos y pide autenticación", async () => {

@@ -352,6 +352,8 @@ public.create_poll(p_question, p_options, p_closes_at default null, p_category d
 - Fuera de alcance: hilos, respuestas, likes, edición y borrado; la interfaz es CMT-002. La denuncia y la moderación (`comments.status`) están en §3.18. `PublicPoll` aún no expone `comments_enabled` (CMT-002).
 - Adaptadores: `listComments(supabase, pollId, cursor)` → `Result<CommentPage>`, `addComment(supabase, pollId, body)` → `Result<{ id }>`, `setPollComments(supabase, pollId, enabled)` y `createPoll(..., commentsEnabled?)`. Errores nuevos: `COMMENTS_DISABLED`, `VOTE_REQUIRED`, `COMMENT_INVALID`.
 
+**UI (CMT-002).** El detalle de la encuesta muestra la sección «Comentarios» bajo el voto: la autora ve el interruptor (`set_poll_comments`); quien no es autora sólo la ve si está activada. En una abierta, sin voto propio no se pide `list_comments` y se explica cómo acceder; tras votar (evento `opinion:voted`) se refresca y aparece el debate. Las cerradas se leen sin votar; comentar exige sesión.
+
 ### 3.17. `report_user` (MOD-001)
 
 ```sql

@@ -14,6 +14,8 @@ export type PollCreationInput = {
   options: string[];
   closesAt?: string;
   category?: string;
+  // Debate activado desde la creación (CMT-002); ausente = apagado.
+  commentsEnabled?: boolean;
 };
 
 type PollCreationFormProps = {
@@ -77,6 +79,7 @@ export function PollCreationForm({
   const [customClose, setCustomClose] = useState("");
   const [closeError, setCloseError] = useState(false);
   const [category, setCategory] = useState("");
+  const [commentsEnabled, setCommentsEnabled] = useState(false);
   const [focusedOption, setFocusedOption] = useState<number | null>(null);
   const [errors, setErrors] = useState<PollInputErrors | null>(null);
   const [pending, setPending] = useState(false);
@@ -117,6 +120,7 @@ export function PollCreationForm({
       options: submitted.map(normalizeText),
       ...(closesAt ? { closesAt } : {}),
       ...(category ? { category } : {}),
+      ...(commentsEnabled ? { commentsEnabled: true } : {}),
     };
     // Tras una caída de red la publicación quizá se completó: se consulta el servidor antes
     // de volver a enviar. Si la consulta tampoco llega, se espera a que haya conexión.
@@ -300,6 +304,23 @@ export function PollCreationForm({
         )}
         <p className="text-[13px] text-muted">
           Al cerrar, la encuesta deja de admitir votos y no se puede cambiar la fecha.
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="flex min-h-11 items-center gap-3 text-[15px] font-semibold">
+          <input
+            type="checkbox"
+            checked={commentsEnabled}
+            onChange={(event) => setCommentsEnabled(event.target.checked)}
+            className="size-5 accent-[var(--accent)]"
+          />
+          Comentarios
+        </label>
+        <p className="text-[13px] text-muted">
+          Opcional y apagado por defecto. Con el debate activado, sólo quien haya votado puede leer
+          y escribir comentarios mientras la encuesta esté abierta. Podrás activarlo o apagarlo
+          después desde la encuesta.
         </p>
       </div>
 

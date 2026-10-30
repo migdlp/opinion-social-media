@@ -3,7 +3,7 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PollResults, PollViewerState, PublicPoll, Result } from "@/lib/data/types";
-import { PollVoting } from "./poll-voting";
+import { PollVoting, VOTED_EVENT } from "./poll-voting";
 
 const POLL: PublicPoll = {
   id: "11111111-2222-4333-8444-555555555555",
@@ -286,5 +286,34 @@ describe("PollVoting", () => {
       expect(castVote).toHaveBeenCalledOnce();
       expect((await screen.findByRole("alert")).textContent).toMatch(/No hay conexión/);
     });
+  });
+});
+
+describe("PollVoting: evento de voto (CMT-002)", () => {
+  const listen = () => {
+    const seen: string[] = [];
+    const handler = (event: Event) => seen.push((event as CustomEvent).detail.pollId);
+    window.addEventListener(VOTED_EVENT, handler);
+    return { seen, stop: () => window.removeEventListener(VOTED_EVENT, handler) };
+  };
+
+  it("avisa a la ventana tras un voto correcto para que el detalle refresque el debate", async () => {
+    const { seen, stop } = listen();
+    view({ kind: "not_voted" });
+    await pick("Con cebolla");
+    await vote();
+    await waitFor(() => expect(seen).toEqual([POLL.id]));
+    stop();
+  });
+
+  it("no avisa si el voto falla", async () => {
+    castVote = vi.fn(async () => ({ ok: false, error: "UNKNOWN" }));
+    const { seen, stop } = listen();
+    view({ kind: "not_voted" });
+    await pick("Con cebolla");
+    await vote();
+    await screen.findByRole("alert");
+    expect(seen).toEqual([]);
+    stop();
   });
 });
