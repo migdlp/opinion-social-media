@@ -246,7 +246,7 @@ Petición del propietario del 29-10-2026. Medir navegador/Next/Vercel/Supabase a
 
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|
-| [REL-002](https://github.com/migdlp/opinion-social-media/issues/265) | Publicar selector Claro/Oscuro/Sistema y cierre del menú de cuenta; conservar el esquema productivo actual | P0 | BUG-004 #246 y DESIGN-013 #245 completadas; orden explícita del propietario (29-10-2026) | En progreso | Codex /root (opinion_social_media) |
+| [REL-002](https://github.com/migdlp/opinion-social-media/issues/265) | Publicar selector Claro/Oscuro/Sistema y cierre del menú de cuenta; conservar el esquema productivo actual | P0 | BUG-004 #246 y DESIGN-013 #245 completadas; orden explícita del propietario (29-10-2026) | Completada · [PR #268](https://github.com/migdlp/opinion-social-media/pull/268), release 60d841b; Vercel dpl_AZyUak2vjYzubEMi7sf2kzQ7SG3v READY/Production, dominio/HTTP/CSS/redirect y logs comprobados; CI 40916736798/40916743118 verdes (710 unitarias, 120 E2E, 89 HTTP); resultado en PR #274; sin SQL alojado | Codex /root (opinion_social_media) |
 
 ## Activación del trabajo posterior a REL-002 — 30-10-2026
 
