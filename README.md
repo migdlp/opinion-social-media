@@ -40,6 +40,7 @@ flowchart TB
 - [Índice y forma de trabajar](docs/README.md)
 - [Contexto de producto](docs/contexto-aplicacion.md)
 - [Dirección creativa vigente: After Sunset](docs/direccion-creativa.md) · [Sistema de diseño](DESIGN.md)
+- [Documentación técnica: mapa del código actual](docs/tecnica/README.md)
 - [Arquitectura y contratos previstos](docs/arquitectura.md)
 - [Brief de producto consolidado](docs/brief-producto.md)
 - [Backlog revisado: 53 tareas y criterios de aceptación](docs/backlog.md)
