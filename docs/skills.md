@@ -63,3 +63,22 @@ Se aplica al trabajo de interfaz (E03 y la revisión de UX). No sustituye el bri
 ### Relación con las reglas del proyecto
 
 Es una ayuda opcional de navegación. No sustituye leer los documentos obligatorios de `AGENTS.md`, ni el protocolo de reserva, ni TDD; las instrucciones del propietario, `AGENTS.md` y karpathy-guidelines prevalecen. Actualizarla consiste en fijar una nueva versión y regenerar ambas carpetas con el instalador de esa versión, no en actualizaciones automáticas.
+
+## documentar-proyecto
+
+- **Solicitud:** el propietario pidió subir al proyecto su propia skill de documentación técnica (31-10-2026), con la que se generó [docs/tecnica/](tecnica/README.md).
+- **Qué es:** guía para generar o actualizar la documentación técnica en `docs/tecnica/` (arquitectura, estructura, stack, modelos, módulos, API y configuración): concisa, con diagramas Mermaid, rutas reales y puntos dudosos marcados como «Por confirmar».
+- **Origen:** skill creada por el propietario en su cuenta de Claude; no tiene repositorio público.
+- **Archivos locales:** misma copia, sin modificar, en dos carpetas:
+  - [.agents/skills/documentar-proyecto/SKILL.md](../.agents/skills/documentar-proyecto/SKILL.md), para Codex y agentes que leen `.agents/skills`;
+  - [.claude/skills/documentar-proyecto/SKILL.md](../.claude/skills/documentar-proyecto/SKILL.md), para Claude Code (`/documentar-proyecto`).
+  - Plantillas en `references/plantillas.md` dentro de cada carpeta.
+- **Huella de cada carpeta** (`find . -type f | sort | xargs sha256sum | sha256sum`): `acb059f5737b0b854327ec1e5fb43076d81f8376e1781fa7cfc6ea4c6b360e92` en ambas.
+
+### Revisión de seguridad
+
+Sólo contiene texto Markdown: sin scripts, dependencias ni hooks.
+
+### Relación con las reglas del proyecto
+
+Aplicarla al documentar o actualizar `docs/tecnica/` tras cambios relevantes. La documentación técnica describe el código integrado; no acredita implementación ni sustituye `docs/decisiones.md`, los contratos de `docs/contratos-api.md` ni el protocolo de tareas. Las instrucciones del propietario y `AGENTS.md` prevalecen. Si la skill cambia en origen, se actualizan ambas copias y la huella.
