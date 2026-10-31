@@ -254,6 +254,22 @@ Cada tarea requiere evidencia de sus criterios de aceptación antes de pasar a c
 
 Petición del propietario del 29-10-2026. Medir navegador/Next/Vercel/Supabase antes de atribuir la causa; incluir estado activo tardío de la barra móvil y avisos de prerender. Criterios, muestras, seguridad y TDD en el issue. Prioridad operativa tras cerrar la tarea actualmente reservada; no esperar a personalización de avatares.
 
+## Rendimiento: región y consultas (plan del 31-10-2026)
+
+Plan completo y tareas autocontenidas en [docs/plan/rendimiento-feed/](plan/rendimiento-feed/README.md) (skill project-planner). Diagnóstico verificado: producción ejecuta las funciones en `iad1` (Washington) frente a Supabase en `eu-west-1` y el feed hace unas 7 consultas en serie. Decisiones del propietario en D-043. El punto pendiente de región de PERF-001 pasa a PERF-003; el resto de PERF-001 sigue con su agente.
+
+| ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
+|---|---|---|---|---|---|
+| [PERF-002](https://github.com/migdlp/opinion-social-media/issues/327) | Medición base reproducible de rutas públicas (`scripts/measure-routes.mjs`) | P0 | Ninguna; antes de PERF-003 | Pendiente | — |
+| [PERF-003](https://github.com/migdlp/opinion-social-media/issues/328) | Funciones de Vercel en Dublín (`dub1`) y redeploy de la release vigente `60d841b` | P0 | PERF-002; Codex (D-VERCEL-001); autorizado en D-043 | Pendiente | — |
+| [PERF-004](https://github.com/migdlp/opinion-social-media/issues/329) | RPC `get_poll_cards` (tarjeta completa en una llamada) con tests SQL y de ataque | P0 | Ninguna | Pendiente | — |
+| [PERF-005](https://github.com/migdlp/opinion-social-media/issues/330) | Feed con `get_feed` + `get_poll_cards` (2 consultas por tanda) | P0 | PERF-004 | Pendiente | — |
+| [PERF-006](https://github.com/migdlp/opinion-social-media/issues/331) | Sesión con `getClaims()` en feed y navegación | P1 | Ninguna; después o antes de PERF-007, no a la vez (`feed.tsx`) | Pendiente | — |
+| [PERF-007](https://github.com/migdlp/opinion-social-media/issues/332) | Categorías en caché y en paralelo | P1 | Ninguna; no a la vez que PERF-006 | Pendiente | — |
+| [PERF-008](https://github.com/migdlp/opinion-social-media/issues/333) | Detalle de encuesta con `get_poll_cards` | P1 | PERF-005 | Pendiente | — |
+| [PERF-009](https://github.com/migdlp/opinion-social-media/issues/334) | Perfil, guardados y búsqueda con `get_poll_cards` | P1 | PERF-005 | Pendiente | — |
+| [PERF-010](https://github.com/migdlp/opinion-social-media/issues/335) | Medición final, `docs/tecnica/` y cierre del plan | P1 | PERF-003, PERF-005 a PERF-009 y su publicación por REL-003 #273 / REL-004 #297 | Pendiente | — |
+
 ## Publicación de tema y cuenta
 
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
