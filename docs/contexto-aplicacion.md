@@ -16,7 +16,7 @@ Estas decisiones amplían las exclusiones históricas de comentarios/medios y su
 
 ## Contexto de conexión para el equipo y los agentes
 
-Supabase está en la organización **Los tres cerditos** (`drifadkhohwebqljdlvw`), región Irlanda. El proyecto de trabajo es **`opinion-social-media-dev`** (`ltlrujmqenhktiilsnis`); **`opinion-social-media-prod`** (`qchpdrolulcgmiliysvr`) se reserva para producción. Desarrollo local, previews y agentes deben apuntar a desarrollo.
+Supabase está en la organización **Los tres cerditos** (`drifadkhohwebqljdlvw`), región París (`eu-west-3`), tras la recreación del 3-11-2026 (ver [entornos](entornos.md)). El proyecto de trabajo es **`opinion-social-media-dev`** (`yxnnqdvyyjncljpdlwuq`); **`opinion-social-media-prod`** (`bmgjdkkavbacqrnetxkk`) se reserva para producción. Desarrollo local, previews y agentes deben apuntar a desarrollo.
 
 La [guía de acceso a Supabase](supabase-acceso.md) contiene las URLs, dashboards, invitaciones al equipo, OAuth/MCP, variables de aplicación y conexiones CLI/SQL. Su lectura es obligatoria para los agentes según [AGENTS.md](../AGENTS.md). Cada entorno debe autorizar su conexión; el acceso no se hereda al clonar el repositorio. La pausa histórica se interpreta según el alcance vigente de [AGENTS.md](../AGENTS.md): [D-VERCEL-001](decisiones.md) autoriza a Codex a configurar y operar Vercel, sin ampliar por sí sola el permiso para SQL o Auth. Ver [operación de Vercel](vercel-operacion.md).
 

@@ -51,6 +51,8 @@ Contra el Supabase de desarrollo, con la aplicación de `main`:
 
 ## Entornos
 
+> **3-11-2026:** ambos proyectos se recrearon en París (`eu-west-3`) con refs nuevos: dev `yxnnqdvyyjncljpdlwuq` y prod `bmgjdkkavbacqrnetxkk` (ver [entornos](entornos.md)). La tabla siguiente conserva lo observado el 28-10-2026 en los proyectos anteriores, ya obsoletos; no describe el estado de los nuevos.
+
 | Entorno | Nombre | Referencia | Estado observado (28-10-2026) |
 |---|---|---|---|
 | Desarrollo | `opinion-social-media-dev` | `ltlrujmqenhktiilsnis` | 25 migraciones (última `20261028280000`, OPS-001 del 28-10-2026; ver [la integración](ops-001-integracion-dev.md)); datos de prueba (`[fixture …]`); Auth: Google **y** Email activos |

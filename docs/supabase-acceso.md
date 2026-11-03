@@ -17,7 +17,7 @@ No se aplicó SQL de escritura, se habilitaron proveedores, se invitaron miembro
 
 ## Inventario
 
-Organización: **Los tres cerditos**, identificador `drifadkhohwebqljdlvw`. Región: **Irlanda**, `eu-west-3`. PostgreSQL reportado: versión principal 17.
+Organización: **Los tres cerditos**, identificador `drifadkhohwebqljdlvw`. Región: **París**, `eu-west-3`. PostgreSQL reportado: versión principal 17.
 
 | Dato | Desarrollo | Producción |
 |---|---|---|
