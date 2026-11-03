@@ -11,11 +11,7 @@ function tokens(block: string): Record<string, string> {
   );
 }
 const light = tokens(css.match(/:root\s*\{([^}]*)\}/)![1]);
-const dark = tokens(
-  css.match(
-    /prefers-color-scheme:\s*dark\)\s*\{\s*:root:not\(\[data-theme="light"\]\)\s*\{([^}]*)\}/,
-  )![1],
-);
+const dark = tokens(css.match(/:root\[data-theme="dark"\]\s*\{([^}]*)\}/)![1]);
 
 function luminance(hex: string): number {
   const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
@@ -94,7 +90,7 @@ describe.each([
 
 describe("tema oscuro", () => {
   it("permite forzar claro aunque el sistema sea oscuro y forzar oscuro en cualquier sistema", () => {
-    expect(css).toContain(':root:not([data-theme="light"])');
+    expect(css).not.toContain("prefers-color-scheme");
     const manual = css.match(/:root\[data-theme="dark"\]\s*\{([^}]*)\}/)?.[1];
     expect(tokens(manual ?? "")).toEqual(dark);
   });

@@ -1,4 +1,5 @@
-// V2-017: con el sistema en oscuro, las rutas públicas se ven en oscuro (tokens de globals.css)
+import { chooseTheme } from "./support/theme";
+// D-032: las rutas se comprueban en Oscuro elegido explícitamente, también con sistema oscuro.
 // y se adjunta una captura de cada una. Contra la app compilada y Supabase local.
 import { expect, test } from "@playwright/test";
 import { createPoll, createUser } from "./support/supabase";
@@ -23,6 +24,7 @@ test("feed y detalle se ven en oscuro, con captura", async ({ page }, testInfo) 
   const pollId = await createPoll(author, question, ["Rojo", "Azul"]);
 
   await page.goto("/");
+  await chooseTheme(page, "dark");
   await page.waitForLoadState("networkidle");
   await expect(page.locator("article", { hasText: question })).toBeVisible();
   await expectDark(page);
@@ -32,6 +34,7 @@ test("feed y detalle se ven en oscuro, con captura", async ({ page }, testInfo) 
   });
 
   await page.goto(`/polls/${pollId}`);
+  await chooseTheme(page, "dark");
   await page.waitForLoadState("networkidle");
   await expect(page.getByRole("heading", { level: 1, name: question })).toBeVisible();
   await expectDark(page);
@@ -44,6 +47,7 @@ test("feed y detalle se ven en oscuro, con captura", async ({ page }, testInfo) 
 test("login y creación también en oscuro", async ({ page }) => {
   for (const path of ["/login", "/create"]) {
     await page.goto(path);
+    await chooseTheme(page, "dark");
     await page.waitForLoadState("networkidle");
     await expectDark(page);
   }

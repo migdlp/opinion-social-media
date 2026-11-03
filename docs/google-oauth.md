@@ -1,6 +1,6 @@
 # Google OAuth: configuración (MVP-005)
 
-**Estado tras la recreación en París (3-11-2026):** configurar Google Auth en ambos proyectos nuevos desde Google Cloud y el panel de Supabase. Esta guía sigue la [documentación oficial de Supabase](https://supabase.com/docs/guides/auth/social-login/auth-google) (consultada el 27-10-2026). El conector de Supabase no puede configurar Auth, así que estos pasos se hacen en los paneles.
+**Estado tras la recreación en París (3-11-2026):** ambos proveedores deben habilitarse y configurarse de nuevo, con sus nuevos callback URLs. Esta guía sigue la [documentación oficial de Supabase](https://supabase.com/docs/guides/auth/social-login/auth-google) (consultada el 27-10-2026). El conector de Supabase no puede configurar Auth, así que estos pasos se hacen en los paneles.
 
 **No pegues el Client Secret en el chat, en Git ni en issues.** Solo va en el panel de Supabase (Auth → Providers → Google). El Client ID no es secreto.
 

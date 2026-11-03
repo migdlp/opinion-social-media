@@ -8,10 +8,14 @@ export const getNavigationAccount = cache(async () => {
   try {
     const supabase = await createClient();
     const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) return { signedIn: false, username: null };
+    if (error || !data.user) return { signedIn: false, username: null, avatarIcon: null };
     const profile = await getMyProfile(supabase);
-    return { signedIn: true, username: profile.ok ? (profile.data?.username ?? null) : null };
+    return {
+      signedIn: true,
+      username: profile.ok ? (profile.data?.username ?? null) : null,
+      avatarIcon: profile.ok ? (profile.data?.avatarIcon ?? null) : null,
+    };
   } catch {
-    return { signedIn: false, username: null };
+    return { signedIn: false, username: null, avatarIcon: null };
   }
 });

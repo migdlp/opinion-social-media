@@ -10,7 +10,7 @@ afterEach(() => {
 it.each([null, "", "invalid", "system", "<script>"])(
   "no acepta %s como preferencia manual",
   (value) => {
-    expect(parseTheme(value)).toBe("system");
+    expect(parseTheme(value)).toBe("light");
   },
 );
 it.each(["light", "dark"])("bootstrap aplica %s sin modificar almacenamiento", (value) => {
@@ -26,5 +26,16 @@ it("bootstrap tolera almacenamiento bloqueado", () => {
     throw new Error("blocked");
   });
   expect(() => window.eval(THEME_BOOTSTRAP)).not.toThrow();
-  expect(document.documentElement.hasAttribute("data-theme")).toBe(false);
+  expect(document.documentElement.dataset.theme).toBe("light");
 });
+
+it.each([null, "system", "invalid"])(
+  "bootstrap elige Claro para %s sin escribir almacenamiento",
+  (value) => {
+    if (value) localStorage.setItem("opinion-theme", value);
+    const write = vi.spyOn(Storage.prototype, "setItem");
+    window.eval(THEME_BOOTSTRAP);
+    expect(document.documentElement.dataset.theme).toBe("light");
+    expect(write).not.toHaveBeenCalled();
+  },
+);

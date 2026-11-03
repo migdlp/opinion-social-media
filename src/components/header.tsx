@@ -19,6 +19,12 @@ export function Header() {
           Opinión
         </Link>
         <div className="flex items-center gap-2 whitespace-nowrap">
+          <Link
+            href="/search"
+            className="hidden min-h-11 items-center rounded-xl px-3 text-sm font-medium text-muted transition-colors hover:text-foreground sm:inline-flex"
+          >
+            Buscar
+          </Link>
           <ThemeSelector />
           <Suspense fallback={<AuthButtonFallback />}>
             <AuthButton />

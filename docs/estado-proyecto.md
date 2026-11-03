@@ -1,14 +1,22 @@
 # Estado real del proyecto
 
-Última actualización: 29 de octubre de 2026. Las observaciones anteriores se conservan más abajo como historial.
+Última actualización: 30 de octubre de 2026. Las observaciones anteriores se conservan más abajo como historial.
 
-## Situación actual y relevo — 29-10-2026
+## Situación actual y relevo — 30-10-2026
 
-Producción ya funciona en https://opinion-social-media.vercel.app (release 69f8a10 al comenzar esta revisión), con 25 migraciones; los mensajes antiguos de «producción sin tablas» o «publicación pendiente» no describen el estado actual. El propietario confirmó creación y acceso al perfil después de la reparación.
+**Publicada y verificada:** https://opinion-social-media.vercel.app, release `60d841b`, PR #268, deployment `dpl_AZyUak2vjYzubEMi7sf2kzQ7SG3v` READY/Production. Incluye selector Claro/Oscuro/Sistema, cierre del menú al pulsar fuera y ajustes básicos de perfil/cuenta privada. CI del candidato: 710 unitarias, 120 E2E y 89 HTTP, build y seguridad verdes; HTTP/CSS/redirect de Ajustes comprobados. [Resultado y límites](rel-002-tema-cuenta.md).
 
-BUG-004 y DESIGN-013 están integradas y verificadas: menú que cierra fuera y selector Claro/Oscuro/Sistema. REL-002 #265 prepara su publicación autorizada; **no asumirla desplegada hasta la evidencia del issue**. Backend PRIV-001 e inventario LEGAL-001 completados, sin migración 26 alojada ni textos legales públicos. La interfaz de esa privacidad, las ampliaciones de Ajustes y avatares siguen su backlog; la base V2-008 / PR #263 acaba de integrarse y se incluye en el candidato.
+**Integrado en main pero aún sin activar en producción:** ajustes ampliados, audiencia del historial, iconos de perfil y primera optimización del feed. Dev y prod conservan 25 migraciones; se necesitan las 26/27 antes del frontend nuevo. [OPS-003 #272](https://github.com/migdlp/opinion-social-media/issues/272) integra/valida dev y [REL-003 #273](https://github.com/migdlp/opinion-social-media/issues/273) prepara la activación y publicación posterior, con recuperación revisada. OPS-003 está bloqueada y sin reserva por la autorización de copia pendiente; REL-003 sigue pendiente y sin reserva.
 
-[Plan de versión y relevo](rel-002-tema-cuenta.md): resultados de CI, destinos, compatibilidad, pendientes y siguiente orden. PERF-001 #262 es P0 por el lag comunicado y ya está reservada por otra IA; no se afirma corregida. V2-008 #129 / PR #263 está completada; SETTINGS-001 #248 y AUTH-001 #258 conservan las reservas de sus agentes. MVP-049/050/051 mantienen sus bloqueos pero quedan sin reserva de esta sesión (8ed54b8).
+PERF-001 #262 sigue parcial/reservada a su agente; esta publicación no se presenta como arreglo del lag. AUTH-001 #258 conserva su reserva. Los textos legales públicos necesitan datos reales del responsable y revisión; Storage/subida de fotos siguen pendientes. MVP-049/050/051 conservan bloqueos de aceptación global pero quedan sin reserva de Codex (8ed54b8). El estado operativo de cada fila prevalece sobre el historial.
+
+## Revisión de desarrollo — 30-10-2026
+
+Separación Vercel/Supabase comprobada y workspace local conectado sólo a dev (health 200); producción sigue release60d841b y no se ha modificado. [OPS-003](ops-003-integracion-dev.md) verificó las 27 migraciones/suites y restauración con fixtures locales, pero no ha aplicado SQL alojado. La copia cifrada real solicitada fue rechazada por revisión automática al no considerar autorizado su contenido/destino local; se pidió autorización concreta al propietario. Dev y prod siguen en 25. No confundir esta preparación con integración completada ni tomar producción para desarrollar.
+
+## Alineación de tarjetas — DESIGN-015
+
+La [PR #313](https://github.com/migdlp/opinion-social-media/pull/313) alinea tarjetas, preguntas, opciones, botones y pies en escritorio con CSS subgrid, sin recortar texto ni fijar alturas. Se han comprobado localmente ambos temas y 320/390/1024/1280 px antes/después de votar y paginar; la CI comprueba el flujo con Supabase efímero. [Alcance y pruebas](design-015-cuadricula.md). No se publica en Vercel ni se escribe en bases alojadas; consultar el resultado final de CI y el estado de la tarea en main.
 
 ## Historial de revisión — 28-10-2026
 

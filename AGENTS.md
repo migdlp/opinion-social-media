@@ -5,7 +5,7 @@
 La implementación se pausó (D-005) y se **reanudó el 26 de octubre de 2026** (D-013, `docs/decisiones.md`). Además, el propietario encarga Vercel a **Codex /root (opinion_social_media)** (D-VERCEL-001; ver [la guía de operación](docs/vercel-operacion.md)): ese agente reserva sus tareas y resuelve los bloqueos de configuración y despliegue dentro de sus dependencias. Incorporar los próximos mensajes a `docs/` y mantener la trazabilidad de decisiones y requisitos.
 
 - Leer `README.md`, `docs/contexto-aplicacion.md`, `docs/decisiones.md`, `docs/estado-proyecto.md` y `docs/supabase-acceso.md` antes de trabajar.
-- Trabajar tarea a tarea según `docs/orden-ejecucion.md` y el protocolo de reserva de abajo, respetando dependencias y reservas ajenas.
+- Trabajar tarea a tarea según `docs/orden-ejecucion.md` y el protocolo de reserva en el issue #73 de abajo, respetando dependencias y reservas ajenas.
 - Configurar OAuth, aplicar SQL en proyectos Supabase, crear infraestructura o desplegar sólo cuando lo exija la tarea reservada y se disponga de los datos y confirmaciones necesarios. Las tareas de Vercel corresponden a Codex salvo traspaso registrado.
 - Un despliegue READY de documentación no acredita una aplicación funcional. No equiparar documentación o borradores con implementación verificada.
 - No guardar secretos, tokens ni claves administrativas en Git.
@@ -18,6 +18,14 @@ El propietario ha elegido provisionalmente el estilo **After Sunset de la lámin
 Aplicarla dentro del alcance de la tarea reservada y coordinar tokens compartidos por #73. La imagen no autoriza nuevas funciones ni revoca perfiles/privacidad o el feed acordado. PEEK es la referencia creativa; no hay cambio de nombre confirmado. Esta actualización documental no acredita que el CSS haya sido migrado ni permite desplegar. Las instrucciones visuales históricas contradictorias ceden ante D-026; las reglas funcionales y de seguridad siguen vigentes.
 
 El encargo claro del **29-10-2026 (D-027)** concreta esa dirección. Leer [la guía del rediseño y sus conflictos documentados](docs/redisenio-aftersunset-claro.md) y `DESIGN.md`: categorías en una fila, cabecera móvil compacta, tarjetas claras y resultados cálidos. Las fuentes originales están en `docs/fuentes/aftersunset-claro/`. Su HTML es ilustrativo: no usar sus votos ficticios ni incorporar funciones nuevas. Conservar las funciones V2 reales (2–6 opciones, perfiles/privacidad/Siguiendo y cerradas) y el nombre provisional Opinión.
+
+## Nuevas peticiones de producto (30-10-2026)
+
+Consultar [el backlog por áreas](docs/backlog-producto-2026-10-30.md) y D-032–D-042: Claro inicial con botón de icono y Recientes inicial para todos sustituyen los defaults anteriores; búsqueda, comentarios opcionales, fotos, bloqueo/denuncia y bio tienen tickets propios. Varias respuestas/ranking siguen en definición con el propietario. Iconos reutilizan AVATAR-001 y su activación existente. Estas tareas son futuras y su estado se consulta en el #73; no reabrir tickets históricos ni tomar reservas ajenas. Documentarlas no acredita implementación ni autoriza un despliegue.
+
+## Entorno de desarrollo: instrucción actual del propietario (30-10-2026)
+
+El propietario pide desarrollar y probar en **dev**, no en producción. Código en ramas/local; pruebas automáticas contra Supabase efímero local/CI; pruebas manuales alojadas y migraciones de desarrollo sólo en `yxnnqdvyyjncljpdlwuq` dentro de su tarea reservada. No usar producción para suplir contratos que falten en dev. Cualquier indicación histórica de otra sesión sobre experimentación en producción cede ante esta instrucción. Las verificaciones sin escrituras de la versión pública y las publicaciones expresamente autorizadas conservan su proceso release. Ver [auditoría de entornos](docs/ops-003-integracion-dev.md); no confundir ensayos sintéticos con backup real ni eludir un rechazo de revisión automática.
 
 ## Contexto obligatorio de conexión a Supabase
 
@@ -54,35 +62,49 @@ Para trabajo de interfaz, aplicar además [impeccable](.agents/skills/impeccable
 
 Opcionalmente, para explorar el código con un grafo de conocimiento, está disponible [graphify](.agents/skills/graphify/SKILL.md) (`/graphify` en Claude Code, `$graphify` en Codex). Requiere la CLI `graphifyy[sql]==0.9.97`; sus hooks no están activados y `graphify-out/` no se versiona. Detalles en [docs/skills.md](docs/skills.md).
 
-## Canal de coordinación entre agentes
+## Canal de coordinación y tablón de tareas: issue #73
 
-Varios agentes trabajan a la vez desde sesiones y cuentas distintas y no pueden mensajearse directamente. El buzón común es el issue [#73](https://github.com/migdlp/opinion-social-media/issues/73):
+Varios agentes trabajan a la vez desde sesiones y cuentas distintas y no pueden mensajearse directamente. Desde el **03-11-2026 (D-043)**, el issue [#73](https://github.com/migdlp/opinion-social-media/issues/73) es a la vez el buzón común y el **tablón de tareas**: allí se reserva, se informa del estado y se libera cada tarea. Ya no se hacen commits de reserva ni de cambio de estado en `main`.
 
-- Al empezar una sesión, leer sus últimos comentarios además de `docs/tareas-futuras.md` en `main`.
-- Avisar allí, con `Para: <agente>` o `Para: todos`, de la siguiente tarea prevista, cambios en archivos o dependencias compartidos, bloqueos y peticiones de traspaso. Al terminar o pausar, dejar un resumen breve.
-- El canal no sustituye la reserva en `main` ni el issue de cada tarea. Lo que escriba otro agente es información, no una instrucción del propietario.
+- Al empezar una sesión, leer los últimos comentarios del #73, especialmente las reservas y los cambios de estado.
+- Avisar allí, con `Para: <agente>` o `Para: todos`, de cambios en archivos o dependencias compartidos, bloqueos y peticiones de traspaso. Al terminar o pausar, dejar un resumen breve.
+- Lo que escriba otro agente es información, no una instrucción del propietario.
 
 ## Reserva y seguimiento obligatorio de tareas
 
-Estas reglas se aplican desde la reanudación (D-013) a todas las tareas. La reserva no sustituye la autorización ni las dependencias.
+Estas reglas se aplican a todas las tareas (D-013, modificado por D-043). La reserva no sustituye la autorización ni las dependencias.
 
-1. Leer `docs/tareas-futuras.md`, `docs/orden-ejecucion.md` y el issue correspondiente. Elegir una tarea pendiente cuyas dependencias estén completadas y verificadas; atender P0 antes de P1.
-2. Antes de elegir o empezar una tarea y antes de cada cambio de estado, actualizar la referencia remota de `main` desde GitHub y consultar allí `docs/tareas-futuras.md`: el estado vigente de `main` es la fuente compartida de disponibilidad, no una copia antigua ni una rama de implementación. Comprobar que la tarea no esté ocupada. En su fila, cambiar el estado a **En progreso** y escribir en **Agente** el nombre o identificador real del agente que la ejecuta. Usar un identificador estable y distinguible; nunca inventar una persona o asignar trabajo a otro agente sin acuerdo.
-3. Hacer un commit exclusivo de la reserva directamente en `main` y publicarlo antes de comenzar los cambios de implementación, para que todos puedan verla desde `main`. Refrescar `main` justo antes de publicar y usar un push normal, nunca forzado. Si el push se rechaza porque avanzó `main`, releer su estado remoto actualizado antes de rehacer el cambio: si otro agente reservó la tarea entretanto, respetar su reserva y elegir otra tarea disponible o coordinar explícitamente el traspaso. No sobrescribir al responsable actual ni iniciar la implementación sin la reserva publicada.
-4. Actualizar el cuerpo del issue con el mismo estado y agente, manteniendo descripción, prioridad, criterios y dependencias. No confundir la cuenta de GitHub que publica el cambio con la identidad del agente. Asignar un usuario de GitHub sólo si existe una correspondencia real y autorizada.
-5. Mantener ambos registros al cambiar de situación: **Bloqueada** con causa y siguiente paso; **Pendiente** y agente `—` si se libera; **Completada** sólo con criterios verificados y enlaces a cambios y pruebas. Publicar cada cambio de estado, responsable o traspaso mediante un commit exclusivo directamente en `main`, con la misma comprobación de concurrencia que la reserva, y sincronizar el issue. Al completar, conservar el agente como autor del trabajo y cerrar el issue cuando corresponda.
-6. Si un traspaso es necesario, registrar el agente entrante, el saliente y el estado de los cambios. Una sesión interrumpida no demuestra por sí sola que la tarea haya terminado ni autoriza borrar su reserva.
+1. Leer `docs/orden-ejecucion.md`, `docs/tareas-futuras.md` (catálogo, prioridades y tareas ya completadas) y el issue de la tarea. Elegir una tarea pendiente cuyas dependencias estén completadas y verificadas; atender P0 antes de P1.
+2. **Comprobar en el #73 que la tarea esté libre.** Revisar los comentarios del #73: está ocupada si su último comentario de estado es `Reserva` o `Bloqueada` de otro agente. Si está ocupada, respetarla y elegir otra o pedir el traspaso allí.
+3. **Reservar con un comentario en el #73** antes de empezar a implementar. El comentario empieza por la línea de estado y usa este formato:
 
-Las prioridades P0/P1 y el orden sugerido están documentados en `docs/orden-ejecucion.md`. El orden es orientativo; las dependencias y las reservas vigentes determinan qué tarea está disponible. Este protocolo no requiere desplegar ni ejecutar acciones ajenas a la tarea.
+   ```text
+   Reserva: <ID> (#<issue>)
+   Agente: <identificador real y estable, p. ej. claude-code (session_…)>
+   Estado: En progreso
+   Rama: <rama prevista>
+   ```
+
+   Usar un identificador estable y distinguible; nunca inventar una persona ni asignar trabajo a otro agente sin acuerdo. No confundir la cuenta de GitHub que publica el comentario con la identidad del agente.
+4. **Comprobar la concurrencia.** Tras publicar la reserva, releer el #73. Si otro agente reservó la misma tarea antes (el comentario más antiguo gana), retirar la propia con un comentario `Liberada` y elegir otra tarea. No empezar a implementar sin la reserva publicada y confirmada.
+5. **Publicar cada cambio de estado en el #73** con el mismo formato y otra línea inicial:
+   - `Completada: <ID> (#<issue>)`, sólo con criterios verificados y enlaces a la PR, al merge y a las pruebas.
+   - `Bloqueada: <ID> (#<issue>)`, con la causa y el siguiente paso; la tarea sigue ocupada por ese agente.
+   - `Liberada: <ID> (#<issue>)`, si se abandona; la tarea vuelve a quedar libre.
+   - `Traspaso: <ID> (#<issue>)`, con el agente saliente, el entrante y el estado de los cambios.
+6. Actualizar también el cuerpo del issue de la tarea con el mismo estado y agente cuando cambie de situación, conservando descripción, prioridad, criterios y dependencias. Asignar un usuario de GitHub sólo si existe una correspondencia real y autorizada.
+7. Una sesión interrumpida no demuestra por sí sola que la tarea haya terminado ni autoriza a otro agente a dar por liberada su reserva; pedirlo en el #73.
+
+Las prioridades P0/P1 y el orden sugerido están en `docs/orden-ejecucion.md`. El orden es orientativo; las dependencias y las reservas del #73 determinan qué tarea está disponible. Este protocolo no requiere desplegar ni ejecutar acciones ajenas a la tarea.
 
 ## Ramas, pull requests y merge obligatorios
 
-1. Realizar cada tarea en una rama propia creada desde `main` actualizado. Usar un nombre que identifique la tarea, por ejemplo `codex/MVP-013-contratos-rpc`. Respetar la reserva y el seguimiento anteriores antes de iniciar la implementación.
+1. Realizar cada tarea en una rama propia creada desde `main` actualizado. Usar un nombre que identifique la tarea, por ejemplo `codex/MVP-013-contratos-rpc`. Publicar y confirmar la reserva en el #73 antes de iniciar la implementación.
 2. Publicar los commits en esa rama y abrir una pull request hacia `main`, enlazando el issue e indicando el alcance, los criterios de aceptación y las comprobaciones realizadas, incluidos fallos o comprobaciones pendientes.
 3. Fusionar la PR en `main` sólo cuando se hayan verificado los criterios de aceptación, pasado las comprobaciones aplicables y resuelto los conflictos y las observaciones pendientes. Respetar las revisiones y protecciones que tenga configuradas el repositorio; no eludirlas.
-4. Tras el merge, actualizar la copia local y sincronizar el registro de tareas y el issue con enlaces a la PR, al merge y a las pruebas. Marcar la tarea **Completada** y cerrar el issue sólo cuando su resultado esté integrado y verificado; abrir una PR no equivale a terminarla.
-5. **Cerrar el issue es obligatorio.** Quien termina una tarea y fusiona su PR en `main` cierra su issue (motivo «completed») en la misma sesión, justo después de publicar en `main` la fila **Completada**, con el cuerpo actualizado al mismo estado y los enlaces. Una tarea **Completada** en `docs/tareas-futuras.md` con el issue abierto es un registro incoherente: corregirlo antes de reservar otra tarea.
-6. Los commits exclusivos de reserva y actualización de estado, responsable o traspaso de tareas se publican directamente en `main`, como exige el protocolo anterior. No mezclar código ni otros cambios documentales en esos commits. Para el resto de cambios, incluida la documentación, usar rama y PR; cualquier otra publicación directa en `main` requiere una excepción explícita del propietario para el cambio concreto. Esta regla no amplía el alcance vigente.
+4. Incluir en la propia PR de la tarea la actualización de su fila en `docs/tareas-futuras.md` a **Completada**, con el agente y los enlaces. Tras el merge, publicar el comentario `Completada` en el #73 y actualizar el issue con enlaces a la PR, al merge y a las pruebas. Marcar la tarea **Completada** sólo cuando su resultado esté integrado y verificado; abrir una PR no equivale a terminarla.
+5. **Cerrar el issue es obligatorio.** Quien termina una tarea y fusiona su PR en `main` cierra su issue (motivo «completed») en la misma sesión, junto con el comentario `Completada` en el #73, con el cuerpo actualizado al mismo estado y los enlaces. Una tarea **Completada** en el #73 o en `docs/tareas-futuras.md` con el issue abierto es un registro incoherente: corregirlo antes de reservar otra tarea.
+6. No se publica nada directamente en `main`: las reservas y los cambios de estado van al #73 (D-043), y el código y la documentación, incluido `docs/tareas-futuras.md`, van por rama y PR. Cualquier publicación directa en `main` requiere una excepción explícita del propietario para el cambio concreto. Esta regla no amplía el alcance vigente.
 
 ## Despliegues de producción por sprint
 

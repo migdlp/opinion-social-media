@@ -34,6 +34,32 @@ describe("proxy (renovación de sesión)", () => {
     expect(res.status).toBe(200);
   });
 
+  it("acorta a 30 días las cookies de sesión y marca Secure sobre HTTPS (AUTH-001)", async () => {
+    getClaims.mockImplementation(async () => {
+      setAll?.([
+        { name: "sb-x-auth-token", value: "v", options: { path: "/", maxAge: 400 * 24 * 60 * 60 } },
+      ]);
+      return { data: { claims: {} }, error: null };
+    });
+
+    const res = await proxy(new NextRequest("https://opinion-social-media.vercel.app/"));
+
+    const cookie = res.cookies.get("sb-x-auth-token");
+    expect(cookie?.maxAge).toBe(30 * 24 * 60 * 60);
+    expect(cookie?.secure).toBe(true);
+  });
+
+  it("sobre HTTP local no marca Secure", async () => {
+    getClaims.mockImplementation(async () => {
+      setAll?.([{ name: "sb-x-auth-token", value: "v", options: { maxAge: 400 * 24 * 60 * 60 } }]);
+      return { data: { claims: {} }, error: null };
+    });
+
+    const res = await proxy(new NextRequest("http://localhost:3000/"));
+
+    expect(res.cookies.get("sb-x-auth-token")?.secure).toBeFalsy();
+  });
+
   it("si Supabase falla no rompe la página: sigue como visitante", async () => {
     getClaims.mockRejectedValue(new TypeError("fetch failed"));
 

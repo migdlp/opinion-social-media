@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Avatar } from "@/components/avatar";
+import { BlockButton } from "@/components/block-button";
 import { FollowButton } from "@/components/follow-button";
+import { ReportUser } from "@/components/report-user";
 import type { ProfileView, Result } from "@/lib/data/types";
 
 const number = new Intl.NumberFormat("es-ES", { useGrouping: "always" });
@@ -12,6 +14,8 @@ type ProfileHeaderProps = {
   signedIn: boolean;
   onFollow: (username: string) => Promise<Result<"accepted" | "pending">>;
   onUnfollow: (username: string) => Promise<Result<void>>;
+  // Bloquear (SOCIAL-002): sólo con sesión y sobre otra cuenta.
+  onBlock?: (username: string) => Promise<Result<void>>;
 };
 
 // Cabecera del perfil (V2-006): avatar de iniciales, nombre visible, @usuario, contadores (que
@@ -22,12 +26,18 @@ export function ProfileHeader({
   signedIn,
   onFollow,
   onUnfollow,
+  onBlock,
 }: ProfileHeaderProps) {
   const base = `/u/${profile.username}`;
   return (
-    <header className="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-5">
+    <header className="poll-surface flex flex-col gap-4 p-5">
       <div className="flex items-center gap-4">
-        <Avatar username={profile.username} displayName={profile.displayName} size="lg" />
+        <Avatar
+          username={profile.username}
+          displayName={profile.displayName}
+          size="lg"
+          icon={profile.avatarIcon}
+        />
         <div className="flex min-w-0 flex-col">
           <h1 className="text-2xl leading-tight font-semibold tracking-[-0.02em]">
             {profile.displayName ?? `@${profile.username}`}
@@ -40,6 +50,14 @@ export function ProfileHeader({
           )}
         </div>
       </div>
+      {profile.bio && (
+        <p
+          data-bio
+          className="text-[15px] leading-relaxed break-words whitespace-pre-wrap [overflow-wrap:anywhere]"
+        >
+          {profile.bio}
+        </p>
+      )}
       <ul className="flex flex-wrap gap-x-6 gap-y-2 text-[15px]">
         <li>
           <Link href={`${base}/seguidores`} className="py-1.5 hover:underline">
@@ -70,6 +88,12 @@ export function ProfileHeader({
           onFollow={onFollow}
           onUnfollow={onUnfollow}
         />
+        {onBlock && signedIn && profile.viewerRelation !== "self" && (
+          <BlockButton username={profile.username} onBlock={onBlock} />
+        )}
+        {profile.viewerRelation !== "self" && (
+          <ReportUser username={profile.username} signedIn={signedIn} />
+        )}
         {profile.viewerRelation === "self" && (
           <Link
             href="/solicitudes"
@@ -84,7 +108,7 @@ export function ProfileHeader({
             {pendingRequests > 0 && (
               <span
                 aria-hidden="true"
-                className="rounded-full bg-foreground px-2 text-[12px] leading-5 text-background tabular-nums"
+                className="rounded-full bg-accent px-2 text-[12px] leading-5 text-accent-foreground tabular-nums"
               >
                 {number.format(pendingRequests)}
               </span>

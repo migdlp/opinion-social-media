@@ -1,3 +1,4 @@
+import { chooseTheme } from "./support/theme";
 import { expect, test } from "@playwright/test";
 import { createUser, signIn } from "./support/supabase";
 
@@ -12,6 +13,7 @@ test("menú de cuenta: fuera, Escape y Tab en ambos temas y anchos", async ({
       await page.setViewportSize({ width, height: 900 });
       await page.emulateMedia({ colorScheme: theme });
       await page.goto("/polls/00000000-0000-4000-8000-000000000000");
+      await chooseTheme(page, theme);
       const trigger = page.getByLabel("Menú de cuenta");
       const menu = page.getByRole("navigation", { name: "Cuenta" });
       await trigger.click();

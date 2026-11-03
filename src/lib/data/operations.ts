@@ -2,6 +2,7 @@
 // pantallas usan estas funciones: reciben el cliente Supabase del contexto
 // (src/lib/supabase/server.ts o client.ts) y devuelven Result con AppErrorCode.
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { parseAvatarIcon, type AvatarIcon } from "@/lib/avatar-icons";
 import { isClosed } from "@/lib/utils/date";
 import { toAppError } from "./errors";
 import {
@@ -14,7 +15,9 @@ import {
   getPublicPollsByIds,
 } from "./polls";
 import type {
+  AppErrorCode,
   Category,
+  CommentPage,
   FeedPage,
   FeedQuery,
   FollowPage,
@@ -106,6 +109,7 @@ export function createPoll(
   options: string[],
   closesAt?: string | null,
   category?: string | null,
+  commentsEnabled?: boolean,
 ): Promise<Result<{ id: string }>> {
   return guard(async () => {
     const { data, error } = await supabase.rpc("create_poll", {
@@ -113,6 +117,7 @@ export function createPoll(
       p_options: options,
       ...(closesAt ? { p_closes_at: closesAt } : {}),
       ...(category ? { p_category: category } : {}),
+      ...(commentsEnabled ? { p_comments_enabled: true } : {}),
     });
     if (error) return { ok: false, error: toAppError(error) };
     return { ok: true, data: { id: data as string } };
@@ -152,21 +157,95 @@ export function reportPoll(
   });
 }
 
-type ProfileRow = { username: string; display_name: string | null; is_private: boolean };
+// Denuncia a una persona por @usuario (MOD-001). No oculta ni bloquea la cuenta; la tabla no es
+// legible por clientes. Errores: CANNOT_REPORT_SELF, USER_NOT_FOUND (también entre bloqueados),
+// REPORT_INVALID, ALREADY_REPORTED, REPORT_RATE_LIMITED, AUTH_REQUIRED.
+export function reportUser(
+  supabase: SupabaseClient,
+  username: string,
+  reason: ReportReason,
+  details?: string | null,
+): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("report_user", {
+      p_username: username,
+      p_reason: reason,
+      p_details: details ?? null,
+    });
+    if (error) return { ok: false, error: toAppError(error) };
+    return { ok: true, data: undefined };
+  });
+}
+
+// Denuncia un comentario que quien llama puede ver ahora mismo (CMT-003). Cualquier otro caso
+// (inexistente, oculto, debate apagado, sin acceso o con bloqueo) es COMMENT_UNAVAILABLE. Errores
+// además: CANNOT_REPORT_SELF, REPORT_INVALID, ALREADY_REPORTED, REPORT_RATE_LIMITED, AUTH_REQUIRED.
+export function reportComment(
+  supabase: SupabaseClient,
+  commentId: string,
+  reason: ReportReason,
+  details?: string | null,
+): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("report_comment", {
+      p_comment_id: commentId,
+      p_reason: reason,
+      p_details: details ?? null,
+    });
+    if (error) return { ok: false, error: toAppError(error) };
+    return { ok: true, data: undefined };
+  });
+}
+
+type ProfileRow = {
+  username: string;
+  display_name: string | null;
+  is_private: boolean;
+  avatar_icon?: string | null;
+  bio?: string | null;
+};
 
 const toProfile = (row: ProfileRow): Profile => ({
   username: row.username,
   displayName: row.display_name,
   isPrivate: row.is_private,
+  ...(row.bio ? { bio: row.bio } : {}),
 });
 
 // Perfil de la cuenta con sesión; null si aún no ha elegido @usuario (V2-002).
+// Iconos de perfil (AVATAR-001) de varios @usuario, leídos de la columna pública de `profiles`
+// (como username o display_name). Es decorativo: ante cualquier fallo o valor desconocido se
+// devuelve vacío y la interfaz usa las iniciales.
+async function fetchAvatarIcons(
+  supabase: SupabaseClient,
+  usernames: string[],
+): Promise<Map<string, AvatarIcon>> {
+  const icons = new Map<string, AvatarIcon>();
+  if (usernames.length === 0) return icons;
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("username, avatar_icon")
+      .in("username", usernames);
+    if (error) return icons;
+    for (const row of (data ?? []) as { username: string; avatar_icon: string | null }[]) {
+      const icon = parseAvatarIcon(row.avatar_icon);
+      if (icon) icons.set(row.username, icon);
+    }
+  } catch {
+    // Sin icono: iniciales.
+  }
+  return icons;
+}
+
 export function getMyProfile(supabase: SupabaseClient): Promise<Result<Profile | null>> {
   return guard(async () => {
     const { data, error } = await supabase.rpc("get_my_profile");
     if (error) return { ok: false, error: toAppError(error) };
     const row = ((data ?? []) as ProfileRow[])[0];
-    return { ok: true, data: row ? toProfile(row) : null };
+    if (!row) return { ok: true, data: null };
+    const icon = parseAvatarIcon(row.avatar_icon);
+    return { ok: true, data: icon ? { ...toProfile(row), avatarIcon: icon } : toProfile(row) };
   });
 }
 
@@ -436,33 +515,45 @@ export function getFeedPage(
 
 // Voto propio de cada encuesta de la página (una sola consulta; RLS sólo devuelve los del usuario)
 // y estado de cada una para quien mira.
-async function withOwnVotes(
-  supabase: SupabaseClient,
-  polls: PublicPoll[],
-  nextCursor: string | null,
-  viewer: Viewer,
-): Promise<Result<FeedPage>> {
-  if (!viewer.signedIn || polls.length === 0) {
-    return withViewerStates(supabase, polls, nextCursor, new Map(), false);
-  }
+type OwnVotes =
+  { ok: true; own: Map<string, string>; signedIn: boolean } | { ok: false; error: AppErrorCode };
 
+// Votos propios de las encuestas dadas (la RLS sólo devuelve los de quien llama). Sin sesión válida
+// (AUTH_REQUIRED) se trata como visitante.
+async function fetchOwnVotes(supabase: SupabaseClient, pollIds: string[]): Promise<OwnVotes> {
   const { data, error } = await supabase
     .from("votes")
     .select("poll_id, option_id")
-    .in(
-      "poll_id",
-      polls.map((p) => p.id),
-    );
+    .in("poll_id", pollIds);
   if (error) {
-    if (toAppError(error) === "AUTH_REQUIRED") {
-      return withViewerStates(supabase, polls, nextCursor, new Map(), false);
-    }
+    if (toAppError(error) === "AUTH_REQUIRED") return { ok: true, own: new Map(), signedIn: false };
     return { ok: false, error: toAppError(error) };
   }
   const own = new Map(
     (data as { poll_id: string; option_id: string }[]).map((v) => [v.poll_id, v.option_id]),
   );
-  return withViewerStates(supabase, polls, nextCursor, own, true);
+  return { ok: true, own, signedIn: true };
+}
+
+// `preloaded` permite haber lanzado la lectura de votos a la vez que la de las encuestas (PERF-001).
+async function withOwnVotes(
+  supabase: SupabaseClient,
+  polls: PublicPoll[],
+  nextCursor: string | null,
+  viewer: Viewer,
+  preloaded?: OwnVotes,
+): Promise<Result<FeedPage>> {
+  if (!viewer.signedIn || polls.length === 0) {
+    return withViewerStates(supabase, polls, nextCursor, new Map(), false);
+  }
+  const votes =
+    preloaded ??
+    (await fetchOwnVotes(
+      supabase,
+      polls.map((p) => p.id),
+    ));
+  if (!votes.ok) return { ok: false, error: votes.error };
+  return withViewerStates(supabase, polls, nextCursor, votes.own, votes.signedIn);
 }
 
 type ProfileViewRow = {
@@ -474,6 +565,7 @@ type ProfileViewRow = {
   polls_count: number;
   viewer_relation: ViewerRelation;
   can_view_content: boolean;
+  bio?: string | null;
 };
 
 // Cabecera de un perfil (V2-006). Errores: USER_NOT_FOUND.
@@ -482,10 +574,14 @@ export function getProfileView(
   username: string,
 ): Promise<Result<ProfileView>> {
   return guard(async () => {
-    const { data, error } = await supabase.rpc("get_profile", { p_username: username });
+    const [{ data, error }, icons] = await Promise.all([
+      supabase.rpc("get_profile", { p_username: username }),
+      fetchAvatarIcons(supabase, [username]),
+    ]);
     if (error) return { ok: false, error: toAppError(error) };
     const row = ((data ?? []) as ProfileViewRow[])[0];
     if (!row) return { ok: false, error: "USER_NOT_FOUND" };
+    const icon = icons.get(row.username);
     return {
       ok: true,
       data: {
@@ -497,6 +593,8 @@ export function getProfileView(
         pollsCount: row.polls_count,
         viewerRelation: row.viewer_relation,
         canViewContent: row.can_view_content,
+        ...(icon ? { avatarIcon: icon } : {}),
+        ...(row.bio ? { bio: row.bio } : {}),
       },
     };
   });
@@ -523,12 +621,14 @@ export function getProfilePolls(
     if (page.length === 0) return { ok: true, data: { items: [], nextCursor: null } };
     const nextCursor = rows.length > PROFILE_POLLS_PAGE_SIZE ? page[page.length - 1].cursor : null;
 
-    const polls = await getPublicPollsByIds(
-      supabase,
-      page.map((row) => row.poll_id),
-    );
+    // Encuestas y votos propios dependen sólo de los ids: se piden a la vez (PERF-001).
+    const ids = page.map((row) => row.poll_id);
+    const [polls, votes] = await Promise.all([
+      getPublicPollsByIds(supabase, ids),
+      viewer.signedIn ? fetchOwnVotes(supabase, ids) : Promise.resolve(undefined),
+    ]);
     if (!polls.ok) return polls;
-    return withOwnVotes(supabase, polls.data, nextCursor, viewer);
+    return withOwnVotes(supabase, polls.data, nextCursor, viewer, votes);
   });
 }
 
@@ -558,13 +658,26 @@ export const FOLLOW_PAGE_SIZE = 30;
 type FollowRow = { username: string; display_name: string | null; cursor: string };
 
 // Páginas de 30 (V2-009): la RPC devuelve una fila más para saber si hay página siguiente.
-function toFollowPage(data: unknown): FollowPage {
+function toFollowPage(data: unknown, icons: Map<string, AvatarIcon>): FollowPage {
   const rows = (data ?? []) as FollowRow[];
   const page = rows.slice(0, FOLLOW_PAGE_SIZE);
   return {
-    users: page.map((row) => ({ username: row.username, displayName: row.display_name })),
+    users: page.map((row) => {
+      const icon = icons.get(row.username);
+      return {
+        username: row.username,
+        displayName: row.display_name,
+        ...(icon ? { avatarIcon: icon } : {}),
+      };
+    }),
     nextCursor: rows.length > FOLLOW_PAGE_SIZE ? page[page.length - 1].cursor : null,
   };
+}
+
+// Una sola consulta de iconos por página de la lista.
+async function followPageWithIcons(supabase: SupabaseClient, data: unknown): Promise<FollowPage> {
+  const names = ((data ?? []) as FollowRow[]).slice(0, FOLLOW_PAGE_SIZE).map((r) => r.username);
+  return toFollowPage(data, await fetchAvatarIcons(supabase, names));
 }
 
 // Seguidores aceptados de @username. Errores: USER_NOT_FOUND, PROFILE_PRIVATE.
@@ -579,7 +692,7 @@ export function listFollowers(
       p_cursor: cursor ?? null,
     });
     if (error) return { ok: false, error: toAppError(error) };
-    return { ok: true, data: toFollowPage(data) };
+    return { ok: true, data: await followPageWithIcons(supabase, data) };
   });
 }
 
@@ -595,7 +708,7 @@ export function listFollowing(
       p_cursor: cursor ?? null,
     });
     if (error) return { ok: false, error: toAppError(error) };
-    return { ok: true, data: toFollowPage(data) };
+    return { ok: true, data: await followPageWithIcons(supabase, data) };
   });
 }
 
@@ -609,7 +722,7 @@ export function listFollowRequests(
       p_cursor: cursor ?? null,
     });
     if (error) return { ok: false, error: toAppError(error) };
-    return { ok: true, data: toFollowPage(data) };
+    return { ok: true, data: await followPageWithIcons(supabase, data) };
   });
 }
 
@@ -745,32 +858,188 @@ export function getFeed(
     if (page.length === 0) return { ok: true, data: { items: [], nextCursor: null } };
     const nextCursor = rows.length > FEED_PAGE_SIZE ? page[page.length - 1].cursor : null;
 
-    const polls = await getPublicPollsByIds(
-      supabase,
-      page.map((row) => row.poll_id),
-    );
+    // Encuestas y votos propios dependen sólo de los ids: se piden a la vez (PERF-001).
+    const ids = page.map((row) => row.poll_id);
+    const [polls, votes] = await Promise.all([
+      getPublicPollsByIds(supabase, ids),
+      viewer.signedIn ? fetchOwnVotes(supabase, ids) : Promise.resolve(undefined),
+    ]);
     if (!polls.ok) return polls;
-    return withOwnVotes(supabase, polls.data, nextCursor, viewer);
+    return withOwnVotes(supabase, polls.data, nextCursor, viewer, votes);
   });
 }
 
-// ¿Sigue la cuenta a alguien con relación ACEPTADA? Decide la pestaña por defecto del feed (D-022):
-// las solicitudes pendientes no cuentan. Un fallo se trata como «no» para no romper la página.
-export async function hasAcceptedFollows(
+// Elige el icono de perfil propio (null = volver a las iniciales). Errores: AVATAR_INVALID,
+// AUTH_REQUIRED, PROFILE_REQUIRED. No cambia nombre ni @usuario.
+export function setProfileAvatar(
   supabase: SupabaseClient,
-  userId: string,
-): Promise<boolean> {
-  try {
+  icon: AvatarIcon | null,
+): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("set_profile_avatar", { p_icon: icon as string });
+    return error ? { ok: false, error: toAppError(error) } : { ok: true, data: undefined };
+  });
+}
+
+// Bloquea a @username (SOCIAL-001): cancela seguimientos y solicitudes entre ambos y deja de verse
+// su contenido protegido en los dos sentidos. Idempotente. Errores: CANNOT_BLOCK_SELF,
+// USER_NOT_FOUND, AUTH_REQUIRED, PROFILE_REQUIRED.
+export function blockUser(supabase: SupabaseClient, username: string): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("block_user", { p_username: username });
+    return error ? { ok: false, error: toAppError(error) } : { ok: true, data: undefined };
+  });
+}
+
+// Quita sólo el bloqueo propio hacia @username; no restaura seguimientos. Idempotente.
+export function unblockUser(supabase: SupabaseClient, username: string): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("unblock_user", { p_username: username });
+    return error ? { ok: false, error: toAppError(error) } : { ok: true, data: undefined };
+  });
+}
+
+// Cuentas que la sesión ha bloqueado, de más reciente a más antigua (SOCIAL-002). Sólo la lista
+// propia: nunca quién ha bloqueado a quien mira. Sin iconos: un perfil bloqueado no se consulta.
+// Errores: AUTH_REQUIRED.
+export function listBlockedUsers(
+  supabase: SupabaseClient,
+  cursor?: string | null,
+): Promise<Result<FollowPage>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("list_blocked_users", { p_cursor: cursor ?? null });
+    if (error) return { ok: false, error: toAppError(error) };
+    return { ok: true, data: toFollowPage(data, new Map()) };
+  });
+}
+
+// Fija, cambia o vacía (null o vacío) la biografía propia, de 0 a 280 caracteres de texto plano.
+// Errores: BIO_INVALID, AUTH_REQUIRED, PROFILE_REQUIRED. La recorta y valida el backend.
+export function setProfileBio(supabase: SupabaseClient, bio: string | null): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("set_profile_bio", { p_bio: bio as string });
+    return error ? { ok: false, error: toAppError(error) } : { ok: true, data: undefined };
+  });
+}
+
+// Búsqueda de encuestas por pregunta (SEARCH-001). La RPC decide qué ids ve quien pregunta
+// (cuentas privadas, bloqueos, publicadas; las cerradas también) y devuelve sólo ids y cursor; las
+// encuestas salen por la RLS y los resultados por la misma ruta autorizada que el feed. El cursor
+// está ligado a la consulta. Errores controlados: INVALID_QUERY e INVALID_CURSOR.
+export function searchPolls(
+  supabase: SupabaseClient,
+  query: string,
+  cursor: string | null | undefined,
+  viewer: Viewer,
+): Promise<Result<FeedPage>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("search_polls", {
+      p_query: query,
+      p_cursor: cursor ?? null,
+    });
+    if (error) return { ok: false, error: toAppError(error) };
+    const rows = (data ?? []) as { poll_id: string; cursor: string }[];
+    const page = rows.slice(0, FEED_PAGE_SIZE);
+    if (page.length === 0) return { ok: true, data: { items: [], nextCursor: null } };
+    const nextCursor = rows.length > FEED_PAGE_SIZE ? page[page.length - 1].cursor : null;
+
+    const ids = page.map((row) => row.poll_id);
+    const [polls, votes] = await Promise.all([
+      getPublicPollsByIds(supabase, ids),
+      viewer.signedIn ? fetchOwnVotes(supabase, ids) : Promise.resolve(undefined),
+    ]);
+    if (!polls.ok) return polls;
+    return withOwnVotes(supabase, polls.data, nextCursor, viewer, votes);
+  });
+}
+
+// ¿Tiene la encuesta el debate activado? Es un dato público de la encuesta (CMT-002); no hay
+// comentarios ni recuentos aquí. Una encuesta que no se puede ver es POLL_UNAVAILABLE.
+export function getPollCommentsEnabled(
+  supabase: SupabaseClient,
+  pollId: string,
+): Promise<Result<boolean>> {
+  return guard(async () => {
+    if (!UUID.test(pollId)) return { ok: false, error: "POLL_UNAVAILABLE" };
     const { data, error } = await supabase
-      .from("follows")
-      .select("followee_id")
-      .eq("follower_id", userId)
-      .eq("status", "accepted")
-      .limit(1);
-    return !error && ((data ?? []) as unknown[]).length > 0;
-  } catch {
-    return false;
-  }
+      .from("polls")
+      .select("comments_enabled")
+      .eq("id", pollId)
+      .maybeSingle();
+    if (error) return { ok: false, error: toAppError(error) };
+    if (!data) return { ok: false, error: "POLL_UNAVAILABLE" };
+    return { ok: true, data: (data as { comments_enabled: boolean }).comments_enabled === true };
+  });
+}
+
+export const COMMENTS_PAGE_SIZE = 20;
+
+// Debate de una encuesta (CMT-001), de más reciente a más antiguo. Errores controlados:
+// POLL_UNAVAILABLE, COMMENTS_DISABLED, VOTE_REQUIRED (abiertas sin voto), INVALID_CURSOR. El
+// backend omite los comentarios de cuentas bloqueadas; nunca se recibe user_id.
+export function listComments(
+  supabase: SupabaseClient,
+  pollId: string,
+  cursor: string | null | undefined,
+): Promise<Result<CommentPage>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("list_comments", {
+      p_poll_id: pollId,
+      p_cursor: cursor ?? null,
+    });
+    if (error) return { ok: false, error: toAppError(error) };
+    const rows = (data ?? []) as {
+      comment_id: string;
+      username: string;
+      display_name: string | null;
+      body: string;
+      created_at: string;
+      cursor: string;
+    }[];
+    const page = rows.slice(0, COMMENTS_PAGE_SIZE);
+    return {
+      ok: true,
+      data: {
+        items: page.map((row) => ({
+          id: row.comment_id,
+          username: row.username,
+          displayName: row.display_name,
+          body: row.body,
+          createdAt: row.created_at,
+        })),
+        nextCursor: rows.length > COMMENTS_PAGE_SIZE ? page[page.length - 1].cursor : null,
+      },
+    };
+  });
+}
+
+// Publica un comentario de 1 a 1000 caracteres de texto plano. Errores: COMMENT_INVALID,
+// COMMENTS_DISABLED, VOTE_REQUIRED, POLL_UNAVAILABLE, RATE_LIMITED, AUTH_REQUIRED, PROFILE_REQUIRED.
+export function addComment(
+  supabase: SupabaseClient,
+  pollId: string,
+  body: string,
+): Promise<Result<{ id: string }>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("add_comment", { p_poll_id: pollId, p_body: body });
+    if (error) return { ok: false, error: toAppError(error) };
+    return { ok: true, data: { id: data as string } };
+  });
+}
+
+// Activa o apaga el debate; sólo la autora (para otra cuenta, POLL_UNAVAILABLE). No borra comentarios.
+export function setPollComments(
+  supabase: SupabaseClient,
+  pollId: string,
+  enabled: boolean,
+): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("set_poll_comments", {
+      p_poll_id: pollId,
+      p_enabled: enabled,
+    });
+    return error ? { ok: false, error: toAppError(error) } : { ok: true, data: undefined };
+  });
 }
 
 // Sólo preferencias propias: las RPC no aceptan un usuario objetivo.

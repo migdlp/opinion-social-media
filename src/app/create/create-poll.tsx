@@ -10,8 +10,8 @@ export function CreatePoll({ categories }: { categories: Category[] }) {
   const router = useRouter();
   return (
     <PollCreationForm
-      onSubmit={({ question, options, closesAt, category }) =>
-        publishPoll(question, options, closesAt, category)
+      onSubmit={({ question, options, closesAt, category, commentsEnabled }) =>
+        publishPoll(question, options, closesAt, category, commentsEnabled)
       }
       categories={categories}
       onRecover={({ question, options }) => findPublishedPoll(question, options)}

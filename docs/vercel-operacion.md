@@ -30,7 +30,7 @@ Asignar Vercel a Codex es una regla de coordinación, no un bloqueo técnico de 
 
 ## Variables por entorno
 
-**Actualización 3-11-2026:** variables de Supabase recreadas para París (`eu-west-3`) y región de funciones de Vercel configurada para `cdg1`. Verificar el deployment nuevo y Google OAuth antes de dar por completado el traslado.
+**Cambio de infraestructura (3-11-2026):** Supabase DEV y PROD se han recreado en París (`eu-west-3`). Las variables de Vercel fueron actualizadas a estos nuevos proyectos, pero no acreditan que un nuevo deployment esté publicado ni que Google OAuth esté habilitado. Vercel Functions está configurado para próximos despliegues en París (`cdg1`).
 
 Los siete registros configurados separan los destinos; no copiar valores de claves al repositorio, issues o chats.
 

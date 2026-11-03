@@ -1,3 +1,4 @@
+import { chooseTheme } from "./support/theme";
 import { expect, test } from "@playwright/test";
 import { createPoll, createUser, signIn } from "./support/supabase";
 
@@ -19,6 +20,7 @@ for (const theme of ["light", "dark"] as const) {
     ]);
     await signIn(page.context(), user, baseURL!);
     await page.goto(`/polls/${id}`);
+    await chooseTheme(page, theme);
     const first = page.getByRole("radio", { name: "Un paseo", exact: true });
     await first.check();
     await expect(first.locator("..")).toHaveCSS(
@@ -80,12 +82,14 @@ for (const theme of ["light", "dark"] as const) {
     await expect(more).toBeFocused();
 
     await page.goto("/");
+    await chooseTheme(page, theme);
     await expect(
       page
         .getByRole("navigation", { name: "Lista de encuestas" })
         .getByRole("link", { name: "Recientes", exact: true }),
     ).toHaveCSS("border-bottom-color", theme === "dark" ? "rgb(249, 249, 255)" : "rgb(22, 30, 46)");
     await page.goto("/create");
+    await chooseTheme(page, theme);
     await expect(page.getByRole("button", { name: "Publicar", exact: true })).toHaveCSS(
       "background-color",
       "rgb(255, 177, 107)",

@@ -19,6 +19,7 @@ vi.mock("next/navigation", () => ({
   notFound: () => {
     throw new Error("NEXT_NOT_FOUND");
   },
+  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
 
 const { ProfileContent } = await import("./profile-content");
@@ -108,6 +109,23 @@ describe("/u/[username]", () => {
     expect(html).not.toMatch(/user_id/);
   });
 
+  it("DESIGN-004: las pestañas del perfil van subrayadas como las del feed, sin píldoras oscuras", async () => {
+    responses = {
+      "rpc:get_profile": { data: [header()], error: null },
+      "rpc:get_profile_polls": { data: [], error: null },
+    };
+
+    const html = await render();
+
+    const selected = /<a[^>]*aria-current="page"[^>]*>Creadas/.exec(html)![0];
+    expect(selected).toContain("border-b-2");
+    expect(selected).toContain("border-foreground");
+    expect(selected).not.toContain("bg-foreground");
+    const other = /<a[^>]*>Votadas/.exec(html)![0];
+    expect(other).toContain("border-transparent");
+    expect(other).not.toContain("rounded-full");
+  });
+
   it("la pestaña ?tab=votadas lista los votos visibles (P-1) sin cifras", async () => {
     responses = {
       "rpc:get_profile": { data: [header()], error: null },
@@ -139,6 +157,24 @@ describe("/u/[username]", () => {
     expect(queries.map((q) => q.target)).not.toContain("rpc:get_profile_polls");
   });
 
+  it("PRIV-002: con el historial no compartido, la pestaña Votadas explica que es privado", async () => {
+    responses = {
+      "rpc:get_profile": { data: [header({ viewer_relation: "following" })], error: null },
+      "rpc:get_profile_votes": {
+        data: null,
+        error: { code: "P0001", message: "VOTES_PRIVATE" },
+      },
+    };
+
+    const html = await render("votadas");
+
+    expect(html).toContain("Este usuario no comparte su historial de votos contigo.");
+    expect(html).not.toContain("No se han podido cargar los votos");
+    expect(html).not.toContain("Reintentar");
+    expect(html).not.toContain('role="alert"');
+    expect(html).not.toContain("¿Tortilla con o sin cebolla?");
+  });
+
   it("criterio 2: una cuenta privada sin acceso sólo muestra cabecera y aviso, sin pedir encuestas ni votos", async () => {
     responses = {
       "rpc:get_profile": {
@@ -162,7 +198,8 @@ describe("/u/[username]", () => {
       expect(html).not.toContain("Votadas");
     }
     const targets = queries.map((q) => q.target);
-    expect(targets).toEqual(["rpc:get_profile"]);
+    // Cabecera y su icono público; ni encuestas ni votos.
+    expect(targets).toEqual(["rpc:get_profile", "profiles"]);
   });
 
   it("criterio 4: un usuario inexistente responde 404", async () => {

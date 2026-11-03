@@ -1,6 +1,8 @@
 # Documentación de la aplicación
 
-Esta carpeta reúne el contexto que debe conocer cualquier persona que trabaje en el proyecto. Se actualizará con la información adicional del propietario antes de comenzar el desarrollo.
+Esta carpeta reúne el contexto que debe conocer cualquier persona que trabaje en el proyecto. Se actualiza con las decisiones del propietario y los resultados verificados del desarrollo.
+
+**[Ver el diagrama del flujo de trabajo →](flujo-trabajo.md)**: desde la reserva de una tarea hasta la publicación autorizada, con desarrollo, CI y producción separados.
 
 ## Lectura inicial para cualquier agente
 
@@ -10,11 +12,13 @@ Leer [AGENTS.md](../AGENTS.md), el [contexto de la aplicación](contexto-aplicac
 
 | Documento | Contenido |
 |---|---|
+| [Flujo de trabajo visual](flujo-trabajo.md) | Diagramas de tareas/agentes, entornos y publicación; fuentes de verdad y bloqueos |
 | [Contexto](contexto-aplicacion.md) | Objetivo, usuarios, flujos y reglas del producto |
 | [Arquitectura](arquitectura.md) | Stack previsto, contratos, seguridad y entornos |
 | [Contratos de datos y RPC](contratos-api.md) | Argumentos, respuestas, tipos y códigos de error (MVP-013) |
 | [Brief consolidado](brief-producto.md) | Contexto adicional del propietario y requisitos obligatorios |
 | [Backlog vigente v1.1](backlog.md) | 53 tareas revisadas, dependencias y aceptación |
+| [Peticiones de producto 30-10](backlog-producto-2026-10-30.md) | 22 tickets por área, prioridades, dependencias, cobertura y exportación JSON/CSV; defaults nuevos y ampliaciones |
 | [Backlog fase 2](backlog-v2.md) | Perfiles, seguidores, tipos de encuesta, diseño y contenido (D-015 a D-021); mapa de dependencias |
 | [Feed por definir](feed-por-definir.md) | Estado, restricciones, propuesta y preguntas abiertas del feed (V2-030) |
 | [Fuente histórica v1](fuentes/backlog-v1.md) | Documento original conservado sin modificaciones |

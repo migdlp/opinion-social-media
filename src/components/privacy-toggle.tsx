@@ -40,9 +40,9 @@ export function PrivacyToggle({ isPrivate: initial, onChange }: PrivacyTogglePro
   return (
     <section aria-labelledby={`${id}-label`} className="flex flex-col gap-2">
       <div className="flex items-center justify-between gap-4">
-        <h2 id={`${id}-label`} className="text-[15px] font-semibold">
+        <h3 id={`${id}-label`} className="text-[15px] font-semibold">
           Cuenta privada
-        </h2>
+        </h3>
         <button
           type="button"
           role="switch"
@@ -51,11 +51,11 @@ export function PrivacyToggle({ isPrivate: initial, onChange }: PrivacyTogglePro
           aria-describedby={`${id}-help`}
           disabled={pending}
           onClick={handleToggle}
-          className="relative h-7 w-12 shrink-0 rounded-full border border-field bg-surface transition-colors aria-checked:border-foreground aria-checked:bg-foreground disabled:opacity-50"
+          className="relative h-7 w-12 shrink-0 rounded-full border border-field bg-surface transition-colors aria-checked:border-accent aria-checked:bg-accent disabled:opacity-50"
         >
           <span
             aria-hidden="true"
-            className={`absolute top-0.5 left-0.5 size-5 rounded-full bg-foreground transition-transform aria-checked:bg-background ${isPrivate ? "translate-x-5 bg-background!" : ""}`}
+            className={`absolute top-0.5 left-0.5 size-5 rounded-full bg-foreground transition-transform aria-checked:bg-accent-foreground ${isPrivate ? "translate-x-5 bg-accent-foreground!" : ""}`}
           />
         </button>
       </div>
@@ -80,7 +80,7 @@ export function PrivacyToggle({ isPrivate: initial, onChange }: PrivacyTogglePro
               type="button"
               disabled={pending}
               onClick={() => void apply(true)}
-              className="min-h-11 rounded-full bg-foreground px-5 font-semibold text-background transition-opacity hover:opacity-85 disabled:opacity-50"
+              className="min-h-11 rounded-full action-primary px-5 font-semibold"
             >
               Hacer privada
             </button>

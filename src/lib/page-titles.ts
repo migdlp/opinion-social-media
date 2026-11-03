@@ -15,3 +15,12 @@ export function profileTitle(username: string, prefix = ""): string {
   const name = username.toLowerCase();
   return USERNAME_PATTERN.test(name) ? pageTitle(`${prefix}@${name}`) : pageTitle("No disponible");
 }
+
+// Descripción de /u/<usuario> para la tarjeta social. Igual que el título, sólo repite el @usuario
+// de la URL: nunca biografía, nombre visible ni recuentos, que en una cuenta privada filtrarían datos.
+export function profileDescription(username: string): string {
+  const name = username.toLowerCase();
+  return USERNAME_PATTERN.test(name)
+    ? `Encuestas de @${name} en ${APP_NAME}.`
+    : "Esta página no está disponible.";
+}
