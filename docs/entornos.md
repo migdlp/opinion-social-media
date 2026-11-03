@@ -2,10 +2,12 @@
 
 ## Proyectos
 
+Desde el 3 de noviembre de 2026, ambos proyectos alojados se han recreado desde cero en París (`eu-west-3`). Los IDs y las claves anteriores han quedado obsoletos; configurar Google OAuth y las URLs de retorno en los proyectos nuevos antes de validar el inicio de sesión.
+
 | Entorno | Proyecto Supabase | Ref | Quién lo usa |
 |---|---|---|---|
-| Desarrollo | `opinion-social-media-dev` | `ltlrujmqenhktiilsnis` | Desarrollo local, agentes y pruebas manuales en dev |
-| Producción | `opinion-social-media-prod` | `qchpdrolulcgmiliysvr` | Sólo el despliegue de producción de Vercel |
+| Desarrollo | `opinion-social-media-dev` | `yxnnqdvyyjncljpdlwuq` | Desarrollo local, agentes y pruebas manuales en dev |
+| Producción | `opinion-social-media-prod` | `bmgjdkkavbacqrnetxkk` | Sólo el despliegue de producción de Vercel |
 
 **CI:** las suites automáticas levantan Supabase/PostgreSQL efímeros en localhost dentro del runner; no usan las bases alojadas dev o prod. Las previews están desactivadas por D-VERCEL-002: configurar Preview no implica que exista un despliegue de desarrollo.
 
@@ -15,7 +17,7 @@ Son proyectos distintos: no comparten base de datos, usuarios, claves ni configu
 
 | Variable | Tipo | Valor por entorno | Dónde se guarda |
 |---|---|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Pública | Dev: `https://ltlrujmqenhktiilsnis.supabase.co` · Prod: `https://qchpdrolulcgmiliysvr.supabase.co` | `.env.local` (local, no versionado); variables de Vercel por entorno |
+| `NEXT_PUBLIC_SUPABASE_URL` | Pública | Dev: `https://yxnnqdvyyjncljpdlwuq.supabase.co` · Prod: `https://bmgjdkkavbacqrnetxkk.supabase.co` | `.env.local` (local, no versionado); variables de Vercel por entorno |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Pública (`sb_publishable_…`) | La del mismo proyecto que la URL | Igual que la anterior |
 
 Las dos acaban en el navegador por diseño. La seguridad no depende de ocultarlas sino de RLS y de los permisos de las RPC. Aun así no se versionan: así cada entorno decide a qué proyecto apunta.
@@ -39,7 +41,7 @@ Las dos acaban en el navegador por diseño. La seguridad no depende de ocultarla
 
 1. `cp .env.example .env.local`
 2. Pegar la Publishable key de **desarrollo** (Dashboard → Project Settings → API Keys, o el diálogo Connect).
-3. `npm run check:env` → debe mostrar `Proyecto: ltlrujmqenhktiilsnis · /auth/v1/health → HTTP 200`.
+3. `npm run check:env` → debe mostrar `Proyecto: yxnnqdvyyjncljpdlwuq · /auth/v1/health → HTTP 200`.
 
 En contenedores cuyo tráfico sale por un proxy HTTPS, Node necesita `NODE_USE_ENV_PROXY=1` para que `fetch` lo use.
 
