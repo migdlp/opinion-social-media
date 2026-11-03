@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { getSupabaseEnv } from "./env";
 
-const DEV_URL = "https://ltlrujmqenhktiilsnis.supabase.co";
-const PROD_URL = "https://qchpdrolulcgmiliysvr.supabase.co";
+const DEV_URL = "https://yxnnqdvyyjncljpdlwuq.supabase.co";
+const PROD_URL = "https://bmgjdkkavbacqrnetxkk.supabase.co";
 const FAKE_SERVICE_ROLE_JWT = [
   Buffer.from(JSON.stringify({ alg: "HS256" })).toString("base64url"),
   Buffer.from(JSON.stringify({ role: "service_role" })).toString("base64url"),
