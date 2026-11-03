@@ -1,6 +1,6 @@
 // Comprueba a qué proyecto Supabase apunta el entorno local y que responde.
 // Uso: npm run check:env   (lee .env.local)
-const PRODUCTION_PROJECT_REF = "qchpdrolulcgmiliysvr";
+const PRODUCTION_PROJECT_REF = "bmgjdkkavbacqrnetxkk";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
