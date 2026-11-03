@@ -1,6 +1,6 @@
 # Opinión — red social de encuestas
 
-Repositorio del MVP. **El desarrollo se reanudó el 26-10-2026 (D-013)** y se avanza tarea a tarea según `docs/orden-ejecucion.md`; **Codex /root (opinion_social_media) se encarga de Vercel** (D-VERCEL-001). Las tareas se coordinan desde el estado actualizado de `main`; sus dependencias y las reservas de otros agentes siguen vigentes.
+Repositorio del MVP. **El desarrollo se reanudó el 26-10-2026 (D-013)** y se avanza tarea a tarea según `docs/orden-ejecucion.md`; **Codex /root (opinion_social_media) se encarga de Vercel** (D-VERCEL-001). Las tareas se reservan y coordinan en el issue [#73](https://github.com/migdlp/opinion-social-media/issues/73) (D-043); sus dependencias y las reservas de otros agentes siguen vigentes.
 
 ## Cómo trabajamos
 
@@ -12,7 +12,7 @@ flowchart TB
     accDescr: Las tareas se reservan antes de desarrollar. Las PR verificadas se integran en main. Sólo una versión autorizada pasa a release y se publica en Vercel.
     subgraph DEV["Desarrollo e integración"]
         direction LR
-        A["Issue y reserva<br/>en main"] --> B["Rama de tarea<br/>TDD"]
+        A["Issue y reserva<br/>en #73"] --> B["Rama de tarea<br/>TDD"]
         B --> C["PR a main<br/>revisión y CI"]
         C --> D["Integrar en main<br/>cerrar tarea e issue"]
     end

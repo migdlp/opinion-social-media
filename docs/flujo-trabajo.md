@@ -11,20 +11,20 @@ flowchart TD
     accTitle: Ciclo de trabajo de una tarea
     accDescr: Petición, backlog, reserva publicada, rama propia, pruebas y PR, integración, actualización del estado y cierre del issue. Los bloqueos se registran y las reservas se liberan de forma explícita.
     A["Petición o fallo detectado"] --> B["Issue con alcance, aceptación,<br/>prioridad y dependencias"]
-    B --> C["Actualizar main remoto y leer tareas<br/>y coordinación de agentes en #73"]
+    B --> C["Leer reservas y avisos<br/>del tablón #73"]
     C --> D{"¿Disponible y con<br/>dependencias verificadas?"}
     D -->|No| E["Respetar la reserva o dependencia<br/>coordinar y elegir otra tarea"]
     E --> C
-    D -->|Sí| F["Commit exclusivo en main:<br/>En progreso + agente real<br/>Publicar y sincronizar el issue"]
+    D -->|Sí| F["Comentario Reserva en #73:<br/>En progreso + agente real<br/>Releer #73 y sincronizar el issue"]
     F --> G["Crear rama propia desde main<br/>y avisar de archivos compartidos en #73"]
     G --> H["Implementar con TDD:<br/>RED → GREEN → REFACTOR"]
     H --> I["Abrir PR hacia main<br/>con cambios y pruebas observadas"]
     I --> J{"¿Criterios, revisión y<br/>comprobaciones correctos?"}
     J -->|Falta algo| H
     J -->|Sí| K["Fusionar la PR en main"]
-    K --> L["Actualizar main remoto<br/>Commit exclusivo: Completada + evidencias"]
+    K --> L["Comentario Completada en #73<br/>con PR, merge y pruebas"]
     L --> M["Actualizar y cerrar el issue<br/>Dejar relevo en #73"]
-    H -. Bloqueo real .-> N["Registrar causa y siguiente paso<br/>Sincronizar main e issue<br/>Liberar o traspasar reserva explícitamente"]
+    H -. Bloqueo real .-> N["Registrar causa y siguiente paso<br/>Comentario Bloqueada en #73 e issue<br/>Liberar o traspasar reserva explícitamente"]
     N -. Cuando se resuelva .-> C
     classDef work fill:#F9F9FF,stroke:#354861,color:#161E2E;
     classDef gate fill:#FFE1C2,stroke:#A64B00,color:#161E2E;
@@ -32,9 +32,9 @@ flowchart TD
     class D,J gate;
 ```
 
-Se eligen P0 disponibles antes de P1, respetando el encargo concreto del propietario. Cada agente trabaja con su identificador real y reserva antes de implementar; no ocupa tareas de otra IA. Un push rechazado obliga a releer `main`, comprobar la reserva y rehacer la actualización sin forzar.
+Se eligen P0 disponibles antes de P1, respetando el encargo concreto del propietario. Cada agente trabaja con su identificador real y reserva antes de implementar; no ocupa tareas de otra IA. Tras publicar la reserva en el #73 se relee el issue: si otro agente reservó antes la misma tarea, gana la reserva más antigua y la otra se retira con un comentario `Liberada`.
 
-Las reservas, cambios de estado y traspasos llevan **commits exclusivos directamente a `main`**. El código y el resto de la documentación pasan por rama y PR. Al terminar se conserva el agente como autor de la tarea completada; eso no mantiene una reserva activa. Una sesión interrumpida tampoco libera automáticamente una tarea ajena.
+Las reservas, cambios de estado y traspasos se publican como **comentarios en el tablón #73** (D-043), no en `main`. El código y la documentación, incluida la fila **Completada** de `docs/tareas-futuras.md`, pasan por rama y PR. Al terminar se conserva el agente como autor de la tarea completada; eso no mantiene una reserva activa. Una sesión interrumpida tampoco libera automáticamente una tarea ajena.
 
 TDD se aplica al comportamiento: la prueba falla por el problema real antes de implementar, pasa con el cambio y sigue pasando al refactorizar. La documentación se comprueba por contenido, coherencia, enlaces y render; no se inventa un ciclo TDD de aplicación. Las pruebas y bloqueos quedan registrados en el issue y la PR.
 
@@ -99,8 +99,8 @@ Un requisito pendiente mantiene la versión bloqueada en `main`; abrir una PR de
 
 | Consulta                                                                  | Fuente vigente                                                                                                                               |
 | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| Qué tarea está libre, en progreso, bloqueada o completada; quién la lleva | [Registro en main](https://github.com/migdlp/opinion-social-media/blob/main/docs/tareas-futuras.md) y el issue de la tarea                   |
-| Archivos compartidos, avisos y relevo entre IAs                           | [Canal #73](https://github.com/migdlp/opinion-social-media/issues/73); no sustituye la reserva                                               |
+| Qué tarea está libre, en progreso, bloqueada o completada; quién la lleva | Tablón [#73](https://github.com/migdlp/opinion-social-media/issues/73) (comentarios `Reserva`/`Completada`/`Bloqueada`/`Liberada`) e issue de la tarea |
+| Archivos compartidos, avisos y relevo entre IAs                           | El mismo [#73](https://github.com/migdlp/opinion-social-media/issues/73), con `Para: <agente>` |
 | Prioridad y dependencias                                                  | [Orden de ejecución](orden-ejecucion.md), backlog e issue; el número del issue no determina el orden                                         |
 | Cambios propuestos o integrados                                           | [Pull requests](https://github.com/migdlp/opinion-social-media/pulls) y [CI](https://github.com/migdlp/opinion-social-media/actions)         |
 | Qué está publicado y qué falta activar                                    | [Estado del proyecto](estado-proyecto.md), [última release documentada](rel-002-tema-cuenta.md) y [operación de Vercel](vercel-operacion.md) |

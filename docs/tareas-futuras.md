@@ -2,7 +2,7 @@
 
 ## Estado y regla de seguimiento
 
-**Estado compartido en main.** La operación de Vercel está autorizada a Codex /root (opinion_social_media); ver AGENTS.md para el alcance vigente. Las filas siguientes reflejan reservas, dependencias y verificaciones; la infraestructura configurada no equivale a una aplicación terminada.
+**Reservas en el issue [#73](https://github.com/migdlp/opinion-social-media/issues/73) (D-043).** Desde el 03-11-2026 las tareas se reservan, bloquean, liberan y completan con comentarios en el #73, no con commits en `main`. Este archivo es el catálogo de tareas y el registro de las completadas, que se actualiza en la PR de cada tarea; sus filas «En progreso» o «Bloqueada» pueden estar desfasadas y prevalece el #73. La operación de Vercel está autorizada a Codex /root (opinion_social_media); ver AGENTS.md para el alcance vigente. Las filas siguientes reflejan reservas, dependencias y verificaciones; la infraestructura configurada no equivale a una aplicación terminada.
 
 El [backlog revisado](backlog.md) contiene la descripción y los criterios de aceptación de cada tarea. Este registro refleja la revisión v1.1; la versión original está archivada en `fuentes/backlog-v1.md`.
 
@@ -19,7 +19,7 @@ El [backlog revisado](backlog.md) contiene la descripción y los criterios de ac
 | DOC-007 | Documentar reserva por agente y orden recomendado | Documentado | /root |
 | DOC-008 | Verificar acceso Supabase y documentar cómo conectar otros colaboradores y agentes | Documentado; SQL y Auth verificados | /root |
 
-Antes de iniciar trabajo, comprobar la autorización aplicable, las dependencias y las reservas del main remoto actualizado.
+Antes de iniciar trabajo, comprobar la autorización aplicable, las dependencias y las reservas publicadas en el #73.
 
 ## Secuencia futura orientativa
 
