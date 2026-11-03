@@ -1,14 +1,14 @@
 # Google OAuth: configuración (MVP-005)
 
-**Estado:** pendiente de que una persona con acceso cree el cliente OAuth en Google Cloud y lo active en Supabase. Esta guía sigue la [documentación oficial de Supabase](https://supabase.com/docs/guides/auth/social-login/auth-google) (consultada el 27-10-2026). El conector de Supabase no puede configurar Auth, así que estos pasos se hacen en los paneles.
+**Estado tras la recreación en París (3-11-2026):** ambos proveedores deben habilitarse y configurarse de nuevo, con sus nuevos callback URLs. Esta guía sigue la [documentación oficial de Supabase](https://supabase.com/docs/guides/auth/social-login/auth-google) (consultada el 27-10-2026). El conector de Supabase no puede configurar Auth, así que estos pasos se hacen en los paneles.
 
 **No pegues el Client Secret en el chat, en Git ni en issues.** Solo va en el panel de Supabase (Auth → Providers → Google). El Client ID no es secreto.
 
 ## URLs de este proyecto
 
-| Concepto | Desarrollo (`ltlrujmqenhktiilsnis`) | Producción (`qchpdrolulcgmiliysvr`) |
+| Concepto | Desarrollo (`yxnnqdvyyjncljpdlwuq`) | Producción (`bmgjdkkavbacqrnetxkk`) |
 |---|---|---|
-| Callback de Supabase (va en Google) | `https://ltlrujmqenhktiilsnis.supabase.co/auth/v1/callback` | `https://qchpdrolulcgmiliysvr.supabase.co/auth/v1/callback` |
+| Callback de Supabase (va en Google) | `https://yxnnqdvyyjncljpdlwuq.supabase.co/auth/v1/callback` | `https://bmgjdkkavbacqrnetxkk.supabase.co/auth/v1/callback` |
 | Orígenes de la app (van en Google) | `http://localhost:3000` y la URL de cada preview | `https://opinion-social-media.vercel.app` |
 | Site URL (Supabase) | `http://localhost:3000` | `https://opinion-social-media.vercel.app` |
 | Redirect URLs permitidas (Supabase) | `http://localhost:3000/**` y `https://*-miguels-projects-b8307fdb.vercel.app/**` | `https://opinion-social-media.vercel.app/**` |
@@ -28,11 +28,11 @@ Previews y desarrollo usan el proyecto de desarrollo; producción solo el de pro
 
 ## 2. Supabase: activar Google en desarrollo
 
-En [Auth → Providers del proyecto de desarrollo](https://supabase.com/dashboard/project/ltlrujmqenhktiilsnis/auth/providers):
+En [Auth → Providers del proyecto de desarrollo](https://supabase.com/dashboard/project/yxnnqdvyyjncljpdlwuq/auth/providers):
 
 1. **Google → Enable**, pega el Client ID y el Client Secret y guarda.
 2. **Email → desactivar** (o al menos «Allow new users to sign up» en off). El MVP no usa contraseñas propias (criterio 3); hoy está activado por defecto.
-3. En [Auth → URL Configuration](https://supabase.com/dashboard/project/ltlrujmqenhktiilsnis/auth/url-configuration): **Site URL** y **Redirect URLs** de la columna de desarrollo.
+3. En [Auth → URL Configuration](https://supabase.com/dashboard/project/yxnnqdvyyjncljpdlwuq/auth/url-configuration): **Site URL** y **Redirect URLs** de la columna de desarrollo.
 
 Producción se configura igual con su columna cuando llegue MVP-049; no es necesario para cerrar MVP-005 en desarrollo.
 
