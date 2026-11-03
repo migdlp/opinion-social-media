@@ -91,3 +91,17 @@ describe("AccountMenu", () => {
     );
   });
 });
+
+describe("AccountMenu (AVATAR-001)", () => {
+  it("con icono elegido lo muestra en el botón en lugar de las iniciales", () => {
+    const { container } = render(<AccountMenu username="ana" avatarIcon="sol" />);
+    const trigger = screen.getByLabelText("Menú de cuenta");
+    expect(container.querySelector('[data-avatar-icon="sol"]')).not.toBeNull();
+    expect(trigger.textContent).not.toContain("AN");
+  });
+
+  it("sin icono conserva las iniciales", () => {
+    render(<AccountMenu username="ana" />);
+    expect(screen.getByLabelText("Menú de cuenta").textContent).toContain("AN");
+  });
+});

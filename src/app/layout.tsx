@@ -1,15 +1,12 @@
+import { siteMetadata } from "@/lib/site-metadata";
 import { THEME_BOOTSTRAP } from "@/lib/theme";
-import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import { Header } from "@/components/header";
 import { Suspense } from "react";
 import { MobileNavigation, MobileNavigationFallback } from "@/components/mobile-navigation";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: "Opinión",
-  description: "Encuestas públicas: vota y descubre qué opinan los demás.",
-};
+export const metadata = siteMetadata;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

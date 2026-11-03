@@ -128,11 +128,16 @@ export async function votesOf(pollId: string) {
 export async function seedPoll(
   author: TestUser,
   question: string,
-  options: { category?: string | null; options?: string[] } = {},
+  options: { category?: string | null; options?: string[]; commentsEnabled?: boolean } = {},
 ) {
   const inserted = await admin
     .from("polls")
-    .insert({ user_id: author.id, question, category_slug: options.category ?? null })
+    .insert({
+      user_id: author.id,
+      question,
+      category_slug: options.category ?? null,
+      comments_enabled: options.commentsEnabled ?? false,
+    })
     .select("id")
     .single();
   if (inserted.error) throw inserted.error;

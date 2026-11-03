@@ -22,6 +22,78 @@ export type Database = {
         };
         Relationships: [];
       };
+      comment_reports: {
+        Row: {
+          comment_id: string;
+          created_at: string;
+          details: string | null;
+          id: string;
+          reason: string;
+          reporter_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          comment_id: string;
+          created_at?: string;
+          details?: string | null;
+          id?: string;
+          reason: string;
+          reporter_id: string;
+        };
+        Update: {
+          comment_id?: string;
+          created_at?: string;
+          details?: string | null;
+          id?: string;
+          reason?: string;
+          reporter_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "comment_reports_comment_id_fkey";
+            columns: ["comment_id"];
+            isOneToOne: false;
+            referencedRelation: "comments";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      comments: {
+        Row: {
+          body: string;
+          created_at: string;
+          id: string;
+          poll_id: string;
+          status: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          body: string;
+          created_at?: string;
+          id?: string;
+          poll_id: string;
+          status?: string;
+          user_id: string;
+        };
+        Update: {
+          body?: string;
+          created_at?: string;
+          id?: string;
+          poll_id?: string;
+          status?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "comments_poll_id_fkey";
+            columns: ["poll_id"];
+            isOneToOne: false;
+            referencedRelation: "polls";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       follow_quota_events: {
         Row: {
           created_at: string;
@@ -133,6 +205,7 @@ export type Database = {
         Row: {
           category_slug: string | null;
           closes_at: string | null;
+          comments_enabled: boolean;
           created_at: string;
           id: string;
           question: string;
@@ -143,6 +216,7 @@ export type Database = {
         Insert: {
           category_slug?: string | null;
           closes_at?: string | null;
+          comments_enabled?: boolean;
           created_at?: string;
           id?: string;
           question: string;
@@ -152,6 +226,7 @@ export type Database = {
         Update: {
           category_slug?: string | null;
           closes_at?: string | null;
+          comments_enabled?: boolean;
           created_at?: string;
           id?: string;
           question?: string;
@@ -170,6 +245,8 @@ export type Database = {
       };
       profiles: {
         Row: {
+          avatar_icon: string | null;
+          bio: string | null;
           created_at: string;
           display_name: string | null;
           is_private: boolean;
@@ -180,6 +257,8 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          avatar_icon?: string | null;
+          bio?: string | null;
           created_at?: string;
           display_name?: string | null;
           is_private?: boolean;
@@ -189,6 +268,8 @@ export type Database = {
           vote_visibility?: string;
         };
         Update: {
+          avatar_icon?: string | null;
+          bio?: string | null;
           created_at?: string;
           display_name?: string | null;
           is_private?: boolean;
@@ -225,6 +306,53 @@ export type Database = {
             referencedColumns: ["id"];
           },
         ];
+      };
+      user_blocks: {
+        Row: {
+          blocked_id: string;
+          blocker_id: string;
+          created_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          blocked_id: string;
+          blocker_id: string;
+          created_at?: string;
+        };
+        Update: {
+          blocked_id?: string;
+          blocker_id?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      user_reports: {
+        Row: {
+          created_at: string;
+          details: string | null;
+          id: string;
+          reason: string;
+          reported_id: string;
+          reporter_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          details?: string | null;
+          id?: string;
+          reason: string;
+          reported_id: string;
+          reporter_id: string;
+        };
+        Update: {
+          created_at?: string;
+          details?: string | null;
+          id?: string;
+          reason?: string;
+          reported_id?: string;
+          reporter_id?: string;
+        };
+        Relationships: [];
       };
       votes: {
         Row: {
@@ -271,12 +399,15 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      add_comment: { Args: { p_body: string; p_poll_id: string }; Returns: string };
+      block_user: { Args: { p_username: string }; Returns: undefined };
       can_view_author: { Args: { p_author: string }; Returns: boolean };
       count_follow_requests: { Args: Record<PropertyKey, never>; Returns: number };
       create_poll: {
         Args: {
           p_category?: string;
           p_closes_at?: string;
+          p_comments_enabled?: boolean;
           p_options: string[];
           p_question: string;
         };
@@ -307,6 +438,8 @@ export type Database = {
       get_my_profile: {
         Args: Record<PropertyKey, never>;
         Returns: {
+          avatar_icon: string;
+          bio: string;
           display_name: string;
           is_private: boolean;
           username: string;
@@ -336,6 +469,7 @@ export type Database = {
       get_profile: {
         Args: { p_username: string };
         Returns: {
+          bio: string;
           can_view_content: boolean;
           display_name: string;
           followers_count: number;
@@ -370,6 +504,25 @@ export type Database = {
           voted_at: string;
         }[];
       };
+      list_blocked_users: {
+        Args: { p_cursor?: string };
+        Returns: {
+          cursor: string;
+          display_name: string;
+          username: string;
+        }[];
+      };
+      list_comments: {
+        Args: { p_cursor?: string; p_poll_id: string };
+        Returns: {
+          body: string;
+          comment_id: string;
+          created_at: string;
+          cursor: string;
+          display_name: string;
+          username: string;
+        }[];
+      };
       list_follow_requests: {
         Args: { p_cursor?: string };
         Returns: {
@@ -395,16 +548,36 @@ export type Database = {
         }[];
       };
       remove_follower: { Args: { p_username: string }; Returns: undefined };
+      report_comment: {
+        Args: { p_comment_id: string; p_details?: string; p_reason: string };
+        Returns: undefined;
+      };
       report_poll: {
         Args: { p_details?: string; p_poll_id: string; p_reason: string };
+        Returns: undefined;
+      };
+      report_user: {
+        Args: { p_details?: string; p_reason: string; p_username: string };
         Returns: undefined;
       };
       respond_follow_request: {
         Args: { p_accept: boolean; p_username: string };
         Returns: undefined;
       };
+      search_polls: {
+        Args: { p_cursor?: string; p_query: string };
+        Returns: {
+          created_at: string;
+          cursor: string;
+          poll_id: string;
+        }[];
+      };
+      set_poll_comments: { Args: { p_enabled: boolean; p_poll_id: string }; Returns: undefined };
+      set_profile_avatar: { Args: { p_icon: string }; Returns: undefined };
+      set_profile_bio: { Args: { p_bio: string }; Returns: undefined };
       set_profile_privacy: { Args: { p_private: boolean }; Returns: undefined };
       set_vote_visibility: { Args: { p_visibility: string }; Returns: undefined };
+      unblock_user: { Args: { p_username: string }; Returns: undefined };
       unfollow_user: { Args: { p_username: string }; Returns: undefined };
       upsert_my_profile: {
         Args: { p_display_name: string; p_username: string };

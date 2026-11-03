@@ -2,7 +2,7 @@ import { EmptyState } from "@/components/empty-state";
 import { FeedControls, feedHref } from "@/components/feed-controls";
 import { FeedList } from "@/components/feed-list";
 import { loginPath } from "@/lib/auth/redirect";
-import { getCategories, getFeed, hasAcceptedFollows } from "@/lib/data/operations";
+import { getCategories, getFeed } from "@/lib/data/operations";
 import type { FeedMode } from "@/lib/data/types";
 import { createClient } from "@/lib/supabase/server";
 import { loadMoreFeed } from "./feed-actions";
@@ -12,8 +12,7 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
 
 // Feed de «/» (V2-032): Recientes o Siguiendo, con filtro de categoría, ambos en la URL
-// (?tab=siguiendo&categoria=deportes). Sin pestaña explícita, un visitante entra en Recientes y una
-// cuenta con algún seguimiento ACEPTADO entra en Siguiendo (las solicitudes pendientes no cuentan).
+// (?tab=siguiendo&categoria=deportes). Sin pestaña explícita, todo el mundo entra en Recientes.
 // Se carga en el servidor por petición (lee la sesión de las cookies, así que nunca se cachea). Las
 // páginas siguientes llegan con loadMoreFeed.
 export async function Feed({ searchParams }: { searchParams?: SearchParams } = {}) {
@@ -23,6 +22,9 @@ export async function Feed({ searchParams }: { searchParams?: SearchParams } = {
   const user = data.user;
   const signedIn = Boolean(user);
 
+  const requestedTab = first(params.tab);
+  const explicit: FeedMode | null =
+    requestedTab === "recientes" || requestedTab === "siguiendo" ? requestedTab : null;
   const categories = await getCategories(supabase);
   const list = categories.ok ? categories.data : [];
   const requestedCategory = first(params.categoria);
@@ -30,11 +32,8 @@ export async function Feed({ searchParams }: { searchParams?: SearchParams } = {
     ? (requestedCategory ?? null)
     : null;
 
-  const requestedTab = first(params.tab);
-  const explicit: FeedMode | null =
-    requestedTab === "recientes" || requestedTab === "siguiendo" ? requestedTab : null;
-  const mode: FeedMode =
-    explicit ?? (user && (await hasAcceptedFollows(supabase, user.id)) ? "siguiendo" : "recientes");
+  // FEED-001: sin pestaña explícita todas las cuentas abren Recientes; Siguiendo sólo si se elige.
+  const mode: FeedMode = explicit ?? "recientes";
 
   const controls = (
     <FeedControls mode={mode} category={category} categories={list} signedIn={signedIn} />

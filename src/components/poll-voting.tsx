@@ -28,6 +28,10 @@ type PollVotingProps = {
   initialSelected?: string | null;
 };
 
+// Evento de ventana tras un voto correcto (CMT-002): el debate del detalle, que se abre al votar,
+// escucha este evento para refrescarse. Evita pasar funciones desde componentes de servidor.
+export const VOTED_EVENT = "opinion:voted";
+
 // Votar en una encuesta: elegir, confirmar y ver los resultados. Quien no ha votado sólo
 // recibe las opciones: los resultados llegan únicamente al votar (o si ya había votado).
 // Un visitante, o una sesión caducada, ve la petición de iniciar sesión y vuelve aquí;
@@ -117,6 +121,7 @@ export function PollVoting({
     if (result.ok) {
       setJustVoted(true);
       setResults(result.data);
+      window.dispatchEvent(new CustomEvent(VOTED_EVENT, { detail: { pollId: poll.id } }));
     } else if (result.error === "AUTH_REQUIRED") setNeedsLogin(true);
     else if (result.error === "PROFILE_REQUIRED") setNeedsProfile(true);
     else setError(result.error);

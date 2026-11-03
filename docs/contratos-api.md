@@ -206,6 +206,53 @@ public.set_vote_visibility(p_visibility text) returns void
 - Adaptadores: `getMyVoteVisibility(supabase)` → `Result<VoteVisibility>` y `setVoteVisibility(supabase, visibility)` → `Result<void>`. No se crea una caché pública ni se consulta esta preferencia desde el feed.
 - Un cambio o retirada de seguimiento se refleja en futuras consultas al servidor. No puede retirar copias de información que un visitante ya hubiera recibido lícitamente. La UI de ajustes y su invalidación tras guardar corresponden a PRIV-002; esta tarea no aplica SQL en proyectos compartidos.
 
+#### Icono de perfil (AVATAR-001)
+
+```sql
+public.set_profile_avatar(p_icon text) returns void
+public.get_my_profile() returns table (username text, display_name text, is_private boolean, avatar_icon text)
+```
+
+- `set_profile_avatar`: sólo `authenticated`, con perfil. `p_icon` es uno de `sol`, `luna`, `estrella`, `hoja`, `ola`, `montana`, `nube`, `llama`, o `null` para volver a las iniciales. Errores: `AUTH_REQUIRED`, `PROFILE_REQUIRED`, `AVATAR_INVALID` (cualquier otro valor, incluida otra capitalización o una URL). Actúa siempre sobre la cuenta de `auth.uid()`; no cambia nombre, @usuario ni privacidad. La restricción de catálogo también está como `check` en la tabla.
+- `profiles.avatar_icon`: columna **pública** (`grant select` a `anon` y `authenticated`), como `username`; sin escritura directa.
+- `get_my_profile` pasa a devolver también `avatar_icon`, para que la cabecera lo obtenga en la misma consulta. Se recrea con `drop function` + `create function` y mantiene los mismos permisos (sólo `authenticated`).
+- El resto del contrato no cambia: `get_profile` y las listas de seguidores no devuelven el icono; los adaptadores `getProfileView`, `listFollowers`, `listFollowing` y `listFollowRequests` lo leen de la columna pública con una consulta aparte (cabecera en paralelo; una por página de lista). Un fallo de esa lectura sólo hace que se vean las iniciales.
+- Adaptadores: `setProfileAvatar(supabase, icon | null)` → `Result<void>`; `Profile.avatarIcon`, `ProfileView.avatarIcon` y `FollowEntry.avatarIcon` son opcionales. Detalle de catálogo y procedencia: [avatares.md](avatares.md).
+
+#### Bloqueo de personas (SOCIAL-001)
+
+```sql
+public.block_user(p_username text) returns void
+public.unblock_user(p_username text) returns void
+public.list_blocked_users(p_cursor text default null) returns table (username text, display_name text, cursor text)
+```
+
+- Tabla `user_blocks (blocker_id, blocked_id, created_at)`, con RLS y **sin ningún permiso para clientes**: sólo se gestiona con las tres RPC, todas `authenticated`. La lista es la propia (31 filas por página, cursor opaco `<created_at UTC>|<usuario en minúsculas>`); nunca devuelve `user_id` ni muestra quién ha bloqueado a quien llama.
+- `block_user`: con sesión y perfil. `@usuario` propio → `CANNOT_BLOCK_SELF`; inexistente → `USER_NOT_FOUND`. Idempotente. **En la misma transacción** borra los seguimientos y solicitudes pendientes entre ambos, en los dos sentidos. Toma un cerrojo por pareja de cuentas.
+- `unblock_user`: borra sólo el bloqueo propio (quien fue bloqueado no puede levantarlo); idempotente; **no restaura seguimientos**.
+- **Efecto**: un bloqueo activo en cualquier sentido hace que `can_view_author` sea falso para el par, lo que oculta el contenido, el historial, los resultados y las denuncias del otro en polls, feed, listas y votos (todo el contrato de visibilidad ya pasa por esa función). `get_profile` responde `USER_NOT_FOUND`. Un trigger `BEFORE INSERT` en `follows` rechaza (`USER_NOT_FOUND`) cualquier seguimiento entre bloqueados, también por inserción directa, y comparte el cerrojo con `block_user` para que un seguimiento simultáneo no sobreviva al bloqueo.
+- **No cambia** ningún voto ni agregado: no se borran ni se recalculan.
+- **Límites**: sin sesión (anon) el contenido público sigue siendo visible; el bloqueo no es anonimato ni protege frente a otra cuenta. Las listas de seguidores y el historial de una cuenta bloqueada responden como "privada" (`PROFILE_PRIVATE`), no como inexistente, también si la cuenta es pública (corregido en `20261030180000_profile_votes_block.sql`, QA-001; ver [la matriz](qa-matriz-privacidad.md)).
+- Adaptadores: `blockUser(supabase, username)` y `unblockUser(supabase, username)` → `Result<void>`; error nuevo `CANNOT_BLOCK_SELF`. `listBlockedUsers(supabase, cursor?)` → `Result<FollowPage>` (sin iconos, 30 por página).
+- **Interfaz (SOCIAL-002)**: botón «Bloquear» en el perfil ajeno con sesión (confirmación inline que explica el efecto y que el contenido público puede verse sin sesión; no se ofrece sobre uno mismo). No hay estado optimista: al confirmar el servidor, se va a `/settings#bloqueados`, porque para quien bloquea el perfil deja de existir (404). «Desbloquear» y la lista viven en el apartado «Cuentas bloqueadas» de Ajustes, con aviso de que no se restauran seguimientos. Pendiente: acción en el menú contextual de autor de las tarjetas.
+
+#### Biografía de perfil (PROFILE-001)
+
+```sql
+public.set_profile_bio(p_bio text) returns void
+public.get_my_profile() returns table (username text, display_name text, is_private boolean, avatar_icon text, bio text)
+public.get_profile(p_username text) returns table (..., can_view_content boolean, bio text)
+```
+
+- `profiles.bio`: texto plano de 0 a 280 caracteres Unicode (no bytes), con `check` en la tabla. **No es una columna pública**: no hay `grant select` ni `update` sobre ella para ningún rol; no hay escritura directa.
+- `set_profile_bio`: sólo `authenticated`, con perfil. Recorta espacios, tabulaciones y saltos de línea de los extremos; vacío o `null` la borra. Rechaza más de 280 caracteres y caracteres de control (salvo salto de línea y tabulación). El HTML se guarda como texto literal: la interfaz lo muestra siempre escapado. Errores: `AUTH_REQUIRED`, `PROFILE_REQUIRED`, `BIO_INVALID`. Actúa siempre sobre `auth.uid()`.
+- `get_my_profile` devuelve la bio propia. `get_profile` la devuelve **sólo si `can_view_author`** (cuenta pública, titular o seguidor aceptado); a solicitantes pendientes, extraños y `anon` de una cuenta privada les llega `null`. La cabecera pública, los metadatos OG y el resto de RPC no la incluyen.
+- Ambas funciones se recrean con `drop function` + `create function` conservando columnas anteriores (`avatar_icon`, contadores, relación, `can_view_content`) y permisos.
+- Bloqueos (SOCIAL-001): entre cuentas bloqueadas `get_profile` responde `USER_NOT_FOUND`, así que tampoco se entrega la bio.
+- Adaptadores: `setProfileBio(supabase, bio | null)` → `Result<void>`; `Profile.bio` y `ProfileView.bio` son opcionales (ausentes si no hay bio o no se puede ver).
+
+- **Interfaz (PROFILE-002)**: Ajustes → Perfil tiene un formulario propio «Descripción» (no toca nombre ni @usuario): opcional, contador en puntos de código `n / 280`, error junto al campo y texto conservado; vaciarlo envía `null`. `/u/[username]` la muestra como texto plano (`whitespace-pre-wrap`, sin HTML ni enlaces automáticos) sólo si el backend la entrega.
+
 ### 3.10. `get_profile` y `get_profile_polls` (V2-006)
 
 ```sql
@@ -275,6 +322,63 @@ public.get_feed(p_mode text default 'recientes', p_category text default null, p
 - Retención (D-025): una encuesta cerrada sale del feed cuando `now() >= closes_at + 24 h` (límite exclusivo, hora del servidor). No se borra ni se oculta: detalle y perfil siguen funcionando. Sin `closes_at` no caduca.
 - Orden `created_at DESC, id DESC`; hasta **21 filas** (20 + 1). `p_cursor` es el `cursor` de la última fila entregada (`<created_at UTC>|<id>`, opaco); uno ilegible es `INVALID_CURSOR` (a diferencia de las listas de perfil, que lo ignoran).
 - Adaptador: `getFeed(supabase, { mode, category, cursor }, viewer)` → `FeedPage` con el mismo estado de voto, resultados y «guardada» que el resto de listas. `getFeedPage` (la lectura anterior, sin modos) sigue existiendo hasta que V2-032 integre la interfaz.
+
+### 3.15. `search_polls` (SEARCH-001)
+
+```sql
+public.search_polls(p_query text, p_cursor text default null) returns table (poll_id uuid, created_at timestamptz, cursor text)
+```
+
+- Ejecutable por `anon` y `authenticated` (la búsqueda sobre contenido público no exige sesión). Como `get_feed`, devuelve **sólo ids, fecha y cursor**: los datos de cada encuesta salen por la RLS de `polls` y los resultados por la ruta autorizada del resto de listas. **Nunca** devuelve recuentos, porcentajes, totales ni `user_id`.
+- Consulta: 2–100 caracteres tras recortar y colapsar espacios; si no, `INVALID_QUERY`. Coincidencia de subcadena sin distinguir mayúsculas (`ILIKE`), con `%`, `_` y `\` escapados (son texto, nunca comodines). No distingue acentos: «cafe» no encuentra «café». Sin servicio externo ni búsqueda semántica.
+- Alcance: encuestas `published` que quien llama puede ver (`can_view_author`: cuentas privadas y bloqueos); las cerradas se encuentran aunque ya hayan salido del feed de 24 h. Las ocultas no aparecen.
+- Orden `created_at DESC, id DESC`; 21 filas (20 + 1). Cursor `<created_at UTC>|<id>|<md5 de la consulta>`: el de otra búsqueda o uno ilegible es `INVALID_CURSOR`. No hay total de resultados.
+- Índice: `polls_question_trgm_idx` (GIN `pg_trgm`, parcial `status = 'published'`), en el esquema `extensions`. A 5000 filas el planificador puede preferir recorrer `polls_feed_idx` con el `LIMIT`; el trigram gana al crecer la tabla o ser selectiva la coincidencia (comprobado en `030_search_polls`). Sin Redis.
+- Adaptador: `searchPolls(supabase, query, cursor, viewer)` → `Result<FeedPage>`; error nuevo `INVALID_QUERY`.
+- Interfaz (SEARCH-002): `/search?q=` (GET, la consulta vive en la URL; sin consulta o de menos de 2 caracteres no se busca nada), acción de servidor `loadMoreSearch(query, cursor)` para «Cargar más», tarjetas y voto del feed, pestaña «Buscar» (lupa) en la barra móvil y enlace «Buscar» en la cabecera de escritorio. Sin autocompletado ni analítica.
+
+### 3.16. Comentarios (CMT-001)
+
+```sql
+public.set_poll_comments(p_poll_id uuid, p_enabled boolean) returns void
+public.add_comment(p_poll_id uuid, p_body text) returns uuid
+public.list_comments(p_poll_id uuid, p_cursor text default null)
+  returns table (comment_id uuid, username text, display_name text, body text, created_at timestamptz, cursor text)
+public.create_poll(p_question, p_options, p_closes_at default null, p_category default null, p_comments_enabled boolean default false) returns uuid
+```
+
+- `polls.comments_enabled` (false por defecto) es **público** como `closes_at` (`grant select`); sólo lo escribe quien crea la encuesta (`create_poll`) y después la autora con `set_poll_comments` (para otra cuenta, `POLL_UNAVAILABLE`; no hay `update` directo). Apagarlo **no borra** comentarios; reactivarlo los devuelve. `create_poll` se recrea con un parámetro final opcional; la firma anterior de cuatro argumentos desaparece.
+- `comments` no es de ningún cliente (RLS sin permisos). Se escribe con `add_comment` y se lee con `list_comments`; nunca se devuelve `user_id`.
+- **Acceso** (mismo orden de errores en lectura y escritura): encuesta oculta, inexistente o de una cuenta que quien llama no puede ver (privada o bloqueo) → `POLL_UNAVAILABLE`; debate apagado → `COMMENTS_DISABLED` (también para la autora); **abierta** sin voto de quien llama → `VOTE_REQUIRED` (también la autora y los visitantes); **cerrada** → rige la visibilidad de la encuesta y no hace falta voto. La comprobación vive en `private.comments_check_access` (esquema sin permisos para clientes).
+- `add_comment`: sesión y perfil (`AUTH_REQUIRED`, `PROFILE_REQUIRED`). Texto plano de 1–1000 caracteres tras recortar; sin caracteres de control salvo salto de línea y tabulación (`COMMENT_INVALID`); el HTML se guarda como texto literal y la interfaz lo muestra escapado. **10 comentarios por minuto y cuenta** (`RATE_LIMITED`), con cerrojo por cuenta para que las peticiones simultáneas no lo superen. Un bloqueo con la autora devuelve `POLL_UNAVAILABLE`.
+- `list_comments`: ejecutable por `anon` (cerradas públicas). Más recientes primero, cursor opaco `<created_at UTC>|<id>` (`INVALID_CURSOR`), 21 filas (20 + 1). **Se omiten** los comentarios de cuentas con bloqueo con quien lee o con la autora de la encuesta, en cualquier sentido.
+- Fuera de alcance: hilos, respuestas, likes, edición y borrado; la interfaz es CMT-002. La denuncia y la moderación (`comments.status`) están en §3.18. `PublicPoll` aún no expone `comments_enabled` (CMT-002).
+- Adaptadores: `listComments(supabase, pollId, cursor)` → `Result<CommentPage>`, `addComment(supabase, pollId, body)` → `Result<{ id }>`, `setPollComments(supabase, pollId, enabled)` y `createPoll(..., commentsEnabled?)`. Errores nuevos: `COMMENTS_DISABLED`, `VOTE_REQUIRED`, `COMMENT_INVALID`.
+
+**UI (CMT-002).** El detalle de la encuesta muestra la sección «Comentarios» bajo el voto: la autora ve el interruptor (`set_poll_comments`); quien no es autora sólo la ve si está activada. En una abierta, sin voto propio no se pide `list_comments` y se explica cómo acceder; tras votar (evento `opinion:voted`) se refresca y aparece el debate. Las cerradas se leen sin votar; comentar exige sesión.
+
+### 3.17. `report_user` (MOD-001)
+
+```sql
+public.report_user(p_username text, p_reason text, p_details text default null) returns void
+```
+
+- Sólo `authenticated` (sin perfil propio obligatorio). La cuenta se identifica por `@usuario` sin distinguir mayúsculas; entre cuentas bloqueadas o si no existe, `USER_NOT_FOUND`; a uno mismo, `CANNOT_REPORT_SELF`. Motivo `spam|odio|acoso|sexual|violencia|otro` y detalle de hasta 500 caracteres normalizados (`REPORT_INVALID`).
+- Tabla `user_reports` propia (no se mezcla con `poll_reports`), sin permisos para clientes: no se lee, escribe ni deduce quién denunció. Una por pareja (`ALREADY_REPORTED`), 10 por hora y cuenta con cerrojo por cuenta (`REPORT_RATE_LIMITED`). Borrado en cascada con la cuenta denunciante o la denunciada.
+- No oculta, bloquea ni cambia la cuenta. Procedimiento de revisión y retención en `docs/moderacion.md`.
+- Adaptador: `reportUser(supabase, username, reason, details?)` → `Result<void>`; error nuevo `CANNOT_REPORT_SELF`. La acción en la interfaz es MOD-002.
+
+- **Interfaz (MOD-002)**: «Denunciar persona» en el perfil ajeno (visitante → login con retorno al perfil; con sesión, diálogo modal con motivo obligatorio y detalle opcional, que aclara que denuncia a la persona y no bloquea). `ALREADY_REPORTED` se muestra como «Ya has denunciado a esta persona.». Pendiente: acción en el menú contextual de autor de las tarjetas, junto con SOCIAL-002.
+
+### 3.18. `report_comment` y moderación de comentarios (CMT-003)
+
+```sql
+public.report_comment(p_comment_id uuid, p_reason text, p_details text default null) returns void
+```
+
+- Sólo `authenticated`. Sólo se denuncia un comentario que quien llama podría ver ahora (misma comprobación que `list_comments`, bloqueos incluidos); cualquier otro caso —inexistente, oculto, debate apagado, encuesta no visible, sin voto en una abierta, bloqueo— es `COMMENT_UNAVAILABLE`, sin pistas. Propio → `CANNOT_REPORT_SELF`. Motivo y detalle como en `report_poll` (`REPORT_INVALID`); una por comentario y cuenta (`ALREADY_REPORTED`); 20 por hora y cuenta (`REPORT_RATE_LIMITED`).
+- `comment_reports` no tiene permisos para clientes. `comments.status` (`published` | `hidden`) lo cambia sólo un operador con la clave de servicio; `list_comments` omite los ocultos y un comentario oculto no reaparece al reactivar el debate.
+- Adaptador: `reportComment(supabase, commentId, reason, details?)` → `Result<void>`; error nuevo `COMMENT_UNAVAILABLE`. Procedimiento de revisión en `docs/moderacion.md`. Los controles en la interfaz y el E2E son CMT-002.
 
 ## 4. Lecturas directas (RLS)
 

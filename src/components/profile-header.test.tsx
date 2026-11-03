@@ -4,6 +4,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { ProfileView } from "@/lib/data/types";
 import { ProfileHeader } from "./profile-header";
 
+vi.mock("@/app/report-actions", () => ({ submitUserReport: vi.fn() }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
+
 afterEach(cleanup);
 
 const PROFILE: ProfileView = {
@@ -77,5 +80,86 @@ describe("ProfileHeader", () => {
   it("en el perfil de otra persona nunca aparece la bandeja", () => {
     render(<ProfileHeader profile={PROFILE} pendingRequests={5} {...props} />);
     expect(screen.queryByRole("link", { name: /Solicitudes/ })).toBeNull();
+  });
+
+  it("AVATAR-001: muestra el icono elegido o las iniciales", () => {
+    const { container, rerender } = render(
+      <ProfileHeader profile={{ ...PROFILE, avatarIcon: "hoja" }} {...props} />,
+    );
+    expect(container.querySelector('[data-avatar-icon="hoja"]')).not.toBeNull();
+    rerender(<ProfileHeader profile={PROFILE} {...props} />);
+    expect(container.querySelector("[data-avatar-icon]")).toBeNull();
+    expect(screen.getByText("BE")).toBeDefined();
+  });
+});
+
+describe("ProfileHeader: bloquear (SOCIAL-002)", () => {
+  const onBlock = vi.fn();
+
+  it.each(["none", "pending", "following"] as const)(
+    "con sesión y relación %s ofrece Bloquear",
+    (viewerRelation) => {
+      render(
+        <ProfileHeader profile={{ ...PROFILE, viewerRelation }} {...props} onBlock={onBlock} />,
+      );
+      expect(screen.getByRole("button", { name: "Bloquear" })).toBeDefined();
+    },
+  );
+
+  it("no se ofrece sobre uno mismo, sin sesión ni sin acción de bloqueo", () => {
+    const { rerender } = render(
+      <ProfileHeader
+        profile={{ ...PROFILE, viewerRelation: "self" }}
+        {...props}
+        onBlock={onBlock}
+      />,
+    );
+    expect(screen.queryByRole("button", { name: "Bloquear" })).toBeNull();
+    rerender(<ProfileHeader profile={PROFILE} {...props} signedIn={false} onBlock={onBlock} />);
+    expect(screen.queryByRole("button", { name: "Bloquear" })).toBeNull();
+    rerender(<ProfileHeader profile={PROFILE} {...props} />);
+    expect(screen.queryByRole("button", { name: "Bloquear" })).toBeNull();
+  });
+});
+
+describe("ProfileHeader: descripción (PROFILE-002)", () => {
+  it("muestra la descripción como texto: conserva saltos y no interpreta HTML ni enlaces", () => {
+    render(
+      <ProfileHeader
+        profile={{ ...PROFILE, bio: "Línea 1\n<b>negrita</b> https://x.test" }}
+        {...props}
+      />,
+    );
+    const bio = screen.getByText(/Línea 1/);
+    expect(bio.textContent).toBe("Línea 1\n<b>negrita</b> https://x.test");
+    expect(bio.querySelector("b")).toBeNull();
+    expect(bio.querySelector("a")).toBeNull();
+    expect(bio.className).toMatch(/whitespace-pre-wrap/);
+    expect(bio.className).toMatch(/break-words|wrap-anywhere/);
+  });
+
+  it("sin descripción no reserva hueco", () => {
+    const { container } = render(<ProfileHeader profile={PROFILE} {...props} />);
+    expect(container.querySelector("[data-bio]")).toBeNull();
+  });
+});
+
+describe("ProfileHeader: denunciar persona (MOD-002)", () => {
+  it("aparece en perfiles ajenos, también para visitantes (que van al login), y no en el propio", () => {
+    const { rerender } = render(<ProfileHeader profile={PROFILE} {...props} />);
+    expect(screen.getByRole("button", { name: "Denunciar persona" })).toBeDefined();
+    rerender(<ProfileHeader profile={PROFILE} {...props} signedIn={false} />);
+    expect(screen.getByRole("link", { name: "Denunciar persona" }).getAttribute("href")).toBe(
+      `/login?next=${encodeURIComponent("/u/perfil_b")}`,
+    );
+    rerender(<ProfileHeader profile={{ ...PROFILE, viewerRelation: "self" }} {...props} />);
+    expect(screen.queryByText("Denunciar persona")).toBeNull();
+  });
+
+  it("es una acción distinta de Bloquear y de Denunciar encuesta", () => {
+    render(<ProfileHeader profile={PROFILE} {...props} onBlock={vi.fn()} />);
+    expect(screen.getByRole("button", { name: "Bloquear" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Denunciar persona" })).toBeDefined();
+    expect(screen.queryByRole("button", { name: /denunciar encuesta/i })).toBeNull();
   });
 });

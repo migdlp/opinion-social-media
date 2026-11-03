@@ -130,6 +130,70 @@ describe("PollDetailView", () => {
     expect(screen.getByRole("link", { name: "Guardar para luego" })).toBeDefined();
   });
 
+  describe("DESIGN-016: Guardar junto a la autoría", () => {
+    // Fila inferior: la que lleva la autoría y el borde superior.
+    const rowOf = (author: HTMLElement) => author.closest<HTMLElement>(".border-t")!;
+
+    it("con cierre, el estado de cierre va en su propia línea, fuera de la fila de autoría", () => {
+      const detail = { ...DETAIL, poll: { ...DETAIL.poll, closesAt: "2026-10-28T20:00:00Z" } };
+      render(<PollDetailView detail={detail} castVote={castVote} now={NOW} />);
+
+      const close = screen.getByText("Cierra en 1 día").closest("p");
+      expect(close).not.toBeNull();
+      expect(rowOf(screen.getByText("Anónimo")).contains(close)).toBe(false);
+      // Aparece antes de la fila, igual que en la tarjeta del feed.
+      expect(
+        close!.compareDocumentPosition(rowOf(screen.getByText("Anónimo"))) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+    });
+
+    it("Guardar queda en la fila de autoría, en un grupo propio a la derecha (dos hijos)", () => {
+      const detail = { ...DETAIL, poll: { ...DETAIL.poll, closesAt: "2026-10-28T20:00:00Z" } };
+      render(<PollDetailView detail={detail} castVote={castVote} now={NOW} />);
+
+      const author = screen.getByText("Anónimo");
+      const save = screen.getByRole("link", { name: "Guardar para luego" });
+      const row = rowOf(author);
+      expect(row.contains(save)).toBe(true);
+
+      // Con tres hijos y poco ancho, Guardar saltaba de línea: la fila son autoría + grupo.
+      expect(row.children).toHaveLength(2);
+      const group = row.children[1] as HTMLElement;
+      expect(group.contains(save)).toBe(true);
+      expect(group.contains(author)).toBe(false);
+      expect(group.className).toMatch(/\bflex\b.*\bgap-1\b/);
+    });
+
+    it("sin cierre no hay línea de cierre y la fila conserva autoría y Guardar", () => {
+      render(
+        <PollDetailView
+          detail={{ ...DETAIL, viewer: { kind: "not_voted" }, saved: true }}
+          castVote={castVote}
+          now={NOW}
+        />,
+      );
+
+      const row = rowOf(screen.getByText("Anónimo"));
+      expect(row.contains(screen.getByRole("button", { name: "Quitar de guardadas" }))).toBe(true);
+      expect(row.querySelector("time")).toBeNull();
+      expect(row.children).toHaveLength(2);
+    });
+
+    it("cerrada, la línea de cierre muestra «Cerrada hace…» encima de la fila", () => {
+      const detail = {
+        ...DETAIL,
+        poll: { ...DETAIL.poll, closesAt: "2026-10-27T18:00:00Z" },
+        viewer: { kind: "closed", signedIn: false, results: null },
+      } as unknown as PollDetail;
+      render(<PollDetailView detail={detail} castVote={castVote} now={NOW} />);
+
+      const close = screen.getByText("Cerrada hace 2 h").closest("p");
+      expect(close).not.toBeNull();
+      expect(rowOf(screen.getByText("Anónimo")).contains(close)).toBe(false);
+    });
+  });
+
   describe("DESIGN-009: camino para seguir explorando", () => {
     const RESULTS = {
       pollId: DETAIL.poll.id,

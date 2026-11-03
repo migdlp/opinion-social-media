@@ -16,7 +16,7 @@ type FollowButtonProps = {
 
 const BUTTON =
   "inline-flex min-h-11 items-center justify-center rounded-full px-5 text-sm font-semibold whitespace-nowrap transition-colors disabled:opacity-50";
-const PRIMARY = `${BUTTON} bg-foreground text-background hover:opacity-85`;
+const PRIMARY = `${BUTTON} action-primary`;
 const SECONDARY = `${BUTTON} border border-field hover:border-foreground`;
 
 // Botón de la cabecera del perfil según la relación (V2-006): Seguir, Solicitado (cancela),

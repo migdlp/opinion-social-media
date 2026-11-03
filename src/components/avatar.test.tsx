@@ -26,13 +26,11 @@ describe("avatarTone", () => {
     expect(tones.size).toBeGreaterThan(2);
   });
 
-  it("siempre deja contraste suficiente entre fondo y texto (grises)", () => {
+  it("devuelve siempre un par fondo/texto de la paleta After Sunset (el contraste se comprueba en after-sunset-social.test.tsx)", () => {
     for (const u of ["a", "bb", "ccc", "ana_23", "zzzz", "moderacion"]) {
       const { background, color } = avatarTone(u);
-      const lightness = Number(/hsl\(0 0% (\d+)%\)/.exec(background)![1]);
-      expect(lightness).toBeGreaterThanOrEqual(18);
-      expect(lightness).toBeLessThanOrEqual(42);
-      expect(color).toBe("#ffffff");
+      expect(background).toMatch(/^#[0-9a-f]{6}$/);
+      expect(color).toMatch(/^#[0-9a-f]{6}$/);
     }
   });
 });
@@ -42,5 +40,21 @@ describe("Avatar", () => {
     render(<Avatar username="ana_23" displayName="Ana María" />);
     const el = screen.getByText("AM");
     expect(el.getAttribute("aria-hidden")).toBe("true");
+  });
+
+  it("con icono dibuja el trazo del catálogo en lugar de las iniciales, también decorativo", () => {
+    const { container } = render(<Avatar username="ana_23" displayName="Ana María" icon="sol" />);
+    const el = container.querySelector('[data-avatar-icon="sol"]')!;
+    expect(el.getAttribute("aria-hidden")).toBe("true");
+    expect(el.querySelector("svg path")).not.toBeNull();
+    expect(screen.queryByText("AM")).toBeNull();
+  });
+
+  it("sin icono o con valor desconocido usa las iniciales", () => {
+    const { container, rerender } = render(<Avatar username="ana_23" icon={null} />);
+    expect(screen.getByText("AN")).toBeDefined();
+    rerender(<Avatar username="ana_23" icon={"otro" as never} />);
+    expect(screen.getByText("AN")).toBeDefined();
+    expect(container.querySelector("[data-avatar-icon]")).toBeNull();
   });
 });

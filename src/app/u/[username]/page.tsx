@@ -2,11 +2,18 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { LoadingState } from "@/components/loading-state";
 import { ProfileContent } from "./profile-content";
-import { profileTitle } from "@/lib/page-titles";
+import { profileDescription, profileTitle } from "@/lib/page-titles";
 
 export async function generateMetadata({ params }: PageProps<"/u/[username]">): Promise<Metadata> {
   const { username } = await params;
-  return { title: profileTitle(username) };
+  const title = profileTitle(username);
+  const description = profileDescription(username);
+  return {
+    title,
+    description,
+    openGraph: { title, description, type: "profile" },
+    twitter: { card: "summary", title, description },
+  };
 }
 
 export default function ProfilePage({ params, searchParams }: PageProps<"/u/[username]">) {

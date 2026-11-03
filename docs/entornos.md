@@ -2,12 +2,14 @@
 
 ## Proyectos
 
-Desde el 3 de noviembre de 2026, los dos proyectos se han recreado desde cero en París (`eu-west-3`). Actualizar también Google OAuth y sus callbacks.
+Desde el 3 de noviembre de 2026, ambos proyectos alojados se han recreado desde cero en París (`eu-west-3`). Los IDs y las claves anteriores han quedado obsoletos; configurar Google OAuth y las URLs de retorno en los proyectos nuevos antes de validar el inicio de sesión.
 
 | Entorno | Proyecto Supabase | Ref | Quién lo usa |
 |---|---|---|---|
-| Desarrollo | `opinion-social-media-dev` | `yxnnqdvyyjncljpdlwuq` | Desarrollo local, previews de Vercel, CI y agentes |
+| Desarrollo | `opinion-social-media-dev` | `yxnnqdvyyjncljpdlwuq` | Desarrollo local, agentes y pruebas manuales en dev |
 | Producción | `opinion-social-media-prod` | `bmgjdkkavbacqrnetxkk` | Sólo el despliegue de producción de Vercel |
+
+**CI:** las suites automáticas levantan Supabase/PostgreSQL efímeros en localhost dentro del runner; no usan las bases alojadas dev o prod. Las previews están desactivadas por D-VERCEL-002: configurar Preview no implica que exista un despliegue de desarrollo.
 
 Son proyectos distintos: no comparten base de datos, usuarios, claves ni configuración de Auth. Inventario completo y acceso de personas/agentes en [supabase-acceso.md](supabase-acceso.md).
 
@@ -61,3 +63,7 @@ Toda la app obtiene Supabase de `src/lib/supabase/`, que lee la configuración s
 - Ambos usan únicamente URL y clave publicable; no existe cliente con clave secreta.
 - `server.ts` importa `next/headers`, por lo que no puede acabar en el bundle del navegador, y quien lo usa se renderiza por petición (sin caché compartida).
 - La renovación de la sesión en el proxy de Next.js y el callback OAuth corresponden a MVP-006; los tipos generados del esquema, a MVP-022.
+
+## Auditoría y configuración local — 30-10-2026
+
+[OPS-003: evidencia y bloqueo](ops-003-integracion-dev.md). Se confirmó la separación de los siete registros Vercel por target y la versión productiva release60d841b. Este workspace tiene `.env.local` de dev, fuera de Git, y check:env devuelve health 200. Dev/prod aún tienen 25 migraciones; no usar producción como sustituto si faltan contratos de desarrollo. La copia real previa a integrar 26/27 requiere el alcance/destino autorizado que figura en la tarea; los ensayos locales con datos sintéticos ya pasan.

@@ -15,11 +15,14 @@ type FollowListProps = {
   onRemove?: (username: string) => Promise<Result<void>>;
   // Sólo en la bandeja de solicitudes: «Aceptar» y «Rechazar».
   onRespond?: (username: string, accept: boolean) => Promise<Result<void>>;
+  // Sólo en la lista de cuentas bloqueadas (SOCIAL-002): «Desbloquear» con confirmación. Sus filas
+  // no enlazan al perfil, que para quien bloqueó no existe.
+  onUnblock?: (username: string) => Promise<Result<void>>;
 };
 
 const SMALL =
   "inline-flex min-h-11 items-center justify-center rounded-full px-4 text-sm font-semibold whitespace-nowrap transition-colors disabled:opacity-50";
-const PRIMARY = `${SMALL} bg-foreground text-background hover:opacity-85`;
+const PRIMARY = `${SMALL} action-primary`;
 const SECONDARY = `${SMALL} border border-field hover:border-foreground`;
 
 // Lista paginada de personas (V2-009): seguidores, seguidos o solicitudes. Cada fila enlaza a su
@@ -33,6 +36,7 @@ export function FollowList({
   emptyText,
   onRemove,
   onRespond,
+  onUnblock,
 }: FollowListProps) {
   const [users, setUsers] = useState(initialUsers);
   const [cursor, setCursor] = useState(initialCursor);
@@ -85,36 +89,55 @@ export function FollowList({
   }
 
   if (users.length === 0 && !cursor) {
-    return (
-      <p className="rounded-2xl border border-border bg-surface p-5 text-muted">{emptyText}</p>
-    );
+    return <p className="poll-surface p-5 text-muted">{emptyText}</p>;
   }
 
   return (
     <div className="flex flex-col gap-3">
       <ul className="flex flex-col gap-3">
         {users.map((entry) => (
-          <li
-            key={entry.username}
-            className="flex flex-col gap-2 rounded-2xl border border-border bg-surface p-4"
-          >
+          <li key={entry.username} className="poll-surface flex flex-col gap-2 p-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <Link
-                href={`/u/${entry.username}`}
-                className="flex min-w-0 items-center gap-3 hover:underline"
-              >
-                <Avatar username={entry.username} displayName={entry.displayName} />
-                <span className="flex min-w-0 flex-col">
-                  {entry.displayName && (
-                    <span className="truncate font-semibold">{entry.displayName}</span>
-                  )}
-                  <span
-                    className={`truncate ${entry.displayName ? "text-muted" : "font-semibold"}`}
-                  >
-                    @{entry.username}
+              {onUnblock ? (
+                <span className="flex min-w-0 items-center gap-3">
+                  <Avatar
+                    username={entry.username}
+                    displayName={entry.displayName}
+                    icon={entry.avatarIcon}
+                  />
+                  <span className="flex min-w-0 flex-col">
+                    {entry.displayName && (
+                      <span className="truncate font-semibold">{entry.displayName}</span>
+                    )}
+                    <span
+                      className={`truncate ${entry.displayName ? "text-muted" : "font-semibold"}`}
+                    >
+                      @{entry.username}
+                    </span>
                   </span>
                 </span>
-              </Link>
+              ) : (
+                <Link
+                  href={`/u/${entry.username}`}
+                  className="flex min-w-0 items-center gap-3 hover:underline"
+                >
+                  <Avatar
+                    username={entry.username}
+                    displayName={entry.displayName}
+                    icon={entry.avatarIcon}
+                  />
+                  <span className="flex min-w-0 flex-col">
+                    {entry.displayName && (
+                      <span className="truncate font-semibold">{entry.displayName}</span>
+                    )}
+                    <span
+                      className={`truncate ${entry.displayName ? "text-muted" : "font-semibold"}`}
+                    >
+                      @{entry.username}
+                    </span>
+                  </span>
+                </Link>
+              )}
               {onRespond && (
                 <div className="flex gap-2">
                   <button
@@ -139,14 +162,16 @@ export function FollowList({
                   </button>
                 </div>
               )}
-              {onRemove &&
+              {(onRemove ?? onUnblock) &&
                 (confirming === entry.username ? (
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       className={PRIMARY}
                       disabled={busy === entry.username}
-                      onClick={() => run(entry.username, () => onRemove(entry.username))}
+                      onClick={() =>
+                        run(entry.username, () => (onRemove ?? onUnblock)!(entry.username))
+                      }
                     >
                       Confirmar
                     </button>
@@ -168,10 +193,15 @@ export function FollowList({
                       setConfirming(entry.username);
                     }}
                   >
-                    Eliminar
+                    {onUnblock ? "Desbloquear" : "Eliminar"}
                   </button>
                 ))}
             </div>
+            {onUnblock && confirming === entry.username && (
+              <p className="text-sm text-muted">
+                Desbloquear no restaura los seguimientos anteriores: tendréis que volver a seguiros.
+              </p>
+            )}
             {rowError?.username === entry.username && (
               <p role="alert" className="text-sm text-danger">
                 {ERROR_MESSAGES[rowError.error]}

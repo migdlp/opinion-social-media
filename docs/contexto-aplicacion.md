@@ -8,6 +8,12 @@ Nombre de trabajo: **Opinión**. Dirección creativa provisional: **After Sunset
 
 Las secciones funcionales originales siguientes se interpretan con las decisiones posteriores de fase 2 (D-015–D-025 y backlog-v2): perfiles, privacidad, 2–6 opciones, cierre y feed aprobado. La lámina visual no modifica esas reglas.
 
+## Peticiones vigentes del 30-10-2026 — trabajo futuro planificado
+
+Leer [el backlog por áreas y su cobertura](backlog-producto-2026-10-30.md) y D-032–D-042 antes de modificar defaults. El propietario pide Claro inicial y cambio por icono, Recientes inicial para todos, opciones Sí/No como ejemplos/valores de reserva, tarjetas alineadas, búsqueda/lupa móvil, comentarios opcionales, comparación de fotos, bloqueo/denuncia de personas y descripción de perfil. Respuesta múltiple y ranking son candidatos por definir mejor. Iconos de perfil ya implementados: activación #272 → #273, sin duplicar #247. Solicitudes sólo para privadas confirma D-017.
+
+Estas decisiones amplían las exclusiones históricas de comentarios/medios y sustituyen los defaults anteriores, pero su creación no acredita implementación ni ordena desplegar. El estado/reserva de cada ticket está en main; no se cambia el alcance de tareas ajenas en progreso. Las reglas de resultados, voto único del formato actual, privacidad y stack permanecen.
+
 ## Contexto de conexión para el equipo y los agentes
 
 Supabase está en la organización **Los tres cerditos** (`drifadkhohwebqljdlvw`), región Irlanda. El proyecto de trabajo es **`opinion-social-media-dev`** (`ltlrujmqenhktiilsnis`); **`opinion-social-media-prod`** (`qchpdrolulcgmiliysvr`) se reserva para producción. Desarrollo local, previews y agentes deben apuntar a desarrollo.

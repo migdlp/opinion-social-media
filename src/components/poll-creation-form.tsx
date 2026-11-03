@@ -14,6 +14,8 @@ export type PollCreationInput = {
   options: string[];
   closesAt?: string;
   category?: string;
+  // Debate activado desde la creación (CMT-002); ausente = apagado.
+  commentsEnabled?: boolean;
 };
 
 type PollCreationFormProps = {
@@ -26,6 +28,9 @@ type PollCreationFormProps = {
 };
 
 const MIN_OPTIONS = 2;
+// Ejemplos de las dos primeras opciones: se muestran como placeholder y, si no se escribe nada,
+// se publican como valores reales.
+const EXAMPLE_OPTIONS = ["Sí", "No"] as const;
 const MAX_OPTIONS = 6;
 
 const MINUTE = 60_000;
@@ -74,6 +79,8 @@ export function PollCreationForm({
   const [customClose, setCustomClose] = useState("");
   const [closeError, setCloseError] = useState(false);
   const [category, setCategory] = useState("");
+  const [commentsEnabled, setCommentsEnabled] = useState(false);
+  const [focusedOption, setFocusedOption] = useState<number | null>(null);
   const [errors, setErrors] = useState<PollInputErrors | null>(null);
   const [pending, setPending] = useState(false);
   const [failure, setFailure] = useState<AppErrorCode | null>(null);
@@ -83,15 +90,6 @@ export function PollCreationForm({
   const setOption = (index: number, value: string) =>
     setOptions((current) => current.map((option, i) => (i === index ? value : option)));
 
-  // Plantilla de dos opciones (V2-011). Si ya hay texto escrito, se pide confirmación.
-  const applyYesNo = () => {
-    const hasText = options.some((option) => option.trim() !== "");
-    if (hasText && !window.confirm("Se sustituirán las opciones escritas por Sí y No. ¿Continuar?"))
-      return;
-    setOptions(["Sí", "No"]);
-    setErrors(null);
-  };
-
   const removeOption = (index: number) => {
     setOptions((current) => current.filter((_, i) => i !== index));
     setErrors(null);
@@ -100,7 +98,13 @@ export function PollCreationForm({
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (sending.current) return;
-    const result = validatePollInput(question, options);
+    // Valores de reserva (CREATE-001): sólo si siguen exactamente las dos opciones iniciales y las
+    // dos están vacías. Cualquier otro caso incompleto se valida tal cual, sin inventar respuestas.
+    const submitted =
+      options.length === MIN_OPTIONS && options.every((option) => option.trim() === "")
+        ? [...EXAMPLE_OPTIONS]
+        : options;
+    const result = validatePollInput(question, submitted);
     const closesAt = resolveCloseDate(closeChoice, customClose);
     setCloseError(closesAt === null);
     if (hasErrors(result) || closesAt === null) {
@@ -113,9 +117,10 @@ export function PollCreationForm({
     setPending(true);
     const input: PollCreationInput = {
       question: normalizeText(question),
-      options: options.map(normalizeText),
+      options: submitted.map(normalizeText),
       ...(closesAt ? { closesAt } : {}),
       ...(category ? { category } : {}),
+      ...(commentsEnabled ? { commentsEnabled: true } : {}),
     };
     // Tras una caída de red la publicación quizá se completó: se consulta el servidor antes
     // de volver a enviar. Si la consulta tampoco llega, se espera a que haya conexión.
@@ -179,13 +184,6 @@ export function PollCreationForm({
 
       <fieldset className="flex flex-col gap-3.5">
         <legend className="mb-1 text-[15px] font-semibold">Opciones</legend>
-        <button
-          type="button"
-          onClick={applyYesNo}
-          className="min-h-11 self-start rounded-full border border-border bg-surface px-4 py-2 text-sm font-medium transition-colors hover:border-foreground"
-        >
-          Sí / No
-        </button>
         {options.map((option, index) => {
           const error = errors?.options[index];
           const inputId = `${id}-option-${index}`;
@@ -200,6 +198,13 @@ export function PollCreationForm({
                   id={inputId}
                   type="text"
                   value={option}
+                  placeholder={
+                    index < EXAMPLE_OPTIONS.length && focusedOption !== index
+                      ? EXAMPLE_OPTIONS[index]
+                      : ""
+                  }
+                  onFocus={() => setFocusedOption(index)}
+                  onBlur={() => setFocusedOption(null)}
                   onChange={(event) => setOption(index, event.target.value)}
                   aria-invalid={error ? true : undefined}
                   aria-describedby={error ? errorId : undefined}
@@ -299,6 +304,23 @@ export function PollCreationForm({
         )}
         <p className="text-[13px] text-muted">
           Al cerrar, la encuesta deja de admitir votos y no se puede cambiar la fecha.
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="flex min-h-11 items-center gap-3 text-[15px] font-semibold">
+          <input
+            type="checkbox"
+            checked={commentsEnabled}
+            onChange={(event) => setCommentsEnabled(event.target.checked)}
+            className="size-5 accent-[var(--accent)]"
+          />
+          Comentarios
+        </label>
+        <p className="text-[13px] text-muted">
+          Opcional y apagado por defecto. Con el debate activado, sólo quien haya votado puede leer
+          y escribir comentarios mientras la encuesta esté abierta. Podrás activarlo o apagarlo
+          después desde la encuesta.
         </p>
       </div>
 
