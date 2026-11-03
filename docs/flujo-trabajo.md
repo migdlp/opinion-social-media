@@ -45,12 +45,12 @@ flowchart TD
     accTitle: Separación de desarrollo, pruebas y producción
     accDescr: Las ramas de tarea y main se verifican en local y CI. El desarrollo alojado usa Supabase dev; CI crea bases locales efímeras. Sólo release despliega Vercel y usa Supabase prod.
     A["Rama de tarea / main"] --> B["App local y pruebas manuales<br/>Configuración de desarrollo"]
-    B --> C["Supabase DEV<br/>ltlrujmqenhktiilsnis"]
+    B --> C["Supabase DEV<br/>yxnnqdvyyjncljpdlwuq"]
     A --> D["GitHub Actions<br/>en pushes y PR"]
     D --> E["Formato, lint, tipos, unitarias y build<br/>SQL, concurrencia y reproducibilidad<br/>Seguridad HTTP, E2E y secretos"]
     E --> G["Pruebas de datos sobre<br/>PostgreSQL / Supabase efímeros<br/>localhost y datos sintéticos"]
     R["release<br/>versión autorizada"] --> V["Vercel Production"]
-    V --> P["Supabase PROD<br/>qchpdrolulcgmiliysvr"]
+    V --> P["Supabase PROD<br/>bmgjdkkavbacqrnetxkk"]
     classDef work fill:#F9F9FF,stroke:#354861,color:#161E2E;
     classDef production fill:#161E2E,stroke:#B4C8F5,color:#F9F9FF;
     class A,B,C,D,E,G work;
@@ -61,7 +61,7 @@ flowchart TD
 | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Rama de tarea                                 | Código/documentación aislados, PR hacia `main`. No despliega en Vercel.                                                                                       |
 | `main`                                        | Integración y registro compartido de tareas. Puede contener funciones aún pendientes de activar en dev o publicar.                                            |
-| Supabase dev                                  | Desarrollo y pruebas manuales alojadas. Organización **Los tres cerditos**, Irlanda. Migraciones sólo dentro de su tarea y con las verificaciones necesarias. |
+| Supabase dev                                  | Desarrollo y pruebas manuales alojadas. Organización **Los tres cerditos**, París.   Migraciones sólo dentro de su tarea y con las verificaciones necesarias. |
 | Supabase/PostgreSQL local o de CI             | Suites automáticas con datos sintéticos; no prueban contra las bases alojadas dev/prod.                                                                       |
 | Vercel Preview                                | Desactivado para ahorrar cuota. Tener variables Preview configuradas con dev no crea una URL de preview.                                                      |
 | `release` + Vercel Production + Supabase prod | Versión pública. No se usa para desarrollar ni para suplir migraciones que falten en dev.                                                                     |

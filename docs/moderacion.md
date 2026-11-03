@@ -17,7 +17,7 @@ Los clientes (`anon`, `authenticated`) no pueden modificar `status`: no tienen U
 ## Procedimiento
 
 1. **Identificar la encuesta.** El UUID es el final de su URL: `https://<dominio>/polls/<id>`.
-2. **Elegir el proyecto correcto:** producción `qchpdrolulcgmiliysvr` para contenido real; desarrollo `ltlrujmqenhktiilsnis` sólo para pruebas. Ver [supabase-acceso.md](supabase-acceso.md).
+2. **Elegir el proyecto correcto:** producción `bmgjdkkavbacqrnetxkk` para contenido real; desarrollo `yxnnqdvyyjncljpdlwuq` sólo para pruebas. Ver [supabase-acceso.md](supabase-acceso.md).
 3. **Ocultar**, por una de estas dos vías:
    - **Table Editor** → tabla `polls` → filtrar por `id` → cambiar `status` a `hidden` → guardar.
    - **SQL editor:**

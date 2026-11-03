@@ -11,7 +11,7 @@ Documento interno de preparación, **no publicar como aviso legal**. No contiene
 - [ ] Decisión de edad/audiencia y medidas necesarias, con revisión de menores y posibles categorías especiales del contenido de encuestas/votos.
 - [ ] Bases jurídicas/finalidades confirmadas y evaluación de interés legítimo/consentimiento cuando proceda, separadas de las condiciones de uso.
 - [ ] Plazos efectivos por categoría y capacidades de borrado/anonimización/copias; resolver el efecto de cascadas sobre contenido y votos de terceros.
-- [ ] DPA/contratos/proveedores/subencargados y transferencias verificados en la cuenta real, incluida región Vercel iad1 frente a base Supabase Irlanda.
+- [ ] DPA/contratos/proveedores/subencargados y transferencias verificados en la cuenta real, incluida región Vercel iad1 frente a base Supabase París (`eu-west-3`).
 - [ ] Configuración efectiva de sesión, cookies persistentes/PKCE, logs/retención y clasificación de consentimiento revisadas (AUTH-001/LEGAL-004).
 - [ ] Persona o función del responsable que revisa y mantiene versiones de los textos y atención de solicitudes. No se inventa un responsable del equipo ni una fecha de entrega.
 
