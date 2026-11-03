@@ -21,17 +21,17 @@ El encargo claro del **29-10-2026 (D-027)** concreta esa dirección. Leer [la gu
 
 ## Contexto obligatorio de conexión a Supabase
 
-La organización de Supabase de este proyecto es **Los tres cerditos**, ID `drifadkhohwebqljdlvw`, región **Irlanda (`eu-west-1`)**. Estos proyectos ya existen: no crear otra organización ni otros proyectos para sustituirlos si falta acceso.
+La organización de Supabase de este proyecto es **Los tres cerditos**, ID `drifadkhohwebqljdlvw`, región **París (`eu-west-3`)**. Estos proyectos ya existen: no crear otra organización ni otros proyectos para sustituirlos si falta acceso.
 
 | Uso | Proyecto | Project ref | API URL |
 |---|---|---|---|
-| Desarrollo local, previews y trabajo de agentes | `opinion-social-media-dev` | `ltlrujmqenhktiilsnis` | `https://ltlrujmqenhktiilsnis.supabase.co` |
-| Producción, sólo para tareas de producción autorizadas | `opinion-social-media-prod` | `qchpdrolulcgmiliysvr` | `https://qchpdrolulcgmiliysvr.supabase.co` |
+| Desarrollo local, previews y trabajo de agentes | `opinion-social-media-dev` | `yxnnqdvyyjncljpdlwuq` | `https://yxnnqdvyyjncljpdlwuq.supabase.co` |
+| Producción, sólo para tareas de producción autorizadas | `opinion-social-media-prod` | `bmgjdkkavbacqrnetxkk` | `https://bmgjdkkavbacqrnetxkk.supabase.co` |
 
 Antes de conectar, leer [la guía de acceso](docs/supabase-acceso.md) y comprobar que la referencia elegida es la de desarrollo. Salvo que la tarea reservada requiera escribir en desarrollo, usar MCP de desarrollo en modo de solo lectura:
 
 ```text
-https://mcp.supabase.com/mcp?project_ref=ltlrujmqenhktiilsnis&read_only=true
+https://mcp.supabase.com/mcp?project_ref=yxnnqdvyyjncljpdlwuq&read_only=true
 ```
 
 Cada cliente o entorno de agente debe completar su propia autorización OAuth con una cuenta que tenga acceso a **Los tres cerditos**. Clonar este repositorio no concede acceso. Si falta, comunicar el bloqueo al propietario para que conecte el cliente o invite la cuenta desde [Team](https://supabase.com/dashboard/org/drifadkhohwebqljdlvw/team); no pedir que pegue tokens, contraseñas o claves administrativas en el chat o en Git.
