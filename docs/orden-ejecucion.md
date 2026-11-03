@@ -1,6 +1,6 @@
 # Prioridades y orden recomendado
 
-**Consultar el alcance vigente y las reservas de `main` actualizado antes de iniciar trabajo.** La pausa histórica queda sustituida para Vercel por [D-VERCEL-001](decisiones.md): Codex se encarga de [su operación](vercel-operacion.md), conservando las dependencias. Esta autorización no abre cambios SQL ni Auth por anticipado; prevalecen [AGENTS.md](../AGENTS.md) y las instrucciones posteriores del propietario.
+**Consultar el alcance vigente y las reservas del tablón [#73](https://github.com/migdlp/opinion-social-media/issues/73) (D-043) antes de iniciar trabajo.** La pausa histórica queda sustituida para Vercel por [D-VERCEL-001](decisiones.md): Codex se encarga de [su operación](vercel-operacion.md), conservando las dependencias. Esta autorización no abre cambios SQL ni Auth por anticipado; prevalecen [AGENTS.md](../AGENTS.md) y las instrucciones posteriores del propietario.
 
 ## Qué es más importante
 
@@ -19,10 +19,10 @@ Después de MVP-001 puede adelantarse diseño base MVP-024; después de MVP-013,
 
 ## Cómo elegir la siguiente
 
-1. Revisar [tareas-futuras.md](tareas-futuras.md): descartar completadas y tareas ya reservadas por otro agente.
+1. Revisar [tareas-futuras.md](tareas-futuras.md) para descartar completadas y el tablón #73 para descartar tareas reservadas o bloqueadas por otro agente.
 2. Filtrar P0 cuyas dependencias estén completadas y verificadas.
 3. Elegir la primera disponible del orden sugerido, o adelantar otra disponible para aprovechar el trabajo paralelo. No saltarse dependencias ni reservas.
-4. Antes de empezar, publicar estado **En progreso** y el nombre/ID real del agente. Actualizar también el issue.
+4. Antes de empezar, publicar en el #73 un comentario `Reserva` con estado **En progreso** y el nombre/ID real del agente, y releer el #73 para confirmar que nadie la reservó antes. Actualizar también el issue.
 5. Atender P1 después de las P0; nunca hacer una P1 condición de lanzamiento.
 
 ## Secuencia completa sugerida para un solo agente
@@ -92,7 +92,7 @@ Este orden es una ordenación válida del grafo de dependencias y orienta la eje
 - **Bloqueada:** agente y causa del bloqueo visibles; indicar el siguiente paso.
 - **Completada:** criterios verificados y evidencias enlazadas; conservar el agente que la completó.
 
-Un agente que libere una tarea debe devolverla a Pendiente y retirar su reserva explícitamente. Un traspaso conserva trazabilidad. El procedimiento obligatorio está en [AGENTS.md](../AGENTS.md).
+Los estados se publican como comentarios en el #73 (D-043). Un agente que libere una tarea publica `Liberada` para devolverla a Pendiente. Un traspaso conserva trazabilidad. El procedimiento obligatorio está en [AGENTS.md](../AGENTS.md).
 
 ## Feed aprobado (V2-031–036)
 
