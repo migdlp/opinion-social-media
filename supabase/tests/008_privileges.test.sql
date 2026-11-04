@@ -14,7 +14,7 @@ begin
     assert has_function_privilege('anon', r.oid, 'execute') = (r.proname in ('get_poll_authors', 'can_view_author', 'get_poll_results', 'get_feed_results', 'get_profile_votes', 'get_profile', 'get_profile_polls', 'list_followers', 'list_following', 'get_feed', 'search_polls', 'list_comments')), r.proname || ' con permiso de anon inesperado';
     assert has_function_privilege('authenticated', r.oid, 'execute'), r.proname || ' no ejecutable por authenticated';
   end loop;
-  assert (select count(*) from pg_proc where pronamespace = 'public'::regnamespace and prorettype <> 'trigger'::regtype) = 35,
+  assert (select count(*) from pg_proc where pronamespace = 'public'::regnamespace and prorettype <> 'trigger'::regtype) = 36,
     'funciones en public distintas de las RPC previstas';
 
   -- Perfiles (V2-001): sólo se leen columnas públicas; user_id nunca.
@@ -30,6 +30,13 @@ begin
   -- SEC-001: el control de cuota de seguimientos no es visible para ningún cliente.
   assert not has_table_privilege('anon', 'public.follow_quota_events', 'select'), 'anon lee follow_quota_events';
   assert not has_table_privilege('authenticated', 'public.follow_quota_events', 'select'), 'authenticated lee follow_quota_events';
+
+  -- ACCOUNT-001: los @usuario reservados tras eliminar una cuenta no son visibles para ningún cliente,
+  -- y delete_my_account sólo la ejecuta authenticated.
+  assert not has_table_privilege('anon', 'public.released_usernames', 'select'), 'anon lee released_usernames';
+  assert not has_table_privilege('authenticated', 'public.released_usernames', 'select'), 'authenticated lee released_usernames';
+  assert not has_function_privilege('anon', 'public.delete_my_account(text)', 'execute'), 'anon ejecuta delete_my_account';
+  assert has_function_privilege('authenticated', 'public.delete_my_account(text)', 'execute'), 'authenticated no ejecuta delete_my_account';
 
   assert not has_table_privilege('anon', 'public.saved_polls', 'select'), 'anon lee saved_polls';
   assert has_table_privilege('authenticated', 'public.saved_polls', 'select, insert, delete'), 'authenticated sin acceso a saved_polls';

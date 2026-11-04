@@ -197,6 +197,17 @@ export function reportComment(
   });
 }
 
+// Elimina la cuenta de la sesión y todos sus datos, de forma inmediata e irreversible (ACCOUNT-001,
+// D-049). La RPC no admite identidad: `confirm` es el @usuario propio (sin distinguir mayúsculas) o
+// «eliminar» si la cuenta aún no tiene perfil. Errores: AUTH_REQUIRED, CONFIRMATION_MISMATCH.
+export function deleteMyAccount(supabase: SupabaseClient, confirm: string): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("delete_my_account", { p_confirm: confirm });
+    if (error) return { ok: false, error: toAppError(error) };
+    return { ok: true, data: undefined };
+  });
+}
+
 type ProfileRow = {
   username: string;
   display_name: string | null;
