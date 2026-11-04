@@ -219,11 +219,17 @@ export type NotificationKind =
 
 // poll_closed y my_poll_closed (NOTIF-002) no tienen actor y llevan la encuesta (sin resultados);
 // los de seguimiento llevan actor y no llevan encuesta.
+export interface NotificationActor {
+  username: string;
+  displayName: string | null;
+  avatarIcon: AvatarIcon | null;
+}
+
 export interface AppNotification {
   kind: NotificationKind;
   occurredAt: string;
   isUnread: boolean;
-  actor: { username: string; displayName: string | null; avatarIcon: AvatarIcon | null } | null;
+  actor: NotificationActor | null;
   poll: { id: string; question: string } | null;
 }
 
