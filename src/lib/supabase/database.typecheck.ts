@@ -22,6 +22,7 @@ export type DatabaseContractChecks = [
       | "user_blocks"
       | "user_mutes"
       | "dismissed_polls"
+      | "category_follows"
       | "comments"
       | "user_reports"
       | "comment_reports"
@@ -313,6 +314,26 @@ export type DismissedPollsRpcChecks = [
   >,
   Assert<
     Equal<keyof Public["Tables"]["dismissed_polls"]["Row"], "user_id" | "poll_id" | "created_at">
+  >,
+];
+
+// FEED-006: seguir categorías; la tabla sólo se gestiona con las RPC de la lista propia.
+export type CategoryFollowsRpcChecks = [
+  Assert<Equal<Public["Functions"]["follow_category"]["Args"], { p_slug: string }>>,
+  Assert<Equal<Public["Functions"]["follow_category"]["Returns"], undefined>>,
+  Assert<Equal<Public["Functions"]["unfollow_category"]["Args"], { p_slug: string }>>,
+  Assert<Equal<Public["Functions"]["unfollow_category"]["Returns"], undefined>>,
+  Assert<
+    Equal<
+      Public["Functions"]["list_my_categories"]["Returns"][number],
+      { name: string; slug: string }
+    >
+  >,
+  Assert<
+    Equal<
+      keyof Public["Tables"]["category_follows"]["Row"],
+      "user_id" | "category_slug" | "created_at"
+    >
   >,
 ];
 

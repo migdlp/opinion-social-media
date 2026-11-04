@@ -1004,6 +1004,34 @@ export function listDismissedPolls(
   });
 }
 
+// Sigue una categoría (FEED-006): sus encuestas visibles entran en la pestaña Siguiendo, sin dar
+// acceso a cuentas privadas. Privado e idempotente. Errores: INVALID_CATEGORY (el slug distingue
+// mayúsculas), AUTH_REQUIRED.
+export function followCategory(supabase: SupabaseClient, slug: string): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("follow_category", { p_slug: slug });
+    return error ? { ok: false, error: toAppError(error) } : { ok: true, data: undefined };
+  });
+}
+
+// Deja de seguir una categoría. Idempotente, también si no se seguía.
+export function unfollowCategory(supabase: SupabaseClient, slug: string): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("unfollow_category", { p_slug: slug });
+    return error ? { ok: false, error: toAppError(error) } : { ok: true, data: undefined };
+  });
+}
+
+// Categorías que sigue la sesión, en el orden de categories.position. Errores: AUTH_REQUIRED.
+export function listMyCategories(supabase: SupabaseClient): Promise<Result<Category[]>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("list_my_categories");
+    if (error) return { ok: false, error: toAppError(error) };
+    const rows = (data ?? []) as { slug: string; name: string }[];
+    return { ok: true, data: rows.map((row) => ({ slug: row.slug, name: row.name })) };
+  });
+}
+
 // Fija, cambia o vacía (null o vacío) la biografía propia, de 0 a 280 caracteres de texto plano.
 // Errores: BIO_INVALID, AUTH_REQUIRED, PROFILE_REQUIRED. La recorta y valida el backend.
 export function setProfileBio(supabase: SupabaseClient, bio: string | null): Promise<Result<void>> {

@@ -411,9 +411,9 @@ public.export_my_data() returns jsonb
 
 - Sólo `authenticated`, `SECURITY DEFINER` con `search_path` vacío, **sin parámetros**: la cuenta es siempre `auth.uid()`. Sin sesión, `AUTH_REQUIRED`.
 - **Límite**: una exportación cada 10 minutos por cuenta (`DATA_EXPORT_RATE_LIMITED`). Un cerrojo por cuenta (`pg_advisory_xact_lock`) impide esquivarlo con peticiones simultáneas; sólo se registra la aceptada, en `data_export_events (user_id, created_at)` (índice `(user_id, created_at desc)`, RLS sin permisos para clientes, cascada con `auth.users`; los eventos de más de un día se limpian al pedir).
-- **Contenido** (`formato: "opinion-export"`, `version: 1`, `generado_en`): `cuenta` (email, creada_en, proveedor), `perfil`, `encuestas` (con opciones, categoría, cierre, estado y debate), `votos` (encuesta, opción elegida y fecha; la pregunta es `null` si la encuesta está oculta), `comentarios` (con estado), `seguimientos.sigo` y `seguimientos.me_siguen`, `bloqueadas`, `silenciadas` (`usuario`, `desde`; SOCIAL-003, nunca quién me ha silenciado), `descartadas` (`encuesta_id`, `desde`; FEED-003, nunca quién ha descartado una encuesta mía), `guardadas` y `denuncias` (`encuestas`, `personas`, `comentarios`) hechas por la cuenta. Las listas vacías se devuelven como `[]`; una cuenta sin perfil recibe `perfil: null`.
+- **Contenido** (`formato: "opinion-export"`, `version: 1`, `generado_en`): `cuenta` (email, creada_en, proveedor), `perfil`, `encuestas` (con opciones, categoría, cierre, estado y debate), `votos` (encuesta, opción elegida y fecha; la pregunta es `null` si la encuesta está oculta), `comentarios` (con estado), `seguimientos.sigo` y `seguimientos.me_siguen`, `bloqueadas`, `silenciadas` (`usuario`, `desde`; SOCIAL-003, nunca quién me ha silenciado), `descartadas` (`encuesta_id`, `desde`; FEED-003, nunca quién ha descartado una encuesta mía), `categorias_seguidas` (`categoria`, `desde`; FEED-006), `guardadas` y `denuncias` (`encuestas`, `personas`, `comentarios`) hechas por la cuenta. Las listas vacías se devuelven como `[]`; una cuenta sin perfil recibe `perfil: null`.
 - **No incluye**: `user_id` (ni propio ni ajeno), agregados de encuestas, votos o comentarios ajenos, denuncias recibidas ni quién ha bloqueado a la cuenta. De otras personas sólo aparece su `@usuario` dentro de una relación propia.
-- **Aún sin tabla en main** (claves omitidas): `encuesta_fijada`, `descripcion`, `categorias_seguidas`, `reclamaciones`, `respuesta_a` y `estado` de las denuncias. **Regla permanente (E20):** la tarea que añada tablas o columnas con datos de una persona amplía esta función y `supabase/tests/036_export_my_data.test.sql`.
+- **Aún sin tabla en main** (claves omitidas): `encuesta_fijada`, `descripcion`, `reclamaciones`, `respuesta_a` y `estado` de las denuncias. **Regla permanente (E20):** la tarea que añada tablas o columnas con datos de una persona amplía esta función y `supabase/tests/036_export_my_data.test.sql`.
 - Adaptador: `exportMyData(supabase)` → `Result<unknown>`. Acción de servidor `exportDataAction()` → `Result<{ filename, content }>` (`opinion-datos-AAAA-MM-DD.json`, sangría de 2 espacios); el navegador lo descarga con un `Blob` y el archivo no se guarda en el servidor ni en Storage. Interfaz: apartado «Descargar mis datos» en Ajustes (`#descargar`).
 
 ### 3.21. `get_poll_cards` (PERF-004)
@@ -478,6 +478,23 @@ public.list_dismissed_polls(p_cursor text default null) returns table (poll_id u
 - **Efecto**: `get_feed` (Recientes y Siguiendo) omite las encuestas que `auth.uid()` ha descartado (se recrea conservando el filtro de silencios de SOCIAL-003). **No** afecta a la búsqueda, al perfil, a Guardadas, a las tarjetas ni al enlace directo, ni altera votos o agregados. `get_ranked_feed` aún no existe: TREND-001 debe aplicar el mismo filtro al crearla. Sin sesión no hay filtro.
 - `export_my_data` añade la clave `descartadas`; el borrado de cuenta elimina los descartes (cascada).
 - Adaptadores: `dismissPoll(supabase, pollId)` y `undismissPoll(supabase, pollId)` → `Result<void>`; `listDismissedPolls(supabase, cursor?)` → `Result<{ pollIds, nextCursor }>` (20 por página); error `CANNOT_DISMISS_OWN` («No puedes descartar tus propias encuestas.»). Tests: `supabase/tests/041_dismissed_polls.test.sql`, `tests/security/dismiss-attacks.test.ts` y `src/lib/data/dismissed.test.ts`. La interfaz es FEED-004.
+
+### 3.25. Seguir categorías (FEED-006)
+
+```sql
+public.follow_category(p_slug text) returns void
+public.unfollow_category(p_slug text) returns void
+public.list_my_categories() returns table (slug text, name text)
+```
+
+- Migración aditiva `20261104150000_category_follows.sql`. Tabla `category_follows (user_id, category_slug, created_at)`, PK `(user_id, category_slug)`, cascada con `auth.users` y con `categories`, RLS y **sin ningún permiso para clientes**: sólo se gestiona con las tres RPC, todas `authenticated`. Seguir una categoría es privado: nadie ve las de otra cuenta. Índice nuevo `polls_category_feed_idx (category_slug, created_at desc, id desc) where status = 'published'`.
+- `follow_category`: `AUTH_REQUIRED` → `INVALID_CATEGORY` (inexistente, vacío, `null` o con otra capitalización: el slug se compara tal cual). Idempotente.
+- `unfollow_category`: `AUTH_REQUIRED`. Idempotente y sin error si no se seguía o el slug no existe.
+- `list_my_categories`: sólo las propias, en el orden de `categories.position`; devuelve únicamente `slug` y `name`.
+- **Efecto**: en `get_feed('siguiendo')` la condición de autor pasa a «autor con seguimiento **aceptado** **o** categoría seguida», en un único `WHERE` (sin duplicados), con el mismo orden y cursor. Siguen aplicando `can_view_author` (una categoría seguida **no** abre cuentas privadas ni bloqueadas), silencios (§3.23), descartes (§3.24), la retención de cerradas y el filtro `p_category`. `recientes` no cambia.
+- **Rendimiento** (medido en local, PostgreSQL de CI, 5000 encuestas en 7 categorías —todas las que existen— seguidas, 50 seguimientos): `get_feed('siguiendo')` ≈ 0,9 ms de media (50 ejecuciones), por debajo de los 10 ms de la ficha.
+- `export_my_data` añade la clave `categorias_seguidas`; el borrado de cuenta elimina las filas (cascada).
+- Adaptadores: `followCategory` y `unfollowCategory` → `Result<void>`; `listMyCategories(supabase)` → `Result<Category[]>`. Tests: `supabase/tests/042_category_follows.test.sql`, `tests/security/category-follows-attacks.test.ts` y `src/lib/data/category-follows.test.ts`. La interfaz es FEED-007.
 
 ## 4. Lecturas directas (RLS)
 

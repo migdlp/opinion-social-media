@@ -44,6 +44,9 @@ insert into public.follows (follower_id, followee_id, status) values
 insert into public.user_blocks (blocker_id, blocked_id) values
  ('00000000-0000-0000-0000-0000000000a8', '00000000-0000-0000-0000-0000000000c8'),
  ('00000000-0000-0000-0000-0000000000d8', '00000000-0000-0000-0000-0000000000a8');
+-- Categorías seguidas (FEED-006): a sigue deportes.
+insert into public.category_follows (user_id, category_slug) values
+ ('00000000-0000-0000-0000-0000000000a8', 'deportes');
 -- Descartes (FEED-003): a descarta la encuesta de b.
 insert into public.dismissed_polls (user_id, poll_id) values
  ('00000000-0000-0000-0000-0000000000a8', '10000000-0000-0000-0000-0000000000b8');

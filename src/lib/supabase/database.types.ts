@@ -22,6 +22,33 @@ export type Database = {
         };
         Relationships: [];
       };
+      category_follows: {
+        Row: {
+          category_slug: string;
+          created_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          category_slug: string;
+          created_at?: string;
+          user_id: string;
+        };
+        Update: {
+          category_slug?: string;
+          created_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "category_follows_category_slug_fkey";
+            columns: ["category_slug"];
+            isOneToOne: false;
+            referencedRelation: "categories";
+            referencedColumns: ["slug"];
+          },
+        ];
+      };
       comment_reports: {
         Row: {
           comment_id: string;
@@ -498,6 +525,7 @@ export type Database = {
       delete_my_account: { Args: { p_confirm: string }; Returns: undefined };
       dismiss_poll: { Args: { p_poll_id: string }; Returns: undefined };
       export_my_data: { Args: Record<PropertyKey, never>; Returns: Json };
+      follow_category: { Args: { p_slug: string }; Returns: undefined };
       follow_user: { Args: { p_username: string }; Returns: string };
       get_feed: {
         Args: { p_category?: string; p_cursor?: string; p_mode?: string };
@@ -677,6 +705,13 @@ export type Database = {
           username: string;
         }[];
       };
+      list_my_categories: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          name: string;
+          slug: string;
+        }[];
+      };
       mute_user: { Args: { p_username: string }; Returns: undefined };
       remove_follower: { Args: { p_username: string }; Returns: undefined };
       report_comment: {
@@ -710,6 +745,7 @@ export type Database = {
       set_vote_visibility: { Args: { p_visibility: string }; Returns: undefined };
       unblock_user: { Args: { p_username: string }; Returns: undefined };
       undismiss_poll: { Args: { p_poll_id: string }; Returns: undefined };
+      unfollow_category: { Args: { p_slug: string }; Returns: undefined };
       unfollow_user: { Args: { p_username: string }; Returns: undefined };
       unmute_user: { Args: { p_username: string }; Returns: undefined };
       upsert_my_profile: {
