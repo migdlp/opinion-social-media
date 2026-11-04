@@ -62,6 +62,11 @@ do $$ declare r text[]; begin
  assert (select not is_private from public.search_users('ana') where username = 'ana'), 'ana marcada privada';
  assert (select avatar_icon from public.search_users('ana') where username = 'ana') = 'sol', 'sin avatar_icon';
  assert (select display_name from public.search_users('ana') where username = 'lopez') = 'Ana López', 'sin display_name';
+ -- El rango viaja en el cursor: exacto 0, prefijo 1, contiene 2.
+ assert (select cursor from public.search_users('ana') where username = 'ana') = '0|ana|' || md5('ana'), 'rango 0 de ana';
+ assert (select cursor from public.search_users('ana') where username = 'anabel') = '1|anabel|' || md5('ana'), 'rango 1 de anabel';
+ assert (select cursor from public.search_users('ana') where username = 'juana') = '2|juana|' || md5('ana'), 'rango 2 de juana';
+ assert (select cursor from public.search_users('ana') where username = 'lopez') = '2|lopez|' || md5('ana'), 'rango 2 de lopez';
  -- @ana equivale a ana; espacios y mayúsculas no cambian el resultado.
  assert (select array_agg(username order by cursor) from public.search_users('@ana')) = (select array_agg(username order by cursor) from public.search_users('ana')), '@ana distinto de ana';
  assert (select count(*) from public.search_users('  ANA  ')) = 5 and (select count(*) from public.search_users('@  ana')) = 5, 'normalización';

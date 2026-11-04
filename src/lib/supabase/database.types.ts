@@ -762,6 +762,16 @@ export type Database = {
           poll_id: string;
         }[];
       };
+      search_users: {
+        Args: { p_cursor?: string; p_query: string };
+        Returns: {
+          avatar_icon: string;
+          cursor: string;
+          display_name: string;
+          is_private: boolean;
+          username: string;
+        }[];
+      };
       set_poll_comments: { Args: { p_enabled: boolean; p_poll_id: string }; Returns: undefined };
       set_profile_avatar: { Args: { p_icon: string }; Returns: undefined };
       set_profile_bio: { Args: { p_bio: string }; Returns: undefined };

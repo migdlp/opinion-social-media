@@ -533,6 +533,22 @@ public.mark_notifications_seen() returns void
 - **Rendimiento** (medido en local, PostgreSQL de CI; 5000 encuestas, la mitad cerradas en la ventana, 50 autores distintos, 2455 votos propios en ellas, caso extremo): `list_notifications` ≈ 7 ms y `count_unread_notifications` ≈ 4 ms de media (30 ejecuciones). La visibilidad del autor se resuelve una vez por autor distinto, en una sola pasada y con las reglas de `can_view_author`, que costaba ≈ 1 ms por llamada (≈ 45 ms con el mismo caso).
 - Adaptadores: `AppNotification.actor` pasa a ser `null` y se añade `poll: { id, question } | null`; `NotificationKind` suma `poll_closed` y `my_poll_closed`. Tests: `supabase/tests/044_notifications_closed.test.sql`, bloque «avisos de cierre» de `tests/security/notifications-attacks.test.ts` y `src/lib/data/notifications.test.ts`. La interfaz de avisos es NOTIF-003.
 
+### 3.28. Buscar personas (SEARCH-003)
+
+```sql
+public.search_users(p_query text, p_cursor text default null)
+  returns table (username text, display_name text, avatar_icon text, is_private boolean, cursor text)
+```
+
+- Migración aditiva `20261104180000_search_users.sql`. `stable`, `SECURITY DEFINER`, `search_path` vacío; **`EXECUTE` para `anon` y `authenticated`** (no exige sesión; `008` añade `search_users` a la lista de RPC públicas). Sin servicio externo. Índices GIN `pg_trgm` (esquema `extensions`) `profiles_username_trgm_idx` sobre `lower(username)` y `profiles_display_name_trgm_idx` sobre `lower(display_name)`.
+- Sólo se leen columnas que ya son públicas (`username`, `display_name`, `avatar_icon`, `is_private`); **nunca** `user_id`, `bio` ni otro dato. Buscar por un trozo de la bio no encuentra a nadie.
+- Consulta: se recorta, se colapsan espacios y se quita una `@` inicial; debe quedar entre **2 y 30** caracteres o `INVALID_QUERY` (también para `null`, vacío o sólo `@`). `%`, `_` y `\` son texto literal. No distingue mayúsculas ni acentos distintos (no hay normalización de tildes).
+- Rango: **0** usuario exacto, **1** usuario que empieza por la consulta, **2** nombre o usuario que la contiene; cada perfil sale una vez, con su rango más bajo. Orden `rango asc, usuario en minúsculas asc` en orden binario (los usuarios sólo llevan `a-z`, `0-9` y `_`). Ejemplo: `ana` → `ana` (0), `anabel` (1), `juana` y `lopez` («Ana López», 2).
+- Las cuentas **privadas sí aparecen** (con `is_private = true`) para poder solicitar seguimiento. Con sesión se excluyen los perfiles con bloqueo en cualquier sentido; sin sesión no hay bloqueos que aplicar.
+- Paginación: 21 filas (el cliente muestra 20). Cursor opaco `<rango>|<usuario en minúsculas>|<md5 de la consulta normalizada en minúsculas>`; uno de otra búsqueda, con rango fuera de 0–2, con usuario vacío o ilegible es `INVALID_CURSOR`. La misma consulta con otra capitalización o con `@` conserva el cursor.
+- **Rendimiento** (medido en local, PostgreSQL de CI, 10 001 perfiles): 3–6 ms de media (30 ejecuciones) para consultas de 3 o más caracteres y ≈ 13 ms para una de 2 caracteres, que no puede usar el índice trigram; por debajo de los 20 ms de la ficha.
+- Adaptador: `searchUsers(supabase, query, cursor)` → `Result<UserSearchPage>` (`users: UserHit[]`, `nextCursor`, 20 por página) con `UserHit = { username, displayName, avatarIcon, isPrivate }`. Tests: `supabase/tests/045_search_users.test.sql`, `tests/security/search-users-attacks.test.ts` y `src/lib/data/search-users.test.ts`. La interfaz es SEARCH-004.
+
 ## 4. Lecturas directas (RLS)
 
 `categories` (V2-021) es de lectura pública (`slug, name, position`) y sin escrituras de clientes; el formulario de creación la lee con `getCategories`. Feed y detalle incluyen `category:categories(slug, name)`.
