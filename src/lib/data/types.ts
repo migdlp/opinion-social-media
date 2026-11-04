@@ -208,6 +208,19 @@ export interface FeedQuery {
 // PRIV-001: audiencia del historial; nunca amplía los permisos de la cuenta.
 export type VoteVisibility = "private" | "followers" | "profile";
 
+// Persona encontrada al buscar (SEARCH-003). Sólo datos ya públicos; nunca user_id ni bio.
+export interface UserHit {
+  username: string;
+  displayName: string | null;
+  avatarIcon: AvatarIcon | null;
+  isPrivate: boolean;
+}
+
+export interface UserSearchPage {
+  users: UserHit[];
+  nextCursor: string | null;
+}
+
 // Aviso de seguimiento (NOTIF-001, D-047): calculado al leer, sin identificador propio. Nunca
 // incluye user_id; el actor se identifica por su @usuario.
 export type FollowNotificationKind = "new_follower" | "follow_request" | "follow_accepted";

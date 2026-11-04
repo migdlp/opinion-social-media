@@ -22,6 +22,8 @@ import type {
   FeedQuery,
   FollowPage,
   NotificationKind,
+  UserHit,
+  UserSearchPage,
   NotificationPage,
   PollDetail,
   PollResults,
@@ -1108,6 +1110,53 @@ export function markNotificationsSeen(supabase: SupabaseClient): Promise<Result<
   return guard(async () => {
     const { error } = await supabase.rpc("mark_notifications_seen");
     return error ? { ok: false, error: toAppError(error) } : { ok: true, data: undefined };
+  });
+}
+
+// Búsqueda de personas por @usuario o nombre (SEARCH-003). Pública: no exige sesión. Las cuentas
+// privadas aparecen con isPrivate; las bloqueadas en cualquier sentido, no. 20 por página; la RPC
+// devuelve una fila más para saber si hay siguiente. Errores: INVALID_QUERY (2–30 caracteres tras
+// recortar y quitar una @ inicial) e INVALID_CURSOR (de otra búsqueda o ilegible).
+const USER_SEARCH_PAGE_SIZE = 20;
+
+type UserHitRow = {
+  username: string;
+  display_name: string | null;
+  avatar_icon: string | null;
+  is_private: boolean;
+  cursor: string;
+};
+
+function toUserHit(row: UserHitRow): UserHit {
+  return {
+    username: row.username,
+    displayName: row.display_name,
+    avatarIcon: parseAvatarIcon(row.avatar_icon),
+    isPrivate: row.is_private,
+  };
+}
+
+export function searchUsers(
+  supabase: SupabaseClient,
+  query: string,
+  cursor?: string | null,
+): Promise<Result<UserSearchPage>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("search_users", {
+      p_query: query,
+      p_cursor: cursor ?? null,
+    });
+    if (error) return { ok: false, error: toAppError(error) };
+    const rows = (data ?? []) as UserHitRow[];
+    const page = rows.slice(0, USER_SEARCH_PAGE_SIZE);
+    const last = page[page.length - 1];
+    return {
+      ok: true,
+      data: {
+        users: page.map(toUserHit),
+        nextCursor: rows.length > USER_SEARCH_PAGE_SIZE && last ? last.cursor : null,
+      },
+    };
   });
 }
 

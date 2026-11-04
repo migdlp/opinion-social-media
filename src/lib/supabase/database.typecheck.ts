@@ -434,3 +434,16 @@ export type NotificationsRpcChecks = [
   Assert<Equal<Public["Functions"]["mark_notifications_seen"]["Args"], Record<PropertyKey, never>>>,
   Assert<Equal<Public["Functions"]["mark_notifications_seen"]["Returns"], undefined>>,
 ];
+
+// SEARCH-003: búsqueda de personas; sólo columnas públicas, sin user_id ni bio.
+export type SearchUsersRpcChecks = [
+  Assert<
+    Equal<Public["Functions"]["search_users"]["Args"], { p_cursor?: string; p_query: string }>
+  >,
+  Assert<
+    Equal<
+      keyof Public["Functions"]["search_users"]["Returns"][number],
+      "username" | "display_name" | "avatar_icon" | "is_private" | "cursor"
+    >
+  >,
+];
