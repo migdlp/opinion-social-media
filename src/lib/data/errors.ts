@@ -46,6 +46,7 @@ export const ERROR_MESSAGES: Record<AppErrorCode, string> = {
   CONFIRMATION_MISMATCH: "Escribe exactamente tu usuario para confirmar.",
   DATA_EXPORT_RATE_LIMITED:
     "Ya has descargado tus datos hace poco. Inténtalo de nuevo en unos minutos.",
+  DESCRIPTION_INVALID: "La descripción admite hasta 500 caracteres de texto.",
   NETWORK_ERROR: "No hay conexión. Comprueba tu red y vuelve a intentarlo.",
   UNKNOWN: "Algo ha fallado. Vuelve a intentarlo.",
 };
@@ -92,6 +93,7 @@ const RPC_CODES = new Set<string>([
   "FOLLOW_RATE_LIMITED",
   "CONFIRMATION_MISMATCH",
   "DATA_EXPORT_RATE_LIMITED",
+  "DESCRIPTION_INVALID",
 ]);
 
 // 42501: sin permiso (anon). PGRST301/303: JWT inválido o caducado.

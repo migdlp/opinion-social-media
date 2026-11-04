@@ -43,6 +43,7 @@ const BUSINESS: AppErrorCode[] = [
   "FOLLOW_RATE_LIMITED",
   "CONFIRMATION_MISMATCH",
   "DATA_EXPORT_RATE_LIMITED",
+  "DESCRIPTION_INVALID",
 ];
 
 describe("toAppError", () => {
