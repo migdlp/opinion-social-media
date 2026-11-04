@@ -579,6 +579,7 @@ type ProfileViewRow = {
   viewer_relation: ViewerRelation;
   can_view_content: boolean;
   bio?: string | null;
+  is_muted?: boolean;
 };
 
 // Cabecera de un perfil (V2-006). Errores: USER_NOT_FOUND.
@@ -607,6 +608,7 @@ export function getProfileView(
         viewerRelation: row.viewer_relation,
         canViewContent: row.can_view_content,
         ...(icon ? { avatarIcon: icon } : {}),
+        ...(row.is_muted ? { isMuted: true } : {}),
         ...(row.bio ? { bio: row.bio } : {}),
       },
     };
@@ -921,6 +923,37 @@ export function listBlockedUsers(
 ): Promise<Result<FollowPage>> {
   return guard(async () => {
     const { data, error } = await supabase.rpc("list_blocked_users", { p_cursor: cursor ?? null });
+    if (error) return { ok: false, error: toAppError(error) };
+    return { ok: true, data: toFollowPage(data, new Map()) };
+  });
+}
+
+// Silencia a @username (SOCIAL-003, D-050): sus encuestas dejan de salir en el feed de quien silencia
+// y en nada más; no hay aviso para la otra cuenta. Idempotente. Errores: CANNOT_MUTE_SELF,
+// USER_NOT_FOUND (también si hay un bloqueo), AUTH_REQUIRED, PROFILE_REQUIRED.
+export function muteUser(supabase: SupabaseClient, username: string): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("mute_user", { p_username: username });
+    return error ? { ok: false, error: toAppError(error) } : { ok: true, data: undefined };
+  });
+}
+
+// Quita sólo el silencio propio hacia @username. Idempotente.
+export function unmuteUser(supabase: SupabaseClient, username: string): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("unmute_user", { p_username: username });
+    return error ? { ok: false, error: toAppError(error) } : { ok: true, data: undefined };
+  });
+}
+
+// Cuentas que la sesión ha silenciado, de más reciente a más antigua. Sólo la lista propia: nunca
+// quién ha silenciado a quien mira. Errores: AUTH_REQUIRED.
+export function listMutedUsers(
+  supabase: SupabaseClient,
+  cursor?: string | null,
+): Promise<Result<FollowPage>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("list_muted_users", { p_cursor: cursor ?? null });
     if (error) return { ok: false, error: toAppError(error) };
     return { ok: true, data: toFollowPage(data, new Map()) };
   });

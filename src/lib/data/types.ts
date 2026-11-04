@@ -38,6 +38,7 @@ export type AppErrorCode =
   | "BIO_INVALID"
   | "CANNOT_FOLLOW_SELF"
   | "CANNOT_BLOCK_SELF"
+  | "CANNOT_MUTE_SELF"
   | "CANNOT_REPORT_SELF"
   | "FOLLOW_RATE_LIMITED"
   | "CONFIRMATION_MISMATCH"
@@ -130,6 +131,8 @@ export interface ProfileView {
   viewerRelation: ViewerRelation;
   canViewContent: boolean;
   avatarIcon?: AvatarIcon | null;
+  // Verdadero sólo si quien mira tiene silenciada esta cuenta (SOCIAL-003); ausente = no.
+  isMuted?: boolean;
   // Sólo si el backend la entrega (cuenta visible para quien mira); ausente = sin bio u oculta.
   bio?: string;
 }

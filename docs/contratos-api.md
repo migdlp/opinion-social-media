@@ -263,7 +263,8 @@ public.get_profile(p_username text) returns table (..., can_view_content boolean
 ```sql
 public.get_profile(p_username text)
   returns table (username text, display_name text, is_private boolean, followers_count integer,
-                 following_count integer, polls_count integer, viewer_relation text, can_view_content boolean)
+                 following_count integer, polls_count integer, viewer_relation text, can_view_content boolean,
+                 bio text, is_muted boolean)
 public.get_profile_polls(p_username text, p_cursor text default null)
   returns table (poll_id uuid, created_at timestamptz, cursor text)
 ```
@@ -410,9 +411,9 @@ public.export_my_data() returns jsonb
 
 - Sólo `authenticated`, `SECURITY DEFINER` con `search_path` vacío, **sin parámetros**: la cuenta es siempre `auth.uid()`. Sin sesión, `AUTH_REQUIRED`.
 - **Límite**: una exportación cada 10 minutos por cuenta (`DATA_EXPORT_RATE_LIMITED`). Un cerrojo por cuenta (`pg_advisory_xact_lock`) impide esquivarlo con peticiones simultáneas; sólo se registra la aceptada, en `data_export_events (user_id, created_at)` (índice `(user_id, created_at desc)`, RLS sin permisos para clientes, cascada con `auth.users`; los eventos de más de un día se limpian al pedir).
-- **Contenido** (`formato: "opinion-export"`, `version: 1`, `generado_en`): `cuenta` (email, creada_en, proveedor), `perfil`, `encuestas` (con opciones, categoría, cierre, estado y debate), `votos` (encuesta, opción elegida y fecha; la pregunta es `null` si la encuesta está oculta), `comentarios` (con estado), `seguimientos.sigo` y `seguimientos.me_siguen`, `bloqueadas`, `guardadas` y `denuncias` (`encuestas`, `personas`, `comentarios`) hechas por la cuenta. Las listas vacías se devuelven como `[]`; una cuenta sin perfil recibe `perfil: null`.
+- **Contenido** (`formato: "opinion-export"`, `version: 1`, `generado_en`): `cuenta` (email, creada_en, proveedor), `perfil`, `encuestas` (con opciones, categoría, cierre, estado y debate), `votos` (encuesta, opción elegida y fecha; la pregunta es `null` si la encuesta está oculta), `comentarios` (con estado), `seguimientos.sigo` y `seguimientos.me_siguen`, `bloqueadas`, `silenciadas` (`usuario`, `desde`; SOCIAL-003, nunca quién me ha silenciado), `guardadas` y `denuncias` (`encuestas`, `personas`, `comentarios`) hechas por la cuenta. Las listas vacías se devuelven como `[]`; una cuenta sin perfil recibe `perfil: null`.
 - **No incluye**: `user_id` (ni propio ni ajeno), agregados de encuestas, votos o comentarios ajenos, denuncias recibidas ni quién ha bloqueado a la cuenta. De otras personas sólo aparece su `@usuario` dentro de una relación propia.
-- **Aún sin tabla en main** (claves omitidas): `encuesta_fijada`, `descripcion`, `silenciadas`, `descartadas`, `categorias_seguidas`, `reclamaciones`, `respuesta_a` y `estado` de las denuncias. **Regla permanente (E20):** la tarea que añada tablas o columnas con datos de una persona amplía esta función y `supabase/tests/036_export_my_data.test.sql`.
+- **Aún sin tabla en main** (claves omitidas): `encuesta_fijada`, `descripcion`, `descartadas`, `categorias_seguidas`, `reclamaciones`, `respuesta_a` y `estado` de las denuncias. **Regla permanente (E20):** la tarea que añada tablas o columnas con datos de una persona amplía esta función y `supabase/tests/036_export_my_data.test.sql`.
 - Adaptador: `exportMyData(supabase)` → `Result<unknown>`. Acción de servidor `exportDataAction()` → `Result<{ filename, content }>` (`opinion-datos-AAAA-MM-DD.json`, sangría de 2 espacios); el navegador lo descarga con un `Blob` y el archivo no se guarda en el servidor ni en Storage. Interfaz: apartado «Descargar mis datos» en Ajustes (`#descargar`).
 
 ### 3.21. `get_poll_cards` (PERF-004)
@@ -444,6 +445,23 @@ public.get_poll_vote_counts(p_poll_ids uuid[]) returns table (poll_id uuid, tota
 - **Libera sólo el total** de votos de encuestas visibles para quien llama: nunca votos por opción, porcentajes, opción líder ni empate. `get_poll_results` y `get_feed_results` no cambian: siguen exigiendo voto o encuesta cerrada, también para la autora.
 - **Entrada**: `p_poll_ids[1:20]`, sin duplicados. Visibilidad igual que `get_poll_cards` (`published` y `can_view_author`); lo no visible se omite sin error y es indistinguible de una id inexistente. Una visible sin votos devuelve `0`.
 - Adaptador: `getPollVoteCounts(supabase, ids)` → `Result<Record<string, number>>`; `PublicPoll.voteCount?`. Tests: `supabase/tests/039_poll_vote_counts.test.sql`, `tests/security/vote-counts-attacks.test.ts` y `src/lib/data/poll-vote-counts.test.ts`. RESULTS-006 lo mostrará en la interfaz.
+
+### 3.23. Silenciar cuentas (SOCIAL-003, D-050)
+
+```sql
+public.mute_user(p_username text) returns void
+public.unmute_user(p_username text) returns void
+public.list_muted_users(p_cursor text default null) returns table (username text, display_name text, cursor text)
+```
+
+- Migración aditiva `20261104130000_user_mutes.sql`. Tabla `user_mutes (muter_id, muted_id, created_at)`, PK `(muter_id, muted_id)`, `check (muter_id <> muted_id)`, cascada con `auth.users` en ambos lados, RLS y **sin ningún permiso para clientes**: sólo se gestiona con las tres RPC, todas `authenticated`. Mismo patrón que los bloqueos.
+- `mute_user`: errores en el orden `AUTH_REQUIRED` → `PROFILE_REQUIRED` → `USER_NOT_FOUND` (cuenta inexistente **o con bloqueo en cualquier sentido**) → `CANNOT_MUTE_SELF` (código nuevo). Idempotente. Sin distinguir mayúsculas.
+- `unmute_user`: borra sólo el silencio propio; idempotente. Errores: `AUTH_REQUIRED`, `USER_NOT_FOUND` (inexistente).
+- `list_muted_users`: lista propia, la más reciente primero, 31 filas por página y cursor opaco `<created_at UTC>|<usuario en minúsculas>`, como `list_blocked_users`. Nunca devuelve `user_id` ni quién ha silenciado a quien llama.
+- **Efecto**: `get_feed` (Recientes y Siguiendo) omite las encuestas de las cuentas que `auth.uid()` tiene silenciadas. **No** afecta a la búsqueda, al perfil, al enlace directo, a los comentarios, al seguimiento ni a ningún permiso. `get_ranked_feed` y `list_notifications` aún no existen: TREND-001 y NOTIF-001 deben aplicar el mismo filtro al crearse.
+- `get_profile` se recrea (`drop` + `create`) con `is_muted boolean` al final: verdadero sólo si quien llama tiene silenciada esa cuenta; para la cuenta silenciada, terceros y visitantes es siempre `false`. La cuenta silenciada no recibe ninguna señal.
+- `export_my_data` añade la clave `silenciadas`; el borrado de cuenta elimina los silencios de ambos lados (cascada).
+- Adaptadores: `muteUser` y `unmuteUser` → `Result<void>`; `listMutedUsers(supabase, cursor?)` → `Result<FollowPage>`; `ProfileView.isMuted?` (sólo presente si es verdadero); error `CANNOT_MUTE_SELF` («No puedes silenciarte a ti mismo.»). Tests: `supabase/tests/040_user_mutes.test.sql`, `tests/security/mutes-attacks.test.ts` y `src/lib/data/mutes.test.ts`. La interfaz es SOCIAL-004.
 
 ## 4. Lecturas directas (RLS)
 

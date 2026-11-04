@@ -44,6 +44,10 @@ insert into public.follows (follower_id, followee_id, status, created_at) values
 insert into public.user_blocks (blocker_id, blocked_id, created_at) values
  ('00000000-0000-0000-0000-0000000000a9', '00000000-0000-0000-0000-0000000000c9', '2026-05-01 10:00:00+00'),
  ('00000000-0000-0000-0000-0000000000d9', '00000000-0000-0000-0000-0000000000a9', '2026-05-02 10:00:00+00');
+-- Silencios (SOCIAL-003): Ana silencia a Beto; Carla silencia a Ana (no debe aparecer en el archivo de Ana).
+insert into public.user_mutes (muter_id, muted_id, created_at) values
+ ('00000000-0000-0000-0000-0000000000a9', '00000000-0000-0000-0000-0000000000b9', '2026-05-04 10:00:00+00'),
+ ('00000000-0000-0000-0000-0000000000c9', '00000000-0000-0000-0000-0000000000a9', '2026-05-05 10:00:00+00');
 insert into public.saved_polls (user_id, poll_id, created_at) values
  ('00000000-0000-0000-0000-0000000000a9', '10000000-0000-0000-0000-0000000000b9', '2026-05-03 10:00:00+00');
 -- Denuncias hechas por Ana y recibidas por Ana (de Carla).
@@ -114,6 +118,8 @@ begin
  assert jsonb_array_length(j #> '{seguimientos,me_siguen}') = 1 and j #>> '{seguimientos,me_siguen,0,usuario}' = 'exp_carla', 'me siguen';
 
  assert jsonb_array_length(j -> 'bloqueadas') = 1 and j #>> '{bloqueadas,0,usuario}' = 'exp_carla', 'bloqueadas';
+ assert jsonb_array_length(j -> 'silenciadas') = 1 and j #>> '{silenciadas,0,usuario}' = 'exp_beto', 'silenciadas';
+ assert (j #>> '{silenciadas,0}')::jsonb ?& array['usuario','desde'] and (select count(*) from jsonb_object_keys((j #>> '{silenciadas,0}')::jsonb)) = 2, 'claves de silenciadas';
  assert jsonb_array_length(j -> 'guardadas') = 1 and j #>> '{guardadas,0,encuesta_id}' = '10000000-0000-0000-0000-0000000000b9', 'guardadas';
 
  assert jsonb_array_length(j #> '{denuncias,encuestas}') = 1 and j #>> '{denuncias,encuestas,0,detalle}' = 'detalle encuesta', 'denuncia de encuesta';
@@ -126,6 +132,7 @@ begin
  assert position('SECRETO_COMENTARIO_AJENO' in j::text) = 0, 'aparece un comentario ajeno';
  assert position('DENUNCIA_AJENA' in j::text) = 0, 'aparece una denuncia recibida';
  assert position('exp_dani' in (j -> 'bloqueadas')::text) = 0, 'aparece quien me bloqueó';
+ assert position('exp_carla' in (j -> 'silenciadas')::text) = 0, 'aparece quien me silenció';
  assert not (j ? 'votos_ajenos'), 'claves inesperadas';
 end $$;
 
