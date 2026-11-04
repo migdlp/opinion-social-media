@@ -8,7 +8,7 @@ const row = (n: number, kind = "new_follower") => ({
   is_unread: n < 3,
   actor_username: `user_${n}`,
   actor_display_name: n % 2 ? `Nombre ${n}` : null,
-  actor_avatar_icon: n === 0 ? "fox" : null,
+  actor_avatar_icon: n === 0 ? "sol" : null,
   poll_id: null,
   poll_question: null,
   comment_id: null,
@@ -31,7 +31,7 @@ describe("listNotifications (NOTIF-001)", () => {
             kind: "new_follower",
             occurredAt: "2026-11-04T10:59:00Z",
             isUnread: true,
-            actor: { username: "user_0", displayName: null, avatarIcon: expect.any(String) },
+            actor: { username: "user_0", displayName: null, avatarIcon: "sol" },
           },
           {
             kind: "follow_request",
