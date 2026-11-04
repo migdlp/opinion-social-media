@@ -21,6 +21,7 @@ export type DatabaseContractChecks = [
       | "follow_quota_events"
       | "user_blocks"
       | "user_mutes"
+      | "dismissed_polls"
       | "comments"
       | "user_reports"
       | "comment_reports"
@@ -295,6 +296,24 @@ export type UserMutesRpcChecks = [
     Equal<keyof Public["Tables"]["user_mutes"]["Row"], "muted_id" | "muter_id" | "created_at">
   >,
   Assert<Equal<Public["Functions"]["get_profile"]["Returns"][number]["is_muted"], boolean>>,
+];
+
+// FEED-003: «No me interesa»; la tabla sólo se gestiona con las RPC de los descartes propios.
+export type DismissedPollsRpcChecks = [
+  Assert<Equal<Public["Functions"]["dismiss_poll"]["Args"], { p_poll_id: string }>>,
+  Assert<Equal<Public["Functions"]["dismiss_poll"]["Returns"], undefined>>,
+  Assert<Equal<Public["Functions"]["undismiss_poll"]["Args"], { p_poll_id: string }>>,
+  Assert<Equal<Public["Functions"]["undismiss_poll"]["Returns"], undefined>>,
+  Assert<Equal<Public["Functions"]["list_dismissed_polls"]["Args"], { p_cursor?: string }>>,
+  Assert<
+    Equal<
+      Public["Functions"]["list_dismissed_polls"]["Returns"][number],
+      { cursor: string; dismissed_at: string; poll_id: string }
+    >
+  >,
+  Assert<
+    Equal<keyof Public["Tables"]["dismissed_polls"]["Row"], "user_id" | "poll_id" | "created_at">
+  >,
 ];
 
 // SEARCH-001: búsqueda por pregunta; sólo ids, fecha y cursor (sin recuentos).

@@ -110,6 +110,33 @@ export type Database = {
         };
         Relationships: [];
       };
+      dismissed_polls: {
+        Row: {
+          created_at: string;
+          poll_id: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          poll_id: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          poll_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "dismissed_polls_poll_id_fkey";
+            columns: ["poll_id"];
+            isOneToOne: false;
+            referencedRelation: "polls";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       follow_quota_events: {
         Row: {
           created_at: string;
@@ -469,6 +496,7 @@ export type Database = {
         Returns: string;
       };
       delete_my_account: { Args: { p_confirm: string }; Returns: undefined };
+      dismiss_poll: { Args: { p_poll_id: string }; Returns: undefined };
       export_my_data: { Args: Record<PropertyKey, never>; Returns: Json };
       follow_user: { Args: { p_username: string }; Returns: string };
       get_feed: {
@@ -609,6 +637,14 @@ export type Database = {
           username: string;
         }[];
       };
+      list_dismissed_polls: {
+        Args: { p_cursor?: string };
+        Returns: {
+          cursor: string;
+          dismissed_at: string;
+          poll_id: string;
+        }[];
+      };
       list_follow_requests: {
         Args: { p_cursor?: string };
         Returns: {
@@ -673,6 +709,7 @@ export type Database = {
       set_profile_privacy: { Args: { p_private: boolean }; Returns: undefined };
       set_vote_visibility: { Args: { p_visibility: string }; Returns: undefined };
       unblock_user: { Args: { p_username: string }; Returns: undefined };
+      undismiss_poll: { Args: { p_poll_id: string }; Returns: undefined };
       unfollow_user: { Args: { p_username: string }; Returns: undefined };
       unmute_user: { Args: { p_username: string }; Returns: undefined };
       upsert_my_profile: {

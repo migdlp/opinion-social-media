@@ -48,6 +48,10 @@ insert into public.user_blocks (blocker_id, blocked_id, created_at) values
 insert into public.user_mutes (muter_id, muted_id, created_at) values
  ('00000000-0000-0000-0000-0000000000a9', '00000000-0000-0000-0000-0000000000b9', '2026-05-04 10:00:00+00'),
  ('00000000-0000-0000-0000-0000000000c9', '00000000-0000-0000-0000-0000000000a9', '2026-05-05 10:00:00+00');
+-- Descartes (FEED-003): Ana descarta la encuesta de Beto; Carla descarta la de Ana (no debe aparecer en el archivo de Ana).
+insert into public.dismissed_polls (user_id, poll_id, created_at) values
+ ('00000000-0000-0000-0000-0000000000a9', '10000000-0000-0000-0000-0000000000b9', '2026-05-06 10:00:00+00'),
+ ('00000000-0000-0000-0000-0000000000c9', '10000000-0000-0000-0000-0000000000a9', '2026-05-07 10:00:00+00');
 insert into public.saved_polls (user_id, poll_id, created_at) values
  ('00000000-0000-0000-0000-0000000000a9', '10000000-0000-0000-0000-0000000000b9', '2026-05-03 10:00:00+00');
 -- Denuncias hechas por Ana y recibidas por Ana (de Carla).
@@ -120,6 +124,9 @@ begin
  assert jsonb_array_length(j -> 'bloqueadas') = 1 and j #>> '{bloqueadas,0,usuario}' = 'exp_carla', 'bloqueadas';
  assert jsonb_array_length(j -> 'silenciadas') = 1 and j #>> '{silenciadas,0,usuario}' = 'exp_beto', 'silenciadas';
  assert (j #>> '{silenciadas,0}')::jsonb ?& array['usuario','desde'] and (select count(*) from jsonb_object_keys((j #>> '{silenciadas,0}')::jsonb)) = 2, 'claves de silenciadas';
+ assert jsonb_array_length(j -> 'descartadas') = 1 and j #>> '{descartadas,0,encuesta_id}' = '10000000-0000-0000-0000-0000000000b9', 'descartadas';
+ assert (select count(*) from jsonb_object_keys((j #>> '{descartadas,0}')::jsonb)) = 2 and (j #>> '{descartadas,0}')::jsonb ?& array['encuesta_id','desde'], 'claves de descartadas';
+ assert position('10000000-0000-0000-0000-0000000000a9' in (j -> 'descartadas')::text) = 0, 'aparece un descarte ajeno';
  assert jsonb_array_length(j -> 'guardadas') = 1 and j #>> '{guardadas,0,encuesta_id}' = '10000000-0000-0000-0000-0000000000b9', 'guardadas';
 
  assert jsonb_array_length(j #> '{denuncias,encuestas}') = 1 and j #>> '{denuncias,encuestas,0,detalle}' = 'detalle encuesta', 'denuncia de encuesta';
