@@ -47,6 +47,8 @@ end $$;
 -- b sigue a a (pública): aviso new_follower sin leer, con el actor y sin user_id.
 select pg_temp.login('00000000-0000-0000-0000-0000000000b7');
 select public.follow_user('not_ana');
+reset role;
+do $$ begin assert (select accepted_at = created_at from public.follows where follower_id = '00000000-0000-0000-0000-0000000000b7' and followee_id = '00000000-0000-0000-0000-0000000000a7'), 'follow_user público sin accepted_at = created_at'; end $$;
 select pg_temp.login('00000000-0000-0000-0000-0000000000a7');
 do $$ declare r record; begin
  assert (select count(*) from public.list_notifications()) = 1, 'un solo aviso';
@@ -132,6 +134,8 @@ do $$ begin assert (select count(*) from public.list_notifications()) = 0, 'b ve
 -- Solicitud a una cuenta privada: follow_request; aceptar la retira y avisa a quien la pidió.
 select pg_temp.login('00000000-0000-0000-0000-0000000000c7');
 select public.follow_user('not_priv');
+reset role;
+do $$ begin assert (select accepted_at is null and status = 'pending' from public.follows where follower_id = '00000000-0000-0000-0000-0000000000c7' and followee_id = '00000000-0000-0000-0000-0000000000a8'), 'la solicitud ya tiene accepted_at'; end $$;
 select pg_temp.login('00000000-0000-0000-0000-0000000000a8');
 do $$ declare r record; begin
  assert (select count(*) from public.list_notifications()) = 1, 'una solicitud';
