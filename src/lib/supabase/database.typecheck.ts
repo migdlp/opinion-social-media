@@ -23,6 +23,7 @@ export type DatabaseContractChecks = [
       | "comments"
       | "user_reports"
       | "comment_reports"
+      | "released_usernames"
     >
   >,
   Assert<
@@ -120,6 +121,9 @@ export type DatabaseContractChecks = [
   >,
   Assert<Equal<Public["Functions"]["follow_user"]["Args"], { p_username: string }>>,
   Assert<Equal<Public["Functions"]["follow_user"]["Returns"], string>>,
+  // ACCOUNT-001: sin parámetro de identidad; la cuenta borrada es siempre auth.uid().
+  Assert<Equal<Public["Functions"]["delete_my_account"]["Args"], { p_confirm: string }>>,
+  Assert<Equal<Public["Functions"]["delete_my_account"]["Returns"], undefined>>,
   Assert<
     Equal<
       Public["Functions"]["respond_follow_request"]["Args"],

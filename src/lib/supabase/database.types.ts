@@ -280,6 +280,22 @@ export type Database = {
         };
         Relationships: [];
       };
+      released_usernames: {
+        Row: {
+          released_at: string;
+          username: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          released_at?: string;
+          username: string;
+        };
+        Update: {
+          released_at?: string;
+          username?: string;
+        };
+        Relationships: [];
+      };
       saved_polls: {
         Row: {
           created_at: string;
@@ -413,6 +429,7 @@ export type Database = {
         };
         Returns: string;
       };
+      delete_my_account: { Args: { p_confirm: string }; Returns: undefined };
       follow_user: { Args: { p_username: string }; Returns: string };
       get_feed: {
         Args: { p_category?: string; p_cursor?: string; p_mode?: string };
