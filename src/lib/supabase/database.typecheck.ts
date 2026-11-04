@@ -20,6 +20,7 @@ export type DatabaseContractChecks = [
       | "saved_polls"
       | "follow_quota_events"
       | "user_blocks"
+      | "user_mutes"
       | "comments"
       | "user_reports"
       | "comment_reports"
