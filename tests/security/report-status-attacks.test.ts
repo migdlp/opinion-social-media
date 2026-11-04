@@ -88,7 +88,11 @@ beforeAll(async () => {
   ]);
   const poll = await admin
     .from("polls")
-    .insert({ user_id: author.id, question: "¿Pregunta denunciada por HTTP?" })
+    .insert({
+      user_id: author.id,
+      question: "¿Pregunta denunciada por HTTP?",
+      comments_enabled: true,
+    })
     .select("id")
     .single();
   if (poll.error) throw poll.error;
