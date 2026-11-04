@@ -530,6 +530,7 @@ export type Database = {
         Returns: string;
       };
       delete_my_account: { Args: { p_confirm: string }; Returns: undefined };
+      delete_my_poll: { Args: { p_poll_id: string }; Returns: undefined };
       dismiss_poll: { Args: { p_poll_id: string }; Returns: undefined };
       export_my_data: { Args: Record<PropertyKey, never>; Returns: Json };
       follow_category: { Args: { p_slug: string }; Returns: undefined };

@@ -1160,6 +1160,16 @@ export function searchUsers(
   });
 }
 
+// Borra una encuesta propia publicada (POLL-004, D-046): borrado físico e inmediato, sin deshacer;
+// opciones, votos, comentarios, guardados, descartes y denuncias desaparecen por cascada. Errores:
+// AUTH_REQUIRED y POLL_UNAVAILABLE (inexistente, ajena u oculta por moderación, sin distinguir).
+export function deleteMyPoll(supabase: SupabaseClient, pollId: string): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("delete_my_poll", { p_poll_id: pollId });
+    return error ? { ok: false, error: toAppError(error) } : { ok: true, data: undefined };
+  });
+}
+
 // Fija, cambia o vacía (null o vacío) la biografía propia, de 0 a 280 caracteres de texto plano.
 // Errores: BIO_INVALID, AUTH_REQUIRED, PROFILE_REQUIRED. La recorta y valida el backend.
 export function setProfileBio(supabase: SupabaseClient, bio: string | null): Promise<Result<void>> {

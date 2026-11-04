@@ -1,6 +1,6 @@
 # Moderación manual de encuestas (MVP-021)
 
-El MVP no tiene panel de moderación ni borrado por usuarios (brief §6.5). Una persona con acceso administrativo al proyecto Supabase oculta la encuesta cambiando `polls.status` a `hidden`. **No se borra nada**: opciones y votos se conservan y la encuesta se puede restaurar.
+El MVP no tiene panel de moderación (brief §6.5); la autora sólo puede borrar sus propias encuestas publicadas (ver «Borrado por la autora»). Una persona con acceso administrativo al proyecto Supabase oculta la encuesta cambiando `polls.status` a `hidden`. **No se borra nada**: opciones y votos se conservan y la encuesta se puede restaurar.
 
 ## Qué provoca `hidden`
 
@@ -113,6 +113,10 @@ update public.comments set status = 'published' where id = '<id>';
 ```
 
 Un comentario oculto desaparece de `list_comments` y de las denuncias nuevas, y **no reaparece al apagar y reactivar el debate** (el estado es independiente de `polls.comments_enabled`). Las denuncias se conservan al ocultar o restaurar y se borran en cascada con el comentario o con la cuenta denunciante. El plazo de conservación y la base legal quedan para la revisión legal (LEGAL-003).
+
+## Borrado por la autora (POLL-004)
+
+La autora puede borrar una encuesta **suya publicada** con `delete_my_poll` (borrado físico e inmediato, sin papelera ni deshacer, D-046). Por cascada desaparecen sus opciones, votos, comentarios (y las denuncias de esos comentarios), guardados, descartes y las denuncias de la propia encuesta. **Una encuesta oculta por moderación (`hidden`) no se puede borrar** (la autora recibe `POLL_UNAVAILABLE`, igual que con una ajena o inexistente): así se conserva la evidencia hasta que la persona operadora decida. Si una encuesta denunciada se borra, las denuncias desaparecen con ella; quien modere debe ocultar —no esperar— si necesita conservar el caso. Ningún cliente puede borrar directamente de `polls`.
 
 ## No hacer
 

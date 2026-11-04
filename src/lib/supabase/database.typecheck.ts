@@ -447,3 +447,9 @@ export type SearchUsersRpcChecks = [
     >
   >,
 ];
+
+// POLL-004: borrado físico de una encuesta propia; la identidad es siempre auth.uid().
+export type DeleteMyPollRpcChecks = [
+  Assert<Equal<Public["Functions"]["delete_my_poll"]["Args"], { p_poll_id: string }>>,
+  Assert<Equal<Public["Functions"]["delete_my_poll"]["Returns"], undefined>>,
+];
