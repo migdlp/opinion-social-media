@@ -110,6 +110,7 @@ export function createPoll(
   closesAt?: string | null,
   category?: string | null,
   commentsEnabled?: boolean,
+  description?: string | null,
 ): Promise<Result<{ id: string }>> {
   return guard(async () => {
     const { data, error } = await supabase.rpc("create_poll", {
@@ -118,6 +119,7 @@ export function createPoll(
       ...(closesAt ? { p_closes_at: closesAt } : {}),
       ...(category ? { p_category: category } : {}),
       ...(commentsEnabled ? { p_comments_enabled: true } : {}),
+      ...(description ? { p_description: description } : {}),
     });
     if (error) return { ok: false, error: toAppError(error) };
     return { ok: true, data: { id: data as string } };

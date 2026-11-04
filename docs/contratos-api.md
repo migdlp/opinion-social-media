@@ -28,6 +28,7 @@ Modelo de datos: el del [brief §5](brief-producto.md#5-modelo-de-datos-obligato
 | `VALIDATION_OPTION_COUNT` | `create_poll` | `p_options` nulo o con menos de 2 / más de 6 elementos | «Añade entre 2 y 6 opciones.» |
 | `VALIDATION_OPTION_LENGTH` | `create_poll` | Alguna opción normalizada fuera de 1–100 (incluye vacías) | «Cada opción debe tener entre 1 y 100 caracteres.» |
 | `VALIDATION_OPTION_DUPLICATE` | `create_poll` | Dos opciones iguales según §1 | «Hay opciones repetidas.» |
+| `DESCRIPTION_INVALID` | `create_poll` | `p_description` (tras normalizar) con más de 500 caracteres o con un carácter de control distinto de `\n` y `\t` (incluido un `\r` suelto, DEL y C1) | «La descripción admite hasta 500 caracteres de texto.» |
 | `INVALID_CLOSES_AT` | `create_poll` | `p_closes_at` fuera de [ahora + 1 hora, ahora + 30 días] | «El cierre debe estar entre 1 hora y 30 días desde ahora.» |
 | `INVALID_CATEGORY` | `create_poll` | `p_category` no nulo que no existe en `categories` (distingue mayúsculas) | «Elige una categoría válida.» |
 | `POLL_CLOSED` | `vote_poll` (trigger en `votes`) | `now() >= closes_at`; gana también sobre `ALREADY_VOTED` | «Esta encuesta ya está cerrada y no admite votos.» |
@@ -55,7 +56,7 @@ Modelo de datos: el del [brief §5](brief-producto.md#5-modelo-de-datos-obligato
 
 Orden de comprobación dentro de cada RPC (determina qué código gana si hay varios fallos):
 
-- `create_poll`: `AUTH_REQUIRED` → `VALIDATION_OPTION_COUNT` → `VALIDATION_QUESTION_LENGTH` → `VALIDATION_OPTION_LENGTH` → `VALIDATION_OPTION_DUPLICATE` → `INVALID_CLOSES_AT` → `INVALID_CATEGORY` → `RATE_LIMITED`.
+- `create_poll`: `AUTH_REQUIRED` → `VALIDATION_OPTION_COUNT` → `VALIDATION_QUESTION_LENGTH` → `VALIDATION_OPTION_LENGTH` → `VALIDATION_OPTION_DUPLICATE` → `DESCRIPTION_INVALID` → `INVALID_CLOSES_AT` → `INVALID_CATEGORY` → `RATE_LIMITED`.
 - `vote_poll`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `OPTION_INVALID` → `POLL_CLOSED` → `ALREADY_VOTED`.
 - `get_poll_results`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `NOT_VOTED`. Ningún agregado se calcula antes de superar las tres. **Excepción D-020 (V2-014):** si la encuesta está publicada, es visible para quien llama y `closes_at <= now()`, no se exige sesión ni voto y se devuelven los agregados. Para un visitante, una cerrada privada o inexistente sigue siendo `AUTH_REQUIRED`; con sesión, `POLL_UNAVAILABLE`.
 - `report_poll`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `REPORT_INVALID` → `ALREADY_REPORTED` → `REPORT_RATE_LIMITED`.
@@ -351,6 +352,8 @@ public.list_comments(p_poll_id uuid, p_cursor text default null)
 public.create_poll(p_question, p_options, p_closes_at default null, p_category default null, p_comments_enabled boolean default false) returns uuid
 ```
 
+**Descripción (POLL-002, D-053).** La firma vigente añade el último parámetro `p_description text default null`: `public.create_poll(p_question text, p_options text[], p_closes_at timestamptz default null, p_category text default null, p_comments_enabled boolean default false, p_description text default null) returns uuid`. Texto plano opcional de 1–500 caracteres Unicode, normalizado en la base de datos: `\r\n` → `\n`; se recortan espacios, tabulaciones y saltos de línea de los extremos; 3 o más saltos seguidos pasan a 2; los espacios internos se conservan; si queda vacía se guarda `null`. Más de 500 caracteres o un carácter de control distinto de `\n` y `\t` → `DESCRIPTION_INVALID`, antes de `INVALID_CLOSES_AT` y sin gastar cuota. El HTML se guarda literal. `polls.description` es de lectura pública (`grant select`, como `closes_at`) con la visibilidad de siempre; **no se edita** (no hay RPC ni `UPDATE` de clientes) y la búsqueda no la indexa. Adaptador: `createPoll(..., commentsEnabled, description)`; `PublicPoll.description?: string` lo rellenarán las pantallas que lean `get_poll_cards` (POLL-003).
+
 - `polls.comments_enabled` (false por defecto) es **público** como `closes_at` (`grant select`); sólo lo escribe quien crea la encuesta (`create_poll`) y después la autora con `set_poll_comments` (para otra cuenta, `POLL_UNAVAILABLE`; no hay `update` directo). Apagarlo **no borra** comentarios; reactivarlo los devuelve. `create_poll` se recrea con un parámetro final opcional; la firma anterior de cuatro argumentos desaparece.
 - `comments` no es de ningún cliente (RLS sin permisos). Se escribe con `add_comment` y se lee con `list_comments`; nunca se devuelve `user_id`.
 - **Acceso** (mismo orden de errores en lectura y escritura): encuesta oculta, inexistente o de una cuenta que quien llama no puede ver (privada o bloqueo) → `POLL_UNAVAILABLE`; debate apagado → `COMMENTS_DISABLED` (también para la autora); **abierta** sin voto de quien llama → `VOTE_REQUIRED` (también la autora y los visitantes); **cerrada** → rige la visibilidad de la encuesta y no hace falta voto. La comprobación vive en `private.comments_check_access` (esquema sin permisos para clientes).
@@ -416,7 +419,7 @@ public.export_my_data() returns jsonb
 
 ```sql
 public.get_poll_cards(p_poll_ids uuid[]) returns table (
-  poll_id uuid, question text, created_at timestamptz, closes_at timestamptz,
+  poll_id uuid, question text, description text, created_at timestamptz, closes_at timestamptz,
   category_slug text, category_name text, author_username text, author_display_name text,
   comments_enabled boolean, options jsonb, my_option_id uuid, total_votes integer,
   results jsonb, saved boolean)
@@ -504,6 +507,7 @@ export type AppErrorCode =
   | 'FOLLOW_RATE_LIMITED'
   | 'CONFIRMATION_MISMATCH'
   | 'DATA_EXPORT_RATE_LIMITED'
+  | 'DESCRIPTION_INVALID'
   | 'NETWORK_ERROR'
   | 'UNKNOWN'
 

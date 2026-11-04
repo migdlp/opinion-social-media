@@ -223,6 +223,7 @@ export type Database = {
           closes_at: string | null;
           comments_enabled: boolean;
           created_at: string;
+          description: string | null;
           id: string;
           question: string;
           status: string;
@@ -234,6 +235,7 @@ export type Database = {
           closes_at?: string | null;
           comments_enabled?: boolean;
           created_at?: string;
+          description?: string | null;
           id?: string;
           question: string;
           status?: string;
@@ -244,6 +246,7 @@ export type Database = {
           closes_at?: string | null;
           comments_enabled?: boolean;
           created_at?: string;
+          description?: string | null;
           id?: string;
           question?: string;
           status?: string;
@@ -440,6 +443,7 @@ export type Database = {
           p_category?: string;
           p_closes_at?: string;
           p_comments_enabled?: boolean;
+          p_description?: string;
           p_options: string[];
           p_question: string;
         };
@@ -498,6 +502,7 @@ export type Database = {
           closes_at: string;
           comments_enabled: boolean;
           created_at: string;
+          description: string;
           my_option_id: string;
           options: Json;
           poll_id: string;

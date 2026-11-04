@@ -176,6 +176,7 @@ describe("get_poll_cards por HTTP", () => {
             "closes_at",
             "comments_enabled",
             "created_at",
+            "description",
             "my_option_id",
             "options",
             "poll_id",
@@ -236,5 +237,60 @@ describe("get_poll_cards por HTTP", () => {
     expect((await cards(null, voter.token)).data).toEqual([]);
     const extra = await cards([open.id], stranger.token, { p_user_id: voter.id });
     expect(extra.status).toBe(404); // PGRST202: no existe esa firma
+  });
+});
+
+// POLL-002 (D-053): la descripción se crea con create_poll, se guarda literal y no se puede cambiar.
+describe("descripción de la encuesta por HTTP", () => {
+  const rpcCreate = (token: string, args: object) =>
+    fetch(`${URL_}/rest/v1/rpc/create_poll`, {
+      method: "POST",
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(args),
+    }).then(async (res) => ({ status: res.status, data: await res.json() }));
+
+  it("se guarda literal (HTML sin interpretar) y se devuelve por get_poll_cards", async () => {
+    const html = '<img src=x onerror="alert(1)"> & <b>negrita</b>';
+    const created = await rpcCreate(author.token, {
+      p_question: "¿Esta encuesta lleva HTML en la descripción?",
+      p_options: ["Sí", "No"],
+      p_description: `  ${html}  `,
+    });
+    expect(created.status).toBe(200);
+    const r = await cards([created.data], stranger.token);
+    expect((r.data[0] as unknown as { description: string }).description).toBe(html);
+  });
+
+  it("una descripción inválida se rechaza con DESCRIPTION_INVALID", async () => {
+    for (const bad of ["x".repeat(501), "campana \u0007"]) {
+      const r = await rpcCreate(voter.token, {
+        p_question: "¿Esta descripción es inválida?",
+        p_options: ["Sí", "No"],
+        p_description: bad,
+      });
+      expect(r.status).toBe(400);
+      expect(r.data.message).toBe("DESCRIPTION_INVALID");
+    }
+  });
+
+  it("ningún cliente puede actualizar description, ni su autora ni anon", async () => {
+    for (const token of [author.token, undefined]) {
+      const res = await fetch(`${URL_}/rest/v1/polls?id=eq.${open.id}`, {
+        method: "PATCH",
+        headers: {
+          apikey: key,
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ description: "cambiada por un cliente" }),
+      });
+      expect([401, 403]).toContain(res.status);
+    }
+    const after = await admin.from("polls").select("description").eq("id", open.id).single();
+    expect(after.data?.description).toBeNull();
   });
 });

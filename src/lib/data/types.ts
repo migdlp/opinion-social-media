@@ -42,6 +42,7 @@ export type AppErrorCode =
   | "FOLLOW_RATE_LIMITED"
   | "CONFIRMATION_MISMATCH"
   | "DATA_EXPORT_RATE_LIMITED"
+  | "DESCRIPTION_INVALID"
   | "NETWORK_ERROR"
   | "UNKNOWN";
 
@@ -82,6 +83,9 @@ export interface PublicPoll {
   createdAt: string;
   // Cierre opcional (V2-013): desde esta fecha no se admiten votos.
   closesAt?: string | null;
+  // Descripción opcional (POLL-002, D-053): texto plano fijado al crear. Lo rellenan las pantallas
+  // que lean get_poll_cards o polls.description (POLL-003); ausente = sin descripción.
+  description?: string;
   author?: PollAuthor | null;
   category?: Category | null;
   options: PollOption[];

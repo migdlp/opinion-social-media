@@ -39,6 +39,7 @@ export type DatabaseContractChecks = [
         closes_at: string | null;
         category_slug: string | null;
         comments_enabled: boolean;
+        description: string | null;
       }
     >
   >,
@@ -63,6 +64,7 @@ export type DatabaseContractChecks = [
         p_closes_at?: string;
         p_category?: string;
         p_comments_enabled?: boolean;
+        p_description?: string;
       }
     >
   >,
@@ -149,6 +151,7 @@ export type DatabaseContractChecks = [
       keyof Public["Functions"]["get_poll_cards"]["Returns"][number],
       | "poll_id"
       | "question"
+      | "description"
       | "created_at"
       | "closes_at"
       | "category_slug"
