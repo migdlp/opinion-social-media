@@ -304,3 +304,49 @@ Detalle y cobertura del nuevo encargo: [backlog de producto 30-10](backlog-produ
 | [REL-004](https://github.com/migdlp/opinion-social-media/issues/297) | Publicar los nuevos módulos por lotes con esquema y checklist compatibles | P0 | [#273](https://github.com/migdlp/opinion-social-media/issues/273) | Pendiente | — |
 
 Iconos de perfil: ya están implementados en AVATAR-001 #247; falta activación OPS-003 #272 → REL-003 #273 y revisión visual DESIGN-004 #190. No duplicar esa implementación.
+
+## Historias de usuario del 04-11-2026
+
+El propietario aprobó las historias 57–63, 66, 68 y 70–82 (rechazó 64, 65, 67 y 69) y pidió ampliar la 73 con secciones. El plan detallado, con decisiones D-044 a D-054, reglas comunes y fichas ejecutables, está en [plan/historias-2026-11-04](plan/historias-2026-11-04/README.md). Épicas nuevas E13–E21 ([#342](https://github.com/migdlp/opinion-social-media/issues/342)–[#350](https://github.com/migdlp/opinion-social-media/issues/350)); QA-002 va en la E11 existente. Crear estas tareas no las implementa ni despliega.
+
+| ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
+|---|---|---|---|---|---|
+| DOC-013 | Planificar las historias 57–82 aprobadas: épicas, tareas, decisiones e issues | P0 | — | Completada con esta PR | claude-code (Opus 5.5, sesión del 04-11-2026) |
+| [QA-002](https://github.com/migdlp/opinion-social-media/issues/388) | Regresión de privacidad y convivencia para E12–E20 | P0 | Se prepara desde el principio; se cierra cuando todas las tareas de E13–E21 están en main | Pendiente | — |
+| [FEED-002](https://github.com/migdlp/opinion-social-media/issues/351) | Filtro «Sin votar» en el feed | P1 | PERF-005 #330 | Pendiente | — |
+| [FEED-003](https://github.com/migdlp/opinion-social-media/issues/352) | Descartar encuestas: backend | P1 | — | Pendiente | — |
+| [FEED-004](https://github.com/migdlp/opinion-social-media/issues/353) | Descartar encuestas: interfaz | P1 | FEED-003, PERF-005 #330 | Pendiente | — |
+| [FEED-005](https://github.com/migdlp/opinion-social-media/issues/354) | Volver al mismo punto del feed | P1 | PERF-005 #330 | Pendiente | — |
+| [FEED-006](https://github.com/migdlp/opinion-social-media/issues/355) | Seguir categorías: backend | P1 | — | Pendiente | — |
+| [FEED-007](https://github.com/migdlp/opinion-social-media/issues/356) | Seguir categorías: interfaz | P1 | FEED-006, PERF-005 #330 | Pendiente | — |
+| [TREND-001](https://github.com/migdlp/opinion-social-media/issues/357) | Secciones del feed: backend | P1 | RESULTS-005, FEED-003 | Pendiente | — |
+| [TREND-002](https://github.com/migdlp/opinion-social-media/issues/358) | Secciones del feed: interfaz | P1 | TREND-001, RESULTS-006, PERF-005 #330 | Pendiente | — |
+| [RESULTS-005](https://github.com/migdlp/opinion-social-media/issues/359) | Total de votos antes de votar: backend y regla | P1 | PERF-004 #329 | Pendiente | — |
+| [RESULTS-006](https://github.com/migdlp/opinion-social-media/issues/360) | Total de votos antes de votar: interfaz | P1 | RESULTS-005, PERF-005 #330, PERF-008 #333, PERF-009 #334 | Pendiente | — |
+| [RESULTS-001](https://github.com/migdlp/opinion-social-media/issues/361) | Qué han votado las personas que sigo: backend | P1 | — | Pendiente | — |
+| [RESULTS-002](https://github.com/migdlp/opinion-social-media/issues/362) | Qué han votado las personas que sigo: interfaz | P1 | RESULTS-001 | Pendiente | — |
+| [RESULTS-003](https://github.com/migdlp/opinion-social-media/issues/363) | Evolución de los resultados: backend | P1 | — | Pendiente | — |
+| [RESULTS-004](https://github.com/migdlp/opinion-social-media/issues/364) | Evolución de los resultados: interfaz | P1 | RESULTS-003 | Pendiente | — |
+| [SHARE-001](https://github.com/migdlp/opinion-social-media/issues/365) | Compartir que he votado sin revelar los resultados | P1 | — | Pendiente | — |
+| [POLL-002](https://github.com/migdlp/opinion-social-media/issues/366) | Descripción opcional de la encuesta: backend | P1 | PERF-004 #329 | Pendiente | — |
+| [POLL-003](https://github.com/migdlp/opinion-social-media/issues/367) | Descripción opcional de la encuesta: interfaz | P1 | POLL-002, PERF-005 #330, PERF-008 #333 | Pendiente | — |
+| [PROFILE-003](https://github.com/migdlp/opinion-social-media/issues/368) | Fijar una encuesta en mi perfil | P1 | PERF-009 #334 | Pendiente | — |
+| [POLL-004](https://github.com/migdlp/opinion-social-media/issues/369) | Borrar una encuesta propia: backend | P1 | — | Pendiente | — |
+| [POLL-005](https://github.com/migdlp/opinion-social-media/issues/370) | Borrar una encuesta propia: interfaz | P1 | POLL-004 | Pendiente | — |
+| [SEARCH-003](https://github.com/migdlp/opinion-social-media/issues/371) | Buscar personas: backend | P1 | — | Pendiente | — |
+| [SEARCH-004](https://github.com/migdlp/opinion-social-media/issues/372) | Buscar personas: interfaz | P1 | SEARCH-003 | Pendiente | — |
+| [SOCIAL-003](https://github.com/migdlp/opinion-social-media/issues/373) | Silenciar cuentas: backend | P1 | — | Pendiente | — |
+| [SOCIAL-004](https://github.com/migdlp/opinion-social-media/issues/374) | Silenciar cuentas: interfaz | P1 | SOCIAL-003, PERF-005 #330 | Pendiente | — |
+| [NOTIF-001](https://github.com/migdlp/opinion-social-media/issues/375) | Avisos derivados y de seguimiento: backend | P1 | — | Pendiente | — |
+| [NOTIF-002](https://github.com/migdlp/opinion-social-media/issues/376) | Aviso de cierre de encuestas: backend | P1 | NOTIF-001 | Pendiente | — |
+| [NOTIF-003](https://github.com/migdlp/opinion-social-media/issues/377) | Centro de avisos y campana: interfaz | P1 | NOTIF-001 | Pendiente | — |
+| [CMT-004](https://github.com/migdlp/opinion-social-media/issues/378) | Respuestas a comentarios: backend y aviso | P1 | NOTIF-001 | Pendiente | — |
+| [CMT-005](https://github.com/migdlp/opinion-social-media/issues/379) | Respuestas a comentarios: interfaz | P1 | CMT-004 | Pendiente | — |
+| [ACCOUNT-001](https://github.com/migdlp/opinion-social-media/issues/380) | Eliminar mi cuenta: backend | **P0** | — | Pendiente | — |
+| [ACCOUNT-002](https://github.com/migdlp/opinion-social-media/issues/381) | Eliminar mi cuenta: interfaz | **P0** | ACCOUNT-001 | Pendiente | — |
+| [ACCOUNT-003](https://github.com/migdlp/opinion-social-media/issues/382) | Descargar una copia de mis datos | **P0** | — | Pendiente | — |
+| [AUTH-002](https://github.com/migdlp/opinion-social-media/issues/383) | Cerrar sesión en todos los dispositivos | P1 | — | Pendiente | — |
+| [MOD-003](https://github.com/migdlp/opinion-social-media/issues/384) | Estado de mis denuncias: backend | P1 | — | Pendiente | — |
+| [MOD-004](https://github.com/migdlp/opinion-social-media/issues/385) | Estado de mis denuncias: interfaz | P1 | MOD-003 | Pendiente | — |
+| [MOD-005](https://github.com/migdlp/opinion-social-media/issues/386) | Encuestas retiradas y reclamación: backend y aviso | P1 | NOTIF-001 | Pendiente | — |
+| [MOD-006](https://github.com/migdlp/opinion-social-media/issues/387) | Encuestas retiradas y reclamación: interfaz | P1 | MOD-005, NOTIF-003 | Pendiente | — |
