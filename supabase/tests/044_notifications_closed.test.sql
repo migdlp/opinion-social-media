@@ -13,18 +13,18 @@ insert into public.profiles (user_id, username, is_private) values
  ('00000000-0000-0000-0000-0000000000c9', 'cls_pv', false),
  ('00000000-0000-0000-0000-0000000000d9', 'cls_otro', false);
 insert into public.polls (id, user_id, question, created_at, closes_at, status) values
- ('20000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000000b9', '¿Cerrada hace una hora?', now() - interval '5 hours', now() - interval '1 hour', 'published'),
- ('20000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-0000000000b9', '¿Cierra dentro de una hora?', now() - interval '5 hours', now() + interval '1 hour', 'published'),
- ('20000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-0000000000a9', '¿Mía, votada y cerrada?', now() - interval '5 hours', now() - interval '2 hours', 'published'),
- ('20000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-0000000000a9', '¿Mía sin voto, cerrada?', now() - interval '5 hours', now() - interval '3 hours', 'published'),
- ('20000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-0000000000b9', '¿Oculta y cerrada?', now() - interval '5 hours', now() - interval '1 hour', 'hidden'),
- ('20000000-0000-0000-0000-000000000006', '00000000-0000-0000-0000-0000000000c9', '¿De quien se hará privada?', now() - interval '5 hours', now() - interval '90 minutes', 'published'),
- ('20000000-0000-0000-0000-000000000007', '00000000-0000-0000-0000-0000000000b9', '¿Cerrada hace 40 días?', now() - interval '41 days', now() - interval '40 days', 'published'),
- ('20000000-0000-0000-0000-000000000008', '00000000-0000-0000-0000-0000000000b9', '¿Cerrada hace 29 días?', now() - interval '41 days', now() - interval '29 days', 'published'),
- ('20000000-0000-0000-0000-000000000009', '00000000-0000-0000-0000-0000000000b9', '¿Cerrada sin mi voto?', now() - interval '5 hours', now() - interval '1 hour', 'published'),
+ ('20000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000000b9', '¿Cerrada hace una hora?', now() - interval '5 hours', null, 'published'),
+ ('20000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-0000000000b9', '¿Cierra dentro de una hora?', now() - interval '5 hours', null, 'published'),
+ ('20000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-0000000000a9', '¿Mía, votada y cerrada?', now() - interval '5 hours', null, 'published'),
+ ('20000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-0000000000a9', '¿Mía sin voto, cerrada?', now() - interval '5 hours', null, 'published'),
+ ('20000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-0000000000b9', '¿Oculta y cerrada?', now() - interval '5 hours', null, 'hidden'),
+ ('20000000-0000-0000-0000-000000000006', '00000000-0000-0000-0000-0000000000c9', '¿De quien se hará privada?', now() - interval '5 hours', null, 'published'),
+ ('20000000-0000-0000-0000-000000000007', '00000000-0000-0000-0000-0000000000b9', '¿Cerrada hace 40 días?', now() - interval '41 days', null, 'published'),
+ ('20000000-0000-0000-0000-000000000008', '00000000-0000-0000-0000-0000000000b9', '¿Cerrada hace 29 días?', now() - interval '41 days', null, 'published'),
+ ('20000000-0000-0000-0000-000000000009', '00000000-0000-0000-0000-0000000000b9', '¿Cerrada sin mi voto?', now() - interval '5 hours', null, 'published'),
  ('20000000-0000-0000-0000-00000000000a', '00000000-0000-0000-0000-0000000000b9', '¿Sin cierre?', now() - interval '5 hours', null, 'published'),
- ('20000000-0000-0000-0000-00000000000b', '00000000-0000-0000-0000-0000000000b9', '¿Borrada tras cerrar?', now() - interval '5 hours', now() - interval '1 hour', 'published'),
- ('20000000-0000-0000-0000-00000000000c', '00000000-0000-0000-0000-0000000000a9', '¿Mía oculta y cerrada?', now() - interval '5 hours', now() - interval '1 hour', 'hidden');
+ ('20000000-0000-0000-0000-00000000000b', '00000000-0000-0000-0000-0000000000b9', '¿Borrada tras cerrar?', now() - interval '5 hours', null, 'published'),
+ ('20000000-0000-0000-0000-00000000000c', '00000000-0000-0000-0000-0000000000a9', '¿Mía oculta y cerrada?', now() - interval '5 hours', null, 'hidden');
 insert into public.poll_options (poll_id, text, position)
 select p.id, o.text, o.pos from public.polls p, (values ('Sí', 1), ('No', 2)) as o(text, pos)
 where p.id::text like '20000000-0000-0000-0000-0000000000%';
@@ -39,6 +39,22 @@ where o.position = 1 and o.poll_id::text in (
 insert into public.votes (poll_id, option_id, user_id)
 select o.poll_id, o.id, '00000000-0000-0000-0000-0000000000d9'
 from public.poll_options o where o.position = 1 and o.poll_id = '20000000-0000-0000-0000-000000000001';
+
+-- Los votos se siembran con las encuestas abiertas (un disparador rechaza votar tras el cierre); después se fija el cierre.
+update public.polls p set closes_at = v.c from (values
+ ('20000000-0000-0000-0000-000000000001'::uuid, now() - interval '1 hour'),
+ ('20000000-0000-0000-0000-000000000002'::uuid, now() + interval '1 hour'),
+ ('20000000-0000-0000-0000-000000000003'::uuid, now() - interval '2 hours'),
+ ('20000000-0000-0000-0000-000000000004'::uuid, now() - interval '3 hours'),
+ ('20000000-0000-0000-0000-000000000005'::uuid, now() - interval '1 hour'),
+ ('20000000-0000-0000-0000-000000000006'::uuid, now() - interval '90 minutes'),
+ ('20000000-0000-0000-0000-000000000007'::uuid, now() - interval '40 days'),
+ ('20000000-0000-0000-0000-000000000008'::uuid, now() - interval '29 days'),
+ ('20000000-0000-0000-0000-000000000009'::uuid, now() - interval '1 hour'),
+ ('20000000-0000-0000-0000-00000000000a'::uuid, null::timestamptz),
+ ('20000000-0000-0000-0000-00000000000b'::uuid, now() - interval '1 hour'),
+ ('20000000-0000-0000-0000-00000000000c'::uuid, now() - interval '1 hour')
+) as v(id, c) where p.id = v.id;
 
 reset role;
 do $$ begin
@@ -102,9 +118,10 @@ do $$ begin
  assert (select count(*) from public.list_notifications() where kind in ('poll_closed','my_poll_closed')) = 5, 'marcar borró avisos';
 end $$;
 reset role;
-update public.polls set created_at = now() - interval '2 hours', closes_at = now() - interval '30 seconds' where id = '20000000-0000-0000-0000-000000000009';
+update public.polls set closes_at = null where id = '20000000-0000-0000-0000-000000000009';
 insert into public.votes (poll_id, option_id, user_id)
 select o.poll_id, o.id, '00000000-0000-0000-0000-0000000000a9' from public.poll_options o where o.position = 1 and o.poll_id = '20000000-0000-0000-0000-000000000009';
+update public.polls set created_at = now() - interval '2 hours', closes_at = now() - interval '30 seconds' where id = '20000000-0000-0000-0000-000000000009';
 update public.profiles set notifications_seen_at = now() - interval '1 minute' where user_id = '00000000-0000-0000-0000-0000000000a9';
 select pg_temp.login('00000000-0000-0000-0000-0000000000a9');
 do $$ begin
