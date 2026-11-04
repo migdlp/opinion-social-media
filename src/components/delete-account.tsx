@@ -4,6 +4,8 @@ import { useEffect, useId, useRef, useState } from "react";
 import { ERROR_MESSAGES } from "@/lib/data/errors";
 import type { AppErrorCode, Result } from "@/lib/data/types";
 
+const networkFailure = (): Result<void> => ({ ok: false, error: "NETWORK_ERROR" });
+
 // Zona de peligro «Eliminar cuenta» de Ajustes (ACCOUNT-002, D-049). El borrado es inmediato e
 // irreversible, así que exige escribir el @usuario (o ELIMINAR si la cuenta no tiene perfil) en un
 // diálogo modal nativo con rol alertdialog: atrapa el foco, se cierra con Escape y devuelve el foco
@@ -53,15 +55,11 @@ export function DeleteAccount({
     sending.current = true;
     setPending(true);
     setError(null);
-    let result = await onDelete(text).catch(
-      (): Result<void> => ({ ok: false, error: "NETWORK_ERROR" }),
-    );
+    let result = await onDelete(text).catch(networkFailure);
     // Tras un fallo de red no se sabe si llegó a borrarse: se pregunta antes de mostrar el error.
     // Si la cuenta ya no existe, la acción de reconciliar cierra la sesión y redirige.
     if (!result.ok && result.error === "NETWORK_ERROR") {
-      result = await onReconcile().catch(
-        (): Result<void> => ({ ok: false, error: "NETWORK_ERROR" }),
-      );
+      result = await onReconcile().catch(networkFailure);
     }
     sending.current = false;
     setPending(false);
