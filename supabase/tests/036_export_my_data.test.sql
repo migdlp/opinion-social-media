@@ -140,6 +140,8 @@ begin
  assert jsonb_array_length(j #> '{denuncias,encuestas}') = 1 and j #>> '{denuncias,encuestas,0,detalle}' = 'detalle encuesta', 'denuncia de encuesta';
  assert jsonb_array_length(j #> '{denuncias,personas}') = 1 and j #>> '{denuncias,personas,0,usuario}' = 'exp_beto', 'denuncia de persona';
  assert jsonb_array_length(j #> '{denuncias,comentarios}') = 1 and j #>> '{denuncias,comentarios,0,motivo}' = 'otro', 'denuncia de comentario';
+ assert j #>> '{denuncias,encuestas,0,estado}' = 'pending' and j #>> '{denuncias,personas,0,estado}' = 'pending' and j #>> '{denuncias,comentarios,0,estado}' = 'pending', 'estado de las denuncias';
+ assert (j #> '{denuncias,encuestas,0}') ? 'revisada_en' and j #>> '{denuncias,encuestas,0,revisada_en}' is null, 'revisada_en de una denuncia pendiente';
 
  -- Nada de terceros: ni user_id, ni comentarios, votos, denuncias ajenas ni quién me bloqueó.
  assert j::text !~ '"00000000-0000-0000-0000-0000000000(b9|c9|d9|e9)', 'aparece el user_id de un tercero';
