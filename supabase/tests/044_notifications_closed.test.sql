@@ -151,6 +151,12 @@ select pg_temp.login('00000000-0000-0000-0000-0000000000a9');
 do $$ begin assert not exists (select 1 from public.list_notifications() where poll_id in ('20000000-0000-0000-0000-000000000001','20000000-0000-0000-0000-000000000008')), 'aviso de una autora bloqueada'; end $$;
 reset role;
 delete from public.user_blocks;
+-- Bloqueo en sentido contrario: la autora bloquea a quien votó.
+insert into public.user_blocks (blocker_id, blocked_id) values ('00000000-0000-0000-0000-0000000000b9', '00000000-0000-0000-0000-0000000000a9');
+select pg_temp.login('00000000-0000-0000-0000-0000000000a9');
+do $$ begin assert not exists (select 1 from public.list_notifications() where poll_id in ('20000000-0000-0000-0000-000000000001','20000000-0000-0000-0000-000000000008')), 'aviso de quien me bloqueó'; end $$;
+reset role;
+delete from public.user_blocks;
 -- Una encuesta borrada deja de avisar.
 delete from public.polls where id = '20000000-0000-0000-0000-00000000000b';
 select pg_temp.login('00000000-0000-0000-0000-0000000000b9');
