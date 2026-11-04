@@ -242,6 +242,12 @@ describe("get_poll_cards por HTTP", () => {
 
 // POLL-002 (D-053): la descripción se crea con create_poll, se guarda literal y no se puede cambiar.
 describe("descripción de la encuesta por HTTP", () => {
+  // Cuenta propia: `author` ya superó la cuota de 5 encuestas por hora con las de relleno.
+  let writer: Account;
+  beforeAll(async () => {
+    writer = await account("descriptora");
+  }, 30_000);
+
   const rpcCreate = (token: string, args: object) =>
     fetch(`${URL_}/rest/v1/rpc/create_poll`, {
       method: "POST",
@@ -255,7 +261,7 @@ describe("descripción de la encuesta por HTTP", () => {
 
   it("se guarda literal (HTML sin interpretar) y se devuelve por get_poll_cards", async () => {
     const html = '<img src=x onerror="alert(1)"> & <b>negrita</b>';
-    const created = await rpcCreate(author.token, {
+    const created = await rpcCreate(writer.token, {
       p_question: "¿Esta encuesta lleva HTML en la descripción?",
       p_options: ["Sí", "No"],
       p_description: `  ${html}  `,
