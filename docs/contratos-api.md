@@ -421,17 +421,29 @@ public.export_my_data() returns jsonb
 public.get_poll_cards(p_poll_ids uuid[]) returns table (
   poll_id uuid, question text, description text, created_at timestamptz, closes_at timestamptz,
   category_slug text, category_name text, author_username text, author_display_name text,
-  comments_enabled boolean, options jsonb, my_option_id uuid, total_votes integer,
-  results jsonb, saved boolean)
+  comments_enabled boolean, vote_count integer, options jsonb, my_option_id uuid,
+  total_votes integer, results jsonb, saved boolean)
 ```
 
 - `anon` y `authenticated`; `STABLE SECURITY DEFINER` con `search_path` vacío. Una llamada sustituye a las cinco consultas de una tarjeta (encuestas, autores, votos propios, `get_feed_results`, guardadas). Migración aditiva `20261104100000_poll_cards.sql`: no modifica `get_feed`, `get_feed_results` ni `get_poll_authors`.
 - **Entrada**: `p_poll_ids[1:20]`, sin duplicados y en el orden de la primera aparición; la salida sigue ese orden. `null` o `{}` dan 0 filas. Nunca falla por un id: los no visibles se omiten.
 - **Visibilidad** (copiada de `get_feed`): `status = 'published'` y `can_view_author(autor)`. Oculta, inexistente, de cuenta privada sin seguir y con bloqueo en cualquier sentido son indistinguibles (se omiten). Tampoco se sirve la oculta a su autora.
 - **Resultados** (copiados de `get_feed_results`): `results` y `total_votes` sólo si la encuesta está cerrada (`closes_at <= now()`) o quien llama ya votó; en una abierta no votada son `null`, también para la autora y para anon. `results` es `[{option_id, votes, percentage}]` por posición; `percentage = round(100 * votes / total, 1)` y `0.0` con total 0.
+- `vote_count` (RESULTS-005, D-044): total de votos, **siempre informado** (0 si no hay votos), también en una abierta sin votar y para anon; es lo único numérico que se libera antes de votar. `total_votes` y `results` no cambian.
 - `options`: `[{id, text, position}]` por posición, sin recuentos. `my_option_id`: voto de `auth.uid()` (`null` sin sesión o sin voto). `saved`: guardada por `auth.uid()` (`false` sin sesión; los guardados ajenos nunca se ven). `author_username` y `author_display_name` son `null` si el autor no tiene perfil.
 - **Nunca devuelve** `user_id`, fechas de voto ni datos de otros votantes. Tests: `supabase/tests/037_poll_cards.test.sql` y `tests/security/poll-cards-attacks.test.ts`.
 - Sin adaptador todavía: PERF-005, PERF-008 y PERF-009 lo usarán desde la aplicación.
+
+### 3.22. `get_poll_vote_counts` (RESULTS-005, D-044)
+
+```sql
+public.get_poll_vote_counts(p_poll_ids uuid[]) returns table (poll_id uuid, total_votes integer)
+```
+
+- `anon` y `authenticated`; `STABLE SECURITY DEFINER` con `search_path` vacío. Migración aditiva `20261104120000_poll_vote_counts.sql` (recrea además `get_poll_cards` con `vote_count`; requiere las migraciones de PERF-004 y POLL-002).
+- **Libera sólo el total** de votos de encuestas visibles para quien llama: nunca votos por opción, porcentajes, opción líder ni empate. `get_poll_results` y `get_feed_results` no cambian: siguen exigiendo voto o encuesta cerrada, también para la autora.
+- **Entrada**: `p_poll_ids[1:20]`, sin duplicados. Visibilidad igual que `get_poll_cards` (`published` y `can_view_author`); lo no visible se omite sin error y es indistinguible de una id inexistente. Una visible sin votos devuelve `0`.
+- Adaptador: `getPollVoteCounts(supabase, ids)` → `Result<Record<string, number>>`; `PublicPoll.voteCount?`. Tests: `supabase/tests/039_poll_vote_counts.test.sql`, `tests/security/vote-counts-attacks.test.ts` y `src/lib/data/poll-vote-counts.test.ts`. RESULTS-006 lo mostrará en la interfaz.
 
 ## 4. Lecturas directas (RLS)
 

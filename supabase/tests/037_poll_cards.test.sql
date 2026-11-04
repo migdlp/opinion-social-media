@@ -80,7 +80,7 @@ do $$ begin
  assert has_function_privilege('anon', 'public.get_poll_cards(uuid[])', 'execute'), 'anon no ejecuta get_poll_cards';
  assert has_function_privilege('authenticated', 'public.get_poll_cards(uuid[])', 'execute'), 'authenticated no ejecuta get_poll_cards';
  assert (select proargnames from pg_proc where oid = 'public.get_poll_cards(uuid[])'::regprocedure)
-   = array['p_poll_ids','poll_id','question','description','created_at','closes_at','category_slug','category_name','author_username','author_display_name','comments_enabled','options','my_option_id','total_votes','results','saved'],
+   = array['p_poll_ids','poll_id','question','description','created_at','closes_at','category_slug','category_name','author_username','author_display_name','comments_enabled','vote_count','options','my_option_id','total_votes','results','saved'],
    'la firma no es la del contrato (¿user_id o fechas de voto?)';
 end $$;
 

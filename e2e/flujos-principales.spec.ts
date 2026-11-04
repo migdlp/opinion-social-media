@@ -4,7 +4,9 @@ import { expect, test, type Page } from "@playwright/test";
 import { createPoll, createUser, signIn, vote, votesOf } from "./support/supabase";
 
 // Cualquier cifra de resultados: porcentajes reales («50 %»), recuentos o el total.
-const AGGREGATES = /\d\s?%|\d\s+votos?|en total/i;
+// D-044 (RESULTS-005): antes de votar el TOTAL de votos es público, pero nunca el reparto. Se prohíben
+// porcentajes (y, con ellos, cualquier cifra por opción); el total puede aparecer (RESULTS-006).
+const DISTRIBUTION = /\d[,.]?\d*\s?%/;
 
 async function ready(page: Page, path: string) {
   await page.goto(path);
@@ -26,7 +28,7 @@ test("visitante: navega por feed y detalle y sólo ve opciones, sin resultados",
   const card = page.locator("article", { hasText: question });
   await expect(card).toBeVisible();
   await expect(card).toContainText("Rojo");
-  await expect(card).not.toContainText(AGGREGATES);
+  await expect(card).not.toContainText(DISTRIBUTION);
   // Se vota desde la propia tarjeta (V2-033): opciones para elegir y confirmar, sin cifras.
   await expect(card.getByRole("button", { name: "Votar y descubrir" })).toBeVisible();
 
@@ -35,7 +37,7 @@ test("visitante: navega por feed y detalle y sólo ve opciones, sin resultados",
   await page.waitForLoadState("networkidle");
   await expect(page.getByRole("radio", { name: "Rojo" })).toBeVisible();
   await expect(page.getByRole("radio", { name: "Azul" })).toBeVisible();
-  await expect(page.locator("main")).not.toContainText(AGGREGATES);
+  await expect(page.locator("main")).not.toContainText(DISTRIBUTION);
   expect(await page.content()).not.toMatch(/"totalVotes"|"percentage"/);
 
   // Votar sin sesión pide iniciar sesión y no registra nada.
@@ -64,7 +66,7 @@ test("usuario de prueba crea una encuesta, aparece en el feed y otro usuario vot
   const pollId = new URL(page.url()).pathname.split("/").pop()!;
   await expect(page.getByRole("heading", { name: question })).toBeVisible();
   // El autor tampoco ve resultados antes de votar.
-  await expect(page.locator("main")).not.toContainText(AGGREGATES);
+  await expect(page.locator("main")).not.toContainText(DISTRIBUTION);
 
   await ready(page, "/");
   await expect(page.locator("article", { hasText: question })).toBeVisible();

@@ -29,7 +29,7 @@ La [guía de acceso a Supabase](supabase-acceso.md) contiene las URLs, dashboard
 | Usuario que ya votó | Consultar resultados de esa encuesta mientras siga publicada |
 | Operador de Supabase | Ocultar encuestas manualmente mediante herramientas administrativas |
 
-El autor no obtiene resultados por ser autor: también debe votar. No se publican email, nombre de Google ni identidades de los votantes. La interfaz muestra un autor genérico.
+El autor no obtiene resultados por ser autor: también debe votar. Antes de votar sólo es público el **número total de votos** (D-044, RESULTS-005), nunca el reparto por opción, los porcentajes ni la opción líder. No se publican email, nombre de Google ni identidades de los votantes. La interfaz muestra un autor genérico.
 
 ## Flujos principales
 

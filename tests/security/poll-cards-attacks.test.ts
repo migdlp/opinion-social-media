@@ -178,6 +178,7 @@ describe("get_poll_cards por HTTP", () => {
             "created_at",
             "description",
             "my_option_id",
+            "vote_count",
             "options",
             "poll_id",
             "question",

@@ -43,8 +43,8 @@ test("visitante: busca, la consulta queda en la URL, atrás/adelante la conserva
   await expect(results(page)).toHaveCount(1);
   await expect(page.locator("article", { hasText: question })).toBeVisible();
   await expect(searchBox(page)).toHaveValue(word);
-  // Los resultados de una abierta no traen cifras antes de votar.
-  await expect(page.locator("main")).not.toContainText(/\d\s?%|\d\s+votos?|en total/i);
+  // Los resultados de una abierta no traen el reparto antes de votar (D-044: el total sí puede verse).
+  await expect(page.locator("main")).not.toContainText(/\d[,.]?\d*\s?%/);
 
   await page.goto("/");
   await page.waitForLoadState("networkidle");
@@ -114,7 +114,7 @@ test("con resultados ya votados por otra persona, un visitante no ve sus cifras"
 
   await ready(page, `/search?q=${word}`);
   await expect(page.locator("article", { hasText: question })).toBeVisible();
-  await expect(page.locator("main")).not.toContainText(/\d\s?%|\d\s+votos?|en total/i);
+  await expect(page.locator("main")).not.toContainText(/\d[,.]?\d*\s?%/); // D-044: sin reparto
 });
 
 test("acceso: lupa en la barra móvil o enlace en la cabecera de escritorio", async ({

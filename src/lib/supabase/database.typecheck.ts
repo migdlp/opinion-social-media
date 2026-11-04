@@ -78,6 +78,14 @@ export type DatabaseContractChecks = [
       { poll_id: string; option_id: string; created_at: string }[]
     >
   >,
+  // RESULTS-005 (D-044): sólo el total; nunca reparto, líder ni porcentajes.
+  Assert<Equal<Public["Functions"]["get_poll_vote_counts"]["Args"], { p_poll_ids: string[] }>>,
+  Assert<
+    Equal<
+      Public["Functions"]["get_poll_vote_counts"]["Returns"],
+      { poll_id: string; total_votes: number }[]
+    >
+  >,
   Assert<Equal<Public["Functions"]["get_poll_results"]["Args"], { p_poll_id: string }>>,
   Assert<
     Equal<
@@ -159,6 +167,7 @@ export type DatabaseContractChecks = [
       | "author_username"
       | "author_display_name"
       | "comments_enabled"
+      | "vote_count"
       | "options"
       | "my_option_id"
       | "total_votes"
