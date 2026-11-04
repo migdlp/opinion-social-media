@@ -117,6 +117,7 @@ export type DatabaseContractChecks = [
         vote_visibility: string;
         avatar_icon: string | null;
         bio: string | null;
+        notifications_seen_at: string | null;
       }
     >
   >,
@@ -130,7 +131,13 @@ export type DatabaseContractChecks = [
   Assert<
     Equal<
       Public["Tables"]["follows"]["Row"],
-      { follower_id: string; followee_id: string; status: string; created_at: string }
+      {
+        follower_id: string;
+        followee_id: string;
+        status: string;
+        created_at: string;
+        accepted_at: string | null;
+      }
     >
   >,
   Assert<Equal<Public["Functions"]["follow_user"]["Args"], { p_username: string }>>,
@@ -399,4 +406,31 @@ export type ReportCommentRpcChecks = [
   >,
   Assert<Equal<Public["Functions"]["report_comment"]["Returns"], undefined>>,
   Assert<Equal<Public["Tables"]["comments"]["Row"]["status"], string>>,
+];
+
+// NOTIF-001: avisos de seguimiento calculados al leer; sin tabla ni user_id.
+export type NotificationsRpcChecks = [
+  Assert<Equal<Public["Functions"]["list_notifications"]["Args"], { p_cursor?: string }>>,
+  Assert<
+    Equal<
+      keyof Public["Functions"]["list_notifications"]["Returns"][number],
+      | "kind"
+      | "occurred_at"
+      | "is_unread"
+      | "actor_username"
+      | "actor_display_name"
+      | "actor_avatar_icon"
+      | "poll_id"
+      | "poll_question"
+      | "comment_id"
+      | "detail"
+      | "cursor"
+    >
+  >,
+  Assert<
+    Equal<Public["Functions"]["count_unread_notifications"]["Args"], Record<PropertyKey, never>>
+  >,
+  Assert<Equal<Public["Functions"]["count_unread_notifications"]["Returns"], number>>,
+  Assert<Equal<Public["Functions"]["mark_notifications_seen"]["Args"], Record<PropertyKey, never>>>,
+  Assert<Equal<Public["Functions"]["mark_notifications_seen"]["Returns"], undefined>>,
 ];

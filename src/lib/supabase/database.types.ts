@@ -185,6 +185,7 @@ export type Database = {
       };
       follows: {
         Row: {
+          accepted_at: string | null;
           created_at: string;
           followee_id: string;
           follower_id: string;
@@ -192,12 +193,14 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          accepted_at?: string | null;
           created_at?: string;
           followee_id: string;
           follower_id: string;
           status: string;
         };
         Update: {
+          accepted_at?: string | null;
           created_at?: string;
           followee_id?: string;
           follower_id?: string;
@@ -323,6 +326,7 @@ export type Database = {
           created_at: string;
           display_name: string | null;
           is_private: boolean;
+          notifications_seen_at: string | null;
           updated_at: string;
           user_id: string;
           username: string;
@@ -335,6 +339,7 @@ export type Database = {
           created_at?: string;
           display_name?: string | null;
           is_private?: boolean;
+          notifications_seen_at?: string | null;
           updated_at?: string;
           user_id: string;
           username: string;
@@ -346,6 +351,7 @@ export type Database = {
           created_at?: string;
           display_name?: string | null;
           is_private?: boolean;
+          notifications_seen_at?: string | null;
           updated_at?: string;
           user_id?: string;
           username?: string;
@@ -511,6 +517,7 @@ export type Database = {
       block_user: { Args: { p_username: string }; Returns: undefined };
       can_view_author: { Args: { p_author: string }; Returns: boolean };
       count_follow_requests: { Args: Record<PropertyKey, never>; Returns: number };
+      count_unread_notifications: { Args: Record<PropertyKey, never>; Returns: number };
       create_poll: {
         Args: {
           p_category?: string;
@@ -712,6 +719,23 @@ export type Database = {
           slug: string;
         }[];
       };
+      list_notifications: {
+        Args: { p_cursor?: string };
+        Returns: {
+          actor_avatar_icon: string;
+          actor_display_name: string;
+          actor_username: string;
+          comment_id: string;
+          cursor: string;
+          detail: string;
+          is_unread: boolean;
+          kind: string;
+          occurred_at: string;
+          poll_id: string;
+          poll_question: string;
+        }[];
+      };
+      mark_notifications_seen: { Args: Record<PropertyKey, never>; Returns: undefined };
       mute_user: { Args: { p_username: string }; Returns: undefined };
       remove_follower: { Args: { p_username: string }; Returns: undefined };
       report_comment: {

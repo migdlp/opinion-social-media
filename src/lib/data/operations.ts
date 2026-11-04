@@ -21,6 +21,8 @@ import type {
   FeedPage,
   FeedQuery,
   FollowPage,
+  NotificationKind,
+  NotificationPage,
   PollDetail,
   PollResults,
   PollViewerState,
@@ -1029,6 +1031,69 @@ export function listMyCategories(supabase: SupabaseClient): Promise<Result<Categ
     if (error) return { ok: false, error: toAppError(error) };
     const rows = (data ?? []) as { slug: string; name: string }[];
     return { ok: true, data: rows.map((row) => ({ slug: row.slug, name: row.name })) };
+  });
+}
+
+// Avisos de seguimiento (NOTIF-001): nuevos seguidores, solicitudes recibidas y solicitudes
+// aceptadas de los últimos 30 días, sin los de cuentas bloqueadas o silenciadas. 20 por página; la
+// RPC devuelve una fila más para saber si hay siguiente. Errores: AUTH_REQUIRED, PROFILE_REQUIRED,
+// INVALID_CURSOR.
+const NOTIFICATION_PAGE_SIZE = 20;
+const NOTIFICATION_KINDS = new Set<string>(["new_follower", "follow_request", "follow_accepted"]);
+
+export function listNotifications(
+  supabase: SupabaseClient,
+  cursor?: string | null,
+): Promise<Result<NotificationPage>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("list_notifications", { p_cursor: cursor ?? null });
+    if (error) return { ok: false, error: toAppError(error) };
+    const rows = (data ?? []) as {
+      kind: string;
+      occurred_at: string;
+      is_unread: boolean;
+      actor_username: string;
+      actor_display_name: string | null;
+      actor_avatar_icon: string | null;
+      cursor: string;
+    }[];
+    const page = rows
+      .slice(0, NOTIFICATION_PAGE_SIZE)
+      .filter((row) => NOTIFICATION_KINDS.has(row.kind));
+    const last = rows[NOTIFICATION_PAGE_SIZE - 1];
+    return {
+      ok: true,
+      data: {
+        items: page.map((row) => ({
+          kind: row.kind as NotificationKind,
+          occurredAt: row.occurred_at,
+          isUnread: row.is_unread,
+          actor: {
+            username: row.actor_username,
+            displayName: row.actor_display_name,
+            avatarIcon: parseAvatarIcon(row.actor_avatar_icon),
+          },
+        })),
+        nextCursor: rows.length > NOTIFICATION_PAGE_SIZE && last ? last.cursor : null,
+      },
+    };
+  });
+}
+
+// Avisos sin leer, con tope de 100 en el servidor (la interfaz muestra «99+»).
+export function countUnreadNotifications(supabase: SupabaseClient): Promise<Result<number>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("count_unread_notifications");
+    if (error) return { ok: false, error: toAppError(error) };
+    return { ok: true, data: Number(data ?? 0) };
+  });
+}
+
+// Marca todos los avisos actuales como vistos. Idempotente.
+export function markNotificationsSeen(supabase: SupabaseClient): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("mark_notifications_seen");
+    return error ? { ok: false, error: toAppError(error) } : { ok: true, data: undefined };
   });
 }
 

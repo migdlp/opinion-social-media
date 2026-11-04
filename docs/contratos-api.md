@@ -496,6 +496,31 @@ public.list_my_categories() returns table (slug text, name text)
 - `export_my_data` añade la clave `categorias_seguidas`; el borrado de cuenta elimina las filas (cascada).
 - Adaptadores: `followCategory` y `unfollowCategory` → `Result<void>`; `listMyCategories(supabase)` → `Result<Category[]>`. Tests: `supabase/tests/042_category_follows.test.sql`, `tests/security/category-follows-attacks.test.ts` y `src/lib/data/category-follows.test.ts`. La interfaz es FEED-007.
 
+### 3.26. Avisos de seguimiento (NOTIF-001)
+
+```sql
+public.list_notifications(p_cursor text default null) returns table (
+  kind text, occurred_at timestamptz, is_unread boolean,
+  actor_username text, actor_display_name text, actor_avatar_icon text,
+  poll_id uuid, poll_question text, comment_id uuid, detail text, cursor text)
+public.count_unread_notifications() returns integer
+public.mark_notifications_seen() returns void
+```
+
+- Migración aditiva `20261104160000_notifications.sql`. **Sin tabla de notificaciones** (D-047): los avisos se calculan al leer a partir de `follows`. Las tres RPC son sólo `authenticated`; errores `AUTH_REQUIRED` y después `PROFILE_REQUIRED`.
+- Tipos de aviso (`kind`), `actor_*` = la otra cuenta, nunca `user_id`:
+  - `new_follower`: alguien me sigue directamente (mi cuenta es pública). `occurred_at = accepted_at`.
+  - `follow_request`: solicitud **pendiente** hacia mí. `occurred_at = created_at`.
+  - `follow_accepted`: una cuenta privada aceptó **mi** solicitud (relación aceptada con `accepted_at > created_at`). Un seguimiento directo propio no genera este aviso. Aceptar una solicitud no genera `new_follower` a quien acepta.
+  - `poll_id`, `poll_question`, `comment_id` y `detail` van siempre `null` en esta entrega; los rellenarán NOTIF-002, CMT-004 y MOD-005.
+- Ventana de 30 días. Se excluyen las cuentas bloqueadas **en cualquier sentido** y las que he silenciado (§3.23). Un rechazo no avisa a nadie y la solicitud desaparece; dejar de seguir retira el aviso.
+- Orden `occurred_at desc, kind asc, lower(username) asc`; se devuelven **21** filas (el cliente muestra 20 y usa el cursor de la 20ª). Cursor opaco `<occurred_at UTC>|<kind>|<usuario en minúsculas>`; ilegible, con un tipo desconocido o con el usuario vacío → `INVALID_CURSOR`.
+- `is_unread = occurred_at > profiles.notifications_seen_at` (nulo = todo sin leer). `count_unread_notifications` cuenta sólo sin leer y se **acota a 100** (la interfaz muestra «99+»). `mark_notifications_seen` fija la marca a `now()` en el perfil propio; idempotente. La columna `profiles.notifications_seen_at` no tiene ningún GRANT: ni se lee ni se escribe desde clientes.
+- **`follows.accepted_at`** (nueva, `timestamptz` nula): momento en que la relación pasó a aceptada. Se fija en `follow_user` (cuenta pública: igual a `created_at`), en `respond_follow_request` (aceptar) y en `set_profile_privacy` (al pasar a pública acepta las pendientes). Las filas existentes conservan `created_at` y reciben `accepted_at = created_at`. Los tres cuerpos se recrean con el mismo comportamiento previo; sólo se añade esa columna. Defensivamente, una fila aceptada sin `accepted_at` se trata como directa con `created_at`. Índices nuevos `follows (followee_id, created_at desc)` y `follows (follower_id, accepted_at desc) where status = 'accepted'`.
+- **Rendimiento** (medido en local, PostgreSQL de CI, 1000 seguidores y 1000 seguidos): `list_notifications` ≈ 4 ms de media (50 ejecuciones), `count_unread_notifications` ≈ 1 ms; por debajo de los 20 ms de la ficha.
+- Adaptadores: `listNotifications(supabase, cursor)` → `Result<NotificationPage>` (`items: AppNotification[]`, `nextCursor`, 20 por página), `countUnreadNotifications(supabase)` → `Result<number>` y `markNotificationsSeen(supabase)` → `Result<void>`. Tests: `supabase/tests/043_notifications.test.sql`, `tests/security/notifications-attacks.test.ts` y `src/lib/data/notifications.test.ts`. La interfaz es NOTIF-002.
+- Quien amplíe estas funciones (NOTIF-002, CMT-004, MOD-005) debe partir de la versión de `main` de `follow_user`, `respond_follow_request`, `set_profile_privacy` y `private.notification_events`.
+
 ## 4. Lecturas directas (RLS)
 
 `categories` (V2-021) es de lectura pública (`slug, name, position`) y sin escrituras de clientes; el formulario de creación la lee con `getCategories`. Feed y detalle incluyen `category:categories(slug, name)`.
