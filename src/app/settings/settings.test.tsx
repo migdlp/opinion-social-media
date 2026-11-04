@@ -11,6 +11,10 @@ vi.mock("@/lib/supabase/server", () => ({
 }));
 vi.mock("@/lib/data/operations", () => ({ getMyProfile, getMyVoteVisibility, listBlockedUsers }));
 vi.mock("@/app/block-actions", () => ({ unblockAction: vi.fn(), loadMoreBlocked: vi.fn() }));
+vi.mock("@/app/account-actions", () => ({
+  deleteAccountAction: vi.fn(),
+  reconcileAccountDeletionAction: vi.fn(),
+}));
 vi.mock("@/app/export-actions", () => ({ exportDataAction: vi.fn() }));
 vi.mock("@/app/auth/actions", () => ({ signOut: vi.fn() }));
 vi.mock("@/app/profile-actions", () => ({
