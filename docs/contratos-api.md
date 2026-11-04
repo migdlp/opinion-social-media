@@ -549,6 +549,18 @@ public.search_users(p_query text, p_cursor text default null)
 - **Rendimiento** (medido en local, PostgreSQL de CI, 10 001 perfiles): 3–6 ms de media (30 ejecuciones) para consultas de 3 o más caracteres y ≈ 13 ms para una de 2 caracteres, que no puede usar el índice trigram; por debajo de los 20 ms de la ficha.
 - Adaptador: `searchUsers(supabase, query, cursor)` → `Result<UserSearchPage>` (`users: UserHit[]`, `nextCursor`, 20 por página) con `UserHit = { username, displayName, avatarIcon, isPrivate }`. Tests: `supabase/tests/045_search_users.test.sql`, `tests/security/search-users-attacks.test.ts` y `src/lib/data/search-users.test.ts`. La interfaz es SEARCH-004.
 
+### 3.29. Borrar una encuesta propia (POLL-004)
+
+```sql
+public.delete_my_poll(p_poll_id uuid) returns void
+```
+
+- Migración aditiva `20261104190000_delete_my_poll.sql`. Sólo `authenticated`, `SECURITY DEFINER`. Errores: `AUTH_REQUIRED` y `POLL_UNAVAILABLE` (inexistente, ajena, **oculta por moderación** o `null`, sin distinguir). Ningún cliente tiene `DELETE` sobre `polls`; la RPC hace `delete from polls where id = p_poll_id and user_id = auth.uid() and status = 'published'` y, si no borra ninguna fila, `POLL_UNAVAILABLE`.
+- Borrado **físico e inmediato** (D-046), sin papelera ni deshacer. Por `ON DELETE CASCADE` desaparecen `poll_options`, `votes`, `comments` (y sus `comment_reports`), `saved_polls`, `dismissed_polls` y `poll_reports`. El test `046` comprueba que **toda** clave foránea hacia `polls` es `cascade` o `set null`, así que una tabla futura que la incumpla (rankings, fijada…) hace fallar la batería. Una encuesta cerrada también se puede borrar si sigue publicada.
+- **Votos concurrentes**: `vote_poll` se recrea (mismo cuerpo que `20261028190000_private_visibility.sql`) y comprueba la encuesta con `FOR KEY SHARE`: un voto en curso retrasa el borrado y el voto se borra con la cascada, y un voto que llega con el borrado en curso espera y recibe `POLL_UNAVAILABLE`. Sin esto, el `INSERT` chocaba con la FK al confirmarse el borrado y la interfaz veía `UNKNOWN`. Nunca queda un voto huérfano (`scripts/db-concurrency-local.sh`, dos escenarios).
+- Storage: hoy las encuestas no tienen archivos. MEDIA-002 (#289) deberá borrar los objetos asociados al borrar la encuesta.
+- Adaptador: `deleteMyPoll(supabase, pollId)` → `Result<void>`. Tests: `supabase/tests/046_delete_my_poll.test.sql`, `tests/security/delete-poll-attacks.test.ts` y `src/lib/data/delete-poll.test.ts`. La interfaz es POLL-005. Documentado en `docs/moderacion.md` y `docs/legal/inventario-tratamientos.md`.
+
 ## 4. Lecturas directas (RLS)
 
 `categories` (V2-021) es de lectura pública (`slug, name, position`) y sin escrituras de clientes; el formulario de creación la lee con `getCategories`. Feed y detalle incluyen `category:categories(slug, name)`.

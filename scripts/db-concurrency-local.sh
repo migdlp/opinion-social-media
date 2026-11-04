@@ -66,4 +66,42 @@ events=$(sql "select count(*) from public.data_export_events where user_id = '$A
 echo "export_my_data x$N: OK=$ok DATA_EXPORT_RATE_LIMITED=$limited → eventos=$events"
 if [ "$events" -ne 1 ] || [ "$ok" -ne 1 ] || [ "$limited" -ne $((N - 1)) ]; then echo "FALLO: se esquivó el límite de exportaciones"; exit 1; fi
 
+# POLL-004: N votos simultáneos mientras la autora borra la encuesta. Cada voto termina OK (y se borra
+# con la cascada) o POLL_UNAVAILABLE; nunca una violación de FK ni un voto huérfano.
+Q=60000000-0000-0000-0000-000000000001
+sql "insert into public.polls (id, user_id, question) values ('$Q', '$B', '¿Encuesta a borrar con votos?');
+     insert into public.poll_options (poll_id, text, position) values ('$Q', 'A', 1), ('$Q', 'B', 2);"
+OQ=$(sql "select id from public.poll_options where poll_id = '$Q' and position = 1")
+out=$( { for i in $(seq 1 "$N"); do call "50000000-0000-0000-0000-$(printf '%012d' "$i")" "select * from public.vote_poll('$Q', '$OQ')" & done; call "$B" "select public.delete_my_poll('$Q')" & wait; } )
+okv=$(grep -c '^OK$' <<<"$out" || true); gone=$(grep -c 'POLL_UNAVAILABLE' <<<"$out" || true)
+polls=$(sql "select count(*) from public.polls where id = '$Q'")
+orphans=$(sql "select (select count(*) from public.votes where poll_id = '$Q') + (select count(*) from public.poll_options where poll_id = '$Q')")
+other=$(grep -ciE 'foreign key|violates|UNKNOWN|ERROR' <<<"$out" | tr -d ' ' || true); other=$((other - gone))
+echo "delete_my_poll con $N votos: OK(votos+borrado)=$okv POLL_UNAVAILABLE=$gone → encuestas=$polls, filas huérfanas=$orphans"
+if [ "$polls" -ne 0 ] || [ "$orphans" -ne 0 ] || [ "$((okv + gone))" -ne $((N + 1)) ] || grep -qiE 'foreign key|violates' <<<"$out"; then echo "FALLO: borrado concurrente con votos"; exit 1; fi
+
+# POLL-004, orden determinista: el borrado tiene la fila bloqueada (sin confirmar) cuando llega un voto.
+# Con la comprobación antigua de vote_poll el INSERT chocaba con la FK al confirmarse el borrado;
+# ahora el voto espera y recibe POLL_UNAVAILABLE.
+Q2=60000000-0000-0000-0000-000000000002
+sql "insert into public.polls (id, user_id, question) values ('$Q2', '$B', '¿Encuesta borrada con un voto en espera?');
+     insert into public.poll_options (poll_id, text, position) values ('$Q2', 'A', 1), ('$Q2', 'B', 2);"
+OQ2=$(sql "select id from public.poll_options where poll_id = '$Q2' and position = 1")
+out=$( {
+  psql -X -q -tA -d "$DB" 2>&1 <<SQL &
+begin;
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"$B","role":"authenticated"}', true);
+select 'OK' from (select public.delete_my_poll('$Q2')) x;
+select pg_sleep(1.0);
+commit;
+SQL
+  sleep 0.4
+  call "50000000-0000-0000-0000-$(printf '%012d' 1)" "select * from public.vote_poll('$Q2', '$OQ2')" &
+  wait; } )
+gone=$(grep -c 'POLL_UNAVAILABLE' <<<"$out" || true)
+left=$(sql "select (select count(*) from public.polls where id = '$Q2') + (select count(*) from public.votes where poll_id = '$Q2')")
+echo "voto en espera durante el borrado: POLL_UNAVAILABLE=$gone → filas restantes=$left"
+if [ "$gone" -ne 1 ] || [ "$left" -ne 0 ] || grep -qiE 'foreign key|violates' <<<"$out"; then echo "FALLO: voto tras borrado concurrente"; exit 1; fi
+
 echo "ok concurrencia"
