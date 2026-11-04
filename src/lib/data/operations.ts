@@ -959,6 +959,51 @@ export function listMutedUsers(
   });
 }
 
+// «No me interesa» (FEED-003): la encuesta deja de salir en el feed de quien la descarta y en nada
+// más; es privado y no altera votos ni agregados. Idempotente. Errores: POLL_UNAVAILABLE (inexistente,
+// oculta o privada sin permiso, sin distinguirlas), CANNOT_DISMISS_OWN, AUTH_REQUIRED.
+export function dismissPoll(supabase: SupabaseClient, pollId: string): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("dismiss_poll", { p_poll_id: pollId });
+    return error ? { ok: false, error: toAppError(error) } : { ok: true, data: undefined };
+  });
+}
+
+// Quita sólo el descarte propio. Idempotente.
+export function undismissPoll(supabase: SupabaseClient, pollId: string): Promise<Result<void>> {
+  return guard(async () => {
+    const { error } = await supabase.rpc("undismiss_poll", { p_poll_id: pollId });
+    return error ? { ok: false, error: toAppError(error) } : { ok: true, data: undefined };
+  });
+}
+
+export const DISMISSED_PAGE_SIZE = 20;
+
+// Encuestas descartadas por la sesión, de más reciente a más antigua, sólo las aún visibles. El
+// servidor entrega hasta 21 filas: se conservan 20 y el cursor de la última visible. Errores:
+// AUTH_REQUIRED, INVALID_CURSOR.
+export function listDismissedPolls(
+  supabase: SupabaseClient,
+  cursor?: string | null,
+): Promise<Result<{ pollIds: string[]; nextCursor: string | null }>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("list_dismissed_polls", {
+      p_cursor: cursor ?? null,
+    });
+    if (error) return { ok: false, error: toAppError(error) };
+    const rows = (data ?? []) as { poll_id: string; cursor: string }[];
+    const page = rows.slice(0, DISMISSED_PAGE_SIZE);
+    const last = page[page.length - 1];
+    return {
+      ok: true,
+      data: {
+        pollIds: page.map((row) => row.poll_id),
+        nextCursor: rows.length > DISMISSED_PAGE_SIZE && last ? last.cursor : null,
+      },
+    };
+  });
+}
+
 // Fija, cambia o vacía (null o vacío) la biografía propia, de 0 a 280 caracteres de texto plano.
 // Errores: BIO_INVALID, AUTH_REQUIRED, PROFILE_REQUIRED. La recorta y valida el backend.
 export function setProfileBio(supabase: SupabaseClient, bio: string | null): Promise<Result<void>> {
