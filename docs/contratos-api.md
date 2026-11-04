@@ -521,6 +521,18 @@ public.mark_notifications_seen() returns void
 - Adaptadores: `listNotifications(supabase, cursor)` → `Result<NotificationPage>` (`items: AppNotification[]`, `nextCursor`, 20 por página), `countUnreadNotifications(supabase)` → `Result<number>` y `markNotificationsSeen(supabase)` → `Result<void>`. Tests: `supabase/tests/043_notifications.test.sql`, `tests/security/notifications-attacks.test.ts` y `src/lib/data/notifications.test.ts`. La interfaz es NOTIF-002.
 - Quien amplíe estas funciones (NOTIF-002, CMT-004, MOD-005) debe partir de la versión de `main` de `follow_user`, `respond_follow_request`, `set_profile_privacy` y `private.notification_events`.
 
+### 3.27. Avisos de cierre de encuestas (NOTIF-002)
+
+- Migración aditiva `20261104170000_notifications_poll_closed.sql`. Sin funciones públicas nuevas (el inventario de `008` no cambia): se **recrean** `list_notifications`, `count_unread_notifications` (mismas firmas y columnas que §3.26) y `private.notification_events` (gana `poll_id` y `poll_question`; su tipo de retorno cambia y por eso se elimina y se vuelve a crear). Índice parcial nuevo `polls_closes_at_idx (closes_at) where status = 'published' and closes_at is not null`.
+- Dos tipos de `kind` nuevos, con `closes_at` en `(now() - 30 días, now()]` y la encuesta en `published`; `occurred_at = closes_at`; `poll_id` y `poll_question` informados y `actor_*` a `null`:
+  - `poll_closed`: encuesta **ajena** en la que voté y cuyo autor puedo ver (sin bloqueo en ningún sentido; cuenta pública o seguida con relación aceptada; una solicitud pendiente no cuenta).
+  - `my_poll_closed`: encuesta **mía**, la haya votado o no. Si la voté, sólo sale este tipo, nunca los dos.
+- Un cierre futuro, una encuesta oculta o borrada, una sin cierre, una cerrada hace más de 30 días o la de una cuenta que pasó a privada (sin relación aceptada) no avisan. **No se calcula ni se devuelve ningún resultado ni agregado**: el aviso sólo enlaza a la encuesta.
+- Cursor: el tercer segmento es el id de la encuesta (en vez del @usuario) para los dos tipos nuevos; el cursor admite ya los cinco `kind`. Orden `occurred_at desc, kind asc, ref asc`.
+- Entran en el contador y se marcan como vistos como el resto.
+- **Rendimiento** (medido en local, PostgreSQL de CI; 5000 encuestas, la mitad cerradas en la ventana, 50 autores distintos, 2455 votos propios en ellas, caso extremo): `list_notifications` ≈ 7 ms y `count_unread_notifications` ≈ 4 ms de media (30 ejecuciones). La visibilidad del autor se resuelve una vez por autor distinto, en una sola pasada y con las reglas de `can_view_author`, que costaba ≈ 1 ms por llamada (≈ 45 ms con el mismo caso).
+- Adaptadores: `AppNotification.actor` pasa a ser `null` y se añade `poll: { id, question } | null`; `NotificationKind` suma `poll_closed` y `my_poll_closed`. Tests: `supabase/tests/044_notifications_closed.test.sql`, bloque «avisos de cierre» de `tests/security/notifications-attacks.test.ts` y `src/lib/data/notifications.test.ts`. La interfaz de avisos es NOTIF-003.
+
 ## 4. Lecturas directas (RLS)
 
 `categories` (V2-021) es de lectura pública (`slug, name, position`) y sin escrituras de clientes; el formulario de creación la lee con `getCategories`. Feed y detalle incluyen `category:categories(slug, name)`.

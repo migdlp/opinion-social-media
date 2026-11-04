@@ -32,12 +32,14 @@ describe("listNotifications (NOTIF-001)", () => {
             occurredAt: "2026-11-04T10:59:00Z",
             isUnread: true,
             actor: { username: "user_0", displayName: null, avatarIcon: "sol" },
+            poll: null,
           },
           {
             kind: "follow_request",
             occurredAt: "2026-11-04T10:58:00Z",
             isUnread: true,
             actor: { username: "user_1", displayName: "Nombre 1", avatarIcon: null },
+            poll: null,
           },
         ],
         nextCursor: null,
@@ -67,12 +69,40 @@ describe("listNotifications (NOTIF-001)", () => {
     expect(result.ok && result.data.nextCursor).toBeNull();
   });
 
+  it("los avisos de cierre llevan la encuesta y ningún actor, sin agregados", async () => {
+    const closed = (kind: string) => ({
+      ...row(5, kind),
+      actor_username: null,
+      actor_display_name: null,
+      actor_avatar_icon: null,
+      poll_id: "20000000-0000-0000-0000-000000000001",
+      poll_question: "¿Cerrada hace una hora?",
+    });
+    const { supabase } = fakeSupabase({
+      "rpc:list_notifications": {
+        data: [closed("poll_closed"), closed("my_poll_closed")],
+        error: null,
+      },
+    });
+    const result = await listNotifications(supabase);
+    expect(result.ok && result.data.items).toEqual(
+      ["poll_closed", "my_poll_closed"].map((kind) => ({
+        kind,
+        occurredAt: "2026-11-04T10:54:00Z",
+        isUnread: false,
+        actor: null,
+        poll: { id: "20000000-0000-0000-0000-000000000001", question: "¿Cerrada hace una hora?" },
+      })),
+    );
+    expect(JSON.stringify(result)).not.toMatch(/votes|percentage|totalVotes/);
+  });
+
   it("descarta tipos desconocidos y no repite user_id", async () => {
     const { supabase } = fakeSupabase({
       "rpc:list_notifications": { data: [row(0, "otro_tipo"), row(1)], error: null },
     });
     const result = await listNotifications(supabase);
-    expect(result.ok && result.data.items.map((i) => i.actor.username)).toEqual(["user_1"]);
+    expect(result.ok && result.data.items.map((i) => i.actor?.username)).toEqual(["user_1"]);
     expect(JSON.stringify(result)).not.toContain("user_id");
   });
 

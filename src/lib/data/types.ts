@@ -210,13 +210,24 @@ export type VoteVisibility = "private" | "followers" | "profile";
 
 // Aviso de seguimiento (NOTIF-001, D-047): calculado al leer, sin identificador propio. Nunca
 // incluye user_id; el actor se identifica por su @usuario.
-export type NotificationKind = "new_follower" | "follow_request" | "follow_accepted";
+export type FollowNotificationKind = "new_follower" | "follow_request" | "follow_accepted";
+export type PollNotificationKind = "poll_closed" | "my_poll_closed";
+export type NotificationKind = FollowNotificationKind | PollNotificationKind;
+
+// poll_closed y my_poll_closed (NOTIF-002) no tienen actor y llevan la encuesta (sin resultados);
+// los de seguimiento llevan actor y no llevan encuesta.
+export interface NotificationActor {
+  username: string;
+  displayName: string | null;
+  avatarIcon: AvatarIcon | null;
+}
 
 export interface AppNotification {
   kind: NotificationKind;
   occurredAt: string;
   isUnread: boolean;
-  actor: { username: string; displayName: string | null; avatarIcon: AvatarIcon | null };
+  actor: NotificationActor | null;
+  poll: { id: string; question: string } | null;
 }
 
 export interface NotificationPage {

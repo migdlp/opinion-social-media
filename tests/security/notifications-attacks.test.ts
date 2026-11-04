@@ -205,3 +205,106 @@ describe("aceptación", () => {
     expect(await list(loud)).toEqual([]);
   });
 });
+
+// NOTIF-002: avisos de cierre. Las encuestas se siembran abiertas (un disparador rechaza votar tras el
+// cierre) y se cierran después.
+describe("avisos de cierre de encuestas", () => {
+  async function closedPoll(owner: Account, voters: Account[], question: string, hidden = false) {
+    const created = await admin
+      .from("polls")
+      .insert({ user_id: owner.id, question, status: hidden ? "hidden" : "published" })
+      .select("id")
+      .single();
+    if (created.error) throw created.error;
+    const id = created.data.id as string;
+    const options = await admin
+      .from("poll_options")
+      .insert([
+        { poll_id: id, text: "Sí", position: 1 },
+        { poll_id: id, text: "No", position: 2 },
+      ])
+      .select("id, position");
+    if (options.error) throw options.error;
+    const first = options.data.find((o) => o.position === 1)!.id;
+    for (const voter of voters) {
+      const v = await admin
+        .from("votes")
+        .insert({ poll_id: id, option_id: first, user_id: voter.id });
+      if (v.error) throw v.error;
+    }
+    // created_at por defecto es now(): el cierre debe ser posterior, así que se retrasa la creación.
+    const closed = await admin
+      .from("polls")
+      .update({
+        created_at: new Date(Date.now() - 3 * 3600_000).toISOString(),
+        closes_at: new Date(Date.now() - 3600_000).toISOString(),
+      })
+      .eq("id", id);
+    if (closed.error) throw closed.error;
+    return id;
+  }
+
+  let author: Account, voter: Account, stranger: Account, privateAuthor: Account;
+  let open: string, secret: string, hiddenPoll: string;
+
+  beforeAll(async () => {
+    [author, voter, stranger, privateAuthor] = await Promise.all([
+      account("autora-cierre"),
+      account("vota-cierre"),
+      account("ajena-cierre"),
+      account("privada-cierre", true),
+    ]);
+    open = await closedPoll(author, [voter], "¿Encuesta cerrada de la autora?");
+    secret = await closedPoll(privateAuthor, [voter], "¿Encuesta cerrada de una privada?");
+    hiddenPoll = await closedPoll(author, [voter], "¿Encuesta cerrada y oculta?", true);
+  }, 90_000);
+
+  it("quien votó recibe poll_closed con pregunta y sin ningún agregado ni actor", async () => {
+    const r = await rpc("list_notifications", {}, voter.token);
+    expect(r.status).toBe(200);
+    const closed = r.data.filter((n: { kind: string }) => n.kind === "poll_closed");
+    expect(closed.map((n: { poll_id: string }) => n.poll_id)).toEqual([open]);
+    expect(closed[0].poll_question).toBe("¿Encuesta cerrada de la autora?");
+    expect(closed[0].actor_username).toBeNull();
+    expect(r.text).not.toMatch(/votes|percentage|total|user_id|option/i);
+    expect(Object.keys(closed[0]).sort()).toEqual(
+      [
+        "actor_avatar_icon",
+        "actor_display_name",
+        "actor_username",
+        "comment_id",
+        "cursor",
+        "detail",
+        "is_unread",
+        "kind",
+        "occurred_at",
+        "poll_id",
+        "poll_question",
+      ].sort(),
+    );
+  });
+
+  it("la autora recibe my_poll_closed y no poll_closed; la oculta no avisa a nadie", async () => {
+    const r = await rpc("list_notifications", {}, author.token);
+    const mine = r.data.filter((n: { poll_id: string | null }) => n.poll_id !== null);
+    expect(mine.map((n: { kind: string }) => n.kind)).toEqual(["my_poll_closed"]);
+    expect(mine[0].poll_id).toBe(open);
+    const all = JSON.stringify((await rpc("list_notifications", {}, voter.token)).data);
+    expect(all).not.toContain(hiddenPoll);
+  });
+
+  it("una cuenta privada no avisa a quien no la sigue; una ajena no recibe ningún cierre", async () => {
+    const r = await rpc("list_notifications", {}, voter.token);
+    expect(JSON.stringify(r.data)).not.toContain(secret);
+    const stranger_ = await rpc("list_notifications", {}, stranger.token);
+    expect(stranger_.data.filter((n: { poll_id: string | null }) => n.poll_id !== null)).toEqual(
+      [],
+    );
+  });
+
+  it("el contador incluye los cierres y desaparece al marcar como visto", async () => {
+    expect((await rpc("count_unread_notifications", {}, voter.token)).data).toBe(1);
+    expect((await rpc("mark_notifications_seen", {}, voter.token)).status).toBe(204);
+    expect((await rpc("count_unread_notifications", {}, voter.token)).data).toBe(0);
+  });
+});
