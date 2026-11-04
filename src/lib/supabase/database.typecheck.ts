@@ -277,6 +277,25 @@ export type UserBlocksRpcChecks = [
   >,
 ];
 
+// SOCIAL-003 (D-050): silenciar cuentas; la tabla sólo se gestiona con las RPC de la lista propia.
+export type UserMutesRpcChecks = [
+  Assert<Equal<Public["Functions"]["mute_user"]["Args"], { p_username: string }>>,
+  Assert<Equal<Public["Functions"]["mute_user"]["Returns"], undefined>>,
+  Assert<Equal<Public["Functions"]["unmute_user"]["Args"], { p_username: string }>>,
+  Assert<Equal<Public["Functions"]["unmute_user"]["Returns"], undefined>>,
+  Assert<Equal<Public["Functions"]["list_muted_users"]["Args"], { p_cursor?: string }>>,
+  Assert<
+    Equal<
+      Public["Functions"]["list_muted_users"]["Returns"][number],
+      { cursor: string; display_name: string; username: string }
+    >
+  >,
+  Assert<
+    Equal<keyof Public["Tables"]["user_mutes"]["Row"], "muted_id" | "muter_id" | "created_at">
+  >,
+  Assert<Equal<Public["Functions"]["get_profile"]["Returns"][number]["is_muted"], boolean>>,
+];
+
 // SEARCH-001: búsqueda por pregunta; sólo ids, fecha y cursor (sin recuentos).
 export type SearchPollsRpcChecks = [
   Assert<

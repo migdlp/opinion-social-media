@@ -361,6 +361,25 @@ export type Database = {
         };
         Relationships: [];
       };
+      user_mutes: {
+        Row: {
+          created_at: string;
+          muted_id: string;
+          muter_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          muted_id: string;
+          muter_id: string;
+        };
+        Update: {
+          created_at?: string;
+          muted_id?: string;
+          muter_id?: string;
+        };
+        Relationships: [];
+      };
       user_reports: {
         Row: {
           created_at: string;
@@ -540,6 +559,7 @@ export type Database = {
           display_name: string;
           followers_count: number;
           following_count: number;
+          is_muted: boolean;
           is_private: boolean;
           polls_count: number;
           username: string;
@@ -613,6 +633,15 @@ export type Database = {
           username: string;
         }[];
       };
+      list_muted_users: {
+        Args: { p_cursor?: string };
+        Returns: {
+          cursor: string;
+          display_name: string;
+          username: string;
+        }[];
+      };
+      mute_user: { Args: { p_username: string }; Returns: undefined };
       remove_follower: { Args: { p_username: string }; Returns: undefined };
       report_comment: {
         Args: { p_comment_id: string; p_details?: string; p_reason: string };
@@ -645,6 +674,7 @@ export type Database = {
       set_vote_visibility: { Args: { p_visibility: string }; Returns: undefined };
       unblock_user: { Args: { p_username: string }; Returns: undefined };
       unfollow_user: { Args: { p_username: string }; Returns: undefined };
+      unmute_user: { Args: { p_username: string }; Returns: undefined };
       upsert_my_profile: {
         Args: { p_display_name: string; p_username: string };
         Returns: {
