@@ -20,6 +20,7 @@ function pollRow(
     question: `¿Pregunta número ${n}?`,
     created_at: createdAt,
     closes_at: null as string | null,
+    category: null as { slug: string; name: string } | null,
     poll_options: [
       { id: uuid(1000 + n * 2), text: "Sí", position: 1 },
       { id: uuid(1001 + n * 2), text: "No", position: 2 },
@@ -56,7 +57,7 @@ describe("getFeedPolls (MVP-018)", () => {
     expect(target).toBe("polls");
     const select = calls.find(([m]) => m === "select")?.[1] as string;
     expect(select.replace(/\s/g, "")).toBe(
-      "id,question,created_at,closes_at,poll_options(id,text,position)",
+      "id,question,created_at,closes_at,category:categories(slug,name),poll_options(id,text,position)",
     );
     expect(select).not.toMatch(/user_id|status|votes|\*/);
     expect(calls).toContainEqual(["order", "created_at", { ascending: false }]);
@@ -89,6 +90,7 @@ describe("getFeedPolls (MVP-018)", () => {
       createdAt: rows[0].created_at,
       author: null,
       closesAt: null,
+      category: null,
       options: rows[0].poll_options,
     });
   });
@@ -148,13 +150,14 @@ describe("getPublicPoll (MVP-019)", () => {
         createdAt: row.created_at,
         author: null,
         closesAt: null,
+        category: null,
         options: row.poll_options,
       },
     });
     const { calls } = queries[0];
     const select = calls.find(([m]) => m === "select")?.[1] as string;
     expect(select.replace(/\s/g, "")).toBe(
-      "id,question,created_at,closes_at,poll_options(id,text,position)",
+      "id,question,created_at,closes_at,category:categories(slug,name),poll_options(id,text,position)",
     );
     expect(calls).toContainEqual(["eq", "id", row.id]);
     expect(calls.some(([m]) => m === "maybeSingle")).toBe(true);
@@ -219,7 +222,9 @@ describe("closes_at (V2-013)", () => {
     });
     const res = await getFeedPolls(supabase);
     const select = queries[0].calls.find(([m]) => m === "select")?.[1] as string;
-    expect(select).toBe("id, question, created_at, closes_at, poll_options(id, text, position)");
+    expect(select).toBe(
+      "id, question, created_at, closes_at, category:categories(slug, name), poll_options(id, text, position)",
+    );
     expect(res.ok && res.data.polls.map((p) => p.closesAt)).toEqual([
       "2026-10-28T10:00:00+00:00",
       null,
@@ -286,5 +291,24 @@ describe("autores (V2-003)", () => {
       "rpc:get_poll_authors": { data: null, error: { code: "42501", message: "denied" } },
     });
     expect(await getFeedPolls(supabase)).toEqual({ ok: false, error: "AUTH_REQUIRED" });
+  });
+});
+
+describe("categoría (V2-021)", () => {
+  it("devuelve la categoría de cada encuesta, o null sin ella", async () => {
+    const withCategory = { ...pollRow(1), category: { slug: "deportes", name: "Deportes" } };
+    const { supabase } = fakeClient({ polls: { data: [withCategory, pollRow(2)], error: null } });
+    const res = await getFeedPolls(supabase);
+    expect(res.ok && res.data.polls.map((p) => p.category)).toEqual([
+      { slug: "deportes", name: "Deportes" },
+      null,
+    ]);
+  });
+
+  it("el detalle incluye la categoría", async () => {
+    const row = { ...pollRow(1), category: { slug: "ciencia", name: "Ciencia" } };
+    const { supabase } = fakeClient({ polls: { data: row, error: null } });
+    const res = await getPublicPoll(supabase, uuid(1));
+    expect(res.ok && res.data.category).toEqual({ slug: "ciencia", name: "Ciencia" });
   });
 });

@@ -23,19 +23,35 @@ type PollVotingProps = {
   loadOwnVote?: (pollId: string) => Promise<Result<PollResultsData | null>>;
   // Cerrada (V2-013): no se ofrece el selector de voto. Quien ya votó sigue viendo sus resultados.
   closed?: boolean;
+  // Opción marcada de antemano al volver del login (V2-033); se ignora si no es de esta encuesta. Nunca
+  // emite el voto: hay que confirmar.
+  initialSelected?: string | null;
 };
+
+// Evento de ventana tras un voto correcto (CMT-002): el debate del detalle, que se abre al votar,
+// escucha este evento para refrescarse. Evita pasar funciones desde componentes de servidor.
+export const VOTED_EVENT = "opinion:voted";
 
 // Votar en una encuesta: elegir, confirmar y ver los resultados. Quien no ha votado sólo
 // recibe las opciones: los resultados llegan únicamente al votar (o si ya había votado).
 // Un visitante, o una sesión caducada, ve la petición de iniciar sesión y vuelve aquí;
 // nunca se envía un voto sin confirmación posterior.
-export function PollVoting({ poll, viewer, castVote, loadOwnVote, closed }: PollVotingProps) {
+export function PollVoting({
+  poll,
+  viewer,
+  castVote,
+  loadOwnVote,
+  closed,
+  initialSelected,
+}: PollVotingProps) {
   const [results, setResults] = useState<PollResultsData | null>(
-    viewer.kind === "voted" ? viewer.results : null,
+    viewer.kind === "voted" || viewer.kind === "closed" ? viewer.results : null,
   );
   // Sólo se anima la revelación de un voto emitido ahora, no unos resultados ya conocidos.
   const [justVoted, setJustVoted] = useState(false);
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(
+    poll.options.some((option) => option.id === initialSelected) ? (initialSelected ?? null) : null,
+  );
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<AppErrorCode | null>(null);
   const [needsLogin, setNeedsLogin] = useState(false);
@@ -45,8 +61,12 @@ export function PollVoting({ poll, viewer, castVote, loadOwnVote, closed }: Poll
 
   if (results) {
     return (
-      <div aria-live="polite">
-        <PollResults results={results} animate={justVoted} showMatch />
+      <div aria-live="polite" className={justVoted ? "reveal-results" : undefined}>
+        <PollResults
+          results={results}
+          animate={justVoted}
+          showMatch={results.myOptionId !== null}
+        />
       </div>
     );
   }
@@ -101,10 +121,14 @@ export function PollVoting({ poll, viewer, castVote, loadOwnVote, closed }: Poll
     if (result.ok) {
       setJustVoted(true);
       setResults(result.data);
+      window.dispatchEvent(new CustomEvent(VOTED_EVENT, { detail: { pollId: poll.id } }));
     } else if (result.error === "AUTH_REQUIRED") setNeedsLogin(true);
     else if (result.error === "PROFILE_REQUIRED") setNeedsProfile(true);
     else setError(result.error);
   }
+
+  // Vuelve a la encuesta con la opción elegida marcada, pero sin votarla.
+  const returnTo = `/polls/${poll.id}${selected ? `?elige=${encodeURIComponent(selected)}` : ""}`;
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-3">
@@ -123,14 +147,39 @@ export function PollVoting({ poll, viewer, castVote, loadOwnVote, closed }: Poll
       <button
         type="submit"
         disabled={!selected || pending}
-        className="min-h-11 rounded-full bg-foreground px-5 text-sm font-semibold text-background transition-opacity hover:opacity-85 disabled:opacity-50"
+        aria-label="Votar y descubrir"
+        aria-busy={pending}
+        className="min-h-12 action-primary rounded-xl px-5 text-[15px] font-semibold"
       >
-        Votar
+        {pending ? "Enviando voto…" : "Votar y descubrir"}
       </button>
+      <p className="flex items-start justify-center gap-1.5 text-center text-[12px] leading-relaxed text-muted">
+        <svg
+          aria-hidden="true"
+          className="mt-0.5 shrink-0"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <rect x="5" y="10" width="14" height="11" rx="2" />
+          <path d="M8 10V6a4 4 0 0 1 8 0v4" />
+        </svg>
+        <span>El voto es definitivo. Los resultados se revelan después de votar.</span>
+      </p>
+      {pending && (
+        <span role="status" className="sr-only">
+          Enviando voto…
+        </span>
+      )}
       {needsLogin && (
         <p className="rounded-xl border border-border bg-surface p-3 text-sm">
           Inicia sesión para votar; volverás a esta encuesta.{" "}
-          <Link href={loginPath(`/polls/${poll.id}`)} className="font-semibold underline">
+          <Link href={loginPath(returnTo)} className="font-semibold underline">
             Iniciar sesión
           </Link>
         </p>
@@ -138,7 +187,7 @@ export function PollVoting({ poll, viewer, castVote, loadOwnVote, closed }: Poll
       {needsProfile && (
         <p className="rounded-xl border border-border bg-surface p-3 text-sm">
           Elige tu usuario para votar; volverás a esta encuesta.{" "}
-          <Link href={onboardingPath(`/polls/${poll.id}`)} className="font-semibold underline">
+          <Link href={onboardingPath(returnTo)} className="font-semibold underline">
             Elegir mi usuario
           </Link>
         </p>

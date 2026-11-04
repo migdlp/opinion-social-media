@@ -113,3 +113,49 @@ describe("ProfileForm (onboarding)", () => {
     await vi.waitFor(() => expect(p.onDone).toHaveBeenCalledOnce());
   });
 });
+
+describe("ProfileForm (ajustes, V2-008)", () => {
+  const initial = { username: "ana_23", displayName: "Ana" };
+
+  it("parte de los valores actuales y no avisa si el @usuario no cambia", () => {
+    setup({ initial });
+    expect(username().value).toBe("ana_23");
+    expect((displayName() as HTMLInputElement).value).toBe("Ana");
+    expect(screen.queryByText(/enlaces antiguos/)).toBeNull();
+  });
+
+  it("avisa de que los enlaces antiguos dejarán de funcionar al cambiar el @usuario", async () => {
+    setup({ initial });
+    await userEvent.type(username(), "x");
+    expect(screen.getByText(/enlaces antiguos/)).toBeDefined();
+  });
+
+  it("tras guardar, sigue editable y confirma el cambio", async () => {
+    const p = setup({ initial });
+    await userEvent.type(displayName(), " B");
+    await send();
+
+    expect(p.onSubmit).toHaveBeenCalledWith("ana_23", "Ana B");
+    expect(p.onDone).toHaveBeenCalledOnce();
+    expect(await screen.findByText("Cambios guardados.")).toBeDefined();
+    expect((screen.getByRole("button", { name: "Guardar" }) as HTMLButtonElement).disabled).toBe(
+      false,
+    );
+  });
+
+  it("con un @usuario ocupado muestra el error y no confirma nada", async () => {
+    const p = setup({
+      initial,
+      onSubmit: vi.fn(async (): Promise<Result<Profile>> => ({
+        ok: false,
+        error: "USERNAME_TAKEN",
+      })),
+    });
+    await userEvent.type(username(), "x");
+    await send();
+
+    expect(await screen.findByText("Ese nombre ya está en uso.")).toBeDefined();
+    expect(p.onDone).not.toHaveBeenCalled();
+    expect(screen.queryByText("Cambios guardados.")).toBeNull();
+  });
+});

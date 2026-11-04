@@ -18,8 +18,9 @@ insert into public.votes (poll_id, option_id, user_id) values
   ('10000000-0000-0000-0000-000000000001', '20000000-0000-0000-0000-000000000011', '00000000-0000-0000-0000-00000000000c'),
   ('10000000-0000-0000-0000-000000000001', '20000000-0000-0000-0000-000000000012', '00000000-0000-0000-0000-00000000000d');
 
+-- V2-014: anon puede ejecutarla (las cerradas son públicas), pero en una abierta recibe AUTH_REQUIRED.
 select pg_temp.logout();
-select pg_temp.expect_denied($$select * from public.get_poll_results('10000000-0000-0000-0000-000000000001')$$);
+select pg_temp.expect_error($$select * from public.get_poll_results('10000000-0000-0000-0000-000000000001')$$, 'AUTH_REQUIRED');
 reset role;
 set local role authenticated;
 select pg_temp.expect_error($$select * from public.get_poll_results('10000000-0000-0000-0000-000000000001')$$, 'AUTH_REQUIRED');

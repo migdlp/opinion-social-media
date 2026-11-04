@@ -1,7 +1,7 @@
 // Configuración pública de Supabase (docs/entornos.md). Sólo URL y clave publicable:
 // el navegador puede verlas. Las claves secretas no se leen nunca desde la app.
 
-const PRODUCTION_PROJECT_REF = "qchpdrolulcgmiliysvr";
+const PRODUCTION_PROJECT_REF = "bmgjdkkavbacqrnetxkk";
 
 export type SupabaseEnv = {
   url: string;

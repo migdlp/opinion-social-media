@@ -1,6 +1,6 @@
 # Prioridades y orden recomendado
 
-**Consultar el alcance vigente y las reservas de `main` actualizado antes de iniciar trabajo.** La pausa histórica queda sustituida para Vercel por [D-VERCEL-001](decisiones.md): Codex se encarga de [su operación](vercel-operacion.md), conservando las dependencias. Esta autorización no abre cambios SQL ni Auth por anticipado; prevalecen [AGENTS.md](../AGENTS.md) y las instrucciones posteriores del propietario.
+**Consultar el alcance vigente y las reservas del tablón [#73](https://github.com/migdlp/opinion-social-media/issues/73) (D-043) antes de iniciar trabajo.** La pausa histórica queda sustituida para Vercel por [D-VERCEL-001](decisiones.md): Codex se encarga de [su operación](vercel-operacion.md), conservando las dependencias. Esta autorización no abre cambios SQL ni Auth por anticipado; prevalecen [AGENTS.md](../AGENTS.md) y las instrucciones posteriores del propietario.
 
 ## Qué es más importante
 
@@ -19,10 +19,10 @@ Después de MVP-001 puede adelantarse diseño base MVP-024; después de MVP-013,
 
 ## Cómo elegir la siguiente
 
-1. Revisar [tareas-futuras.md](tareas-futuras.md): descartar completadas y tareas ya reservadas por otro agente.
+1. Revisar [tareas-futuras.md](tareas-futuras.md) para descartar completadas y el tablón #73 para descartar tareas reservadas o bloqueadas por otro agente.
 2. Filtrar P0 cuyas dependencias estén completadas y verificadas.
 3. Elegir la primera disponible del orden sugerido, o adelantar otra disponible para aprovechar el trabajo paralelo. No saltarse dependencias ni reservas.
-4. Antes de empezar, publicar estado **En progreso** y el nombre/ID real del agente. Actualizar también el issue.
+4. Antes de empezar, publicar en el #73 un comentario `Reserva` con estado **En progreso** y el nombre/ID real del agente, y releer el #73 para confirmar que nadie la reservó antes. Actualizar también el issue.
 5. Atender P1 después de las P0; nunca hacer una P1 condición de lanzamiento.
 
 ## Secuencia completa sugerida para un solo agente
@@ -92,8 +92,28 @@ Este orden es una ordenación válida del grafo de dependencias y orienta la eje
 - **Bloqueada:** agente y causa del bloqueo visibles; indicar el siguiente paso.
 - **Completada:** criterios verificados y evidencias enlazadas; conservar el agente que la completó.
 
-Un agente que libere una tarea debe devolverla a Pendiente y retirar su reserva explícitamente. Un traspaso conserva trazabilidad. El procedimiento obligatorio está en [AGENTS.md](../AGENTS.md).
+Los estados se publican como comentarios en el #73 (D-043). Un agente que libere una tarea publica `Liberada` para devolverla a Pendiente. Un traspaso conserva trazabilidad. El procedimiento obligatorio está en [AGENTS.md](../AGENTS.md).
 
 ## Feed aprobado (V2-031–036)
 
 Prioridad P0 para el nuevo feed; no cambia las condiciones del MVP original. Tras cerrar V2-030 y cumplir las dependencias, se pueden tomar V2-031 (lecturas/permisos/categoría/24h) y V2-033 (voto en tarjeta) en paralelo. Después V2-032 (pestañas y categorías), V2-034 (scroll y botón), V2-035 (seguridad, también depende de V2-024) y V2-036 (E2E y documentación). Consultar el [mapa](backlog-v2.md#4-mapa-de-dependencias) y las reservas de main: no iniciar tareas ajenas ni saltar dependencias. V2-023 conserva P1; optimizar por lotes no bloquea este feed.
+
+## Huecos completados por AUDIT-001
+
+Consultar [backlog-adicional.md](backlog-adicional.md) y main antes de reservar. Las primeras disponibles son **DESIGN-002** (tokens After Sunset) y **SEC-001** (cuota persistente de follows), ambas P0. Luego se pueden preparar DESIGN-003/005 y, al existir las rutas sociales, DESIGN-004. DESIGN-006 verifica todo con feed y ciclo social integrados. OPS-001 aplica el esquema candidato sólo en dev; OPS-002 valida Google real y el conjunto en dev; DOC-009 consolida guías al resultado probado.
+
+V2-052 #169 ya existía, conserva P1 y se coordina con V2-033 para compartir el retorno de selección. Las propuestas V2-040–051 de #184 no son requisitos aprobados por esta auditoría. Producción y recuperación siguen en MVP-049–051; no se crean despliegues como parte de completar el backlog.
+
+## Cuenta, apariencia y requisitos legales — 29-10-2026
+
+Ver el [backlog específico](backlog-cuenta-legales.md) y las reservas actuales de main. P0: PRIV-001 (backend independiente), LEGAL-001 (inventario independiente) y completar la base V2-008 con su responsable; después SETTINGS-001/PRIV-002 y LEGAL-002/003/004 según sus datos y dependencias. P1: BUG-004 (cerrar menú fuera) y DESIGN-013 (tema manual), independientes; AVATAR-001 entrega iconos sin esperar a Storage, AVATAR-002 prepara fotos seguras y AVATAR-003 integra la subida. No hacer depender la estructura de Ajustes de todos sus controles futuros ni tomar V2-008, reservada a otra IA. Revisar y registrar valor inicial/migración de visibilidad de votos antes del SQL; no aplicar cambios de datos ni habilitar fotos durante esta planificación.
+
+## Rendimiento y publicación — actualización del propietario (29-10-2026)
+
+**PERF-001 [#262](https://github.com/migdlp/opinion-social-media/issues/262), P0**, diagnostica y corrige el lag de navegación con mediciones antes/después y sin atribuirlo a Vercel o Supabase por intuición. Puede diagnosticarse sin esperar a avatares o textos legales; coordinar archivos compartidos y respetar reservas. REL-002 [#265](https://github.com/migdlp/opinion-social-media/issues/265) publica únicamente la tanda validada por orden explícita del propietario. El [relevo](rel-002-tema-cuenta.md) distingue código, producción y migraciones aún no activadas.
+
+Actualización 30-10-2026: REL-002 publicó el corte validado de tema/menú/ajustes básicos. Para el trabajo posterior ya integrado en main, seguir OPS-003 #272 → REL-003 #273: dev y prod aún tienen 25 migraciones y la nueva UI requiere 26/27. Respetar reservas de PERF-001 y AUTH-001. El [relevo actualizado](rel-002-tema-cuenta.md) distingue lo publicado y lo pendiente.
+
+## Peticiones de producto del 30-10-2026
+
+[Catálogo y cobertura](backlog-producto-2026-10-30.md). Primero P0 independientes DESIGN-014 #276 (Claro/icono), FEED-001 #277 (Recientes), CREATE-001 #278 (fallback Sí/No), DESIGN-015 #279 (alineación) y BUG-005 #280 (solicitudes privadas). Iconos no se duplican: OPS-003 #272 → REL-003 #273 activa AVATAR-001 #247. Después P1: POLL-001 #281 define formatos; SOCIAL-001 #282 establece autorización con bloqueos para búsqueda/debate/fotos; perfil y denuncias pueden desarrollarse en paralelo. Backend/UI avanzan por contrato, con integración/pruebas antes de cerrar. QA-001 #296 verifica módulos y REL-004 #297 publica lotes autorizados sin esperar todas las funciones. Respetar reservas actuales de PERF-001/AUTH-001 y no confundir números de issue con orden obligatorio.

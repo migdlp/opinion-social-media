@@ -375,74 +375,186 @@ describe("PollCreationForm", () => {
     });
   });
 
-  describe("plantilla Sí / No (V2-011)", () => {
+  describe("categoría (V2-021)", () => {
+    const CATEGORIES = [
+      { slug: "deportes", name: "Deportes" },
+      { slug: "ciencia", name: "Ciencia" },
+    ];
+    const select = () => screen.getByRole("combobox", { name: "Categoría (opcional)" });
+
+    it("sin categorías disponibles no muestra el selector", () => {
+      render(<PollCreationForm {...props()} />);
+      expect(screen.queryByRole("combobox", { name: /Categoría/ })).toBeNull();
+    });
+
+    it("ofrece «Sin categoría» y la lista, y por defecto no envía categoría", async () => {
+      const user = userEvent.setup();
+      const p = props();
+      render(<PollCreationForm {...p} categories={CATEGORIES} />);
+
+      expect(screen.getByRole("option", { name: "Sin categoría" })).toBeDefined();
+      expect(screen.getByRole("option", { name: "Deportes" })).toBeDefined();
+      await fill(user, "¿Qué tomas por la mañana?", ["Café", "Té"]);
+      await user.click(screen.getByRole("button", { name: "Publicar" }));
+
+      expect(p.onSubmit).toHaveBeenCalledWith({
+        question: "¿Qué tomas por la mañana?",
+        options: ["Café", "Té"],
+      });
+    });
+
+    it("envía el slug de la categoría elegida", async () => {
+      const user = userEvent.setup();
+      const p = props();
+      render(<PollCreationForm {...p} categories={CATEGORIES} />);
+      await fill(user, "¿Qué tomas por la mañana?", ["Café", "Té"]);
+      await user.selectOptions(select(), "Ciencia");
+      await user.click(screen.getByRole("button", { name: "Publicar" }));
+
+      expect(p.onSubmit).toHaveBeenCalledWith({
+        question: "¿Qué tomas por la mañana?",
+        options: ["Café", "Té"],
+        category: "ciencia",
+      });
+    });
+  });
+
+  // CREATE-001: sin botón de plantilla; Sí y No son ejemplos (placeholder) y valores de reserva.
+  describe("ejemplos Sí / No y valores de reserva (CREATE-001)", () => {
     const values = () => optionInputs().map((i) => (i as HTMLInputElement).value);
-    const template = () => screen.getByRole("button", { name: "Sí / No" });
+    const placeholders = () => optionInputs().map((i) => i.getAttribute("placeholder"));
 
-    it("con el formulario vacío deja exactamente dos opciones: Sí y No", async () => {
-      const user = userEvent.setup();
+    it("no hay botón de plantilla y los campos iniciales están vacíos con Sí y No de ejemplo", () => {
       render(<PollCreationForm {...props()} />);
 
-      await user.click(template());
-
-      expect(values()).toEqual(["Sí", "No"]);
+      expect(screen.queryByRole("button", { name: "Sí / No" })).toBeNull();
+      expect(values()).toEqual(["", ""]);
+      expect(placeholders()).toEqual(["Sí", "No"]);
+      expect(screen.getByLabelText("Opción 1")).toBeDefined();
+      expect(screen.getByLabelText("Opción 2")).toBeDefined();
     });
 
-    it("desde más opciones vacías vuelve a dos sin pedir confirmación", async () => {
+    it("al enfocar un campo el ejemplo desaparece y al salir vacío reaparece", async () => {
       const user = userEvent.setup();
-      const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
       render(<PollCreationForm {...props()} />);
-      await user.click(screen.getByRole("button", { name: "Añadir opción" }));
-      await user.click(screen.getByRole("button", { name: "Añadir opción" }));
+      const [first, second] = optionInputs();
 
-      await user.click(template());
+      await user.click(first);
+      expect(first.getAttribute("placeholder")).toBe("");
+      expect(second.getAttribute("placeholder")).toBe("No");
 
-      expect(values()).toEqual(["Sí", "No"]);
-      expect(confirm).not.toHaveBeenCalled();
-      confirm.mockRestore();
+      await user.click(second);
+      expect(first.getAttribute("placeholder")).toBe("Sí");
+      expect(second.getAttribute("placeholder")).toBe("");
+
+      await user.tab();
+      expect(placeholders()).toEqual(["Sí", "No"]);
     });
 
-    it("con opciones escritas pide confirmación y, si se cancela, no cambia nada", async () => {
-      const user = userEvent.setup();
-      const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
-      render(<PollCreationForm {...props()} />);
-      await fill(user, "¿Qué tomas por la mañana?", ["Café", "Té"]);
-
-      await user.click(template());
-
-      expect(confirm).toHaveBeenCalledOnce();
-      expect(values()).toEqual(["Café", "Té"]);
-      confirm.mockRestore();
-    });
-
-    it("si se acepta, sustituye las opciones y conserva la pregunta", async () => {
-      const user = userEvent.setup();
-      const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
-      render(<PollCreationForm {...props()} />);
-      await fill(user, "¿Qué tomas por la mañana?", ["Café", "Té"]);
-
-      await user.click(template());
-
-      expect(values()).toEqual(["Sí", "No"]);
-      expect((screen.getByRole("textbox", { name: "Pregunta" }) as HTMLTextAreaElement).value).toBe(
-        "¿Qué tomas por la mañana?",
-      );
-      confirm.mockRestore();
-    });
-
-    it("las opciones siguen siendo editables y se publican como cualquier otra", async () => {
+    it("con las dos opciones iniciales vacías o en blanco se publica Sí y No explícitos", async () => {
       const user = userEvent.setup();
       const p = props();
       render(<PollCreationForm {...p} />);
-      await user.click(template());
       await user.type(screen.getByRole("textbox", { name: "Pregunta" }), "¿Te gusta el café?");
-      await user.type(optionInputs()[1], " en absoluto");
+      await user.type(optionInputs()[0], "   ");
       await user.click(screen.getByRole("button", { name: "Publicar" }));
 
       expect(p.onSubmit).toHaveBeenCalledWith({
         question: "¿Te gusta el café?",
-        options: ["Sí", "No en absoluto"],
+        options: ["Sí", "No"],
       });
     });
+
+    it("si se personalizan las dos, se respeta lo escrito", async () => {
+      const user = userEvent.setup();
+      const p = props();
+      render(<PollCreationForm {...p} />);
+      await fill(user, "¿Qué tomas por la mañana?", ["Café", "Té"]);
+      await user.click(screen.getByRole("button", { name: "Publicar" }));
+
+      expect(p.onSubmit).toHaveBeenCalledWith({
+        question: "¿Qué tomas por la mañana?",
+        options: ["Café", "Té"],
+      });
+    });
+
+    it("una opción escrita y la otra vacía da error y no inventa la que falta", async () => {
+      const user = userEvent.setup();
+      const p = props();
+      render(<PollCreationForm {...p} />);
+      await fill(user, "¿Qué tomas por la mañana?", ["Café", ""]);
+      await user.click(screen.getByRole("button", { name: "Publicar" }));
+
+      expect(p.onSubmit).not.toHaveBeenCalled();
+      expect(values()).toEqual(["Café", ""]);
+      expect(screen.getByLabelText("Opción 2").getAttribute("aria-invalid")).toBe("true");
+    });
+
+    it("con tres o más campos y alguno vacío no se rellena nada: hay errores", async () => {
+      const user = userEvent.setup();
+      const p = props();
+      render(<PollCreationForm {...p} />);
+      await user.click(screen.getByRole("button", { name: "Añadir opción" }));
+      await user.type(screen.getByRole("textbox", { name: "Pregunta" }), "¿Cuál prefieres?");
+      await user.click(screen.getByRole("button", { name: "Publicar" }));
+
+      expect(p.onSubmit).not.toHaveBeenCalled();
+      expect(values()).toEqual(["", "", ""]);
+      expect(placeholders()).toEqual(["Sí", "No", ""]);
+    });
+
+    it("sin pregunta sigue sin publicar aunque las opciones vayan vacías", async () => {
+      const user = userEvent.setup();
+      const p = props();
+      render(<PollCreationForm {...p} />);
+      await user.click(screen.getByRole("button", { name: "Publicar" }));
+
+      expect(p.onSubmit).not.toHaveBeenCalled();
+    });
+  });
+});
+
+// CMT-002: interruptor «Comentarios» al crear; apagado por defecto.
+describe("interruptor de comentarios (CMT-002)", () => {
+  const toggle = () => screen.getByRole("checkbox", { name: /comentarios/i }) as HTMLInputElement;
+
+  it("viene apagado y explica que el debate exige haber votado", () => {
+    render(<PollCreationForm {...props()} />);
+    expect(toggle().checked).toBe(false);
+    expect(screen.getByText(/sólo quien haya votado/i)).toBeDefined();
+  });
+
+  it("apagado no manda nada: la entrada es la de siempre", async () => {
+    const user = userEvent.setup();
+    const p = props();
+    render(<PollCreationForm {...p} />);
+    await fill(user, "¿Qué tomas por la mañana?", ["Café", "Té"]);
+    await user.click(screen.getByRole("button", { name: "Publicar" }));
+    expect(p.onSubmit).toHaveBeenCalledWith({
+      question: "¿Qué tomas por la mañana?",
+      options: ["Café", "Té"],
+    });
+  });
+
+  it("activado manda commentsEnabled: true", async () => {
+    const user = userEvent.setup();
+    const p = props();
+    render(<PollCreationForm {...p} />);
+    await fill(user, "¿Qué tomas por la mañana?", ["Café", "Té"]);
+    await user.click(toggle());
+    await user.click(screen.getByRole("button", { name: "Publicar" }));
+    expect(p.onSubmit).toHaveBeenCalledWith({
+      question: "¿Qué tomas por la mañana?",
+      options: ["Café", "Té"],
+      commentsEnabled: true,
+    });
+  });
+
+  it("se puede activar con el teclado (Espacio)", async () => {
+    const user = userEvent.setup();
+    render(<PollCreationForm {...props()} />);
+    toggle().focus();
+    await user.keyboard(" ");
+    expect(toggle().checked).toBe(true);
   });
 });

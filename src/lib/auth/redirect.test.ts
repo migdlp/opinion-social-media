@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { loginPath, onboardingPath, safeNextPath } from "./redirect";
+import { choiceFromParam, loginPath, onboardingPath, safeNextPath } from "./redirect";
 
 describe("safeNextPath", () => {
   it.each([
@@ -53,5 +53,18 @@ describe("onboardingPath", () => {
     expect(onboardingPath("/")).toBe("/onboarding");
     expect(onboardingPath("//ajeno.example")).toBe("/onboarding");
     expect(onboardingPath(undefined)).toBe("/onboarding");
+  });
+});
+
+describe("choiceFromParam (V2-052)", () => {
+  const ID = "0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d";
+  it("acepta sólo un UUID", () => {
+    expect(choiceFromParam(ID)).toBe(ID);
+    expect(choiceFromParam(ID.toUpperCase())).toBe(ID.toUpperCase());
+  });
+  it("ignora lo demás sin error", () => {
+    for (const bad of [undefined, "", "b", "zzz", `${ID}x`, ` ${ID}`, ["a", "b"], "<script>"]) {
+      expect(choiceFromParam(bad as string | string[] | undefined)).toBeUndefined();
+    }
   });
 });

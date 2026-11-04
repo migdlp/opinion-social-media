@@ -1,5 +1,8 @@
 # Feed — definición aprobada
 
+**Actualización de entrada — 30-10-2026:** D-033 / [FEED-001 #277](https://github.com/migdlp/opinion-social-media/issues/277) sustituye el default histórico: **Recientes para todos**, incluso con seguidos. Siguiendo sigue accesible al elegirlo; las respuestas y tareas originales siguientes se conservan como historial. Búsqueda/lupa y alineación en [el backlog nuevo](backlog-producto-2026-10-30.md).
+
+
 **Estado:** Definido · **Tarea:** [V2-030](backlog-v2.md#v2-030--definir-el-feed-con-el-propietario) · **Última actualización:** 28-10-2026
 
 > Definición aprobada en conversación con el propietario el 28-10-2026 (D-022 a D-025). La implementación se realiza en V2-031–036, con sus dependencias, reservas y pruebas. Este documento no declara terminadas esas tareas.
@@ -23,7 +26,7 @@
 ## 3. Diseño acordado el 28-10-2026
 
 - Dos pestañas: **Recientes** y **Siguiendo**, ordenadas por `created_at DESC, id DESC`. No hay «Para ti» ni ranking por popularidad. F-4/F-5 no aplican al elegir estas dos pestañas cronológicas.
-- Sin sesión se entra en Recientes. Con sesión se entra en Siguiendo; si no hay ningún seguimiento aceptado, se entra en Recientes. Las solicitudes pendientes no cuentan como seguimientos aceptados. Si ya sigue a alguien pero el feed está vacío, se mantiene Siguiendo con un enlace a Recientes.
+- **Desde FEED-001 (D-033)** se entra siempre en Recientes, con o sin sesión y siga o no a alguien; Siguiendo es una elección explícita (`?tab=siguiendo`). Antes (D-022) una cuenta con seguimientos aceptados entraba en Siguiendo. Las solicitudes pendientes no cuentan como seguimientos aceptados. Si ya sigue a alguien pero el feed está vacío, se mantiene Siguiendo con un enlace a Recientes.
 - La selección explícita de pestaña/categoría se conserva en la URL y tiene prioridad sobre el valor inicial. «Siguiendo» sin sesión solicita login; nunca se consulta el feed de otra cuenta.
 - Las encuestas votadas se muestran normalmente con sus resultados. No se añade filtro «Sin votar».
 - Se puede seleccionar y votar desde la tarjeta. Antes de votar una encuesta abierta no se envían agregados al navegador. Tras login se recupera la intención, sin emitir automáticamente el voto.
@@ -72,4 +75,4 @@ Frontend de tarjetas (V2-033) puede avanzar con el contrato existente de voto/re
 - F-7: V2-033, recuperación de autenticación y voto único.
 - F-8: V2-034, scroll y botón accesible.
 - Privacidad y regresión completa: V2-035/036.
-- Este documento define el resultado, no acredita que la implementación ni producción estén terminadas.
+- Este documento define el resultado, no acredita que la implementación ni producción estén terminadas. El cierre de la implementación (reglas, evidencias, lo no verificado y la comprobación en producción) está en [feed-cierre](feed-cierre.md).

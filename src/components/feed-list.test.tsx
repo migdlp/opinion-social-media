@@ -42,7 +42,9 @@ describe("FeedList", () => {
       "¿La más reciente?",
       "¿La más antigua?",
     ]);
-    expect(within(cards[0]).getByRole("link").getAttribute("href")).toBe("/polls/p2");
+    expect(
+      within(cards[0]).getByRole("link", { name: "¿La más reciente?" }).getAttribute("href"),
+    ).toBe("/polls/p2");
   });
 
   it("con otra página, ofrece cargar más dentro del feed", () => {

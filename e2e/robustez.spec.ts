@@ -61,11 +61,11 @@ test.describe("criterio 1: corte de red justo después de escribir", () => {
     const actions = await cutFirstActionResponse(page, `/polls/${pollId}`);
 
     await page.getByRole("radio", { name: "Sur" }).check();
-    await page.getByRole("button", { name: "Votar" }).click();
+    await page.getByRole("button", { name: "Votar y descubrir" }).click();
     await expect(page.getByRole("alert").filter({ hasText: NETWORK_ERROR })).toBeVisible();
     expect(await votesOf(pollId)).toHaveLength(1); // el voto sí entró
 
-    await page.getByRole("button", { name: "Votar" }).click();
+    await page.getByRole("button", { name: "Votar y descubrir" }).click();
     await expect(page.getByText("Tu voto")).toBeVisible();
     await expect(page.locator("li", { hasText: "Tu voto" })).toContainText("Sur");
     // Segunda acción: la consulta del voto propio, no otra emisión del voto.
@@ -106,7 +106,7 @@ test.describe("criterio 2: envíos duplicados, recarga inmediata y pestañas sim
     await signIn(page.context(), voter, baseURL!);
     await ready(page, `/polls/${pollId}`);
     await page.getByRole("radio", { name: "Norte" }).check();
-    await expect(page.getByRole("button", { name: "Votar" })).toBeEnabled();
+    await expect(page.getByRole("button", { name: "Votar y descubrir" })).toBeEnabled();
     // Tres envíos seguidos sin esperar a la respuesta.
     await page.locator("main form").evaluate((form: HTMLFormElement) => {
       form.requestSubmit();
@@ -129,8 +129,8 @@ test.describe("criterio 2: envíos duplicados, recarga inmediata y pestañas sim
     await other.getByRole("radio", { name: "Sur" }).check();
 
     await Promise.all([
-      page.getByRole("button", { name: "Votar" }).click(),
-      other.getByRole("button", { name: "Votar" }).click(),
+      page.getByRole("button", { name: "Votar y descubrir" }).click(),
+      other.getByRole("button", { name: "Votar y descubrir" }).click(),
     ]);
 
     await expect(page.getByText("1 voto en total")).toBeVisible();
@@ -151,7 +151,7 @@ test.describe("criterio 2: envíos duplicados, recarga inmediata y pestañas sim
     await signIn(page.context(), voter, baseURL!);
     await ready(page, `/polls/${pollId}`);
     await page.getByRole("radio", { name: "Norte" }).check();
-    await page.getByRole("button", { name: "Votar" }).click();
+    await page.getByRole("button", { name: "Votar y descubrir" }).click();
     await page.reload();
     await page.waitForLoadState("networkidle");
     // Si el voto llegó a entrar tras la recarga, una lectura nueva debe mostrarlo.
@@ -163,7 +163,7 @@ test.describe("criterio 2: envíos duplicados, recarga inmediata y pestañas sim
       await expect(page.getByRole("radio")).toHaveCount(0);
     } else {
       await page.getByRole("radio", { name: "Sur" }).check();
-      await page.getByRole("button", { name: "Votar" }).click();
+      await page.getByRole("button", { name: "Votar y descubrir" }).click();
       await expect(page.getByText("Tu voto")).toBeVisible();
     }
     expect(await votesOf(pollId)).toHaveLength(1);
@@ -216,7 +216,7 @@ test.describe("criterio 3: rutas y formularios en móvil y escritorio", () => {
     await page.keyboard.press("Space");
     await page.keyboard.press("ArrowDown");
     await expect(page.getByRole("radio", { name: "Té" })).toBeChecked();
-    await page.getByRole("button", { name: "Votar" }).focus();
+    await page.getByRole("button", { name: "Votar y descubrir" }).focus();
     await page.keyboard.press("Enter");
     await expect(page.locator("li", { hasText: "Tu voto" })).toContainText("Té");
   });

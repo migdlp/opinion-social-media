@@ -22,7 +22,26 @@ vi.mock("next/navigation", () => ({
   },
 }));
 
-const { Feed } = await import("./feed");
+const { Feed: RealFeed } = await import("./feed");
+// V2-032: el feed pide los ids por RPC (get_feed) y las encuestas por RLS. Estos tests describen
+// las filas de `polls`; de ellas se deducen los ids que devolvería la RPC.
+const Feed = () => {
+  const polls = responses.polls;
+  if (!responses["rpc:get_feed"] && polls && !Array.isArray(polls) && typeof polls !== "function") {
+    const rows = (Array.isArray(polls.data) ? polls.data : []) as {
+      id: string;
+      created_at: string;
+    }[];
+    responses = {
+      ...responses,
+      "rpc:get_feed": {
+        data: rows.map((r) => ({ poll_id: r.id, created_at: r.created_at, cursor: "c" })),
+        error: null,
+      },
+    };
+  }
+  return RealFeed();
+};
 const { PollDetailLoader } = await import("./polls/[id]/poll-detail");
 
 const ID = "11111111-2222-4333-8444-555555555555";
@@ -49,7 +68,9 @@ function expectNoAggregates(html: string) {
   expect(queries.map((q) => q.target)).not.toContain("rpc:get_poll_results");
   const polls = queries.find((q) => q.target === "polls")!;
   const select = polls.calls.find((c) => c[0] === "select")![1] as string;
-  expect(select).toBe("id, question, created_at, closes_at, poll_options(id, text, position)");
+  expect(select).toBe(
+    "id, question, created_at, closes_at, category:categories(slug, name), poll_options(id, text, position)",
+  );
 }
 
 beforeEach(() => {
@@ -125,17 +146,30 @@ describe("quien ya votó", () => {
     responses = {
       polls: { data: [row, other], error: null },
       votes: { data: [{ poll_id: ID, option_id: "a" }], error: null },
-      "rpc:get_poll_results": { data: resultRows, error: null },
+      "rpc:get_feed_results": {
+        data: resultRows.map((r) => ({ ...r, poll_id: ID })),
+        error: null,
+      },
     };
 
     const html = renderToStaticMarkup(await Feed());
 
-    expect(html.match(/75,0\s*%/g)).toHaveLength(1);
-    expect(html).toContain("Tu voto");
+    // Resultados sólo en la tarjeta votada (V2-033: la votada puede repetir la cifra en el aviso de
+    // coincidencia); la otra tarjeta no lleva ninguna cifra.
+    expect(html.match(/Tu voto/g)).toHaveLength(1);
+    const cards = html.split("<article").slice(1);
+    const [voted, notVoted] = [
+      cards.find((c) => c.includes("¿Tortilla")),
+      cards.find((c) => c.includes("¿Otra?")),
+    ];
+    expect(voted).toMatch(/75,0\s*%/);
+    expect(notVoted).toBeDefined();
+    expect(notVoted).not.toMatch(/\d\s*%/);
     // Una sola consulta de votos propios para el lote y resultados sólo de la votada.
     const targets = queries.map((q) => q.target);
     expect(targets.filter((t) => t === "votes")).toHaveLength(1);
-    expect(targets.filter((t) => t === "rpc:get_poll_results")).toHaveLength(1);
+    expect(targets.filter((t) => t === "rpc:get_feed_results")).toHaveLength(1);
+    expect(targets).not.toContain("rpc:get_poll_results");
   });
 });
 
@@ -176,5 +210,69 @@ describe("autor de la encuesta", () => {
 
     expect(html).toContain("Anónimo");
     expect(html).not.toContain("/u/");
+  });
+});
+
+// V2-014, criterio 4 y D-020: justo antes de cerrar no hay agregados en el HTML; cerrada, sus
+// resultados son públicos incluso para un visitante sin sesión.
+describe("cierre de la encuesta", () => {
+  const closedRows = [
+    {
+      option_id: "a",
+      text: "Con cebolla",
+      position: 1,
+      votes: 3,
+      percentage: 75,
+      total_votes: 4,
+      my_option_id: null,
+    },
+    {
+      option_id: "b",
+      text: "Sin cebolla",
+      position: 2,
+      votes: 1,
+      percentage: 25,
+      total_votes: 4,
+      my_option_id: null,
+    },
+  ];
+  const closingIn = (ms: number) => ({
+    ...row,
+    closes_at: new Date(Date.now() + ms).toISOString(),
+  });
+
+  it("un segundo antes de cerrar ni el feed ni el detalle incluyen agregados ni piden resultados", async () => {
+    const poll = closingIn(60_000);
+    responses = {
+      polls: { data: [poll], error: null },
+      "rpc:get_poll_results": { data: closedRows, error: null },
+    };
+    expectNoAggregates(renderToStaticMarkup(await Feed()));
+    responses = {
+      polls: { data: poll, error: null },
+      "rpc:get_poll_results": { data: closedRows, error: null },
+    };
+    expectNoAggregates(renderToStaticMarkup(await PollDetailLoader({ id: ID })));
+  });
+
+  it("una vez cerrada, un visitante ve los resultados en el feed y en el detalle, sin «Tu voto»", async () => {
+    const poll = closingIn(-60_000);
+    for (const [name, render, data] of [
+      ["feed", () => Feed(), [poll]],
+      ["detalle", () => PollDetailLoader({ id: ID }), poll],
+    ] as const) {
+      responses = {
+        polls: { data, error: null },
+        "rpc:get_poll_results": { data: closedRows, error: null },
+        "rpc:get_feed_results": {
+          data: closedRows.map((r) => ({ ...r, poll_id: ID })),
+          error: null,
+        },
+      };
+      const html = renderToStaticMarkup(await render());
+      expect(html, name).toMatch(/75,0\s*%/);
+      expect(html, name).not.toContain("Tu voto");
+      expect(html, name).not.toContain('type="radio"');
+    }
   });
 });

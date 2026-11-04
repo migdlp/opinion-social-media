@@ -1,6 +1,24 @@
 # Estado real del proyecto
 
-Última actualización: 28 de octubre de 2026 (revisión de `main` en `631379f`).
+Última actualización: 30 de octubre de 2026. Las observaciones anteriores se conservan más abajo como historial.
+
+## Situación actual y relevo — 30-10-2026
+
+**Publicada y verificada:** https://opinion-social-media.vercel.app, release `60d841b`, PR #268, deployment `dpl_AZyUak2vjYzubEMi7sf2kzQ7SG3v` READY/Production. Incluye selector Claro/Oscuro/Sistema, cierre del menú al pulsar fuera y ajustes básicos de perfil/cuenta privada. CI del candidato: 710 unitarias, 120 E2E y 89 HTTP, build y seguridad verdes; HTTP/CSS/redirect de Ajustes comprobados. [Resultado y límites](rel-002-tema-cuenta.md).
+
+**Integrado en main pero aún sin activar en producción:** ajustes ampliados, audiencia del historial, iconos de perfil y primera optimización del feed. Dev y prod conservan 25 migraciones; se necesitan las 26/27 antes del frontend nuevo. [OPS-003 #272](https://github.com/migdlp/opinion-social-media/issues/272) integra/valida dev y [REL-003 #273](https://github.com/migdlp/opinion-social-media/issues/273) prepara la activación y publicación posterior, con recuperación revisada. OPS-003 está bloqueada y sin reserva por la autorización de copia pendiente; REL-003 sigue pendiente y sin reserva.
+
+PERF-001 #262 sigue parcial/reservada a su agente; esta publicación no se presenta como arreglo del lag. AUTH-001 #258 conserva su reserva. Los textos legales públicos necesitan datos reales del responsable y revisión; Storage/subida de fotos siguen pendientes. MVP-049/050/051 conservan bloqueos de aceptación global pero quedan sin reserva de Codex (8ed54b8). El estado operativo de cada fila prevalece sobre el historial.
+
+## Revisión de desarrollo — 30-10-2026
+
+Separación Vercel/Supabase comprobada y workspace local conectado sólo a dev (health 200); producción sigue release60d841b y no se ha modificado. [OPS-003](ops-003-integracion-dev.md) verificó las 27 migraciones/suites y restauración con fixtures locales, pero no ha aplicado SQL alojado. La copia cifrada real solicitada fue rechazada por revisión automática al no considerar autorizado su contenido/destino local; se pidió autorización concreta al propietario. Dev y prod siguen en 25. No confundir esta preparación con integración completada ni tomar producción para desarrollar.
+
+## Alineación de tarjetas — DESIGN-015
+
+La [PR #313](https://github.com/migdlp/opinion-social-media/pull/313) alinea tarjetas, preguntas, opciones, botones y pies en escritorio con CSS subgrid, sin recortar texto ni fijar alturas. Se han comprobado localmente ambos temas y 320/390/1024/1280 px antes/después de votar y paginar; la CI comprueba el flujo con Supabase efímero. [Alcance y pruebas](design-015-cuadricula.md). No se publica en Vercel ni se escribe en bases alojadas; consultar el resultado final de CI y el estado de la tarea en main.
+
+## Historial de revisión — 28-10-2026
 
 El estado vigente de cada tarea y su responsable está en [tareas-futuras.md](tareas-futuras.md) en `main`; este documento resume y distingue lo verificado de lo pendiente. Si hay discrepancia, prevalece el registro de tareas.
 
@@ -33,9 +51,11 @@ Contra el Supabase de desarrollo, con la aplicación de `main`:
 
 ## Entornos
 
+> **3-11-2026:** ambos proyectos se recrearon en París (`eu-west-3`) con refs nuevos: dev `yxnnqdvyyjncljpdlwuq` y prod `bmgjdkkavbacqrnetxkk` (ver [entornos](entornos.md)). La tabla siguiente conserva lo observado el 28-10-2026 en los proyectos anteriores, ya obsoletos; no describe el estado de los nuevos.
+
 | Entorno | Nombre | Referencia | Estado observado (28-10-2026) |
 |---|---|---|---|
-| Desarrollo | `opinion-social-media-dev` | `ltlrujmqenhktiilsnis` | 8 migraciones (última `20261027195157`); datos de prueba (`[fixture …]`); Auth: Google **y** Email activos |
+| Desarrollo | `opinion-social-media-dev` | `ltlrujmqenhktiilsnis` | 25 migraciones (última `20261028280000`, OPS-001 del 28-10-2026; ver [la integración](ops-001-integracion-dev.md)); datos de prueba (`[fixture …]`); Auth: Google **y** Email activos |
 | Producción | `opinion-social-media-prod` | `qchpdrolulcgmiliysvr` | No consultado en esta revisión; según el último registro, sin tablas. Se prepara en MVP-049 |
 
 Los datos de desarrollo se observaron con lecturas: 28 encuestas, 5 votos y 3 usuarios.

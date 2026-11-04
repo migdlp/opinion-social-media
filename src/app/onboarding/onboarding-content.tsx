@@ -11,7 +11,7 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
 
 // Elegir @usuario tras el primer login (V2-002). Sin sesión se va al login y se vuelve aquí;
-// con perfil ya creado no hay nada que elegir y se va a «/».
+// con perfil ya creado se retoma el destino, también si una recarga llega tras guardar.
 export async function OnboardingContent({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
   const next = safeNextPath(first(params.next));
@@ -21,7 +21,7 @@ export async function OnboardingContent({ searchParams }: { searchParams: Search
   if (!data.user) redirect(loginPath(onboardingPath(next)));
 
   const profile = await getMyProfile(supabase);
-  if (profile.ok && profile.data) redirect("/");
+  if (profile.ok && profile.data) redirect(next.startsWith("/onboarding") ? "/" : next);
   if (!profile.ok) {
     return (
       <div role="alert" className="mx-auto w-full max-w-content">

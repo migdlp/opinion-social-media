@@ -17,15 +17,15 @@ No se aplicó SQL de escritura, se habilitaron proveedores, se invitaron miembro
 
 ## Inventario
 
-Organización: **Los tres cerditos**, identificador `drifadkhohwebqljdlvw`. Región: **Irlanda**, `eu-west-1`. PostgreSQL reportado: versión principal 17.
+Organización: **Los tres cerditos**, identificador `drifadkhohwebqljdlvw`. Región: **París**, `eu-west-3`. PostgreSQL reportado: versión principal 17.
 
 | Dato | Desarrollo | Producción |
 |---|---|---|
 | Nombre | `opinion-social-media-dev` | `opinion-social-media-prod` |
-| Project ref | `ltlrujmqenhktiilsnis` | `qchpdrolulcgmiliysvr` |
-| API URL | `https://ltlrujmqenhktiilsnis.supabase.co` | `https://qchpdrolulcgmiliysvr.supabase.co` |
-| Dashboard | [Abrir desarrollo](https://supabase.com/dashboard/project/ltlrujmqenhktiilsnis) | [Abrir producción](https://supabase.com/dashboard/project/qchpdrolulcgmiliysvr) |
-| Host Postgres directo | `db.ltlrujmqenhktiilsnis.supabase.co` | `db.qchpdrolulcgmiliysvr.supabase.co` |
+| Project ref | `yxnnqdvyyjncljpdlwuq` | `bmgjdkkavbacqrnetxkk` |
+| API URL | `https://yxnnqdvyyjncljpdlwuq.supabase.co` | `https://bmgjdkkavbacqrnetxkk.supabase.co` |
+| Dashboard | [Abrir desarrollo](https://supabase.com/dashboard/project/yxnnqdvyyjncljpdlwuq) | [Abrir producción](https://supabase.com/dashboard/project/bmgjdkkavbacqrnetxkk) |
+| Host Postgres directo | `db.yxnnqdvyyjncljpdlwuq.supabase.co` | `db.bmgjdkkavbacqrnetxkk.supabase.co` |
 
 Desarrollo local y previews usan desarrollo. No conectar previews a producción. La información del inventario identifica los destinos; no concede permisos por sí sola.
 
@@ -52,7 +52,7 @@ Clonar el repositorio no transmite la autorización del conector de esta convers
 Mientras el desarrollo siga pausado, utilizar este endpoint de **desarrollo y solo lectura**:
 
 ```text
-https://mcp.supabase.com/mcp?project_ref=ltlrujmqenhktiilsnis&read_only=true
+https://mcp.supabase.com/mcp?project_ref=yxnnqdvyyjncljpdlwuq&read_only=true
 ```
 
 La forma del archivo de configuración depende del cliente. Por ejemplo, en clientes que aceptan `.mcp.json` con este formato:
@@ -62,7 +62,7 @@ La forma del archivo de configuración depende del cliente. Por ejemplo, en clie
   "mcpServers": {
     "supabase-dev": {
       "type": "http",
-      "url": "https://mcp.supabase.com/mcp?project_ref=ltlrujmqenhktiilsnis&read_only=true"
+      "url": "https://mcp.supabase.com/mcp?project_ref=yxnnqdvyyjncljpdlwuq&read_only=true"
     }
   }
 }
@@ -83,7 +83,7 @@ La aplicación necesita URL y **Publishable key** del mismo proyecto. Se pueden 
 Ejemplo para un fichero local `.env.local`, que no se versionará:
 
 ```dotenv
-NEXT_PUBLIC_SUPABASE_URL=https://ltlrujmqenhktiilsnis.supabase.co
+NEXT_PUBLIC_SUPABASE_URL=https://yxnnqdvyyjncljpdlwuq.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<publishable-key-del-proyecto-de-desarrollo>
 ```
 
@@ -110,7 +110,7 @@ Cuando se reanude y se prepare la configuración local, la referencia para enlaz
 
 ```bash
 supabase link --help
-supabase link --project-ref ltlrujmqenhktiilsnis
+supabase link --project-ref yxnnqdvyyjncljpdlwuq
 ```
 
 El enlace puede requerir configuración local y credenciales adicionales; no se ha ejecutado ahora. No ejecutar `db push`, migraciones o cambios de esquema durante la pausa.

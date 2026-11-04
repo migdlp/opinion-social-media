@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fakeSupabase, networkThrow, type FakeResponse } from "@/lib/data/testing/fake-supabase";
@@ -62,6 +63,26 @@ describe("imagen social anónima", () => {
     expect(rendered).not.toMatch(/99999|Nombre privado|recuento|porcentaje|votos/);
     expect(queries.map((q) => q.target)).toEqual(["polls", "rpc:get_poll_authors"]);
   });
+  it.each([true, false])(
+    "mantiene identidad After Sunset sin destacar ninguna opción (pública=%s)",
+    async (available) => {
+      responses = { polls: { data: available ? row : null, error: null } };
+      await PollImage({ params: Promise.resolve({ id: ID }) });
+      const design = readFileSync(new URL("../../../../DESIGN.md", import.meta.url), "utf8");
+      const color = (name: string) =>
+        design.match(new RegExp(`^  ${name}: "(#[0-9a-f]{6})"`, "im"))![1].toLowerCase();
+      expect(rendered).toContain(`background:${color("background-dark")}`);
+      expect(rendered).toContain(`color:${color("foreground-dark")}`);
+      expect(rendered).toContain(color("accent-dark"));
+      expect(rendered).toContain(color("accent-soft-dark"));
+      expect(rendered).not.toMatch(/#f4f4f5|#0a0a0b|#5e5e66/);
+      if (available)
+        expect(rendered.split(`background:${color("surface-dark")}`).length - 1).toBe(
+          row.poll_options.length,
+        );
+    },
+  );
+
   it("abrevia tokens sin espacios para evitar que invadan las otras opciones", async () => {
     responses = {
       polls: {

@@ -45,6 +45,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: bash scripts/db-test-local.sh
       - run: bash scripts/db-concurrency-local.sh
+      - run: bash scripts/check-vote-history-upgrade.sh
 
   db-reproducibility:
     name: Supabase real, migraciones reproducibles y tipos
@@ -91,6 +92,14 @@ jobs:
       - run: npm ci
       - run: npx --no-install playwright install --with-deps chromium
       - run: bash scripts/e2e-local.sh
+      - name: Capturas After Sunset
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aftersunset-capturas
+          path: test-results/**/visual-*.png
+          if-no-files-found: error
+          retention-days: 7
       - name: Informe de Playwright
         if: failure()
         uses: actions/upload-artifact@v4

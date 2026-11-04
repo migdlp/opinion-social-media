@@ -1,20 +1,48 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 import { signOut } from "@/app/auth/actions";
+import type { AvatarIcon } from "@/lib/avatar-icons";
+import { parseAvatarIcon } from "@/lib/avatar-icons";
+import { AvatarGlyph, avatarTone } from "./avatar";
 import { NavigationIcon } from "./navigation-icon";
 
 const ITEM = "block min-h-11 rounded-lg px-3 py-2.5 text-sm hover:bg-track focus-visible:bg-track";
 
-export function AccountMenu({ username }: { username: string | null }) {
-  // Dos superficies de la paleta, elegidas de forma estable a partir de @usuario.
-  // El avatar no publica el nombre, email ni la foto proporcionados por Google.
-  const darkAvatar = username
-    ? Array.from(username).reduce((sum, char) => sum + char.charCodeAt(0), 0) % 2 === 0
-    : false;
+export function AccountMenu({
+  username,
+  avatarIcon,
+}: {
+  username: string | null;
+  avatarIcon?: AvatarIcon | null;
+}) {
+  const icon = parseAvatarIcon(avatarIcon);
+  const root = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    const onPointerDown = (event: PointerEvent) => {
+      const menu = root.current;
+      if (menu?.open && !menu.contains(event.target as Node)) menu.open = false;
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, []);
+
+  // El avatar usa el mismo tono (estable, a partir de @usuario) que el del perfil y no publica el
+  // nombre, email ni la foto proporcionados por Google.
   return (
     <details
+      ref={root}
       className="relative"
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) event.currentTarget.open = false;
+      }}
+      onClick={(event) => {
+        if ((event.target as Element).closest("a")) event.currentTarget.open = false;
+      }}
+      onSubmit={(event) => {
+        event.currentTarget.open = false;
+      }}
       onKeyDown={(event) => {
         if (event.key === "Escape") {
           event.currentTarget.open = false;
@@ -28,9 +56,23 @@ export function AccountMenu({ username }: { username: string | null }) {
       >
         <span
           aria-hidden="true"
-          className={`flex h-11 w-11 items-center justify-center rounded-full text-sm ${darkAvatar ? "bg-foreground text-background" : "bg-track text-foreground"}`}
+          style={username ? avatarTone(username) : undefined}
+          className={`flex h-11 w-11 items-center justify-center rounded-full text-sm ring-1 ring-border ${username ? "" : "bg-track text-foreground"}`}
         >
-          {username ? username.slice(0, 2).toUpperCase() : <NavigationIcon name="profile" />}
+          {username ? (
+            icon ? (
+              <span
+                data-avatar-icon={icon}
+                className="inline-flex h-full w-full items-center justify-center"
+              >
+                <AvatarGlyph icon={icon} className="h-5 w-5" />
+              </span>
+            ) : (
+              username.slice(0, 2).toUpperCase()
+            )
+          ) : (
+            <NavigationIcon name="profile" />
+          )}
         </span>
         {username && <span className="hidden text-sm sm:inline">@{username}</span>}
       </summary>

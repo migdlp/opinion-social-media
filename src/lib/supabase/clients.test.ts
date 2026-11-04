@@ -1,11 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Sin red: se captura la petición HTTP que generaría cada cliente.
-const DEV_URL = "https://ltlrujmqenhktiilsnis.supabase.co";
+const DEV_URL = "https://yxnnqdvyyjncljpdlwuq.supabase.co";
 const KEY = "sb_publishable_test";
 
 const cookieStore = { getAll: vi.fn(() => []), set: vi.fn() };
-vi.mock("next/headers", () => ({ cookies: async () => cookieStore }));
+vi.mock("next/headers", () => ({
+  cookies: async () => cookieStore,
+  headers: async () => new Headers(),
+}));
 
 let requests: Request[];
 

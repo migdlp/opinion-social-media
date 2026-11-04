@@ -8,20 +8,20 @@ let pathname = "/";
 vi.mock("next/navigation", () => ({ usePathname: () => pathname }));
 afterEach(cleanup);
 
-describe("MobileNav (V2-010)", () => {
-  it("con sesión enlaza Feed, Crear y Perfil a sus destinos", () => {
+describe("MobileNav (V2-010, SEARCH-002)", () => {
+  it("con sesión enlaza Feed, Buscar, Crear y Perfil a sus destinos", () => {
     render(<MobileNav signedIn />);
     const nav = screen.getByRole("navigation", { name: "Navegación móvil" });
     expect(
       within(nav)
         .getAllByRole("link")
         .map((link) => link.getAttribute("href")),
-    ).toEqual(["/", "/create", "/me"]);
+    ).toEqual(["/", "/search", "/create", "/me"]);
     expect(
       within(nav)
         .getAllByRole("link")
         .map((link) => link.textContent),
-    ).toEqual(["Feed", "Crear", "Perfil"]);
+    ).toEqual(["Feed", "Buscar", "Crear", "Perfil"]);
   });
 
   it("sin sesión el acceso a Perfil solicita login y vuelve a /me", () => {
@@ -33,6 +33,7 @@ describe("MobileNav (V2-010)", () => {
 
   it.each([
     ["/", "Feed"],
+    ["/search", "Buscar"],
     ["/create", "Crear"],
     ["/me", "Perfil"],
     ["/u/ana_23", "Perfil"],
@@ -46,12 +47,29 @@ describe("MobileNav (V2-010)", () => {
     }
   });
 
-  it("los tres enlaces tienen nombre accesible y se recorren con Tab", async () => {
+  it("los cuatro enlaces tienen nombre accesible y se recorren con Tab", async () => {
     const user = userEvent.setup();
     render(<MobileNav signedIn />);
-    for (const name of ["Feed", "Crear", "Perfil"]) {
+    for (const name of ["Feed", "Buscar", "Crear", "Perfil"]) {
       await user.tab();
       expect(document.activeElement).toBe(screen.getByRole("link", { name }));
     }
+  });
+});
+
+describe("MobileNav: Buscar (SEARCH-002)", () => {
+  it("la lupa es una pestaña más: sin desbordar a 320 px (cuatro columnas) y con 44 px de alto", () => {
+    pathname = "/";
+    render(<MobileNav signedIn />);
+    const nav = screen.getByRole("navigation", { name: "Navegación móvil" });
+    expect(nav.className).toContain("grid-cols-4");
+    for (const link of within(nav).getAllByRole("link")) {
+      expect(link.className).toContain("min-h-12");
+    }
+  });
+
+  it("Buscar no pide sesión: lleva a /search también a un visitante", () => {
+    render(<MobileNav signedIn={false} />);
+    expect(screen.getByRole("link", { name: "Buscar" }).getAttribute("href")).toBe("/search");
   });
 });

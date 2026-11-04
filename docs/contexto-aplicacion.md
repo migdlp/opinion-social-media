@@ -8,9 +8,15 @@ Nombre de trabajo: **Opinión**. Dirección creativa provisional: **After Sunset
 
 Las secciones funcionales originales siguientes se interpretan con las decisiones posteriores de fase 2 (D-015–D-025 y backlog-v2): perfiles, privacidad, 2–6 opciones, cierre y feed aprobado. La lámina visual no modifica esas reglas.
 
+## Peticiones vigentes del 30-10-2026 — trabajo futuro planificado
+
+Leer [el backlog por áreas y su cobertura](backlog-producto-2026-10-30.md) y D-032–D-042 antes de modificar defaults. El propietario pide Claro inicial y cambio por icono, Recientes inicial para todos, opciones Sí/No como ejemplos/valores de reserva, tarjetas alineadas, búsqueda/lupa móvil, comentarios opcionales, comparación de fotos, bloqueo/denuncia de personas y descripción de perfil. Respuesta múltiple y ranking son candidatos por definir mejor. Iconos de perfil ya implementados: activación #272 → #273, sin duplicar #247. Solicitudes sólo para privadas confirma D-017.
+
+Estas decisiones amplían las exclusiones históricas de comentarios/medios y sustituyen los defaults anteriores, pero su creación no acredita implementación ni ordena desplegar. El estado/reserva de cada ticket está en main; no se cambia el alcance de tareas ajenas en progreso. Las reglas de resultados, voto único del formato actual, privacidad y stack permanecen.
+
 ## Contexto de conexión para el equipo y los agentes
 
-Supabase está en la organización **Los tres cerditos** (`drifadkhohwebqljdlvw`), región Irlanda. El proyecto de trabajo es **`opinion-social-media-dev`** (`ltlrujmqenhktiilsnis`); **`opinion-social-media-prod`** (`qchpdrolulcgmiliysvr`) se reserva para producción. Desarrollo local, previews y agentes deben apuntar a desarrollo.
+Supabase está en la organización **Los tres cerditos** (`drifadkhohwebqljdlvw`), región París (`eu-west-3`), tras la recreación del 3-11-2026 (ver [entornos](entornos.md)). El proyecto de trabajo es **`opinion-social-media-dev`** (`yxnnqdvyyjncljpdlwuq`); **`opinion-social-media-prod`** (`bmgjdkkavbacqrnetxkk`) se reserva para producción. Desarrollo local, previews y agentes deben apuntar a desarrollo.
 
 La [guía de acceso a Supabase](supabase-acceso.md) contiene las URLs, dashboards, invitaciones al equipo, OAuth/MCP, variables de aplicación y conexiones CLI/SQL. Su lectura es obligatoria para los agentes según [AGENTS.md](../AGENTS.md). Cada entorno debe autorizar su conexión; el acceso no se hereda al clonar el repositorio. La pausa histórica se interpreta según el alcance vigente de [AGENTS.md](../AGENTS.md): [D-VERCEL-001](decisiones.md) autoriza a Codex a configurar y operar Vercel, sin ampliar por sí sola el permiso para SQL o Auth. Ver [operación de Vercel](vercel-operacion.md).
 
@@ -68,3 +74,7 @@ Perfiles públicos, usernames, seguidores, comentarios, likes, mensajes, notific
 ## Información adicional
 
 El [brief adicional](brief-producto.md) está incorporado al [backlog revisado](backlog.md). La [matriz de cobertura](cobertura-brief.md) documenta las 27 agrupaciones originales y los 16 casos límite. Su objetivo es validar la interacción central, sin ampliar el producto a una red social completa. Las referencias a la pausa conservan el contexto histórico; prevalecen las instrucciones posteriores del propietario, las dependencias y las reservas vigentes en `main`.
+
+## Peticiones de cuenta y legales del 29-10-2026 (pendientes)
+
+El propietario pide selector de tema claro/oscuro, avatar mediante iconos o foto propia, una sección de ajustes ampliada, control sobre si sus amigos ven las encuestas que vota, cierre del menú al pulsar fuera y bases legales. El [backlog ejecutable](backlog-cuenta-legales.md) contiene 12 tickets nuevos, prioridades, dependencias y criterios; `tareas-futuras.md` refleja su estado. Amigos sigue significando seguidores aceptados. La preferencia de actividad será independiente de Cuenta privada y nunca sustituye la autorización del backend. V2-008 ya existe y mantiene su responsable. Esta petición registra trabajo futuro, no acredita implementación ni autoriza un despliegue nuevo.

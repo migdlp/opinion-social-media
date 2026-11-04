@@ -1,3 +1,4 @@
+import { ThemeSelector } from "./theme-selector";
 import Link from "next/link";
 import { Suspense } from "react";
 import { AuthButton, AuthButtonFallback } from "./auth-button";
@@ -6,21 +7,31 @@ import { AuthButton, AuthButtonFallback } from "./auth-button";
 // AuthButton refleja la sesión sin bloquear el resto de la página.
 export function Header() {
   return (
-    <header className="sticky top-0 z-10 border-b border-border bg-surface">
+    <header className="sticky top-0 z-30 border-b border-border bg-background">
       <nav
         aria-label="Principal"
-        className="mx-auto flex w-full max-w-wide items-center justify-between gap-3 px-4 py-3"
+        className="mx-auto flex w-full max-w-wide items-center justify-between gap-3 px-4 py-2"
       >
-        <Link href="/" className="rounded text-xl font-bold tracking-[-0.03em] whitespace-nowrap">
+        <Link
+          href="/"
+          className="inline-flex min-h-11 items-center rounded text-[23px] font-bold tracking-[-0.03em] whitespace-nowrap"
+        >
           Opinión
         </Link>
         <div className="flex items-center gap-2 whitespace-nowrap">
+          <Link
+            href="/search"
+            className="hidden min-h-11 items-center rounded-xl px-3 text-sm font-medium text-muted transition-colors hover:text-foreground sm:inline-flex"
+          >
+            Buscar
+          </Link>
+          <ThemeSelector />
           <Suspense fallback={<AuthButtonFallback />}>
             <AuthButton />
           </Suspense>
           <Link
             href="/create"
-            className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-85"
+            className="action-primary hidden min-h-11 items-center rounded-xl sm:inline-flex px-4 text-sm font-semibold"
           >
             <span aria-hidden="true" className="sm:hidden">
               Crear

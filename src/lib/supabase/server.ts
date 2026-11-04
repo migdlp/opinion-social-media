@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
+import { hardenAuthCookies, isSecureRequest } from "./cookies";
 import { getSupabaseEnv } from "./env";
 
 // Cliente para Server Components, Server Actions y Route Handlers. Lee la sesión
@@ -7,6 +8,7 @@ import { getSupabaseEnv } from "./env";
 // Al leer cookies, quien lo use se renderiza por petición y nunca se cachea.
 export async function createClient() {
   const cookieStore = await cookies();
+  const secure = isSecureRequest(await headers());
   const { url, publishableKey } = getSupabaseEnv();
 
   return createServerClient(url, publishableKey, {
@@ -16,7 +18,7 @@ export async function createClient() {
       },
       setAll(cookiesToSet) {
         try {
-          for (const { name, value, options } of cookiesToSet) {
+          for (const { name, value, options } of hardenAuthCookies(cookiesToSet, secure)) {
             cookieStore.set(name, value, options);
           }
         } catch {

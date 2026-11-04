@@ -46,6 +46,40 @@ describe("PollDetailView", () => {
     expect(screen.queryByText("Anónimo")).toBeNull();
   });
 
+  it("una cerrada de un visitante muestra los resultados y que ya no admite votos", () => {
+    const detail: PollDetail = {
+      poll: { ...DETAIL.poll, closesAt: "2026-10-27T18:00:00Z" },
+      viewer: {
+        kind: "closed",
+        signedIn: false,
+        results: {
+          pollId: DETAIL.poll.id,
+          totalVotes: 2,
+          myOptionId: null,
+          options: [
+            { id: "a", text: "Con cebolla", position: 1, votes: 1, percentage: 50 },
+            { id: "b", text: "Sin cebolla", position: 2, votes: 1, percentage: 50 },
+          ],
+        },
+      },
+    };
+    render(<PollDetailView detail={detail} castVote={castVote} now={NOW} />);
+
+    expect(screen.getAllByText("50,0 %")).toHaveLength(2);
+    expect(screen.getByText("Cerrada hace 2 h")).toBeDefined();
+    expect(screen.queryAllByRole("radio")).toHaveLength(0);
+  });
+
+  it("muestra la etiqueta de la categoría", () => {
+    const detail = {
+      ...DETAIL,
+      poll: { ...DETAIL.poll, category: { slug: "otros", name: "Otros" } },
+    };
+    render(<PollDetailView detail={detail} castVote={castVote} now={NOW} />);
+
+    expect(screen.getByText("Otros")).toBeDefined();
+  });
+
   it("ofrece copiar el enlace de la encuesta", () => {
     render(<PollDetailView detail={DETAIL} castVote={castVote} now={NOW} />);
 
@@ -55,7 +89,7 @@ describe("PollDetailView", () => {
   it("antes de votar no muestra ninguna cifra ni resultado", () => {
     const { container } = render(<PollDetailView detail={DETAIL} castVote={castVote} now={NOW} />);
 
-    expect(container.textContent).not.toMatch(/\d\s*%|\bvotos?\b|total/i);
+    expect(container.textContent).not.toMatch(/\d\s*%|\b\d[\d.,]*\s+votos?\b|total/i);
   });
 
   it("ofrece el menú «⋯» para denunciar la encuesta", () => {
@@ -80,5 +114,130 @@ describe("PollDetailView", () => {
     expect(screen.queryAllByRole("radio")).toHaveLength(0);
     expect(screen.queryByRole("button", { name: /votar/i })).toBeNull();
     expect(screen.getByText(/ya no admite votos/i)).toBeDefined();
+  });
+
+  it("V2-022: el detalle ofrece guardar y refleja si la encuesta ya estaba guardada", () => {
+    render(
+      <PollDetailView
+        detail={{ ...DETAIL, viewer: { kind: "not_voted" }, saved: true }}
+        castVote={castVote}
+        now={NOW}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Quitar de guardadas" })).toBeDefined();
+    cleanup();
+    render(<PollDetailView detail={DETAIL} castVote={castVote} now={NOW} />);
+    expect(screen.getByRole("link", { name: "Guardar para luego" })).toBeDefined();
+  });
+
+  describe("DESIGN-016: Guardar junto a la autoría", () => {
+    // Fila inferior: la que lleva la autoría y el borde superior.
+    const rowOf = (author: HTMLElement) => author.closest<HTMLElement>(".border-t")!;
+
+    it("con cierre, el estado de cierre va en su propia línea, fuera de la fila de autoría", () => {
+      const detail = { ...DETAIL, poll: { ...DETAIL.poll, closesAt: "2026-10-28T20:00:00Z" } };
+      render(<PollDetailView detail={detail} castVote={castVote} now={NOW} />);
+
+      const close = screen.getByText("Cierra en 1 día").closest("p");
+      expect(close).not.toBeNull();
+      expect(rowOf(screen.getByText("Anónimo")).contains(close)).toBe(false);
+      // Aparece antes de la fila, igual que en la tarjeta del feed.
+      expect(
+        close!.compareDocumentPosition(rowOf(screen.getByText("Anónimo"))) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+    });
+
+    it("Guardar queda en la fila de autoría, en un grupo propio a la derecha (dos hijos)", () => {
+      const detail = { ...DETAIL, poll: { ...DETAIL.poll, closesAt: "2026-10-28T20:00:00Z" } };
+      render(<PollDetailView detail={detail} castVote={castVote} now={NOW} />);
+
+      const author = screen.getByText("Anónimo");
+      const save = screen.getByRole("link", { name: "Guardar para luego" });
+      const row = rowOf(author);
+      expect(row.contains(save)).toBe(true);
+
+      // Con tres hijos y poco ancho, Guardar saltaba de línea: la fila son autoría + grupo.
+      expect(row.children).toHaveLength(2);
+      const group = row.children[1] as HTMLElement;
+      expect(group.contains(save)).toBe(true);
+      expect(group.contains(author)).toBe(false);
+      expect(group.className).toMatch(/\bflex\b.*\bgap-1\b/);
+    });
+
+    it("sin cierre no hay línea de cierre y la fila conserva autoría y Guardar", () => {
+      render(
+        <PollDetailView
+          detail={{ ...DETAIL, viewer: { kind: "not_voted" }, saved: true }}
+          castVote={castVote}
+          now={NOW}
+        />,
+      );
+
+      const row = rowOf(screen.getByText("Anónimo"));
+      expect(row.contains(screen.getByRole("button", { name: "Quitar de guardadas" }))).toBe(true);
+      expect(row.querySelector("time")).toBeNull();
+      expect(row.children).toHaveLength(2);
+    });
+
+    it("cerrada, la línea de cierre muestra «Cerrada hace…» encima de la fila", () => {
+      const detail = {
+        ...DETAIL,
+        poll: { ...DETAIL.poll, closesAt: "2026-10-27T18:00:00Z" },
+        viewer: { kind: "closed", signedIn: false, results: null },
+      } as unknown as PollDetail;
+      render(<PollDetailView detail={detail} castVote={castVote} now={NOW} />);
+
+      const close = screen.getByText("Cerrada hace 2 h").closest("p");
+      expect(close).not.toBeNull();
+      expect(rowOf(screen.getByText("Anónimo")).contains(close)).toBe(false);
+    });
+  });
+
+  describe("DESIGN-009: camino para seguir explorando", () => {
+    const RESULTS = {
+      pollId: DETAIL.poll.id,
+      totalVotes: 3,
+      myOptionId: "a",
+      options: [
+        { id: "a", text: "Con cebolla", position: 1, votes: 2, percentage: 66.7 },
+        { id: "b", text: "Sin cebolla", position: 2, votes: 1, percentage: 33.3 },
+      ],
+    };
+    const CLOSED_AT = "2026-10-27T18:00:00Z";
+    const cases: [string, PollDetail][] = [
+      ["visitante sin votar", DETAIL],
+      ["con sesión sin votar", { ...DETAIL, viewer: { kind: "not_voted" } }],
+      ["con voto emitido", { ...DETAIL, viewer: { kind: "voted", results: RESULTS } }],
+      [
+        "cerrada",
+        {
+          poll: { ...DETAIL.poll, closesAt: CLOSED_AT },
+          viewer: { kind: "closed", signedIn: false, results: RESULTS },
+        },
+      ],
+    ];
+
+    it.each(cases)("%s: hay un enlace «Ver más encuestas» que lleva al feed", (_name, detail) => {
+      render(<PollDetailView detail={detail} castVote={castVote} now={NOW} />);
+
+      const link = screen.getByRole("link", { name: "Ver más encuestas" });
+      expect(link.getAttribute("href")).toBe("/");
+      // Objetivo táctil de al menos 44 px de alto.
+      expect(link.className).toMatch(/min-h-11/);
+    });
+
+    it("antes de votar el enlace no añade cifras ni nada que dependa de los resultados", () => {
+      const { container } = render(
+        <PollDetailView
+          detail={{ ...DETAIL, viewer: { kind: "not_voted" } }}
+          castVote={castVote}
+          now={NOW}
+        />,
+      );
+
+      expect(screen.getByRole("link", { name: "Ver más encuestas" })).toBeDefined();
+      expect(container.textContent).not.toMatch(/\d\s?%|\b\d[\d.,]*\s+votos?\b/i);
+    });
   });
 });

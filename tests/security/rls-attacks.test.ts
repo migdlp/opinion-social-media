@@ -162,13 +162,13 @@ describe("criterio 2: sin voto no hay totales por ningún canal", () => {
     expect(count.range).toBe("*/0");
   });
 
-  it("RPC de resultados: anon denegado, sin voto NOT_VOTED, argumentos manipulados rechazados", async () => {
+  it("RPC de resultados: anon sin sesión en una abierta, sin voto NOT_VOTED, argumentos manipulados rechazados", async () => {
     const asAnon = await rest("/rest/v1/rpc/get_poll_results", {
       method: "POST",
       body: JSON.stringify({ p_poll_id: open_ }),
     });
-    expect(asAnon.status).toBe(401);
-    expect(asAnon.text).toMatch(/42501/);
+    // V2-014: anon puede ejecutarla (las cerradas son públicas) pero una abierta pide sesión.
+    expect(asAnon.text).toMatch(/AUTH_REQUIRED/);
     expect(asAnon.text).not.toMatch(/total_votes|percentage/);
 
     const manipulated = await rest("/rest/v1/rpc/get_poll_results", {

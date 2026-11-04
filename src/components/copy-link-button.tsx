@@ -9,7 +9,15 @@ type CopyState = "idle" | "copied" | "manual";
 // mano, sin errores técnicos. La región status anuncia el resultado. Si el navegador tiene
 // hoja nativa (navigator.share), el botón pasa a «Compartir» y comparte título y URL (V2-018);
 // cancelar la hoja no es un error y, si falla por otra causa, se copia el enlace.
-export function CopyLinkButton({ path, title }: { path: string; title?: string }) {
+export function CopyLinkButton({
+  path,
+  title,
+  compact = false,
+}: {
+  path: string;
+  title?: string;
+  compact?: boolean;
+}) {
   const [state, setState] = useState<CopyState>("idle");
   const [url, setUrl] = useState("");
   // En el servidor y en la hidratación vale false; después, lo que soporte el navegador.
@@ -45,19 +53,39 @@ export function CopyLinkButton({ path, title }: { path: string; title?: string }
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-3">
+    <div className="flex min-w-0 flex-col gap-2">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
         <button
           type="button"
           onClick={handleClick}
-          className="min-h-11 shrink-0 rounded-full border border-field px-4 text-sm font-semibold whitespace-nowrap transition-colors hover:border-foreground"
+          aria-label={canShare ? "Compartir" : "Copiar enlace"}
+          className={
+            compact
+              ? "inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl hover:bg-track"
+              : "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl border border-field px-4 text-sm font-semibold whitespace-nowrap transition-colors hover:bg-track"
+          }
         >
-          {canShare ? "Compartir" : "Copiar enlace"}
+          <svg
+            aria-hidden="true"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M12 16V3m-4 4 4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7" />
+          </svg>
+          {!compact && (canShare ? "Compartir" : "Copiar enlace")}
         </button>
-        <p role="status" className="text-[13px] text-muted">
-          {state === "copied" && "Enlace copiado"}
-          {state === "manual" && "No se ha podido copiar. Selecciona el enlace y cópialo."}
-        </p>
+        {state !== "idle" && (
+          <p role="status" className="text-[13px] text-muted">
+            {state === "copied" && "Enlace copiado"}
+            {state === "manual" && "No se ha podido copiar. Selecciona el enlace y cópialo."}
+          </p>
+        )}
       </div>
       {state === "manual" && (
         <input

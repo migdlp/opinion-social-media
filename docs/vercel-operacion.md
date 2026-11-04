@@ -30,6 +30,8 @@ Asignar Vercel a Codex es una regla de coordinación, no un bloqueo técnico de 
 
 ## Variables por entorno
 
+**Cambio de infraestructura (3-11-2026):** Supabase DEV y PROD se han recreado en París (`eu-west-3`). Las variables de Vercel fueron actualizadas a estos nuevos proyectos, pero no acreditan que un nuevo deployment esté publicado ni que Google OAuth esté habilitado. Vercel Functions está configurado para próximos despliegues en París (`cdg1`).
+
 Los siete registros configurados separan los destinos; no copiar valores de claves al repositorio, issues o chats.
 
 | Variable | Development | Preview | Production |
@@ -38,7 +40,7 @@ Los siete registros configurados separan los destinos; no copiar valores de clav
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Publishable key dev | Publishable key dev | Publishable key prod |
 | `NEXT_PUBLIC_VERCEL_ENV` | `development` | `preview` | `production` |
 
-Dev es `ltlrujmqenhktiilsnis`; prod es `qchpdrolulcgmiliysvr`. Obtener credenciales del proyecto correspondiente mediante el acceso autorizado descrito en [Supabase](supabase-acceso.md). No usar `service_role`, `sb_secret_`, PAT ni secretos OAuth en `NEXT_PUBLIC_*`. Los cambios de variables se aplican a nuevos deployments; verificar el entorno antes de redesplegar. Ver [variables de Vercel](https://vercel.com/docs/environment-variables).
+Dev es `yxnnqdvyyjncljpdlwuq`; prod es `bmgjdkkavbacqrnetxkk`. Obtener credenciales del proyecto correspondiente mediante el acceso autorizado descrito en [Supabase](supabase-acceso.md). No usar `service_role`, `sb_secret_`, PAT ni secretos OAuth en `NEXT_PUBLIC_*`. Los cambios de variables se aplican a nuevos deployments; verificar el entorno antes de redesplegar. Ver [variables de Vercel](https://vercel.com/docs/environment-variables).
 
 El lector público `getSupabaseEnv()` exige una clave con prefijo `sb_publishable_` y contenido no vacío; rechaza claves secretas, JWT y otros valores sin reproducirlos en sus errores. Mantiene el rechazo de la URL de producción fuera de Production. Esta comprobación de formato no acredita que una clave pertenezca al proyecto: hay que obtener URL y clave del mismo proyecto y verificar su conexión. `NEXT_PUBLIC_*` se incrusta durante el build de Next.js; un error del lector no elimina una clave incorrecta que ya se haya incluido en el bundle. Si se expone una clave privilegiada, revocarla y generar un deployment corregido.
 
@@ -107,13 +109,13 @@ Configurar en Supabase Auth → URL Configuration y Google Cloud los destinos si
 |---|---|---|
 | Site URL | `http://localhost:3000` para desarrollo local | `https://opinion-social-media.vercel.app` |
 | Redirect URL de aplicación | `http://localhost:3000/auth/callback` y `https://<host-exacto-de-la-preview>/auth/callback` | `https://opinion-social-media.vercel.app/auth/callback` |
-| URI de redirección autorizada de Google | `https://ltlrujmqenhktiilsnis.supabase.co/auth/v1/callback` | `https://qchpdrolulcgmiliysvr.supabase.co/auth/v1/callback` |
+| URI de redirección autorizada de Google | `https://yxnnqdvyyjncljpdlwuq.supabase.co/auth/v1/callback` | `https://bmgjdkkavbacqrnetxkk.supabase.co/auth/v1/callback` |
 
 Sustituir el marcador por la URL exacta del deployment probado, autorizar sólo esa preview y retirar entradas caducadas. No usar comodines amplios ni conectar previews al Supabase prod. El callback de Google termina en Supabase; el de aplicación termina en la web. Si cambia dominio, revisar Site URL, allowlist y retorno OAuth antes de publicar, sin añadir dominios ajenos. Usar sólo rutas internas al manejar `next`.
 
 ### Migrar sin perder el historial
 
-1. Confirmar conexión autorizada y referencia **prod `qchpdrolulcgmiliysvr`**; registrar `list_migrations`, esquema actual, funciones, políticas y conteos previos. Comparar con el inventario de dev sin asumir que ambas bases coinciden.
+1. Confirmar conexión autorizada y referencia **prod `bmgjdkkavbacqrnetxkk`**; registrar `list_migrations`, esquema actual, funciones, políticas y conteos previos. Comparar con el inventario de dev sin asumir que ambas bases coinciden.
 2. Comparar versiones, nombres y SQL aplicado con `supabase/migrations` del SHA aprobado, usando ledger y lectura del catálogo. Si no se puede recuperar o contrastar el SQL, parar ante divergencias: no inferir igualdad sólo por el nombre.
 3. Revisar compatibilidad con la versión actual y anterior del frontend. Preparar copia/ensayo según la sección de recuperación; acordar ventana y pausa de escrituras cuando proceda. No ejecutar operaciones con riesgo de datos sin una recuperación aceptada.
 4. Aplicar únicamente las migraciones **pendientes**, en orden, con el mecanismo autorizado que mantenga el ledger. Registrar cada resultado; si el conector asigna otra versión, reconciliar esa diferencia explícitamente antes de continuar. No repetir SQL ya aplicado ni usar `db reset` en remoto ni reparar el ledger a ciegas.

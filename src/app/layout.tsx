@@ -1,18 +1,19 @@
-import type { Metadata } from "next";
+import { siteMetadata } from "@/lib/site-metadata";
+import { THEME_BOOTSTRAP } from "@/lib/theme";
 import { GeistSans } from "geist/font/sans";
 import { Header } from "@/components/header";
 import { Suspense } from "react";
 import { MobileNavigation, MobileNavigationFallback } from "@/components/mobile-navigation";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: "Opinión",
-  description: "Encuestas públicas: vota y descubre qué opinan los demás.",
-};
+export const metadata = siteMetadata;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="es" className={`${GeistSans.variable} h-full antialiased`}>
+    <html suppressHydrationWarning lang="es" className={`${GeistSans.variable} h-full antialiased`}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP }} />
+      </head>
       <body className="flex min-h-full flex-col pb-[calc(5rem+env(safe-area-inset-bottom))] sm:pb-0">
         <a
           href="#contenido"

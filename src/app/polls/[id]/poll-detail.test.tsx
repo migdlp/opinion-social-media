@@ -22,6 +22,7 @@ vi.mock("next/navigation", () => ({
   notFound: () => {
     throw NOT_FOUND;
   },
+  useRouter: () => ({ refresh: vi.fn() }),
 }));
 
 const { PollDetailLoader } = await import("./poll-detail");
@@ -73,5 +74,45 @@ describe("PollDetailLoader (/polls/[id])", () => {
     expect(screen.getByRole("link", { name: "Reintentar" }).getAttribute("href")).toBe(
       `/polls/${ID}`,
     );
+  });
+
+  it("V2-033: al volver del login marca la opción elegida, sin votarla; una ajena se ignora", async () => {
+    responses = { polls: { data: row, error: null } };
+
+    render(await PollDetailLoader({ id: ID, option: "b" }));
+    expect((screen.getByRole("radio", { name: "Sin cebolla" }) as HTMLInputElement).checked).toBe(
+      true,
+    );
+    expect(queries.map((q) => q.target)).not.toContain("rpc:vote_poll");
+    cleanup();
+
+    responses = { polls: { data: row, error: null } };
+    render(await PollDetailLoader({ id: ID, option: "zzz" }));
+    expect(screen.getAllByRole("radio").every((r) => !(r as HTMLInputElement).checked)).toBe(true);
+  });
+
+  // CMT-002: el debate bajo la encuesta.
+  it("pide el ajuste público de comentarios de esa encuesta", async () => {
+    responses = { polls: { data: row, error: null } };
+    render(await PollDetailLoader({ id: ID }));
+    const flag = queries.find((q) =>
+      q.calls.some((c) => c[0] === "select" && c[1] === "comments_enabled"),
+    );
+    expect(flag).toBeDefined();
+  });
+
+  it("con el debate apagado no hay sección de comentarios", async () => {
+    responses = { polls: { data: { ...row, comments_enabled: false }, error: null } };
+    render(await PollDetailLoader({ id: ID }));
+    expect(screen.queryByRole("heading", { level: 2, name: "Comentarios" })).toBeNull();
+    expect(queries.map((q) => q.target)).not.toContain("rpc:list_comments");
+  });
+
+  it("con el debate activado y sin voto explica cómo acceder y no pide comentarios", async () => {
+    responses = { polls: { data: { ...row, comments_enabled: true }, error: null } };
+    render(await PollDetailLoader({ id: ID }));
+    expect(screen.getByRole("heading", { level: 2, name: "Comentarios" })).toBeDefined();
+    expect(screen.getByText(/vota para ver y escribir comentarios/i)).toBeDefined();
+    expect(queries.map((q) => q.target)).not.toContain("rpc:list_comments");
   });
 });

@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
-import { getPollDetail } from "@/lib/data/operations";
+import { getPollSummary } from "@/lib/data/operations";
 import { createAnonymousClient } from "@/lib/supabase/anonymous";
 
 export const alt = "Opinión — encuestas para descubrir lo que pensamos";
@@ -13,8 +13,10 @@ const previewText = (text: string) => text.replace(/\S{21,}/gu, (word) => `${wor
 
 export default async function PollImage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const detail = await getPollDetail(createAnonymousClient(), id, { signedIn: false });
-  const poll = detail.ok ? detail.data.poll : null;
+  // Sólo datos públicos de la encuesta: nunca resultados, aunque esté cerrada (V2-014 los
+  // publica en la página, no en la imagen social).
+  const result = await getPollSummary(createAnonymousClient(), id);
+  const poll = result.ok ? result.data : null;
   const font = await readFile(
     join(process.cwd(), "node_modules/geist/dist/fonts/geist-sans/Geist-Regular.ttf"),
   );
@@ -27,15 +29,15 @@ export default async function PollImage({ params }: { params: Promise<{ id: stri
         width: "100%",
         height: "100%",
         padding: "36px 48px",
-        background: "#f4f4f5",
-        color: "#0a0a0b",
+        background: "#161e2e",
+        color: "#f9f9ff",
         fontFamily: "Geist",
       }}
     >
       <div style={{ display: "flex", justifyContent: "space-between", fontSize: 28 }}>
-        <span>Opinión</span>
+        <span style={{ color: "#ffb16b" }}>Opinión</span>
         {poll?.author && (
-          <span style={{ color: "#5e5e66", fontSize: 24 }}>@{poll.author.username}</span>
+          <span style={{ color: "#b4c8f5", fontSize: 24 }}>@{poll.author.username}</span>
         )}
       </div>
       {poll ? (
@@ -62,9 +64,9 @@ export default async function PollImage({ params }: { params: Promise<{ id: stri
                   alignItems: "center",
                   width: "49%",
                   padding: "14px 18px",
-                  border: "1px solid #e4e4e7",
+                  border: "1px solid #b4c8f5",
                   borderRadius: 12,
-                  background: "#ffffff",
+                  background: "#354861",
                   fontSize: 22,
                   lineHeight: 1.2,
                   wordBreak: "normal",
@@ -80,10 +82,10 @@ export default async function PollImage({ params }: { params: Promise<{ id: stri
               marginTop: "auto",
               paddingTop: 20,
               fontSize: 22,
-              color: "#5e5e66",
+              color: "#b4c8f5",
             }}
           >
-            Elige tu respuesta. Descubre lo que pensamos.
+            La curiosidad nos conecta.
           </div>
         </div>
       ) : (
@@ -93,8 +95,8 @@ export default async function PollImage({ params }: { params: Promise<{ id: stri
           <div style={{ display: "flex", fontSize: 64, letterSpacing: "-0.03em" }}>
             Una pregunta. Muchas opiniones.
           </div>
-          <div style={{ display: "flex", marginTop: 24, fontSize: 28, color: "#5e5e66" }}>
-            Elige tu respuesta. Descubre lo que pensamos.
+          <div style={{ display: "flex", marginTop: 24, fontSize: 28, color: "#b4c8f5" }}>
+            La curiosidad nos conecta.
           </div>
         </div>
       )}

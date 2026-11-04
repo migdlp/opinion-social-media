@@ -72,6 +72,39 @@ describe("ReportPoll", () => {
     expect(screen.getByRole("textbox", { name: /Detalles/ })).toBeDefined();
   });
 
+  it.each([null, "Otro"])(
+    "Tab y Mayús+Tab permanecen en el diálogo (motivo %s)",
+    async (reason) => {
+      const user = userEvent.setup();
+      render(<ReportPoll pollId={ID} signedIn />);
+      await open();
+      if (reason) await user.click(screen.getByRole("radio", { name: reason }));
+      const first = screen.getByRole("radio", { name: reason ?? "Spam" });
+      const last = screen.getByRole("button", { name: "Cancelar" });
+      last.focus();
+      await user.tab();
+      expect(document.activeElement).toBe(first);
+      await user.tab({ shift: true });
+      expect(document.activeElement).toBe(last);
+    },
+  );
+
+  it("al confirmar enfoca Cerrar y mantiene el foco hasta cerrar el diálogo", async () => {
+    const user = userEvent.setup();
+    render(<ReportPoll pollId={ID} signedIn />);
+    await open();
+    await user.click(screen.getByRole("radio", { name: "Spam" }));
+    await user.click(screen.getByRole("button", { name: "Enviar denuncia" }));
+    const close = await screen.findByRole("button", { name: "Cerrar" });
+    await waitFor(() => expect(document.activeElement).toBe(close));
+    await user.tab();
+    expect(document.activeElement).toBe(close);
+    await user.tab({ shift: true });
+    expect(document.activeElement).toBe(close);
+    await user.click(close);
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Más acciones" }));
+  });
+
   it("no envía sin motivo", async () => {
     render(<ReportPoll pollId={ID} signedIn />);
     await open();

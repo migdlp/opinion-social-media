@@ -38,6 +38,10 @@ Los resultados sólo se descubren después de votar, y esa regla la impone el ba
 - Stack fijado: Next.js App Router, React, TypeScript, Tailwind CSS, Supabase y Vercel (`docs/arquitectura.md`, D-014).
 - Fuente del detalle: `docs/brief-producto.md`, `docs/contexto-aplicacion.md`, `docs/contratos-api.md`.
 
+## Rediseño del 29-10-2026
+
+La [especificación After Sunset claro](docs/redisenio-aftersunset-claro.md) concreta la interfaz sin cambiar las reglas V2. Mantener Siguiendo y perfiles reales, 2–6 opciones y resultados públicos autorizados al cerrar. No añadir funciones sociales dibujadas en el prototipo ni usar sus cifras ficticias en la aplicación. Nombre provisional Opinión, sin adoptar PEEK.
+
 ## Brand Commitments
 
 - Nombre: **Opinión**, confirmado para el MVP.
@@ -45,7 +49,7 @@ Los resultados sólo se descubren después de votar, y esa regla la impone el ba
 - Idioma: español de España.
 - Personalidad: **curiosa y lúdica**. Descubrir los resultados es una pequeña sorpresa; tono cercano y con algo de chispa.
 - Dirección visual provisional: **After Sunset**, basada en la lámina PEEK enviada por el propietario el 28-10-2026 (D-026). Azul noche, blanco frío, melocotón y lavanda; curiosidad, mirada y revelación. Sustituye la dirección monocroma anterior.
-- Leer [DESIGN.md](DESIGN.md) y [la guía creativa](docs/direccion-creativa.md). «PEEK» no confirma un cambio de nombre; no hay todavía logo vectorial ni activos finales de esa referencia. La migración de CSS está pendiente.
+- Leer [DESIGN.md](DESIGN.md) y [la guía creativa](docs/direccion-creativa.md). «PEEK» no confirma un cambio de nombre; no hay todavía logo vectorial ni activos finales de esa referencia. La base CSS y los CTA compartidos se adaptan en DESIGN-002; los recorridos principales se adaptan en DESIGN-003 y las imágenes sociales se adaptan en DESIGN-005 y perfiles/revisión final siguen en DESIGN-004 y DESIGN-006.
 
 ## Evidence on Hand
 
