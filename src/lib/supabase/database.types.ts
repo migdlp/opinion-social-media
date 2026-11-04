@@ -488,6 +488,25 @@ export type Database = {
           username: string;
         }[];
       };
+      get_poll_cards: {
+        Args: { p_poll_ids: string[] };
+        Returns: {
+          author_display_name: string;
+          author_username: string;
+          category_name: string;
+          category_slug: string;
+          closes_at: string;
+          comments_enabled: boolean;
+          created_at: string;
+          my_option_id: string;
+          options: Json;
+          poll_id: string;
+          question: string;
+          results: Json;
+          saved: boolean;
+          total_votes: number;
+        }[];
+      };
       get_poll_results: {
         Args: { p_poll_id: string };
         Returns: {

@@ -412,6 +412,24 @@ public.export_my_data() returns jsonb
 - **Aún sin tabla en main** (claves omitidas): `encuesta_fijada`, `descripcion`, `silenciadas`, `descartadas`, `categorias_seguidas`, `reclamaciones`, `respuesta_a` y `estado` de las denuncias. **Regla permanente (E20):** la tarea que añada tablas o columnas con datos de una persona amplía esta función y `supabase/tests/036_export_my_data.test.sql`.
 - Adaptador: `exportMyData(supabase)` → `Result<unknown>`. Acción de servidor `exportDataAction()` → `Result<{ filename, content }>` (`opinion-datos-AAAA-MM-DD.json`, sangría de 2 espacios); el navegador lo descarga con un `Blob` y el archivo no se guarda en el servidor ni en Storage. Interfaz: apartado «Descargar mis datos» en Ajustes (`#descargar`).
 
+### 3.21. `get_poll_cards` (PERF-004)
+
+```sql
+public.get_poll_cards(p_poll_ids uuid[]) returns table (
+  poll_id uuid, question text, created_at timestamptz, closes_at timestamptz,
+  category_slug text, category_name text, author_username text, author_display_name text,
+  comments_enabled boolean, options jsonb, my_option_id uuid, total_votes integer,
+  results jsonb, saved boolean)
+```
+
+- `anon` y `authenticated`; `STABLE SECURITY DEFINER` con `search_path` vacío. Una llamada sustituye a las cinco consultas de una tarjeta (encuestas, autores, votos propios, `get_feed_results`, guardadas). Migración aditiva `20261104100000_poll_cards.sql`: no modifica `get_feed`, `get_feed_results` ni `get_poll_authors`.
+- **Entrada**: `p_poll_ids[1:20]`, sin duplicados y en el orden de la primera aparición; la salida sigue ese orden. `null` o `{}` dan 0 filas. Nunca falla por un id: los no visibles se omiten.
+- **Visibilidad** (copiada de `get_feed`): `status = 'published'` y `can_view_author(autor)`. Oculta, inexistente, de cuenta privada sin seguir y con bloqueo en cualquier sentido son indistinguibles (se omiten). Tampoco se sirve la oculta a su autora.
+- **Resultados** (copiados de `get_feed_results`): `results` y `total_votes` sólo si la encuesta está cerrada (`closes_at <= now()`) o quien llama ya votó; en una abierta no votada son `null`, también para la autora y para anon. `results` es `[{option_id, votes, percentage}]` por posición; `percentage = round(100 * votes / total, 1)` y `0.0` con total 0.
+- `options`: `[{id, text, position}]` por posición, sin recuentos. `my_option_id`: voto de `auth.uid()` (`null` sin sesión o sin voto). `saved`: guardada por `auth.uid()` (`false` sin sesión; los guardados ajenos nunca se ven). `author_username` y `author_display_name` son `null` si el autor no tiene perfil.
+- **Nunca devuelve** `user_id`, fechas de voto ni datos de otros votantes. Tests: `supabase/tests/037_poll_cards.test.sql` y `tests/security/poll-cards-attacks.test.ts`.
+- Sin adaptador todavía: PERF-005, PERF-008 y PERF-009 lo usarán desde la aplicación.
+
 ## 4. Lecturas directas (RLS)
 
 `categories` (V2-021) es de lectura pública (`slug, name, position`) y sin escrituras de clientes; el formulario de creación la lee con `getCategories`. Feed y detalle incluyen `category:categories(slug, name)`.

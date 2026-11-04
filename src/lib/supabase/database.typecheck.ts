@@ -142,6 +142,27 @@ export type DatabaseContractChecks = [
   >,
   Assert<Equal<Public["Functions"]["get_my_profile"]["Args"], Record<PropertyKey, never>>>,
   Assert<Equal<Public["Functions"]["get_poll_authors"]["Args"], { p_poll_ids: string[] }>>,
+  // PERF-004: tarjetas por lotes; la salida nunca incluye user_id ni fechas de voto.
+  Assert<Equal<Public["Functions"]["get_poll_cards"]["Args"], { p_poll_ids: string[] }>>,
+  Assert<
+    Equal<
+      keyof Public["Functions"]["get_poll_cards"]["Returns"][number],
+      | "poll_id"
+      | "question"
+      | "created_at"
+      | "closes_at"
+      | "category_slug"
+      | "category_name"
+      | "author_username"
+      | "author_display_name"
+      | "comments_enabled"
+      | "options"
+      | "my_option_id"
+      | "total_votes"
+      | "results"
+      | "saved"
+    >
+  >,
   Assert<Equal<Public["Functions"]["can_view_author"]["Args"], { p_author: string }>>,
   Assert<Equal<Public["Functions"]["can_view_author"]["Returns"], boolean>>,
   Assert<Equal<Public["Functions"]["get_feed_results"]["Args"], { p_poll_ids: string[] }>>,
