@@ -52,6 +52,11 @@ insert into public.user_mutes (muter_id, muted_id, created_at) values
 insert into public.dismissed_polls (user_id, poll_id, created_at) values
  ('00000000-0000-0000-0000-0000000000a9', '10000000-0000-0000-0000-0000000000b9', '2026-05-06 10:00:00+00'),
  ('00000000-0000-0000-0000-0000000000c9', '10000000-0000-0000-0000-0000000000a9', '2026-05-07 10:00:00+00');
+-- Categorías seguidas (FEED-006): Ana sigue deportes y ciencia; Carla sigue tecnología (no debe aparecer).
+insert into public.category_follows (user_id, category_slug, created_at) values
+ ('00000000-0000-0000-0000-0000000000a9', 'ciencia', '2026-05-08 10:00:00+00'),
+ ('00000000-0000-0000-0000-0000000000a9', 'deportes', '2026-05-09 10:00:00+00'),
+ ('00000000-0000-0000-0000-0000000000c9', 'tecnologia', '2026-05-10 10:00:00+00');
 insert into public.saved_polls (user_id, poll_id, created_at) values
  ('00000000-0000-0000-0000-0000000000a9', '10000000-0000-0000-0000-0000000000b9', '2026-05-03 10:00:00+00');
 -- Denuncias hechas por Ana y recibidas por Ana (de Carla).
@@ -126,6 +131,9 @@ begin
  assert (j #>> '{silenciadas,0}')::jsonb ?& array['usuario','desde'] and (select count(*) from jsonb_object_keys((j #>> '{silenciadas,0}')::jsonb)) = 2, 'claves de silenciadas';
  assert jsonb_array_length(j -> 'descartadas') = 1 and j #>> '{descartadas,0,encuesta_id}' = '10000000-0000-0000-0000-0000000000b9', 'descartadas';
  assert (select count(*) from jsonb_object_keys((j #>> '{descartadas,0}')::jsonb)) = 2 and (j #>> '{descartadas,0}')::jsonb ?& array['encuesta_id','desde'], 'claves de descartadas';
+ assert (select array_agg(e ->> 'categoria' order by ord) from jsonb_array_elements(j -> 'categorias_seguidas') with ordinality as x(e, ord)) = array['ciencia','deportes'], 'categorias_seguidas';
+ assert (select count(*) from jsonb_object_keys((j #>> '{categorias_seguidas,0}')::jsonb)) = 2 and (j #>> '{categorias_seguidas,0}')::jsonb ?& array['categoria','desde'], 'claves de categorias_seguidas';
+ assert position('tecnologia' in (j -> 'categorias_seguidas')::text) = 0, 'aparece una categoría ajena';
  assert position('10000000-0000-0000-0000-0000000000a9' in (j -> 'descartadas')::text) = 0, 'aparece un descarte ajeno';
  assert jsonb_array_length(j -> 'guardadas') = 1 and j #>> '{guardadas,0,encuesta_id}' = '10000000-0000-0000-0000-0000000000b9', 'guardadas';
 

@@ -140,8 +140,10 @@ select gen_random_uuid(), '00000000-0000-0000-0000-0000000000a4',
 from generate_series(1, 5000) g;
 analyze public.polls;
 set local enable_seqscan = off;
--- Con el índice del feed fuera de juego (se revierte con la transacción), el planificador elige el trigram.
+-- Con los índices del feed fuera de juego (se revierten con la transacción), el planificador elige el trigram.
+-- polls_category_feed_idx (FEED-006) es otro índice parcial sobre status = 'published'.
 drop index public.polls_feed_idx;
+drop index public.polls_category_feed_idx;
 do $$
 declare r record; v_plan text := '';
 begin
