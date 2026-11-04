@@ -64,9 +64,9 @@ end $$;
 
 select pg_temp.login('00000000-0000-0000-0000-0000000000a9');
 do $$ declare r record; begin
- -- poll_closed: sólo la 1 (cerrada hace 1 h), la 6 (de pv, visible) y la 8 (29 días).
+ -- poll_closed: la 1 (cerrada hace 1 h), la 6 (de pv, visible), la 8 (29 días) y la b (se borra más abajo).
  assert (select array_agg(poll_id order by poll_id) from public.list_notifications() where kind = 'poll_closed') =
-   array['20000000-0000-0000-0000-000000000001'::uuid, '20000000-0000-0000-0000-000000000006'::uuid, '20000000-0000-0000-0000-000000000008'::uuid],
+   array['20000000-0000-0000-0000-000000000001'::uuid, '20000000-0000-0000-0000-000000000006'::uuid, '20000000-0000-0000-0000-000000000008'::uuid, '20000000-0000-0000-0000-00000000000b'::uuid],
    'poll_closed inesperados';
  -- my_poll_closed: la 3 (votada por mí) y la 4, nunca poll_closed para ellas.
  assert (select array_agg(poll_id order by poll_id) from public.list_notifications() where kind = 'my_poll_closed') =
@@ -84,7 +84,7 @@ do $$ declare r record; begin
  assert r.comment_id is null and r.detail is null, 'campos ajenos';
  assert r.is_unread, 'sin leer';
  assert r.cursor like '%|poll_closed|20000000-0000-0000-0000-000000000001', 'cursor ' || r.cursor;
- assert public.count_unread_notifications() = 5, 'contador ' || public.count_unread_notifications();
+ assert public.count_unread_notifications() = 6, 'contador ' || public.count_unread_notifications();
  -- Sin agregados: el aviso no trae recuentos ni reparto.
  assert (select count(*) from jsonb_object_keys((select to_jsonb(n) from public.list_notifications() n limit 1))) = 11, 'columnas distintas de las acordadas';
  assert not exists (select 1 from public.list_notifications() n, jsonb_object_keys(to_jsonb(n)) k where k ~* 'vote|percent|result|total|count'), 'campos con agregados';
@@ -115,7 +115,7 @@ select pg_temp.login('00000000-0000-0000-0000-0000000000a9');
 select public.mark_notifications_seen();
 do $$ begin
  assert public.count_unread_notifications() = 0, 'contador tras marcar';
- assert (select count(*) from public.list_notifications() where kind in ('poll_closed','my_poll_closed')) = 5, 'marcar borró avisos';
+ assert (select count(*) from public.list_notifications() where kind in ('poll_closed','my_poll_closed')) = 6, 'marcar borró avisos';
 end $$;
 reset role;
 update public.polls set closes_at = null where id = '20000000-0000-0000-0000-000000000009';
@@ -154,13 +154,13 @@ insert into public.follows (follower_id, followee_id, status, created_at, accept
  select ('30000000-0000-0000-0000-' || lpad(g::text, 12, '0'))::uuid, '00000000-0000-0000-0000-0000000000b9', 'accepted',
         now() - (g || ' seconds')::interval, now() - (g || ' seconds')::interval from generate_series(1, 30) g;
 select pg_temp.login('00000000-0000-0000-0000-0000000000b9');
-do $$ declare c text; a text[]; b text[]; total int; begin
- select count(*) into total from (select 1 from private.notification_events('00000000-0000-0000-0000-0000000000b9')) x;
+do $$ declare c text; a text[]; b text[]; begin
  select array_agg(cursor order by rn) into a from (select cursor, row_number() over () rn from public.list_notifications()) s where rn <= 20;
  select a[20] into c;
  select array_agg(cursor order by rn) into b from (select cursor, row_number() over () rn from public.list_notifications(c)) s where rn <= 20;
  assert cardinality(a) = 20 and not (a && b), 'páginas solapadas';
- assert total >= 34, 'eventos ' || total;
+ -- 30 seguidores + 3 cierres propios (1, 8 y 9) = 33: 20 en la primera y 13 en la segunda.
+ assert (select count(*) from public.list_notifications(c)) = 13, 'segunda página';
 end $$;
 select pg_temp.expect_error($q$select * from public.list_notifications('2026-01-01T00:00:00Z|poll_closed|')$q$, 'INVALID_CURSOR');
 select pg_temp.expect_error($q$select * from public.list_notifications('2026-01-01T00:00:00Z|otro|x')$q$, 'INVALID_CURSOR');
