@@ -81,6 +81,32 @@ async function clientAs(user: TestUser) {
   return client;
 }
 
+// Abre una sesión nueva de `user` (otro «dispositivo») y devuelve su refresh token (AUTH-002).
+export async function newSessionRefreshToken(user: TestUser): Promise<string> {
+  const client = createClient(URL_, PUBLISHABLE, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const { data, error } = await client.auth.signInWithPassword({
+    email: user.email,
+    password: PASSWORD,
+  });
+  if (error || !data.session) throw error ?? new Error("Sin sesión");
+  return data.session.refresh_token;
+}
+
+// Intenta renovar una sesión con su refresh token. Los refresh tokens rotan: si funciona, devuelve
+// el nuevo para poder seguir usándolo.
+export async function refreshWith(
+  refreshToken: string,
+): Promise<{ ok: true; refreshToken: string } | { ok: false; error: string }> {
+  const client = createClient(URL_, PUBLISHABLE, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const { data, error } = await client.auth.refreshSession({ refresh_token: refreshToken });
+  if (error || !data.session) return { ok: false, error: error?.message ?? "Sin sesión" };
+  return { ok: true, refreshToken: data.session.refresh_token };
+}
+
 // Encuesta publicada por `user` mediante la RPC real (con su propia sesión).
 export async function createPoll(user: TestUser, question: string, options: string[]) {
   const client = await clientAs(user);

@@ -16,7 +16,7 @@ vi.mock("@/app/account-actions", () => ({
   reconcileAccountDeletionAction: vi.fn(),
 }));
 vi.mock("@/app/export-actions", () => ({ exportDataAction: vi.fn() }));
-vi.mock("@/app/auth/actions", () => ({ signOut: vi.fn() }));
+vi.mock("@/app/auth/actions", () => ({ signOut: vi.fn(), signOutEverywhere: vi.fn() }));
 vi.mock("@/app/profile-actions", () => ({
   saveProfile: vi.fn(),
   savePrivacy: vi.fn(),
@@ -120,6 +120,16 @@ describe("SettingsContent (/settings)", () => {
       within(account).getByRole("link", { name: "Volver a mi perfil" }).getAttribute("href"),
     ).toBe("/me");
     expect(within(account).getByRole("button", { name: "Cerrar sesión" })).toBeDefined();
+  });
+
+  it("Cuenta incluye el apartado Sesiones con el cierre en todos los dispositivos (AUTH-002)", async () => {
+    render(await SettingsContent());
+    const account = screen.getByRole("region", { name: "Cuenta" });
+    const sessions = within(account).getByRole("region", { name: "Sesiones" });
+    expect(sessions.id).toBe("sesiones");
+    expect(
+      within(sessions).getByRole("button", { name: "Cerrar sesión en todos los dispositivos" }),
+    ).toBeDefined();
   });
 
   it("Privacidad muestra la audiencia real del historial, separada de Cuenta privada", async () => {

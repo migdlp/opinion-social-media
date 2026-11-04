@@ -1,4 +1,5 @@
 import { AccountDeletedNotice } from "@/components/account-deleted-notice";
+import { SessionClosedNotice } from "@/components/session-closed-notice";
 import { EmptyState } from "@/components/empty-state";
 import { FeedControls, feedHref } from "@/components/feed-controls";
 import { FeedList } from "@/components/feed-list";
@@ -36,8 +37,14 @@ export async function Feed({ searchParams }: { searchParams?: SearchParams } = {
   // FEED-001: sin pestaña explícita todas las cuentas abren Recientes; Siguiendo sólo si se elige.
   const mode: FeedMode = explicit ?? "recientes";
 
-  // ACCOUNT-002: tras eliminar la cuenta se llega aquí con ?cuenta=eliminada.
-  const notice = first(params.cuenta) === "eliminada" ? <AccountDeletedNotice /> : null;
+  // ACCOUNT-002: tras eliminar la cuenta se llega aquí con ?cuenta=eliminada; AUTH-002: tras cerrar
+  // la sesión en todos los dispositivos, con ?sesion=cerrada.
+  const notice =
+    first(params.cuenta) === "eliminada" ? (
+      <AccountDeletedNotice />
+    ) : first(params.sesion) === "cerrada" ? (
+      <SessionClosedNotice />
+    ) : null;
 
   const controls = (
     <FeedControls mode={mode} category={category} categories={list} signedIn={signedIn} />
