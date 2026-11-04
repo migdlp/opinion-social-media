@@ -25,7 +25,14 @@ Estado: **implementado y probado con tests unitarios; sin observar un login real
 4. El borrado (`Max-Age=0`) no se altera.
 5. No se clasifica aquí la cookie como exenta o no de consentimiento: lo decide LEGAL-004 con este inventario.
 
+## Cierre de sesión en todos los dispositivos (AUTH-002)
+
+- Ajustes → Cuenta → **Sesiones**. La acción de servidor `signOutEverywhere` (`src/app/auth/actions.ts`) llama a `supabase.auth.signOut({ scope: "global" })`: revoca **todos los refresh tokens** de la cuenta y limpia las cookies de esta sesión con los mismos atributos que el cierre normal (borrado con `Max-Age=0`, sin cambios).
+- Los **access tokens ya emitidos siguen siendo válidos hasta que caducan** (por defecto 1 hora, se configura en el proyecto). Por eso el diálogo avisa de que en los demás dispositivos puede tardar hasta una hora; pasado ese tiempo no pueden renovar la sesión.
+- Si la revocación falla (error o sin red) no se redirige ni se cierra la sesión local: el error se muestra en el diálogo. Éxito → `/?sesion=cerrada`, con el aviso «Has cerrado la sesión en todos tus dispositivos.» (que quita el parámetro de la URL).
+- No hay lista de dispositivos ni cierre de una sesión concreta (fuera de alcance).
+
 ## Verificación
 
-- Tests: `src/lib/supabase/cookies.test.ts`, `server-cookies.test.ts`, `src/proxy.test.ts` y `clients.test.ts`.
+- Tests: `src/lib/supabase/cookies.test.ts`, `server-cookies.test.ts`, `src/proxy.test.ts` y `clients.test.ts`; AUTH-002: `src/app/auth/actions.test.ts`, `src/components/sign-out-everywhere.test.tsx`, `session-closed-notice.test.tsx` y `e2e/cerrar-sesiones.spec.ts` (dos contextos).
 - **No verificado**: inventario observado en un navegador real sobre HTTPS, flujo completo de Google, renovación tras horas y logout con cookies fragmentadas, ni los E2E de login/recarga/renovación/logout con ambos protocolos (los E2E sólo corren en CI). No se ha tocado ningún proyecto de Supabase ni ninguna sesión.

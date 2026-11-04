@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useId } from "react";
 import { deleteAccountAction, reconcileAccountDeletionAction } from "@/app/account-actions";
-import { signOut } from "@/app/auth/actions";
+import { signOut, signOutEverywhere } from "@/app/auth/actions";
 import {
   saveAvatar,
   saveBio,
@@ -15,6 +15,7 @@ import {
 import { AvatarPicker } from "@/components/avatar-picker";
 import { BioForm } from "@/components/bio-form";
 import { DeleteAccount } from "@/components/delete-account";
+import { SignOutEverywhere } from "@/components/sign-out-everywhere";
 import { PrivacyToggle } from "@/components/privacy-toggle";
 import { ProfileForm } from "@/components/profile-form";
 import { ThemeSelector } from "@/components/theme-selector";
@@ -121,6 +122,7 @@ export function SettingsForm({
             </button>
           </form>
         </div>
+        <SignOutEverywhere onSignOut={signOutEverywhere} />
         <DeleteAccount
           username={profile.username}
           onDelete={deleteAccountAction}
