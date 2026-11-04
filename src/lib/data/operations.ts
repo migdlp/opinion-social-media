@@ -1073,3 +1073,14 @@ export function setVoteVisibility(
     return error ? { ok: false, error: toAppError(error) } : { ok: true, data: undefined };
   });
 }
+
+// Copia de los datos propios (ACCOUNT-003, D-049): la RPC devuelve el documento JSON completo de la
+// cuenta de la sesión, sin parámetros de identidad. Errores: AUTH_REQUIRED y
+// DATA_EXPORT_RATE_LIMITED (una vez cada 10 minutos). El resultado no se guarda en el servidor.
+export function exportMyData(supabase: SupabaseClient): Promise<Result<unknown>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("export_my_data");
+    if (error) return { ok: false, error: toAppError(error) };
+    return { ok: true, data };
+  });
+}

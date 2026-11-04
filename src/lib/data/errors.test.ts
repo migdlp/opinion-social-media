@@ -42,6 +42,7 @@ const BUSINESS: AppErrorCode[] = [
   "CANNOT_FOLLOW_SELF",
   "FOLLOW_RATE_LIMITED",
   "CONFIRMATION_MISMATCH",
+  "DATA_EXPORT_RATE_LIMITED",
 ];
 
 describe("toAppError", () => {

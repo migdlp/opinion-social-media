@@ -11,6 +11,7 @@ vi.mock("@/lib/supabase/server", () => ({
 }));
 vi.mock("@/lib/data/operations", () => ({ getMyProfile, getMyVoteVisibility, listBlockedUsers }));
 vi.mock("@/app/block-actions", () => ({ unblockAction: vi.fn(), loadMoreBlocked: vi.fn() }));
+vi.mock("@/app/export-actions", () => ({ exportDataAction: vi.fn() }));
 vi.mock("@/app/auth/actions", () => ({ signOut: vi.fn() }));
 vi.mock("@/app/profile-actions", () => ({
   saveProfile: vi.fn(),
@@ -79,11 +80,18 @@ describe("SettingsContent (/settings)", () => {
     expect(screen.getByRole("link", { name: "Reintentar" }).getAttribute("href")).toBe("/settings");
   });
 
-  it("organiza los controles en Perfil, Apariencia, Privacidad, Cuenta y Cuentas bloqueadas", async () => {
+  it("organiza los controles en Perfil, Apariencia, Privacidad, Cuenta, Cuentas bloqueadas y Descargar mis datos", async () => {
     render(await SettingsContent());
 
     const names = screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent);
-    expect(names).toEqual(["Perfil", "Apariencia", "Privacidad", "Cuenta", "Cuentas bloqueadas"]);
+    expect(names).toEqual([
+      "Perfil",
+      "Apariencia",
+      "Privacidad",
+      "Cuenta",
+      "Cuentas bloqueadas",
+      "Descargar mis datos",
+    ]);
     for (const name of names) {
       expect(screen.getByRole("region", { name: name! })).toBeDefined();
     }

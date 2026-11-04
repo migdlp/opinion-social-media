@@ -58,4 +58,12 @@ follows=$(sql "select count(*) from public.follows where follower_id = '$A'")
 echo "follow_user x$N con 199 consumos: OK=$ok FOLLOW_RATE_LIMITED=$limited → consumos=$used, follows=$follows"
 if [ "$used" -ne 200 ] || [ "$follows" -ne 1 ] || [ "$ok" -ne 1 ] || [ "$limited" -ne $((N - 1)) ]; then echo "FALLO: se superó la cuota de seguimientos"; exit 1; fi
 
+# ACCOUNT-003: N export_my_data simultáneos de la misma cuenta sólo admiten uno (cerrojo por cuenta).
+sql "delete from public.data_export_events;"
+out=$(for i in $(seq 1 "$N"); do call "$A" "select public.export_my_data()" & done; wait)
+ok=$(grep -c '^OK$' <<<"$out" || true); limited=$(grep -c 'DATA_EXPORT_RATE_LIMITED' <<<"$out" || true)
+events=$(sql "select count(*) from public.data_export_events where user_id = '$A'")
+echo "export_my_data x$N: OK=$ok DATA_EXPORT_RATE_LIMITED=$limited → eventos=$events"
+if [ "$events" -ne 1 ] || [ "$ok" -ne 1 ] || [ "$limited" -ne $((N - 1)) ]; then echo "FALLO: se esquivó el límite de exportaciones"; exit 1; fi
+
 echo "ok concurrencia"
