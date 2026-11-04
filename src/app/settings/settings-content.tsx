@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
+import { exportDataAction } from "@/app/export-actions";
 import { BlockedAccounts } from "@/components/blocked-accounts";
+import { DownloadData } from "@/components/download-data";
 import { EmptyState } from "@/components/empty-state";
 import { loginPath, onboardingPath } from "@/lib/auth/redirect";
 import { ERROR_MESSAGES } from "@/lib/data/errors";
@@ -58,6 +60,7 @@ export async function SettingsContent() {
           </a>
         </section>
       )}
+      <DownloadData onExport={exportDataAction} />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 // Compilado por npm run typecheck: verifica los contratos contra tipos generados.
-import type { Database } from "./database.types";
+import type { Database, Json } from "./database.types";
 
 type Equal<A, B> =
   (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false;
@@ -23,6 +23,7 @@ export type DatabaseContractChecks = [
       | "comments"
       | "user_reports"
       | "comment_reports"
+      | "data_export_events"
       | "released_usernames"
     >
   >,
@@ -124,6 +125,9 @@ export type DatabaseContractChecks = [
   // ACCOUNT-001: sin parámetro de identidad; la cuenta borrada es siempre auth.uid().
   Assert<Equal<Public["Functions"]["delete_my_account"]["Args"], { p_confirm: string }>>,
   Assert<Equal<Public["Functions"]["delete_my_account"]["Returns"], undefined>>,
+  // ACCOUNT-003: sin argumentos; devuelve el JSON de la copia de datos.
+  Assert<Equal<Public["Functions"]["export_my_data"]["Args"], Record<PropertyKey, never>>>,
+  Assert<Equal<Public["Functions"]["export_my_data"]["Returns"], Json>>,
   Assert<
     Equal<
       Public["Functions"]["respond_follow_request"]["Args"],

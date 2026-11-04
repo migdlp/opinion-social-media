@@ -58,6 +58,7 @@ insert into public.comment_reports (comment_id, reporter_id, reason) values
 insert into public.follow_quota_events (user_id) values
  ('00000000-0000-0000-0000-0000000000a8'),
  ('00000000-0000-0000-0000-0000000000a8');
+insert into public.data_export_events (user_id) values ('00000000-0000-0000-0000-0000000000a8');
 
 -- Filas de una cuenta en TODAS las columnas de public que referencian auth.users. Se descubren en el
 -- catálogo: una tabla futura con datos de personas entra sola en la comprobación.

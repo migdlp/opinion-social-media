@@ -13,7 +13,9 @@ grant usage on schema auth to anon, authenticated, service_role;
 
 create table auth.users (
   id uuid primary key default gen_random_uuid(),
-  email text
+  email text,
+  created_at timestamptz not null default now(),
+  raw_app_meta_data jsonb not null default '{}'::jsonb
 );
 
 -- Igual que Supabase: el usuario sale de las claims del JWT de la petición.

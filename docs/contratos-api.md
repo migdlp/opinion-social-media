@@ -49,6 +49,7 @@ Modelo de datos: el del [brief §5](brief-producto.md#5-modelo-de-datos-obligato
 | `CANNOT_FOLLOW_SELF` | `follow_user` | El `@usuario` es el propio | «No puedes seguirte a ti mismo.» |
 | `FOLLOW_RATE_LIMITED` | `follow_user` | 200 seguimientos nuevos de la cuenta en 60 minutos (el límite cuenta filas creadas; repetir uno existente no cuenta) | «Has seguido a demasiadas cuentas. Inténtalo más tarde.» |
 | `CONFIRMATION_MISMATCH` | `delete_my_account` | `lower(p_confirm)` no coincide con el `@usuario` propio (o con `eliminar` si la cuenta no tiene perfil); `null` incluido | «Escribe exactamente tu usuario para confirmar.» |
+| `DATA_EXPORT_RATE_LIMITED` | `export_my_data` | Ya hay una exportación de la misma cuenta en los últimos 10 minutos (también si llegan dos a la vez) | «Ya has descargado tus datos hace poco. Inténtalo de nuevo en unos minutos.» |
 | `NETWORK_ERROR` | Adaptador (cliente) | `fetch` falla o no llega respuesta | «No hay conexión. Comprueba tu red y vuelve a intentarlo.» |
 | `UNKNOWN` | Adaptador (cliente) | Cualquier otro error | «Algo ha fallado. Vuelve a intentarlo.» |
 
@@ -60,6 +61,7 @@ Orden de comprobación dentro de cada RPC (determina qué código gana si hay va
 - `report_poll`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `REPORT_INVALID` → `ALREADY_REPORTED` → `REPORT_RATE_LIMITED`.
 - `upsert_my_profile`: `AUTH_REQUIRED` → `USERNAME_INVALID` → `USERNAME_RESERVED` → `DISPLAY_NAME_INVALID` → `USERNAME_TAKEN`.
 - `delete_my_account`: `AUTH_REQUIRED` → `CONFIRMATION_MISMATCH`.
+- `export_my_data`: `AUTH_REQUIRED` → `DATA_EXPORT_RATE_LIMITED`.
 - `set_profile_privacy`: `AUTH_REQUIRED` → `PROFILE_REQUIRED`.
 - `follow_user`: `AUTH_REQUIRED` → `PROFILE_REQUIRED` → `USER_NOT_FOUND` → `CANNOT_FOLLOW_SELF` → `FOLLOW_RATE_LIMITED`. `unfollow_user` y `remove_follower`: `AUTH_REQUIRED` → `USER_NOT_FOUND`. `respond_follow_request`: `AUTH_REQUIRED` → `USER_NOT_FOUND`.
 
@@ -397,6 +399,19 @@ public.delete_my_account(p_confirm text) returns void
 - **Storage**: hoy no hay objetos por persona. AVATAR-002 (#252) y MEDIA-002 (#289) deben borrar los suyos al eliminar la cuenta; esta función sólo borra filas.
 - Adaptador: `deleteMyAccount(supabase, confirm)` → `Result<void>`; error nuevo `CONFIRMATION_MISMATCH`. La interfaz es ACCOUNT-002.
 
+### 3.20. `export_my_data` (ACCOUNT-003, D-049)
+
+```sql
+public.export_my_data() returns jsonb
+```
+
+- Sólo `authenticated`, `SECURITY DEFINER` con `search_path` vacío, **sin parámetros**: la cuenta es siempre `auth.uid()`. Sin sesión, `AUTH_REQUIRED`.
+- **Límite**: una exportación cada 10 minutos por cuenta (`DATA_EXPORT_RATE_LIMITED`). Un cerrojo por cuenta (`pg_advisory_xact_lock`) impide esquivarlo con peticiones simultáneas; sólo se registra la aceptada, en `data_export_events (user_id, created_at)` (índice `(user_id, created_at desc)`, RLS sin permisos para clientes, cascada con `auth.users`; los eventos de más de un día se limpian al pedir).
+- **Contenido** (`formato: "opinion-export"`, `version: 1`, `generado_en`): `cuenta` (email, creada_en, proveedor), `perfil`, `encuestas` (con opciones, categoría, cierre, estado y debate), `votos` (encuesta, opción elegida y fecha; la pregunta es `null` si la encuesta está oculta), `comentarios` (con estado), `seguimientos.sigo` y `seguimientos.me_siguen`, `bloqueadas`, `guardadas` y `denuncias` (`encuestas`, `personas`, `comentarios`) hechas por la cuenta. Las listas vacías se devuelven como `[]`; una cuenta sin perfil recibe `perfil: null`.
+- **No incluye**: `user_id` (ni propio ni ajeno), agregados de encuestas, votos o comentarios ajenos, denuncias recibidas ni quién ha bloqueado a la cuenta. De otras personas sólo aparece su `@usuario` dentro de una relación propia.
+- **Aún sin tabla en main** (claves omitidas): `encuesta_fijada`, `descripcion`, `silenciadas`, `descartadas`, `categorias_seguidas`, `reclamaciones`, `respuesta_a` y `estado` de las denuncias. **Regla permanente (E20):** la tarea que añada tablas o columnas con datos de una persona amplía esta función y `supabase/tests/036_export_my_data.test.sql`.
+- Adaptador: `exportMyData(supabase)` → `Result<unknown>`. Acción de servidor `exportDataAction()` → `Result<{ filename, content }>` (`opinion-datos-AAAA-MM-DD.json`, sangría de 2 espacios); el navegador lo descarga con un `Blob` y el archivo no se guarda en el servidor ni en Storage. Interfaz: apartado «Descargar mis datos» en Ajustes (`#descargar`).
+
 ## 4. Lecturas directas (RLS)
 
 `categories` (V2-021) es de lectura pública (`slug, name, position`) y sin escrituras de clientes; el formulario de creación la lee con `getCategories`. Feed y detalle incluyen `category:categories(slug, name)`.
@@ -470,6 +485,7 @@ export type AppErrorCode =
   | 'CANNOT_FOLLOW_SELF'
   | 'FOLLOW_RATE_LIMITED'
   | 'CONFIRMATION_MISMATCH'
+  | 'DATA_EXPORT_RATE_LIMITED'
   | 'NETWORK_ERROR'
   | 'UNKNOWN'
 

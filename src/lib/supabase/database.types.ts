@@ -94,6 +94,22 @@ export type Database = {
           },
         ];
       };
+      data_export_events: {
+        Row: {
+          created_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       follow_quota_events: {
         Row: {
           created_at: string;
@@ -430,6 +446,7 @@ export type Database = {
         Returns: string;
       };
       delete_my_account: { Args: { p_confirm: string }; Returns: undefined };
+      export_my_data: { Args: Record<PropertyKey, never>; Returns: Json };
       follow_user: { Args: { p_username: string }; Returns: string };
       get_feed: {
         Args: { p_category?: string; p_cursor?: string; p_mode?: string };
