@@ -991,7 +991,7 @@ export function listDismissedPolls(
       p_cursor: cursor ?? null,
     });
     if (error) return { ok: false, error: toAppError(error) };
-    const rows = data ?? [];
+    const rows = (data ?? []) as { poll_id: string; cursor: string }[];
     const page = rows.slice(0, DISMISSED_PAGE_SIZE);
     const last = page[page.length - 1];
     return {
