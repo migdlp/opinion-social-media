@@ -324,7 +324,7 @@ El propietario aprobó las historias 57–63, 66, 68 y 70–82 (rechazó 64, 65,
 | ID / issue | Tarea | Prioridad | Dependencias | Estado | Agente |
 |---|---|---|---|---|---|
 | DOC-013 | Planificar las historias 57–82 aprobadas: épicas, tareas, decisiones e issues | P0 | — | Completada con esta PR | claude-code (Opus 5.5, sesión del 04-11-2026) |
-| [QA-002](https://github.com/migdlp/opinion-social-media/issues/388) | Regresión de privacidad y convivencia para E12–E20 | P0 | Se prepara desde el principio; se cierra cuando todas las tareas de E13–E21 están en main | Pendiente | — |
+| [QA-002](https://github.com/migdlp/opinion-social-media/issues/388) | Regresión de privacidad y convivencia para E12–E20 | P0 | Se prepara desde el principio; se cierra cuando todas las tareas de E13–E21 están en main | En progreso (parcial: matriz documental de [qa-matriz-privacidad.md](qa-matriz-privacidad.md); faltan SQL, ataques HTTP y E2E) | claude-code (Claude Sonnet 5.5, sesión del 04-11-2026, migdlp) |
 | [FEED-002](https://github.com/migdlp/opinion-social-media/issues/351) | Filtro «Sin votar» en el feed | P1 | PERF-005 #330 | Pendiente | — |
 | [FEED-003](https://github.com/migdlp/opinion-social-media/issues/352) | Descartar encuestas: backend | P1 | — | Pendiente | — |
 | [FEED-004](https://github.com/migdlp/opinion-social-media/issues/353) | Descartar encuestas: interfaz | P1 | FEED-003, PERF-005 #330 | Pendiente | — |
