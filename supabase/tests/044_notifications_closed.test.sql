@@ -134,6 +134,17 @@ reset role;
 update public.profiles set is_private = true where user_id = '00000000-0000-0000-0000-0000000000c9';
 select pg_temp.login('00000000-0000-0000-0000-0000000000a9');
 do $$ begin assert not exists (select 1 from public.list_notifications() where poll_id = '20000000-0000-0000-0000-000000000006'), 'aviso de una cuenta que pasó a privada'; end $$;
+-- Una solicitud pendiente no abre la cuenta privada; una relación aceptada, sí.
+reset role;
+insert into public.follows (follower_id, followee_id, status) values ('00000000-0000-0000-0000-0000000000a9', '00000000-0000-0000-0000-0000000000c9', 'pending');
+select pg_temp.login('00000000-0000-0000-0000-0000000000a9');
+do $$ begin assert not exists (select 1 from public.list_notifications() where poll_id = '20000000-0000-0000-0000-000000000006'), 'una solicitud pendiente abre la privada'; end $$;
+reset role;
+update public.follows set status = 'accepted', accepted_at = now() where follower_id = '00000000-0000-0000-0000-0000000000a9' and followee_id = '00000000-0000-0000-0000-0000000000c9';
+select pg_temp.login('00000000-0000-0000-0000-0000000000a9');
+do $$ begin assert exists (select 1 from public.list_notifications() where poll_id = '20000000-0000-0000-0000-000000000006' and kind = 'poll_closed'), 'seguida con relación aceptada no avisa'; end $$;
+reset role;
+delete from public.follows where followee_id = '00000000-0000-0000-0000-0000000000c9';
 reset role;
 insert into public.user_blocks (blocker_id, blocked_id) values ('00000000-0000-0000-0000-0000000000a9', '00000000-0000-0000-0000-0000000000b9');
 select pg_temp.login('00000000-0000-0000-0000-0000000000a9');

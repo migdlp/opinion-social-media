@@ -16,6 +16,35 @@ language sql
 stable
 set search_path = ''
 as $$
+  -- Mis votos primero (índice votes_user_id_idx): sin esto el planificador recorre todas las encuestas
+  -- cerradas de la ventana, de todo el mundo. la visibilidad se resuelve una vez por AUTOR distinto, no
+  -- por encuesta.
+  with voted as materialized (
+    select p.id, p.user_id, p.question, p.closes_at
+    from public.votes v
+    join public.polls p on p.id = v.poll_id
+    where v.user_id = p_user
+      and p.user_id is distinct from p_user
+      and p.status = 'published'
+      and p.closes_at is not null
+      and p.closes_at <= now()
+      and p.closes_at > now() - interval '30 days'
+  ),
+  visible_authors as materialized (
+    -- Mismas reglas que public.can_view_author (que cuesta ~1 ms por llamada), en una sola pasada y
+    -- sobre autores distintos: sin bloqueo en ningún sentido y cuenta pública o seguida con relación aceptada.
+    select a.user_id
+    from (select distinct user_id from voted where user_id is not null) a
+    where not exists (
+        select 1 from public.user_blocks b
+        where (b.blocker_id = p_user and b.blocked_id = a.user_id)
+           or (b.blocker_id = a.user_id and b.blocked_id = p_user))
+      and (
+        not exists (select 1 from public.profiles pr where pr.user_id = a.user_id and pr.is_private)
+        or exists (
+          select 1 from public.follows f
+          where f.follower_id = p_user and f.followee_id = a.user_id and f.status = 'accepted'))
+  )
   select e.kind, e.occurred_at, e.actor_id, e.poll_id, e.poll_question
   from (
     select 'follow_request'::text as kind, f.created_at as occurred_at, f.follower_id as actor_id,
@@ -42,16 +71,9 @@ as $$
       select 1 from public.user_mutes m where m.muter_id = p_user and m.muted_id = e.actor_id)
   union all
   -- Encuestas ajenas que voté, cerradas y visibles para p_user.
-  select 'poll_closed'::text, p.closes_at, null::uuid, p.id, p.question
-    from public.votes v
-    join public.polls p on p.id = v.poll_id
-    where v.user_id = p_user
-      and p.user_id is distinct from p_user
-      and p.status = 'published'
-      and p.closes_at is not null
-      and p.closes_at <= now()
-      and p.closes_at > now() - interval '30 days'
-      and public.can_view_author(p.user_id)
+  select 'poll_closed'::text, d.closes_at, null::uuid, d.id, d.question
+    from voted d
+    where d.user_id in (select user_id from visible_authors)
   union all
   -- Encuestas propias cerradas (las haya votado o no).
   select 'my_poll_closed'::text, p.closes_at, null::uuid, p.id, p.question

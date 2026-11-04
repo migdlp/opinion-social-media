@@ -1039,7 +1039,13 @@ export function listMyCategories(supabase: SupabaseClient): Promise<Result<Categ
 // RPC devuelve una fila más para saber si hay siguiente. Errores: AUTH_REQUIRED, PROFILE_REQUIRED,
 // INVALID_CURSOR.
 const NOTIFICATION_PAGE_SIZE = 20;
-const NOTIFICATION_KINDS = new Set<string>(["new_follower", "follow_request", "follow_accepted"]);
+const NOTIFICATION_KINDS = new Set<string>([
+  "new_follower",
+  "follow_request",
+  "follow_accepted",
+  "poll_closed",
+  "my_poll_closed",
+]);
 
 export function listNotifications(
   supabase: SupabaseClient,
@@ -1052,9 +1058,11 @@ export function listNotifications(
       kind: string;
       occurred_at: string;
       is_unread: boolean;
-      actor_username: string;
+      actor_username: string | null;
       actor_display_name: string | null;
       actor_avatar_icon: string | null;
+      poll_id: string | null;
+      poll_question: string | null;
       cursor: string;
     }[];
     const page = rows
@@ -1068,11 +1076,17 @@ export function listNotifications(
           kind: row.kind as NotificationKind,
           occurredAt: row.occurred_at,
           isUnread: row.is_unread,
-          actor: {
-            username: row.actor_username,
-            displayName: row.actor_display_name,
-            avatarIcon: parseAvatarIcon(row.actor_avatar_icon),
-          },
+          actor: row.actor_username
+            ? {
+                username: row.actor_username,
+                displayName: row.actor_display_name,
+                avatarIcon: parseAvatarIcon(row.actor_avatar_icon),
+              }
+            : null,
+          poll:
+            row.poll_id && row.poll_question !== null
+              ? { id: row.poll_id, question: row.poll_question }
+              : null,
         })),
         nextCursor: rows.length > NOTIFICATION_PAGE_SIZE && last ? last.cursor : null,
       },
