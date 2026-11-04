@@ -118,6 +118,19 @@ Un comentario oculto desaparece de `list_comments` y de las denuncias nuevas, y 
 
 La autora puede borrar una encuesta **suya publicada** con `delete_my_poll` (borrado físico e inmediato, sin papelera ni deshacer, D-046). Por cascada desaparecen sus opciones, votos, comentarios (y las denuncias de esos comentarios), guardados, descartes y las denuncias de la propia encuesta. **Una encuesta oculta por moderación (`hidden`) no se puede borrar** (la autora recibe `POLL_UNAVAILABLE`, igual que con una ajena o inexistente): así se conserva la evidencia hasta que la persona operadora decida. Si una encuesta denunciada se borra, las denuncias desaparecen con ella; quien modere debe ocultar —no esperar— si necesita conservar el caso. Ningún cliente puede borrar directamente de `polls`.
 
+## Estado de las denuncias (MOD-003)
+
+Cada denuncia (`poll_reports`, `user_reports`, `comment_reports`) tiene `status` (`pending` por defecto, `actioned` o `dismissed`) y `reviewed_at`; un `CHECK` obliga a que `reviewed_at` sea nulo sólo si el estado es `pending`. Quien denuncia lo ve en `list_my_reports`, que no revela a la persona denunciada ni el detalle. Ningún cliente puede escribir el estado: lo cambia sólo quien opera, con SQL:
+
+```sql
+-- Con medida tomada (ocultar, avisar...):
+update public.poll_reports set status = 'actioned', reviewed_at = now() where id = '<id>' returning id, status;
+-- Sin medida (no infringe las normas):
+update public.poll_reports set status = 'dismissed', reviewed_at = now() where id = '<id>' returning id, status;
+```
+
+Lo mismo con `user_reports` y `comment_reports`. Registra siempre la decisión y su motivo en la incidencia de seguimiento. Si la encuesta o el comentario denunciado se oculta o se borra, la persona que denunció deja de ver su título o enlace (la fila se conserva mientras exista el objetivo).
+
 ## No hacer
 
 - No borrar filas de `polls`, `poll_options` ni `votes` para moderar: borrar una encuesta elimina en cascada sus opciones y votos y no se puede deshacer.

@@ -21,7 +21,11 @@ import type {
   FeedPage,
   FeedQuery,
   FollowPage,
+  MyReport,
+  MyReportPage,
   NotificationKind,
+  ReportStatus,
+  ReportType,
   UserHit,
   UserSearchPage,
   NotificationPage,
@@ -1167,6 +1171,59 @@ export function deleteMyPoll(supabase: SupabaseClient, pollId: string): Promise<
   return guard(async () => {
     const { error } = await supabase.rpc("delete_my_poll", { p_poll_id: pollId });
     return error ? { ok: false, error: toAppError(error) } : { ok: true, data: undefined };
+  });
+}
+
+// Mis denuncias con su estado (MOD-003): encuestas, personas y comentarios, de la más reciente a la
+// más antigua, 20 por página (la RPC devuelve una fila más para saber si hay siguiente). El estado
+// lo cambia un operador; aquí sólo se lee. targetLabel y targetPath son null si el objetivo ya no
+// es visible para quien llama. Errores: AUTH_REQUIRED, INVALID_CURSOR.
+const REPORT_PAGE_SIZE = 20;
+const REPORT_TYPES = new Set<string>(["poll", "user", "comment"]);
+const REPORT_STATUSES = new Set<string>(["pending", "actioned", "dismissed"]);
+
+type MyReportRow = {
+  report_type: string;
+  target_label: string | null;
+  target_path: string | null;
+  reason: string;
+  created_at: string;
+  status: string;
+  reviewed_at: string | null;
+  cursor: string;
+};
+
+function toMyReport(row: MyReportRow): MyReport {
+  return {
+    type: row.report_type as ReportType,
+    targetLabel: row.target_label,
+    targetPath: row.target_path,
+    reason: row.reason,
+    createdAt: row.created_at,
+    status: row.status as ReportStatus,
+    reviewedAt: row.reviewed_at,
+  };
+}
+
+export function listMyReports(
+  supabase: SupabaseClient,
+  cursor?: string | null,
+): Promise<Result<MyReportPage>> {
+  return guard(async () => {
+    const { data, error } = await supabase.rpc("list_my_reports", { p_cursor: cursor ?? null });
+    if (error) return { ok: false, error: toAppError(error) };
+    const rows = (data ?? []) as MyReportRow[];
+    const page = rows
+      .slice(0, REPORT_PAGE_SIZE)
+      .filter((row) => REPORT_TYPES.has(row.report_type) && REPORT_STATUSES.has(row.status));
+    const last = rows[REPORT_PAGE_SIZE - 1];
+    return {
+      ok: true,
+      data: {
+        items: page.map(toMyReport),
+        nextCursor: rows.length > REPORT_PAGE_SIZE && last ? last.cursor : null,
+      },
+    };
   });
 }
 

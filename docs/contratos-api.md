@@ -561,6 +561,21 @@ public.delete_my_poll(p_poll_id uuid) returns void
 - Storage: hoy las encuestas no tienen archivos. MEDIA-002 (#289) deberá borrar los objetos asociados al borrar la encuesta.
 - Adaptador: `deleteMyPoll(supabase, pollId)` → `Result<void>`. Tests: `supabase/tests/046_delete_my_poll.test.sql`, `tests/security/delete-poll-attacks.test.ts` y `src/lib/data/delete-poll.test.ts`. La interfaz es POLL-005. Documentado en `docs/moderacion.md` y `docs/legal/inventario-tratamientos.md`.
 
+### 3.30. Estado de mis denuncias (MOD-003)
+
+```sql
+public.list_my_reports(p_cursor text default null)
+  returns table (report_type text, target_label text, target_path text, reason text,
+                 created_at timestamptz, status text, reviewed_at timestamptz, cursor text)
+```
+
+- Migración aditiva `20261104200000_report_status.sql`. Sólo `authenticated`. Errores: `AUTH_REQUIRED`, `INVALID_CURSOR`. Nunca devuelve `user_id`, la persona denunciada ni el detalle.
+- Tablas `poll_reports`, `user_reports` y `comment_reports`: nuevas `status` (`pending` | `actioned` | `dismissed`, por defecto `pending`) y `reviewed_at`, con `CHECK ((status = 'pending') = (reviewed_at is null))`. Los clientes no escriben ni leen estas tablas; el cambio lo hace quien opera (docs/moderacion.md).
+- `report_type`: `poll`, `user` o `comment`. `target_label` y `target_path` sólo si el objetivo sigue siendo visible para quien denunció: encuesta publicada y autora visible (`/polls/<id>`, pregunta); usuario sin bloqueo en ningún sentido (`/u/<usuario>`, `@usuario`); comentario publicado y accesible (`/polls/<id>#comentario-<id>`, primeros 80 caracteres). Si no, ambos son `null`. `private.comments_accessible(uuid)` envuelve `comments_check_access` y devuelve booleano.
+- Orden `created_at desc, tipo asc, id desc`; 21 filas (el cliente muestra 20). Cursor opaco `<ts>|<tipo>|<uuid>`; cualquier otro es `INVALID_CURSOR`.
+- `export_my_data` (E20) añade `estado` y `revisada_en` a cada denuncia.
+- Adaptador: `listMyReports(supabase, cursor)` → `Result<MyReportPage>` (`items: MyReport[]`, `nextCursor`; `MyReport = { type, targetLabel, targetPath, reason, createdAt, status, reviewedAt }`). Tests: `supabase/tests/047_report_status.test.sql`, `tests/security/report-status-attacks.test.ts`, `src/lib/data/my-reports.test.ts`.
+
 ## 4. Lecturas directas (RLS)
 
 `categories` (V2-021) es de lectura pública (`slug, name, position`) y sin escrituras de clientes; el formulario de creación la lee con `getCategories`. Feed y detalle incluyen `category:categories(slug, name)`.

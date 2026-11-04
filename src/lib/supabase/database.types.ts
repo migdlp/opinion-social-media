@@ -57,6 +57,8 @@ export type Database = {
           id: string;
           reason: string;
           reporter_id: string;
+          reviewed_at: string | null;
+          status: string;
         };
         ComputedFields: never;
         Insert: {
@@ -66,6 +68,8 @@ export type Database = {
           id?: string;
           reason: string;
           reporter_id: string;
+          reviewed_at?: string | null;
+          status?: string;
         };
         Update: {
           comment_id?: string;
@@ -74,6 +78,8 @@ export type Database = {
           id?: string;
           reason?: string;
           reporter_id?: string;
+          reviewed_at?: string | null;
+          status?: string;
         };
         Relationships: [
           {
@@ -246,6 +252,8 @@ export type Database = {
           poll_id: string;
           reason: string;
           reporter_id: string;
+          reviewed_at: string | null;
+          status: string;
         };
         ComputedFields: never;
         Insert: {
@@ -255,6 +263,8 @@ export type Database = {
           poll_id: string;
           reason: string;
           reporter_id: string;
+          reviewed_at?: string | null;
+          status?: string;
         };
         Update: {
           created_at?: string;
@@ -263,6 +273,8 @@ export type Database = {
           poll_id?: string;
           reason?: string;
           reporter_id?: string;
+          reviewed_at?: string | null;
+          status?: string;
         };
         Relationships: [
           {
@@ -448,6 +460,8 @@ export type Database = {
           reason: string;
           reported_id: string;
           reporter_id: string;
+          reviewed_at: string | null;
+          status: string;
         };
         ComputedFields: never;
         Insert: {
@@ -457,6 +471,8 @@ export type Database = {
           reason: string;
           reported_id: string;
           reporter_id: string;
+          reviewed_at?: string | null;
+          status?: string;
         };
         Update: {
           created_at?: string;
@@ -465,6 +481,8 @@ export type Database = {
           reason?: string;
           reported_id?: string;
           reporter_id?: string;
+          reviewed_at?: string | null;
+          status?: string;
         };
         Relationships: [];
       };
@@ -718,6 +736,19 @@ export type Database = {
         Returns: {
           name: string;
           slug: string;
+        }[];
+      };
+      list_my_reports: {
+        Args: { p_cursor?: string };
+        Returns: {
+          created_at: string;
+          cursor: string;
+          reason: string;
+          report_type: string;
+          reviewed_at: string;
+          status: string;
+          target_label: string;
+          target_path: string;
         }[];
       };
       list_notifications: {
