@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useId } from "react";
+import { deleteAccountAction, reconcileAccountDeletionAction } from "@/app/account-actions";
 import { signOut } from "@/app/auth/actions";
 import {
   saveAvatar,
@@ -13,6 +14,7 @@ import {
 } from "@/app/profile-actions";
 import { AvatarPicker } from "@/components/avatar-picker";
 import { BioForm } from "@/components/bio-form";
+import { DeleteAccount } from "@/components/delete-account";
 import { PrivacyToggle } from "@/components/privacy-toggle";
 import { ProfileForm } from "@/components/profile-form";
 import { ThemeSelector } from "@/components/theme-selector";
@@ -119,6 +121,11 @@ export function SettingsForm({
             </button>
           </form>
         </div>
+        <DeleteAccount
+          username={profile.username}
+          onDelete={deleteAccountAction}
+          onReconcile={reconcileAccountDeletionAction}
+        />
       </Section>
     </div>
   );
