@@ -86,6 +86,9 @@ export interface PublicPoll {
   // Descripción opcional (POLL-002, D-053): texto plano fijado al crear. Lo rellenan las pantallas
   // que lean get_poll_cards o polls.description (POLL-003); ausente = sin descripción.
   description?: string;
+  // Total de votos (RESULTS-005, D-044): público antes de votar, sin reparto. Lo rellenan las pantallas
+  // que lean get_poll_vote_counts o get_poll_cards (RESULTS-006); ausente = no cargado.
+  voteCount?: number;
   author?: PollAuthor | null;
   category?: Category | null;
   options: PollOption[];

@@ -510,6 +510,7 @@ export type Database = {
           results: Json;
           saved: boolean;
           total_votes: number;
+          vote_count: number;
         }[];
       };
       get_poll_results: {
@@ -522,6 +523,13 @@ export type Database = {
           text: string;
           total_votes: number;
           votes: number;
+        }[];
+      };
+      get_poll_vote_counts: {
+        Args: { p_poll_ids: string[] };
+        Returns: {
+          poll_id: string;
+          total_votes: number;
         }[];
       };
       get_profile: {

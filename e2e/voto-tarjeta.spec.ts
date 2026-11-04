@@ -3,7 +3,9 @@
 import { expect, test, type Page } from "@playwright/test";
 import { createPoll, createUser, signIn, votesOf } from "./support/supabase";
 
-const AGGREGATES = /\d\s?%|\d\s+votos?|en total/i;
+// D-044 (RESULTS-005): antes de votar el TOTAL de votos es público, pero nunca el reparto. Se prohíben
+// porcentajes (y, con ellos, cualquier cifra por opción); el total puede aparecer (RESULTS-006).
+const DISTRIBUTION = /\d[,.]?\d*\s?%/;
 
 async function ready(page: Page, path: string) {
   await page.goto(path);
@@ -25,7 +27,7 @@ test("con sesión: elige y confirma en la tarjeta, ve los resultados ahí y pers
   await ready(page, "/");
   const card = page.locator("article", { hasText: question });
   await expect(card).toBeVisible();
-  await expect(card).not.toContainText(AGGREGATES);
+  await expect(card).not.toContainText(DISTRIBUTION);
   expect(await page.content()).not.toMatch(/"totalVotes"|"percentage"/);
 
   // Elegir no vota: hay que confirmar.

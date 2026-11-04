@@ -50,7 +50,7 @@ La última verificación confirmó acceso SQL y Auth en ambos proyectos, `public
 
 ## Contratos a preservar cuando se reanude
 
-El backlog vigente está en `docs/backlog.md`; el original está archivado en `docs/fuentes/backlog-v1.md`. Leer también `docs/brief-producto.md` y su matriz de cobertura. No implementar borradores ni alterar los nombres de campos obligatorios del brief. La regla crítica es que ningún usuario, incluido el autor, pueda obtener agregados de una encuesta **abierta** antes de votar; la única excepción son las encuestas cerradas (D-020). La fase 2 está en `docs/backlog-v2.md` y sus decisiones D-015 a D-021 prevalecen sobre el brief donde lo contradigan. La autorización debe imponerse en Supabase, no sólo en la interfaz. Los entornos de preview/desarrollo no usarán la base de producción.
+El backlog vigente está en `docs/backlog.md`; el original está archivado en `docs/fuentes/backlog-v1.md`. Leer también `docs/brief-producto.md` y su matriz de cobertura. No implementar borradores ni alterar los nombres de campos obligatorios del brief. La regla crítica es que ningún usuario, incluido el autor, pueda obtener el reparto de una encuesta **abierta** (votos por opción, porcentajes o cualquier dato derivado) antes de votar; el número total de votos es público para quien puede ver la encuesta (D-044); la otra excepción son las encuestas cerradas (D-020). La fase 2 está en `docs/backlog-v2.md` y sus decisiones D-015 a D-021 prevalecen sobre el brief donde lo contradigan. La autorización debe imponerse en Supabase, no sólo en la interfaz. Los entornos de preview/desarrollo no usarán la base de producción.
 
 ## Skill del proyecto
 

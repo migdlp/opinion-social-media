@@ -3,7 +3,9 @@
 import { expect, test, type Page } from "@playwright/test";
 import { closePoll, createPoll, createUser, signIn } from "./support/supabase";
 
-const AGGREGATES = /\d\s?%|\d\s+votos?|en total/i;
+// D-044 (RESULTS-005): antes de votar el TOTAL de votos es público, pero nunca el reparto. Se prohíben
+// porcentajes (y, con ellos, cualquier cifra por opción); el total puede aparecer (RESULTS-006).
+const DISTRIBUTION = /\d[,.]?\d*\s?%/;
 const stamp = () => `${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
 
 async function ready(page: Page, path: string) {
@@ -17,7 +19,7 @@ test("visitante: el enlace está antes de votar, sin cifras, y lleva al feed", a
   const pollId = await createPoll(author, question, ["Rojo", "Azul"]);
 
   await ready(page, `/polls/${pollId}`);
-  await expect(page.locator("article")).not.toContainText(AGGREGATES);
+  await expect(page.locator("article")).not.toContainText(DISTRIBUTION);
   const link = page.getByRole("link", { name: "Ver más encuestas" });
   await expect(link).toBeVisible();
   const box = await link.boundingBox();

@@ -147,6 +147,22 @@ export async function getPublicPollsByIds(
   };
 }
 
+// Total de votos por encuesta (RESULTS-005, D-044). Sólo el total: nunca reparto. Hasta 20 ids por
+// llamada; las no visibles se omiten, así que una id ausente del mapa no distingue «no existe» de
+// «no se puede ver».
+export async function getPollVoteCounts(
+  supabase: SupabaseClient,
+  ids: string[],
+): Promise<Result<Record<string, number>>> {
+  const valid = [...new Set(ids.filter((id) => UUID.test(id)))].slice(0, 20);
+  if (valid.length === 0) return { ok: true, data: {} };
+  const { data, error } = await supabase.rpc("get_poll_vote_counts", { p_poll_ids: valid });
+  if (error) return { ok: false, error: toAppError(error) };
+  const counts: Record<string, number> = {};
+  for (const row of data ?? []) counts[row.poll_id] = row.total_votes;
+  return { ok: true, data: counts };
+}
+
 export async function getPublicPoll(
   supabase: SupabaseClient,
   id: string,
