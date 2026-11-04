@@ -108,6 +108,22 @@ do $$ begin
  assert (select created_at from public.list_my_reports() where report_type = 'poll') < now(), 'created_at';
 end $$;
 
+-- Autora privada que a no sigue: sin etiqueta (can_view_author); con relación aceptada, vuelve.
+reset role;
+update public.profiles set is_private = true where user_id = '00000000-0000-0000-0000-0000000000a3';
+select pg_temp.login('00000000-0000-0000-0000-0000000000a1');
+do $$ begin
+ assert (select target_label from public.list_my_reports() where report_type = 'poll') is null, 'encuesta de una privada con etiqueta';
+ assert (select target_path from public.list_my_reports() where report_type = 'poll') is null, 'encuesta de una privada con enlace';
+end $$;
+reset role;
+insert into public.follows (follower_id, followee_id, status) values ('00000000-0000-0000-0000-0000000000a1', '00000000-0000-0000-0000-0000000000a3', 'accepted');
+select pg_temp.login('00000000-0000-0000-0000-0000000000a1');
+do $$ begin assert (select target_label from public.list_my_reports() where report_type = 'poll') is not null, 'seguida y aceptada no recupera la etiqueta'; end $$;
+reset role;
+delete from public.follows where followee_id = '00000000-0000-0000-0000-0000000000a3';
+update public.profiles set is_private = false where user_id = '00000000-0000-0000-0000-0000000000a3';
+
 -- Objetivo ya no visible: etiqueta y enlace a null, la denuncia sigue.
 reset role;
 update public.polls set status = 'hidden' where id = '10000000-0000-0000-0000-0000000000a1';
@@ -197,7 +213,14 @@ do $$ declare c text; a text[]; b text[]; n int; begin
  -- Total: comment (1) + poll a1 (1) + 24 de relleno + user (1) = 27.
  assert n = 27, 'total ' || n;
  assert not (a && b) and (select count(distinct x) from unnest(a || b) x) = 27, 'solape o pérdida entre páginas';
- -- Orden: las empatadas a las 10:00 van por tipo (poll antes que user) y luego id desc.
+ -- La de persona empatada va tras las 24 de encuesta (tipo asc): no está en la primera página y cierra la segunda.
+ assert not exists (select 1 from public.list_my_reports() where report_type = 'user'), 'la persona empatada entra antes que las encuestas';
+ assert (select report_type from public.list_my_reports(c) order by created_at desc, report_type asc, cursor desc limit 1) is not null;
+ assert (select count(*) from public.list_my_reports(c) where report_type = 'user') = 1, 'falta la persona en la segunda página';
+ assert (select report_type from (select report_type, row_number() over () rn from public.list_my_reports(c)) s order by rn desc limit 1) = 'user', 'la persona no cierra la lista';
+ -- Dentro del empate, id desc.
+ assert (select array_agg(id_txt order by rn) from (select split_part(cursor, '|', 3) id_txt, row_number() over () rn from public.list_my_reports() where report_type = 'poll' and created_at = timestamptz '2026-11-01 10:00:00+00') s) =
+        (select array_agg(id_txt order by id_txt desc) from (select split_part(cursor, '|', 3) id_txt from public.list_my_reports() where report_type = 'poll' and created_at = timestamptz '2026-11-01 10:00:00+00') t), 'id no va en orden descendente';
  assert (select report_type from public.list_my_reports() offset 2 limit 1) = 'poll', 'orden del empate';
 end $$;
 select pg_temp.expect_error($q$select * from public.list_my_reports('basura')$q$, 'INVALID_CURSOR');

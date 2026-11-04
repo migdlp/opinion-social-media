@@ -453,3 +453,24 @@ export type DeleteMyPollRpcChecks = [
   Assert<Equal<Public["Functions"]["delete_my_poll"]["Args"], { p_poll_id: string }>>,
   Assert<Equal<Public["Functions"]["delete_my_poll"]["Returns"], undefined>>,
 ];
+
+// MOD-003: estado de las denuncias propias. Los clientes no tocan las tablas; sólo leen la RPC.
+export type ReportStatusChecks = [
+  Assert<Equal<Public["Tables"]["poll_reports"]["Row"]["status"], string>>,
+  Assert<Equal<Public["Tables"]["user_reports"]["Row"]["reviewed_at"], string | null>>,
+  Assert<Equal<Public["Tables"]["comment_reports"]["Insert"]["status"], string | undefined>>,
+  Assert<Equal<Public["Functions"]["list_my_reports"]["Args"], { p_cursor?: string }>>,
+  Assert<
+    Equal<
+      keyof Public["Functions"]["list_my_reports"]["Returns"][number],
+      | "report_type"
+      | "target_label"
+      | "target_path"
+      | "reason"
+      | "created_at"
+      | "status"
+      | "reviewed_at"
+      | "cursor"
+    >
+  >,
+];

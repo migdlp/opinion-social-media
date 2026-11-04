@@ -221,6 +221,26 @@ export interface UserSearchPage {
   nextCursor: string | null;
 }
 
+// Denuncia propia con su estado (MOD-003, D-052). Sin user_id ni el detalle del motivo. label y path
+// sólo vienen si el objetivo sigue siendo visible para quien llama; si no, ambos son null.
+export type ReportType = "poll" | "user" | "comment";
+export type ReportStatus = "pending" | "actioned" | "dismissed";
+
+export interface MyReport {
+  type: ReportType;
+  targetLabel: string | null;
+  targetPath: string | null;
+  reason: string;
+  createdAt: string;
+  status: ReportStatus;
+  reviewedAt: string | null;
+}
+
+export interface MyReportPage {
+  items: MyReport[];
+  nextCursor: string | null;
+}
+
 // Aviso de seguimiento (NOTIF-001, D-047): calculado al leer, sin identificador propio. Nunca
 // incluye user_id; el actor se identifica por su @usuario.
 export type FollowNotificationKind = "new_follower" | "follow_request" | "follow_accepted";
