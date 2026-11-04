@@ -40,7 +40,7 @@ Modelo de datos: el del [brief §5](brief-producto.md#5-modelo-de-datos-obligato
 | `REPORT_RATE_LIMITED` | `report_poll` | 20 denuncias de la cuenta en los últimos 60 minutos | «Has enviado demasiadas denuncias. Inténtalo más tarde.» |
 | `REPORT_INVALID` | `report_poll` | Motivo ausente o fuera de la lista, o detalle de más de 500 caracteres | «Elige un motivo; el detalle admite hasta 500 caracteres.» |
 | `USERNAME_INVALID` | `upsert_my_profile` | `p_username` nulo o fuera de `^[a-z][a-z0-9_]{2,19}$` tras pasar a minúsculas (sin recortar espacios) | «El usuario debe tener de 3 a 20 caracteres (letras minúsculas, números o _) y empezar por una letra.» |
-| `USERNAME_TAKEN` | `upsert_my_profile` | Otro perfil ya usa ese `@usuario` (sin distinguir mayúsculas) | «Ese nombre ya está en uso.» |
+| `USERNAME_TAKEN` | `upsert_my_profile` | Otro perfil ya usa ese `@usuario` (sin distinguir mayúsculas) o lo liberó una cuenta eliminada hace menos de 30 días (ACCOUNT-001; mismo código y texto, sin revelar el motivo) | «Ese nombre ya está en uso.» |
 | `USERNAME_RESERVED` | `upsert_my_profile` | Nombre de la lista reservada (`admin`, `settings`, `u`, `api`…) | «Ese usuario está reservado. Prueba con otro.» |
 | `DISPLAY_NAME_INVALID` | `upsert_my_profile` | Nombre visible normalizado fuera de 1–50 (vacío incluido; `null` es válido) | «El nombre debe tener entre 1 y 50 caracteres.» |
 | `PROFILE_REQUIRED` | `set_profile_privacy`; `create_poll` y `vote_poll` (trigger) | La cuenta aún no tiene perfil | «Elige primero tu usuario.» |
@@ -48,6 +48,7 @@ Modelo de datos: el del [brief §5](brief-producto.md#5-modelo-de-datos-obligato
 | `PROFILE_PRIVATE` | `get_profile_votes` | El perfil es privado y quien mira no es el dueño ni un seguidor aceptado | «Esta cuenta es privada.» |
 | `CANNOT_FOLLOW_SELF` | `follow_user` | El `@usuario` es el propio | «No puedes seguirte a ti mismo.» |
 | `FOLLOW_RATE_LIMITED` | `follow_user` | 200 seguimientos nuevos de la cuenta en 60 minutos (el límite cuenta filas creadas; repetir uno existente no cuenta) | «Has seguido a demasiadas cuentas. Inténtalo más tarde.» |
+| `CONFIRMATION_MISMATCH` | `delete_my_account` | `lower(p_confirm)` no coincide con el `@usuario` propio (o con `eliminar` si la cuenta no tiene perfil); `null` incluido | «Escribe exactamente tu usuario para confirmar.» |
 | `NETWORK_ERROR` | Adaptador (cliente) | `fetch` falla o no llega respuesta | «No hay conexión. Comprueba tu red y vuelve a intentarlo.» |
 | `UNKNOWN` | Adaptador (cliente) | Cualquier otro error | «Algo ha fallado. Vuelve a intentarlo.» |
 
@@ -58,6 +59,7 @@ Orden de comprobación dentro de cada RPC (determina qué código gana si hay va
 - `get_poll_results`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `NOT_VOTED`. Ningún agregado se calcula antes de superar las tres. **Excepción D-020 (V2-014):** si la encuesta está publicada, es visible para quien llama y `closes_at <= now()`, no se exige sesión ni voto y se devuelven los agregados. Para un visitante, una cerrada privada o inexistente sigue siendo `AUTH_REQUIRED`; con sesión, `POLL_UNAVAILABLE`.
 - `report_poll`: `AUTH_REQUIRED` → `POLL_UNAVAILABLE` → `REPORT_INVALID` → `ALREADY_REPORTED` → `REPORT_RATE_LIMITED`.
 - `upsert_my_profile`: `AUTH_REQUIRED` → `USERNAME_INVALID` → `USERNAME_RESERVED` → `DISPLAY_NAME_INVALID` → `USERNAME_TAKEN`.
+- `delete_my_account`: `AUTH_REQUIRED` → `CONFIRMATION_MISMATCH`.
 - `set_profile_privacy`: `AUTH_REQUIRED` → `PROFILE_REQUIRED`.
 - `follow_user`: `AUTH_REQUIRED` → `PROFILE_REQUIRED` → `USER_NOT_FOUND` → `CANNOT_FOLLOW_SELF` → `FOLLOW_RATE_LIMITED`. `unfollow_user` y `remove_follower`: `AUTH_REQUIRED` → `USER_NOT_FOUND`. `respond_follow_request`: `AUTH_REQUIRED` → `USER_NOT_FOUND`.
 
@@ -380,6 +382,21 @@ public.report_comment(p_comment_id uuid, p_reason text, p_details text default n
 - `comment_reports` no tiene permisos para clientes. `comments.status` (`published` | `hidden`) lo cambia sólo un operador con la clave de servicio; `list_comments` omite los ocultos y un comentario oculto no reaparece al reactivar el debate.
 - Adaptador: `reportComment(supabase, commentId, reason, details?)` → `Result<void>`; error nuevo `COMMENT_UNAVAILABLE`. Procedimiento de revisión en `docs/moderacion.md`. Los controles en la interfaz y el E2E son CMT-002.
 
+### 3.19. `delete_my_account` (ACCOUNT-001, D-049)
+
+```sql
+public.delete_my_account(p_confirm text) returns void
+```
+
+- Sólo `authenticated`, `SECURITY DEFINER` con `search_path` vacío. **Sin parámetro de identidad**: la cuenta que se borra es siempre `auth.uid()`; añadir `p_user_id` u otro argumento da `PGRST202` (404). Sin sesión, `AUTH_REQUIRED`.
+- Confirmación: `lower(p_confirm)` debe ser igual al `@usuario` propio, o a `eliminar` si la cuenta aún no tiene perfil (`CONFIRMATION_MISMATCH`, también con `null`). No se recortan espacios. Una confirmación incorrecta no borra ni reserva nada.
+- Borra la fila de `auth.users` y todo lo que la referencia cae en cascada: perfil, encuestas (con opciones, votos ajenos, comentarios ajenos y denuncias recibidas), votos, comentarios, seguimientos, bloqueos, guardados, denuncias hechas y recibidas y consumos de cuota. Es inmediato e irreversible; los totales de las encuestas ajenas en las que votó bajan.
+- **Reserva del `@usuario`**: en la misma transacción se guarda en `released_usernames (username, released_at)`, en minúsculas. Durante 30 días `upsert_my_profile` lo rechaza con `USERNAME_TAKEN`; pasado el plazo cualquiera puede registrarlo, y si quien lo registró lo elimina de nuevo el plazo se renueva sin duplicar la fila. Una cuenta sin perfil no reserva nada. La tabla no tiene permisos para clientes. Las filas caducadas no se purgan (no tienen efecto).
+- **Tras el borrado**, el JWT emitido sigue siendo válido hasta caducar (es sin estado), pero `create_poll`, `vote_poll` y `add_comment` fallan con `PROFILE_REQUIRED`. Repetir la llamada con `eliminar` es un no-op.
+- **Regla permanente (E20)**: toda tabla nueva con datos de una persona debe borrarse en cascada con `auth.users`. `supabase/tests/035_delete_my_account.test.sql` lo comprueba por catálogo: falla si una FK hacia `auth.users` no es `CASCADE` o si la siembra del test no cubre una tabla nueva.
+- **Storage**: hoy no hay objetos por persona. AVATAR-002 (#252) y MEDIA-002 (#289) deben borrar los suyos al eliminar la cuenta; esta función sólo borra filas.
+- Adaptador: `deleteMyAccount(supabase, confirm)` → `Result<void>`; error nuevo `CONFIRMATION_MISMATCH`. La interfaz es ACCOUNT-002.
+
 ## 4. Lecturas directas (RLS)
 
 `categories` (V2-021) es de lectura pública (`slug, name, position`) y sin escrituras de clientes; el formulario de creación la lee con `getCategories`. Feed y detalle incluyen `category:categories(slug, name)`.
@@ -452,6 +469,7 @@ export type AppErrorCode =
   | 'VOTE_VISIBILITY_INVALID'
   | 'CANNOT_FOLLOW_SELF'
   | 'FOLLOW_RATE_LIMITED'
+  | 'CONFIRMATION_MISMATCH'
   | 'NETWORK_ERROR'
   | 'UNKNOWN'
 

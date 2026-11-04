@@ -43,6 +43,7 @@ export const ERROR_MESSAGES: Record<AppErrorCode, string> = {
   CANNOT_BLOCK_SELF: "No puedes bloquearte a ti mismo.",
   CANNOT_FOLLOW_SELF: "No puedes seguirte a ti mismo.",
   FOLLOW_RATE_LIMITED: "Has seguido a demasiadas cuentas. Inténtalo más tarde.",
+  CONFIRMATION_MISMATCH: "Escribe exactamente tu usuario para confirmar.",
   NETWORK_ERROR: "No hay conexión. Comprueba tu red y vuelve a intentarlo.",
   UNKNOWN: "Algo ha fallado. Vuelve a intentarlo.",
 };
@@ -87,6 +88,7 @@ const RPC_CODES = new Set<string>([
   "CANNOT_BLOCK_SELF",
   "CANNOT_REPORT_SELF",
   "FOLLOW_RATE_LIMITED",
+  "CONFIRMATION_MISMATCH",
 ]);
 
 // 42501: sin permiso (anon). PGRST301/303: JWT inválido o caducado.
