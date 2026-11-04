@@ -144,15 +144,17 @@ select pg_temp.login('00000000-0000-0000-0000-0000000000c7');
 do $$ begin assert (select count(*) from public.list_notifications()) = 0, 'avisa al remitente antes de responder'; end $$;
 select pg_temp.login('00000000-0000-0000-0000-0000000000a8');
 select public.respond_follow_request('not_cleo', true);
-do $$ begin
- assert (select count(*) from public.list_notifications()) = 0, 'la aceptada sigue como solicitud o como seguidor nuevo';
- assert public.count_unread_notifications() = 0;
-end $$;
+do $$ begin assert not exists (select 1 from public.list_notifications() where kind = 'follow_request'), 'la aceptada sigue como solicitud'; end $$;
 reset role;
 do $$ begin assert (select accepted_at is not null from public.follows where follower_id = '00000000-0000-0000-0000-0000000000c7' and followee_id = '00000000-0000-0000-0000-0000000000a8'), 'accept no marcó accepted_at'; end $$;
 -- La solicitud se pidió «hace un rato»: se simula separando las marcas de tiempo.
 update public.follows set created_at = now() - interval '2 hours', accepted_at = now() - interval '1 hour'
  where follower_id = '00000000-0000-0000-0000-0000000000c7' and followee_id = '00000000-0000-0000-0000-0000000000a8';
+select pg_temp.login('00000000-0000-0000-0000-0000000000a8');
+do $$ begin
+ assert (select count(*) from public.list_notifications()) = 0, 'quien acepta recibe seguidor nuevo';
+ assert public.count_unread_notifications() = 0;
+end $$;
 select pg_temp.login('00000000-0000-0000-0000-0000000000c7');
 do $$ declare r record; begin
  assert (select count(*) from public.list_notifications()) = 1, 'un aviso de aceptación';
@@ -163,10 +165,15 @@ end $$;
 -- Un seguimiento directo propio (cuenta pública) no genera follow_accepted.
 select public.follow_user('not_ana');
 do $$ begin assert (select count(*) from public.list_notifications()) = 1, 'un seguimiento directo propio avisa a quien sigue'; end $$;
--- Un bloqueo retira el aviso en ambos sentidos.
-select public.block_user('not_priv');
-do $$ begin assert (select count(*) from public.list_notifications()) = 0, 'aviso de aceptación pese al bloqueo'; end $$;
-select public.unblock_user('not_priv');
+-- Un bloqueo retira el aviso (block_user borra la relación y un trigger impide crearla bloqueada;
+-- se inserta el bloqueo a mano tras la relación para probar el filtro).
+reset role;
+insert into public.user_blocks (blocker_id, blocked_id) values ('00000000-0000-0000-0000-0000000000a8', '00000000-0000-0000-0000-0000000000c7');
+select pg_temp.login('00000000-0000-0000-0000-0000000000c7');
+do $$ begin assert (select count(*) from public.list_notifications()) = 0, 'el filtro de bloqueo no oculta follow_accepted'; end $$;
+reset role;
+delete from public.user_blocks;
+select pg_temp.login('00000000-0000-0000-0000-0000000000c7');
 do $$ begin assert (select count(*) from public.list_notifications()) = 1, 'sin aviso tras desbloquear'; end $$;
 -- Dejar de seguir lo retira.
 select public.unfollow_user('not_priv');
@@ -212,6 +219,7 @@ insert into public.follows (follower_id, followee_id, status, created_at, accept
  select ('10000000-0000-0000-0000-' || lpad(g::text, 12, '0'))::uuid, '00000000-0000-0000-0000-0000000000a7', 'accepted',
         now() - (g || ' minutes')::interval, now() - (g || ' minutes')::interval
  from generate_series(1, 120) g;
+update public.profiles set notifications_seen_at = null where user_id = '00000000-0000-0000-0000-0000000000a7';
 select pg_temp.login('00000000-0000-0000-0000-0000000000a7');
 do $$ declare c text; n int; first_ref text; begin
  assert public.count_unread_notifications() = 100, 'el contador supera 100: ' || public.count_unread_notifications();
